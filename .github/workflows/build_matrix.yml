@@ -1,0 +1,70 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04]
+        cxx: [g++-11, cl]
+        std: [20]
+        build_type: [Debug]
+        generator: [Ninja]
+        exclude:
+          - os: windows-2022
+            cxx: g++-11
+          - os: ubuntu-22.04
+            cxx: cl
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add msbuild to PATH env
+        if: matrix.cxx == 'cl'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install dependencies on windows
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          choco install ninja cmake
+          ninja --version
+          cmake --version
+
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build cmake
+          ${{ matrix.install }}
+          ninja --version
+          cmake --version
+
+      - name: Install dependencies on macos
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install cmake ninja
+          ninja --version
+          cmake --version
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake \
+            -B build \
+            -G "${{ matrix.generator }}" \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
+            -DFITORIA_BUILD_TESTS=ON
+
+      - name: Build
+        shell: bash
+        run: cmake --build build
+
+      - name: Test
+        shell: bash
+        working-directory:  ${{ github.workspace }}/build
+        run: ctest --output-on-failure .

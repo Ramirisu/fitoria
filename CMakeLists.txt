@@ -10,7 +10,7 @@ option(FITORIA_BUILD_TESTS "Build tests" OFF)
 include(cmake/CPM.cmake)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
