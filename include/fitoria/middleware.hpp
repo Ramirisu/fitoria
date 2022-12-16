@@ -5,17 +5,14 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#pragma once
 
-#include <fitoria/dummy.hpp>
+#include <fitoria/config.hpp>
 
-using namespace fitoria;
+#include <functional>
 
-TEST_SUITE_BEGIN("dummy");
+FITORIA_NAMESPACE_BEGIN
 
-TEST_CASE("dummy")
-{
-  CHECK(test);
-}
+using middleware_t = std::function<int(int)>;
 
-TEST_SUITE_END();
+FITORIA_NAMESPACE_END

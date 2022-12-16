@@ -7,8 +7,13 @@
 
 #pragma once
 
-namespace fitoria {
+#include <fitoria/config.hpp>
 
-static constexpr auto test = true;
+FITORIA_NAMESPACE_BEGIN
 
-}
+enum class methods {
+  get,
+  put,
+};
+
+FITORIA_NAMESPACE_END
