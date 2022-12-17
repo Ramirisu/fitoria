@@ -9,13 +9,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2022, ubuntu-22.04]
-        cxx: [g++-11, cl]
+        cxx: [g++-12, cl]
         std: [20]
         build_type: [Debug]
         generator: [Ninja]
         exclude:
           - os: windows-2022
-            cxx: g++-11
+            cxx: g++-12
           - os: ubuntu-22.04
             cxx: cl
 
