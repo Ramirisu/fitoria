@@ -9,23 +9,24 @@
 
 #include <fitoria/config.hpp>
 
-#include <fitoria/handler.hpp>
 #include <fitoria/method.hpp>
-#include <fitoria/middleware.hpp>
 
 #include <string>
 #include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
+template <typename HandlerTrait>
 class router {
-  friend class router_group;
+  using handler_compare = typename HandlerTrait::compare;
 
 public:
+  using handler_type = typename HandlerTrait::handler_type;
+
   router(methods method,
          std::string path,
-         std::vector<middleware_t> middlewares,
-         handler_t handler)
+         std::vector<handler_type> middlewares,
+         handler_type handler)
       : method_(method)
       , path_(std::move(path))
       , middlewares_(std::move(middlewares))
@@ -43,23 +44,35 @@ public:
     return path_;
   }
 
-  auto middlewares() const noexcept -> const std::vector<middleware_t>&
+  auto middlewares() const noexcept -> const std::vector<handler_type>&
   {
     return middlewares_;
   }
 
-  auto handler() const noexcept -> const handler_t&
+  auto handler() const noexcept -> const handler_type&
   {
     return handler_;
   }
 
+  auto bind_parent(const std::string& parent_path,
+                   const std::vector<handler_type>& parent_middlewares) const
+      -> router
+  {
+    auto middlewares = parent_middlewares;
+    middlewares.insert(middlewares.end(), middlewares_.begin(),
+                       middlewares_.end());
+    return router(method_, parent_path + path_, std::move(middlewares),
+                  handler_);
+  }
+
   friend auto operator==(const router& lhs, const router& rhs) -> bool
   {
+    handler_compare compare;
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
-        && lhs.middlewares_.size() == rhs.middlewares_.size()
-        && lhs.handler_(0) == rhs.handler_(0)) {
-      for (std::size_t i = 0; i < lhs.middlewares_.size(); ++i) {
-        if (lhs.middlewares_[i](0) != rhs.middlewares_[i](0)) {
+        && lhs.middlewares().size() == rhs.middlewares().size()
+        && compare(lhs.handler(), rhs.handler())) {
+      for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
+        if (!compare(lhs.middlewares()[i], rhs.middlewares()[i])) {
           return false;
         }
       }
@@ -71,21 +84,10 @@ public:
   }
 
 private:
-  auto bind_parent(const std::string& parent_path,
-                   const std::vector<middleware_t>& parent_middlewares) const
-      -> router
-  {
-    auto middlewares = parent_middlewares;
-    middlewares.insert(middlewares.end(), middlewares_.begin(),
-                       middlewares_.end());
-    return router(method_, parent_path + path_, std::move(middlewares),
-                  handler_);
-  }
-
   methods method_;
   std::string path_;
-  std::vector<middleware_t> middlewares_;
-  handler_t handler_;
+  std::vector<handler_type> middlewares_;
+  handler_type handler_;
 };
 
 FITORIA_NAMESPACE_END

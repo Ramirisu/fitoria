@@ -9,9 +9,7 @@
 
 #include <fitoria/config.hpp>
 
-#include <fitoria/handler.hpp>
 #include <fitoria/method.hpp>
-#include <fitoria/middleware.hpp>
 #include <fitoria/router.hpp>
 #include <fitoria/router_error.hpp>
 
@@ -22,12 +20,18 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+template <typename HandlerTrait>
 class router_tree {
+public:
+  using handler_type = typename HandlerTrait::handler_type;
+  using router_type = router<HandlerTrait>;
+
+private:
   class node {
     friend class router_tree;
 
   private:
-    auto try_insert(const router& r,
+    auto try_insert(const router_type& r,
                     const std::vector<string_view>& path_tokens,
                     std::size_t path_index) noexcept
         -> expected<void, router_error>
@@ -87,13 +91,13 @@ class router_tree {
     }
 
     std::string fullpath_;
-    optional<std::vector<handler_t>> handlers_;
+    optional<std::vector<handler_type>> handlers_;
     std::unordered_map<std::string, node> path_trees_;
     std::unique_ptr<node> param_trees_;
   };
 
 public:
-  auto try_insert(const router& r) -> expected<void, router_error>
+  auto try_insert(const router_type& r) -> expected<void, router_error>
   {
     auto path_tokens = node::try_parse_path(r.path());
     if (!path_tokens) {

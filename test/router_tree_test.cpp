@@ -16,15 +16,26 @@ TEST_SUITE_BEGIN("router_tree");
 
 TEST_CASE("build tree")
 {
-  auto m = [](int) { return 0; };
-  auto h = [](int) { return 1; };
+  struct handler_trait {
+    using handler_type = std::function<int()>;
+    struct compare {
+      bool operator()(const handler_type& lhs, const handler_type& rhs) const
+      {
+        return lhs() == rhs();
+      }
+    };
+  };
+  using rt_type = router_tree<handler_trait>;
+
   using exp_t = expected<void, router_error>;
+  auto m = []() { return 0; };
+  auto h = []() { return 1; };
 
   auto r = [=](methods method, std::string path) {
-    return router(method, std::move(path), { m }, h);
+    return rt_type::router_type(method, std::move(path), { m }, h);
   };
 
-  router_tree rt;
+  rt_type rt;
   CHECK_EQ(rt.try_insert(r(methods::get, "")),
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "/")),
