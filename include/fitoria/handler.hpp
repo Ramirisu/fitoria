@@ -13,6 +13,6 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-using handler_t = std::function<int()>;
+using handler_t = std::function<int(int)>;
 
 FITORIA_NAMESPACE_END

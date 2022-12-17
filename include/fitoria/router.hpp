@@ -43,11 +43,21 @@ public:
     return path_;
   }
 
+  auto middlewares() const noexcept -> const std::vector<middleware_t>&
+  {
+    return middlewares_;
+  }
+
+  auto handler() const noexcept -> const handler_t&
+  {
+    return handler_;
+  }
+
   friend auto operator==(const router& lhs, const router& rhs) -> bool
   {
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
         && lhs.middlewares_.size() == rhs.middlewares_.size()
-        && lhs.handler_() == rhs.handler_()) {
+        && lhs.handler_(0) == rhs.handler_(0)) {
       for (std::size_t i = 0; i < lhs.middlewares_.size(); ++i) {
         if (lhs.middlewares_[i](0) != rhs.middlewares_[i](0)) {
           return false;

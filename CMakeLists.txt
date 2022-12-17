@@ -14,7 +14,10 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
+cpmaddpackage("gh:Ramirisu/gul#80464d4")
+
 add_library(fitoria INTERFACE)
+target_link_libraries(fitoria INTERFACE gul)
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

@@ -9,10 +9,11 @@
 
 #include <fitoria/config.hpp>
 
-#include <fitoria/handler.hpp>
-
 FITORIA_NAMESPACE_BEGIN
 
-using middleware_t = handler_t;
+enum class router_error {
+  parse_path_error,
+  route_already_exists,
+};
 
 FITORIA_NAMESPACE_END

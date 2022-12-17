@@ -12,11 +12,11 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("router");
+TEST_SUITE_BEGIN("router_group");
 
-TEST_CASE("router_group construction")
+TEST_CASE("basic")
 {
-  auto h = []() -> int { return 0; };
+  auto h = [](int) -> int { return 0; };
   auto l = [](int) -> int { return 1; };
   auto a_g = [](int) -> int { return 2; };
   auto a_f = [](int) -> int { return 3; };

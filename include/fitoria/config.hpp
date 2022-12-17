@@ -13,3 +13,21 @@
 #define FITORIA_NAMESPACE_END                                                  \
   }                                                                            \
   }
+
+#include <gul/expected.hpp>
+#include <gul/optional.hpp>
+#include <gul/string_view.hpp>
+
+FITORIA_NAMESPACE_BEGIN
+
+using gul::in_place;
+
+using gul::expected;
+using gul::unexpect;
+using gul::unexpected;
+
+using gul::optional;
+
+using gul::string_view;
+
+FITORIA_NAMESPACE_END
