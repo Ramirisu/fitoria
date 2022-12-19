@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <fitoria/config.hpp>
+#include <fitoria/core/config.hpp>
 
-#include <fitoria/method.hpp>
+#include <fitoria/core/method.hpp>
 
 #include <string>
 #include <vector>

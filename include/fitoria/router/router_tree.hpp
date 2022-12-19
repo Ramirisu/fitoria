@@ -7,9 +7,11 @@
 
 #pragma once
 
-#include <fitoria/config.hpp>
+#include <fitoria/core/config.hpp>
 
-#include <fitoria/method.hpp>
+#include <fitoria/core/method.hpp>
+#include <fitoria/core/utility.hpp>
+
 #include <fitoria/router/router.hpp>
 #include <fitoria/router/router_error.hpp>
 

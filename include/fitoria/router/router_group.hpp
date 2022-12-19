@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <fitoria/config.hpp>
+#include <fitoria/core/config.hpp>
 
 #include <fitoria/router/router.hpp>
 

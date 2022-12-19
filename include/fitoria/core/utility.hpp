@@ -7,12 +7,7 @@
 
 #pragma once
 
-#define FITORIA_NAMESPACE_BEGIN                                                \
-  namespace fitoria {                                                          \
-  inline namespace v0 {
-#define FITORIA_NAMESPACE_END                                                  \
-  }                                                                            \
-  }
+#include <fitoria/core/config.hpp>
 
 #include <gul/expected.hpp>
 #include <gul/optional.hpp>
