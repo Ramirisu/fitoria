@@ -8,7 +8,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/router_group.hpp>
+#include <fitoria/router/router_group.hpp>
 
 #include <functional>
 

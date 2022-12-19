@@ -8,7 +8,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/router_tree.hpp>
+#include <fitoria/router/router_tree.hpp>
 
 using namespace fitoria;
 

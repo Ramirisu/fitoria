@@ -9,7 +9,7 @@
 
 #include <fitoria/config.hpp>
 
-#include <fitoria/router.hpp>
+#include <fitoria/router/router.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

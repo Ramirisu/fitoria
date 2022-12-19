@@ -10,8 +10,8 @@
 #include <fitoria/config.hpp>
 
 #include <fitoria/method.hpp>
-#include <fitoria/router.hpp>
-#include <fitoria/router_error.hpp>
+#include <fitoria/router/router.hpp>
+#include <fitoria/router/router_error.hpp>
 
 #include <memory>
 #include <string>
