@@ -23,14 +23,10 @@ class router {
 public:
   using handler_type = typename HandlerTrait::handler_type;
 
-  router(methods method,
-         std::string path,
-         std::vector<handler_type> middlewares,
-         handler_type handler)
+  router(methods method, std::string path, std::vector<handler_type> handlers)
       : method_(method)
       , path_(std::move(path))
-      , middlewares_(std::move(middlewares))
-      , handler_(std::move(handler))
+      , handlers_(std::move(handlers))
   {
   }
 
@@ -44,35 +40,27 @@ public:
     return path_;
   }
 
-  auto middlewares() const noexcept -> const std::vector<handler_type>&
+  auto handlers() const noexcept -> const std::vector<handler_type>&
   {
-    return middlewares_;
+    return handlers_;
   }
 
-  auto handler() const noexcept -> const handler_type&
-  {
-    return handler_;
-  }
-
-  auto bind_parent(const std::string& parent_path,
-                   const std::vector<handler_type>& parent_middlewares) const
+  auto rebind_parent(const std::string& parent_path,
+                     const std::vector<handler_type>& parent_handlers) const
       -> router
   {
-    auto middlewares = parent_middlewares;
-    middlewares.insert(middlewares.end(), middlewares_.begin(),
-                       middlewares_.end());
-    return router(method_, parent_path + path_, std::move(middlewares),
-                  handler_);
+    auto handlers = parent_handlers;
+    handlers.insert(handlers.end(), handlers_.begin(), handlers_.end());
+    return router(method_, parent_path + path_, std::move(handlers));
   }
 
   friend auto operator==(const router& lhs, const router& rhs) -> bool
   {
     handler_compare compare;
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
-        && lhs.middlewares().size() == rhs.middlewares().size()
-        && compare(lhs.handler(), rhs.handler())) {
-      for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
-        if (!compare(lhs.middlewares()[i], rhs.middlewares()[i])) {
+        && lhs.handlers().size() == rhs.handlers().size()) {
+      for (std::size_t i = 0; i < lhs.handlers().size(); ++i) {
+        if (!compare(lhs.handlers()[i], rhs.handlers()[i])) {
           return false;
         }
       }
@@ -86,8 +74,7 @@ public:
 private:
   methods method_;
   std::string path_;
-  std::vector<handler_type> middlewares_;
-  handler_type handler_;
+  std::vector<handler_type> handlers_;
 };
 
 FITORIA_NAMESPACE_END

@@ -30,6 +30,40 @@ private:
   class node {
     friend class router_tree;
 
+    struct string_hash {
+      using is_transparent = void;
+      size_t operator()(const char* txt) const
+      {
+        return std::hash<std::string_view> {}(txt);
+      }
+
+      size_t operator()(string_view txt) const
+      {
+        return std::hash<string_view> {}(txt);
+      }
+
+      size_t operator()(const std::string& txt) const
+      {
+        return std::hash<std::string> {}(txt);
+      }
+    };
+
+    struct equal_to {
+      using is_transparent = void;
+
+      template <class T, class U>
+      constexpr auto operator()(T&& lhs, U&& rhs) const
+          -> decltype(std::forward<T>(lhs) == std::forward<U>(rhs))
+      {
+        return std::forward<T>(lhs) == std::forward<U>(rhs);
+      }
+
+      constexpr auto operator()(string_view sv, const std::string& s) const
+      {
+        return sv == string_view(s);
+      }
+    };
+
   private:
     auto try_insert(const router_type& r,
                     const std::vector<string_view>& path_tokens,
@@ -37,13 +71,11 @@ private:
         -> expected<void, router_error>
     {
       if (path_index == path_tokens.size()) {
-        if (handlers_) {
+        if (router_) {
           return unexpected<router_error>(router_error::route_already_exists);
         }
 
-        fullpath_ = r.path();
-        handlers_ = r.middlewares();
-        handlers_.value().push_back(r.handler());
+        router_.emplace(r);
         return {};
       }
 
@@ -60,6 +92,30 @@ private:
                                                         path_index + 1);
     }
 
+    auto try_find(const std::vector<string_view>& path_tokens,
+                  std::size_t path_index) const noexcept
+        -> expected<const router_type&, router_error>
+    {
+      if (path_index == path_tokens.size()) {
+        return expected<const router_type&, router_error>(router_.value());
+      }
+
+      const auto& token = path_tokens[path_index];
+
+      if (auto iter = path_trees_.find(token); iter != path_trees_.end()) {
+        if (auto router = iter->second.try_find(path_tokens, path_index + 1);
+            router) {
+          return router;
+        }
+      }
+
+      if (param_trees_) {
+        return param_trees_->try_find(path_tokens, path_index + 1);
+      }
+
+      return unexpected<router_error>(router_error::route_not_exists);
+    }
+
     static auto try_parse_path(string_view path) noexcept
         -> expected<std::vector<string_view>, router_error>
     {
@@ -69,8 +125,8 @@ private:
 
       auto split
           = [](string_view p) noexcept -> std::tuple<string_view, string_view> {
-        p.remove_prefix(1); // curr '/'
-        auto pos = p.find('/'); // next '/'
+        p.remove_prefix(1);
+        auto pos = p.find('/');
         if (pos == string_view::npos) {
           return { p.substr(0, pos), {} };
         }
@@ -90,21 +146,29 @@ private:
       return tokens;
     }
 
-    std::string fullpath_;
-    optional<std::vector<handler_type>> handlers_;
-    std::unordered_map<std::string, node> path_trees_;
+    optional<router_type> router_;
+    std::unordered_map<std::string, node, string_hash, equal_to> path_trees_;
     std::unique_ptr<node> param_trees_;
   };
 
 public:
-  auto try_insert(const router_type& r) -> expected<void, router_error>
+  auto try_insert(const router_type& r) noexcept -> expected<void, router_error>
   {
-    auto path_tokens = node::try_parse_path(r.path());
-    if (!path_tokens) {
-      return unexpected<router_error>(path_tokens.error());
-    }
+    return node::try_parse_path(r.path()).and_then([&](auto&& path_tokens) {
+      return subtrees_[r.method()].try_insert(r, path_tokens, 0);
+    });
+  }
 
-    return subtrees_[r.method()].try_insert(r, path_tokens.value(), 0);
+  auto try_find(methods method, string_view path) const noexcept
+      -> expected<const router_type&, router_error>
+  {
+    return node::try_parse_path(path).and_then(
+        [&](auto&& path_tokens) -> expected<const router_type&, router_error> {
+          if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
+            return iter->second.try_find(path_tokens, 0);
+          }
+          return unexpected<router_error>(router_error::route_not_exists);
+        });
   }
 
 private:

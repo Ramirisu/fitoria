@@ -33,15 +33,16 @@ public:
   auto route(methods method, const std::string& path, handler_type handler)
       -> router_group&
   {
-    routers_.emplace_back(method, path_ + path, middlewares_,
-                          std::move(handler));
+    auto handlers = middlewares_;
+    handlers.push_back(std::move(handler));
+    routers_.push_back(router_type(method, path_ + path, std::move(handlers)));
     return *this;
   }
 
   auto sub_group(router_group rg) -> router_group&
   {
     for (auto& routers : rg.routers_) {
-      routers_.push_back(routers.bind_parent(path_, middlewares_));
+      routers_.push_back(routers.rebind_parent(path_, middlewares_));
     }
 
     return *this;

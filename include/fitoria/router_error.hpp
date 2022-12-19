@@ -14,6 +14,7 @@ FITORIA_NAMESPACE_BEGIN
 enum class router_error {
   parse_path_error,
   route_already_exists,
+  route_not_exists,
 };
 
 FITORIA_NAMESPACE_END
