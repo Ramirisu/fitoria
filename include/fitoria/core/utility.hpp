@@ -21,6 +21,7 @@ using gul::expected;
 using gul::unexpect;
 using gul::unexpected;
 
+using gul::nullopt;
 using gul::optional;
 
 using gul::string_view;
