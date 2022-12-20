@@ -84,10 +84,10 @@ private:
       const auto& token = path_tokens[path_index];
       if (token.starts_with(':')) {
         if (!param_trees_) {
-          param_trees_ = std::make_unique<node>();
+          param_trees_.emplace(std::make_shared<node>());
         }
 
-        return param_trees_->try_insert(r, path_tokens, path_index + 1);
+        return param_trees_.value()->try_insert(r, path_tokens, path_index + 1);
       }
 
       return path_trees_[std::string(token)].try_insert(r, path_tokens,
@@ -102,20 +102,28 @@ private:
         return expected<const router_type&, router_error>(router_.value());
       }
 
-      const auto& token = path_tokens[path_index];
+      return try_find_path_trees(path_tokens[path_index])
+          .to_expected_or(router_error::route_not_exists)
+          .and_then([&](auto&& node) {
+            return node.try_find(path_tokens, path_index + 1);
+          })
+          .or_else([&](auto&& error) {
+            return param_trees_.to_expected_or(error).and_then(
+                [&](auto&& node_ptr)
+                    -> expected<const router_type&, router_error> {
+                  return node_ptr->try_find(path_tokens, path_index + 1);
+                });
+          });
+    }
 
+    auto try_find_path_trees(string_view token) const noexcept
+        -> optional<const node&>
+    {
       if (auto iter = path_trees_.find(token); iter != path_trees_.end()) {
-        if (auto router = iter->second.try_find(path_tokens, path_index + 1);
-            router) {
-          return router;
-        }
+        return iter->second;
       }
 
-      if (param_trees_) {
-        return param_trees_->try_find(path_tokens, path_index + 1);
-      }
-
-      return unexpected<router_error>(router_error::route_not_exists);
+      return nullopt;
     }
 
     static auto try_parse_path(string_view path) noexcept
@@ -150,7 +158,7 @@ private:
 
     optional<router_type> router_;
     std::unordered_map<std::string, node, string_hash, equal_to> path_trees_;
-    std::unique_ptr<node> param_trees_;
+    optional<std::shared_ptr<node>> param_trees_;
   };
 
 public:
@@ -164,16 +172,23 @@ public:
   auto try_find(methods method, string_view path) const noexcept
       -> expected<const router_type&, router_error>
   {
-    return node::try_parse_path(path).and_then(
-        [&](auto&& path_tokens) -> expected<const router_type&, router_error> {
-          if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
-            return iter->second.try_find(path_tokens, 0);
-          }
-          return unexpected<router_error>(router_error::route_not_exists);
-        });
+    return node::try_parse_path(path).and_then([&](auto&& path_tokens) {
+      return try_find(method)
+          .to_expected_or(router_error::route_not_exists)
+          .and_then([&](auto&& node) { return node.try_find(path_tokens, 0); });
+    });
   }
 
 private:
+  auto try_find(methods method) const noexcept -> optional<const node&>
+  {
+    if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
+      return iter->second;
+    }
+
+    return nullopt;
+  }
+
   std::unordered_map<methods, node> subtrees_;
 };
 
