@@ -9,26 +9,23 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/handler_concept.hpp>
+
 #include <functional>
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename Context>
-concept handler_chain_context = requires(Context& ctx) { ctx.next(); };
+namespace detail {
 
 template <typename HandlerTrait>
-class handler_chain {
-
+class handlers_invoker {
 public:
-  using handler_type = typename HandlerTrait::handler_type;
-  using handlers_type = typename HandlerTrait::handlers_type;
-
-  handler_chain(const handlers_type& handlers)
+  handlers_invoker(const handlers_t<HandlerTrait>& handlers)
       : handlers_(handlers)
   {
   }
 
-  template <handler_chain_context Context>
+  template <typename Context>
   void start(Context& ctx)
   {
     curr_ = handlers_.begin();
@@ -39,7 +36,7 @@ public:
     std::invoke(*curr_, ctx);
   }
 
-  template <handler_chain_context Context>
+  template <typename Context>
   void next(Context& ctx)
   {
     ++curr_;
@@ -51,8 +48,10 @@ public:
   }
 
 private:
-  const handlers_type& handlers_;
+  const handlers_t<HandlerTrait>& handlers_;
   typename std::remove_cvref_t<decltype(handlers_)>::const_iterator curr_;
 };
+
+}
 
 FITORIA_NAMESPACE_END

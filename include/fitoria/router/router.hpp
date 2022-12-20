@@ -9,7 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/method.hpp>
+#include <fitoria/core/handler_concept.hpp>
+#include <fitoria/core/methods.hpp>
 
 #include <string>
 #include <vector>
@@ -18,13 +19,8 @@ FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
 class router {
-  using handler_compare = typename HandlerTrait::compare;
-
 public:
-  using handler_type = typename HandlerTrait::handler_type;
-  using handlers_type = typename HandlerTrait::handlers_type;
-
-  router(methods method, std::string path, handlers_type handlers)
+  router(methods method, std::string path, handlers_t<HandlerTrait> handlers)
       : method_(method)
       , path_(std::move(path))
       , handlers_(std::move(handlers))
@@ -41,13 +37,14 @@ public:
     return path_;
   }
 
-  auto handlers() const noexcept -> const handlers_type&
+  auto handlers() const noexcept -> const handlers_t<HandlerTrait>&
   {
     return handlers_;
   }
 
   auto rebind_parent(const std::string& parent_path,
-                     const handlers_type& parent_handlers) const -> router
+                     const handlers_t<HandlerTrait>& parent_handlers) const
+      -> router
   {
     auto handlers = parent_handlers;
     handlers.insert(handlers.end(), handlers_.begin(), handlers_.end());
@@ -56,7 +53,7 @@ public:
 
   friend auto operator==(const router& lhs, const router& rhs) -> bool
   {
-    handler_compare compare;
+    handler_compare_t<HandlerTrait> compare;
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
         && lhs.handlers().size() == rhs.handlers().size()) {
       for (std::size_t i = 0; i < lhs.handlers().size(); ++i) {
@@ -74,7 +71,7 @@ public:
 private:
   methods method_;
   std::string path_;
-  handlers_type handlers_;
+  handlers_t<HandlerTrait> handlers_;
 };
 
 FITORIA_NAMESPACE_END

@@ -9,11 +9,10 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <boost/beast/http/verb.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
-enum class methods {
-  get,
-  put,
-};
+using methods = boost::beast::http::verb;
 
 FITORIA_NAMESPACE_END

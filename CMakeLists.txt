@@ -14,10 +14,14 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-cpmaddpackage("gh:Ramirisu/gul#4aa1464")
+cpmaddpackage("gh:Ramirisu/gul#7ca76ca")
+cpmaddpackage("gh:boostorg/boost#boost-1.81.0")
+
+find_package(OpenSSL REQUIRED)
 
 add_library(fitoria INTERFACE)
-target_link_libraries(fitoria INTERFACE gul)
+target_link_libraries(fitoria INTERFACE gul OpenSSL::SSL Boost::asio
+                                        Boost::beast)
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

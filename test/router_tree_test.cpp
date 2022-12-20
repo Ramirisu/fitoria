@@ -17,10 +17,10 @@ TEST_SUITE_BEGIN("router_tree");
 TEST_CASE("try_insert")
 {
   struct handler_trait {
-    using handler_type = std::function<int()>;
-    using handlers_type = std::vector<handler_type>;
-    struct compare {
-      bool operator()(const handler_type& lhs, const handler_type& rhs) const
+    using handler_t = std::function<int()>;
+    using handlers_t = std::vector<handler_t>;
+    struct handler_compare_t {
+      bool operator()(const handler_t& lhs, const handler_t& rhs) const
       {
         return lhs() == rhs();
       }
@@ -65,14 +65,9 @@ TEST_CASE("try_insert")
 TEST_CASE("try_find")
 {
   struct handler_trait {
-    using handler_type = std::function<int()>;
-    using handlers_type = std::vector<handler_type>;
-    struct compare {
-      bool operator()(const handler_type& lhs, const handler_type& rhs) const
-      {
-        return lhs() == rhs();
-      }
-    };
+    using handler_t = std::function<int()>;
+    using handlers_t = std::vector<handler_t>;
+    struct handler_compare_t;
   };
   using rt_type = router_tree<handler_trait>;
 

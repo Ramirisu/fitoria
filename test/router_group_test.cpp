@@ -19,10 +19,10 @@ TEST_SUITE_BEGIN("router_group");
 TEST_CASE("basic")
 {
   struct handler_trait {
-    using handler_type = std::function<int()>;
-    using handlers_type = std::vector<handler_type>;
-    struct compare {
-      bool operator()(const handler_type& lhs, const handler_type& rhs) const
+    using handler_t = std::function<int()>;
+    using handlers_t = std::vector<handler_t>;
+    struct handler_compare_t {
+      bool operator()(const handler_t& lhs, const handler_t& rhs) const
       {
         return lhs() == rhs();
       }

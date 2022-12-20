@@ -16,8 +16,6 @@ FITORIA_NAMESPACE_BEGIN
 template <typename HandlerTrait>
 class router_group {
 public:
-  using handler_type = typename HandlerTrait::handler_type;
-  using handlers_type = typename HandlerTrait::handlers_type;
   using router_type = router<HandlerTrait>;
 
   router_group(std::string path)
@@ -25,14 +23,15 @@ public:
   {
   }
 
-  auto use(handler_type middleware) -> router_group&
+  auto use(handler_t<HandlerTrait> middleware) -> router_group&
   {
     middlewares_.push_back(std::move(middleware));
     return *this;
   }
 
-  auto route(methods method, const std::string& path, handler_type handler)
-      -> router_group&
+  auto route(methods method,
+             const std::string& path,
+             handler_t<HandlerTrait> handler) -> router_group&
   {
     auto handlers = middlewares_;
     handlers.push_back(std::move(handler));
@@ -56,7 +55,7 @@ public:
 
 private:
   std::string path_;
-  handlers_type middlewares_;
+  handlers_t<HandlerTrait> middlewares_;
   std::vector<router_type> routers_;
 };
 

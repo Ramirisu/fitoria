@@ -8,24 +8,24 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/handler_chain.hpp>
+#include <fitoria/http_server/detail/handlers_invoker.hpp>
 
-using namespace fitoria;
+using namespace fitoria::detail;
 
-TEST_SUITE_BEGIN("handler_chain");
+TEST_SUITE_BEGIN("handlers_invoker");
 
 TEST_CASE("invoke")
 {
   class context;
 
   struct handler_trait {
-    using handler_type = std::function<void(context&)>;
-    using handlers_type = std::vector<handler_type>;
+    using handler_t = std::function<void(context&)>;
+    using handlers_t = std::vector<handler_t>;
   };
 
   class context {
   public:
-    context(handler_chain<handler_trait> chain)
+    context(handlers_invoker<handler_trait> chain)
         : chain_(std::move(chain))
     {
     }
@@ -41,11 +41,11 @@ TEST_CASE("invoke")
     }
 
   private:
-    handler_chain<handler_trait> chain_;
+    handlers_invoker<handler_trait> chain_;
   };
 
   int state = 0;
-  typename handler_trait::handlers_type handlers {
+  typename handler_trait::handlers_t handlers {
     [&](context& ctx) {
       CHECK_EQ(++state, 1);
       ctx.next();

@@ -9,7 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/method.hpp>
+#include <fitoria/core/handler_concept.hpp>
+#include <fitoria/core/methods.hpp>
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/router/router.hpp>
@@ -25,7 +26,6 @@ FITORIA_NAMESPACE_BEGIN
 template <typename HandlerTrait>
 class router_tree {
 public:
-  using handler_type = typename HandlerTrait::handler_type;
   using router_type = router<HandlerTrait>;
 
 private:
