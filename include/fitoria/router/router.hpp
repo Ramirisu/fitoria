@@ -22,8 +22,9 @@ class router {
 
 public:
   using handler_type = typename HandlerTrait::handler_type;
+  using handlers_type = typename HandlerTrait::handlers_type;
 
-  router(methods method, std::string path, std::vector<handler_type> handlers)
+  router(methods method, std::string path, handlers_type handlers)
       : method_(method)
       , path_(std::move(path))
       , handlers_(std::move(handlers))
@@ -40,14 +41,13 @@ public:
     return path_;
   }
 
-  auto handlers() const noexcept -> const std::vector<handler_type>&
+  auto handlers() const noexcept -> const handlers_type&
   {
     return handlers_;
   }
 
   auto rebind_parent(const std::string& parent_path,
-                     const std::vector<handler_type>& parent_handlers) const
-      -> router
+                     const handlers_type& parent_handlers) const -> router
   {
     auto handlers = parent_handlers;
     handlers.insert(handlers.end(), handlers_.begin(), handlers_.end());
@@ -74,7 +74,7 @@ public:
 private:
   methods method_;
   std::string path_;
-  std::vector<handler_type> handlers_;
+  handlers_type handlers_;
 };
 
 FITORIA_NAMESPACE_END

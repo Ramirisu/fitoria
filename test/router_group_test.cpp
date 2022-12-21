@@ -20,6 +20,7 @@ TEST_CASE("basic")
 {
   struct handler_trait {
     using handler_type = std::function<int()>;
+    using handlers_type = std::vector<handler_type>;
     struct compare {
       bool operator()(const handler_type& lhs, const handler_type& rhs) const
       {

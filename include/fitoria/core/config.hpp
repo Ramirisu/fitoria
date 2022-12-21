@@ -7,9 +7,13 @@
 
 #pragma once
 
+#include <cassert>
+
 #define FITORIA_NAMESPACE_BEGIN                                                \
   namespace fitoria {                                                          \
   inline namespace v0 {
 #define FITORIA_NAMESPACE_END                                                  \
   }                                                                            \
   }
+
+#define FITORIA_ASSERT(expr) assert(expr)

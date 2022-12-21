@@ -18,6 +18,7 @@ TEST_CASE("try_insert")
 {
   struct handler_trait {
     using handler_type = std::function<int()>;
+    using handlers_type = std::vector<handler_type>;
     struct compare {
       bool operator()(const handler_type& lhs, const handler_type& rhs) const
       {
@@ -65,6 +66,7 @@ TEST_CASE("try_find")
 {
   struct handler_trait {
     using handler_type = std::function<int()>;
+    using handlers_type = std::vector<handler_type>;
     struct compare {
       bool operator()(const handler_type& lhs, const handler_type& rhs) const
       {

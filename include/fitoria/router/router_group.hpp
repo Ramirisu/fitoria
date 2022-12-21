@@ -17,6 +17,7 @@ template <typename HandlerTrait>
 class router_group {
 public:
   using handler_type = typename HandlerTrait::handler_type;
+  using handlers_type = typename HandlerTrait::handlers_type;
   using router_type = router<HandlerTrait>;
 
   router_group(std::string path)
@@ -55,7 +56,7 @@ public:
 
 private:
   std::string path_;
-  std::vector<handler_type> middlewares_;
+  handlers_type middlewares_;
   std::vector<router_type> routers_;
 };
 
