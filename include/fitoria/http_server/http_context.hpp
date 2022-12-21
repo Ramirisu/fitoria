@@ -19,8 +19,10 @@ FITORIA_NAMESPACE_BEGIN
 class http_context;
 
 struct handler_trait {
-  using handler_t = std::function<void(http_context&)>;
+  using handler_t = std::function<net::awaitable<void>(http_context&)>;
   using handlers_t = std::vector<handler_t>;
+  using handler_result_t = typename function_traits<handler_t>::result_type;
+  static constexpr bool handler_result_awaitable = true;
   struct handler_compare_t;
 };
 
@@ -31,14 +33,14 @@ public:
   {
   }
 
-  void start()
+  handler_result_t<handler_trait> start()
   {
-    invoker_.start(*this);
+    co_await invoker_.start(*this);
   }
 
-  void next()
+  handler_result_t<handler_trait> next()
   {
-    invoker_.next(*this);
+    co_await invoker_.next(*this);
   }
 
 private:

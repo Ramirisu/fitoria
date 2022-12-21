@@ -8,42 +8,49 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/core/utility.hpp>
 #include <fitoria/http_server/detail/handlers_invoker.hpp>
 
 using namespace fitoria::detail;
+using namespace fitoria;
 
 TEST_SUITE_BEGIN("handlers_invoker");
 
-TEST_CASE("invoke")
+namespace {
+
+class context;
+
+struct handler_trait {
+  using handler_t = std::function<void(context&)>;
+  using handlers_t = std::vector<handler_t>;
+  using handler_result_t = typename function_traits<handler_t>::result_type;
+  static constexpr bool handler_result_awaitable = false;
+};
+
+class context {
+public:
+  context(handlers_invoker<handler_trait> chain)
+      : chain_(std::move(chain))
+  {
+  }
+
+  void start()
+  {
+    chain_.start(*this);
+  }
+
+  void next()
+  {
+    chain_.next(*this);
+  }
+
+private:
+  handlers_invoker<handler_trait> chain_;
+};
+}
+
+TEST_CASE("handlers invocation order")
 {
-  class context;
-
-  struct handler_trait {
-    using handler_t = std::function<void(context&)>;
-    using handlers_t = std::vector<handler_t>;
-  };
-
-  class context {
-  public:
-    context(handlers_invoker<handler_trait> chain)
-        : chain_(std::move(chain))
-    {
-    }
-
-    void start()
-    {
-      chain_.start(*this);
-    }
-
-    void next()
-    {
-      chain_.next(*this);
-    }
-
-  private:
-    handlers_invoker<handler_trait> chain_;
-  };
-
   int state = 0;
   typename handler_trait::handlers_t handlers {
     [&](context& ctx) {

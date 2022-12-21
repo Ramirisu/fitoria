@@ -85,7 +85,7 @@ private:
         auto router
             = router_tree_.try_find(req.method(), string_view(req.target()));
         http_context ctx(handlers_invoker_type(router.value().handlers()));
-        ctx.start();
+        co_await ctx.start();
 
         http::response<http::string_body> res;
         res.keep_alive(keep_alive);

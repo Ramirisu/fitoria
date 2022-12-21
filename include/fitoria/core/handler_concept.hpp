@@ -18,6 +18,13 @@ template <typename HandlerTrait>
 using handlers_t = typename HandlerTrait::handlers_t;
 
 template <typename HandlerTrait>
+using handler_result_t = typename HandlerTrait::handler_result_t;
+
+template <typename HandlerTrait>
+inline constexpr bool handler_result_awaitable
+    = HandlerTrait::handler_result_awaitable;
+
+template <typename HandlerTrait>
 using handler_compare_t = typename HandlerTrait::handler_compare_t;
 
 FITORIA_NAMESPACE_END

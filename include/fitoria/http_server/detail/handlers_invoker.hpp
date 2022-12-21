@@ -11,6 +11,7 @@
 
 #include <fitoria/core/handler_concept.hpp>
 
+#include <coroutine>
 #include <functional>
 
 FITORIA_NAMESPACE_BEGIN
@@ -26,25 +27,43 @@ public:
   }
 
   template <typename Context>
-  void start(Context& ctx)
+  handler_result_t<HandlerTrait> start(Context& ctx)
+    requires(handler_result_awaitable<HandlerTrait>)
   {
     curr_ = handlers_.begin();
-    if (curr_ == handlers_.end()) {
-      return;
+    if (curr_ != handlers_.end()) {
+      co_await std::invoke(*curr_, ctx);
     }
-
-    std::invoke(*curr_, ctx);
   }
 
   template <typename Context>
-  void next(Context& ctx)
+  handler_result_t<HandlerTrait> start(Context& ctx)
+    requires(!handler_result_awaitable<HandlerTrait>)
+  {
+    curr_ = handlers_.begin();
+    if (curr_ != handlers_.end()) {
+      std::invoke(*curr_, ctx);
+    }
+  }
+
+  template <typename Context>
+  handler_result_t<HandlerTrait> next(Context& ctx)
+    requires(handler_result_awaitable<HandlerTrait>)
   {
     ++curr_;
-    if (curr_ == handlers_.end()) {
-      return;
+    if (curr_ != handlers_.end()) {
+      co_await std::invoke(*curr_, ctx);
     }
+  }
 
-    std::invoke(*curr_, ctx);
+  template <typename Context>
+  handler_result_t<HandlerTrait> next(Context& ctx)
+    requires(!handler_result_awaitable<HandlerTrait>)
+  {
+    ++curr_;
+    if (curr_ != handlers_.end()) {
+      std::invoke(*curr_, ctx);
+    }
   }
 
 private:

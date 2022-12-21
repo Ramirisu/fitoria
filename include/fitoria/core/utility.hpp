@@ -26,4 +26,6 @@ using gul::optional;
 
 using gul::string_view;
 
+using gul::function_traits;
+
 FITORIA_NAMESPACE_END

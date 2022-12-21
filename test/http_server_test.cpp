@@ -72,24 +72,34 @@ const char* localhost = "127.0.0.1";
 const std::uint16_t port = 8080;
 }
 
-TEST_CASE("connection")
+TEST_CASE("middlewares and router's invocation order")
 {
   int state = 0;
-  http_server server(12);
+  http_server server;
   server.route(
       http_server::router_group_type("/api")
-          .use([&](auto& ctx) {
+          .use([&](auto& ctx) -> net::awaitable<void> {
             CHECK_EQ(++state, 1);
-            ctx.next();
-            CHECK_EQ(++state, 3);
+            co_await ctx.next();
+            CHECK_EQ(++state, 5);
           })
-          .route(methods::get, "/get", [&](auto&) { CHECK_EQ(++state, 2); }));
+          .use([&](auto& ctx) -> net::awaitable<void> {
+            CHECK_EQ(++state, 2);
+            co_await ctx.next();
+            CHECK_EQ(++state, 4);
+          })
+          .route(methods::get, "/get",
+                 [&]([[maybe_unused]] auto& ctx) -> net::awaitable<void> {
+                   CHECK_EQ(++state, 3);
+                   co_return;
+                 }));
   server.run(localhost, port);
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   auto resp = send_request(localhost, port, methods::get, "/api/get");
   CHECK_EQ(resp.result_int(), 200);
 
-  CHECK_EQ(++state, 4);
+  CHECK_EQ(++state, 6);
 }
 
 TEST_SUITE_END();
