@@ -10,7 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/handler_concept.hpp>
-#include <fitoria/core/methods.hpp>
+#include <fitoria/core/http.hpp>
 
 #include <string>
 #include <vector>
@@ -20,6 +20,13 @@ FITORIA_NAMESPACE_BEGIN
 template <typename HandlerTrait>
 class router {
 public:
+  router(methods method, std::string path, handler_t<HandlerTrait> handler)
+      : method_(method)
+      , path_(std::move(path))
+      , handlers_({ std::move(handler) })
+  {
+  }
+
   router(methods method, std::string path, handlers_t<HandlerTrait> handlers)
       : method_(method)
       , path_(std::move(path))

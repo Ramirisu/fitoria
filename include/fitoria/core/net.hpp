@@ -28,6 +28,4 @@ using tcp_stream = typename boost::beast::tcp_stream::rebind_executor<
 using boost::beast::async_write;
 }
 
-namespace http = boost::beast::http;
-
 FITORIA_NAMESPACE_END

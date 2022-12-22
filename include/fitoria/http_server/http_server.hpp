@@ -19,6 +19,7 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_server {
 public:
+  using router_type = router<handler_trait>;
   using router_group_type = router_group<handler_trait>;
   using router_tree_type = router_tree<handler_trait>;
   using handlers_invoker_type = detail::handlers_invoker<handler_trait>;
@@ -31,10 +32,15 @@ public:
   {
   }
 
+  expected<void, router_error> route(const router_type& router)
+  {
+    return router_tree_.try_insert(std::move(router));
+  }
+
   expected<void, router_error> route(const router_group_type& router_group)
   {
-    for (auto&& routes : router_group.get_all_routers()) {
-      if (auto res = router_tree_.try_insert(routes); !res) {
+    for (auto&& router : router_group.get_all_routers()) {
+      if (auto res = router_tree_.try_insert(router); !res) {
         return res;
       }
     }
@@ -84,7 +90,8 @@ private:
 
         auto router
             = router_tree_.try_find(req.method(), string_view(req.target()));
-        http_context ctx(handlers_invoker_type(router.value().handlers()));
+        http_context ctx(handlers_invoker_type(router.value().handlers()),
+                         router.value(), req);
         co_await ctx.start();
 
         http::response<http::string_body> res;
@@ -98,8 +105,8 @@ private:
         if (!keep_alive) {
           break;
         }
-      } catch (boost::system::system_error& se) {
-        if (se.code() != http::error::end_of_stream)
+      } catch (boost::system::system_error& ec) {
+        if (ec.code() != http::error::end_of_stream)
           throw;
       }
     }

@@ -30,7 +30,8 @@ TEST_CASE("try_insert")
   using exp_t = expected<void, router_error>;
 
   auto r = [=](methods method, std::string path) {
-    return rt_type::router_type(method, std::move(path), {});
+    return rt_type::router_type(method, std::move(path),
+                                handlers_t<handler_trait> {});
   };
 
   rt_type rt;
@@ -72,8 +73,9 @@ TEST_CASE("try_find")
   using rt_type = router_tree<handler_trait>;
 
   auto r = [=](methods method, std::string path, int exp) {
-    return rt_type::router_type(method, std::move(path),
-                                { [=]() { return exp; } });
+    return rt_type::router_type(
+        method, std::move(path),
+        handlers_t<handler_trait> { [=]() { return exp; } });
   };
 
   rt_type rt;

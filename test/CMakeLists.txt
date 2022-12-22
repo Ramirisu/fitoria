@@ -8,7 +8,7 @@ foreach(file ${FITORIA_TESTS_SOURCE_FILES})
   target_link_libraries(${target_name} PRIVATE fitoria doctest::doctest)
   if((CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
      OR (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
-    target_compile_options(${target_name} PRIVATE /W4 /WX)
+    target_compile_options(${target_name} PRIVATE /bigobj /W4 /WX)
   else()
     target_compile_options(${target_name} PRIVATE -Wall -Wextra -Werror
                                                   -pedantic -pedantic-errors)

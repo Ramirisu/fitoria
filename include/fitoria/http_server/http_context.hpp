@@ -9,7 +9,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/net.hpp>
 #include <fitoria/http_server/detail/handlers_invoker.hpp>
+#include <fitoria/router/router.hpp>
 
 #include <functional>
 #include <vector>
@@ -27,10 +29,48 @@ struct handler_trait {
 };
 
 class http_context {
+  using router_type = router<handler_trait>;
+  using native_request_t = http::request<http::string_body>;
+
 public:
-  explicit http_context(detail::handlers_invoker<handler_trait> invoker)
+  class request_t {
+  public:
+    explicit request_t(native_request_t& native)
+        : native_(native)
+    {
+    }
+
+    methods method() const noexcept
+    {
+      return native_.method();
+    }
+
+    std::string& body() noexcept
+    {
+      return native_.body();
+    }
+
+    const std::string& body() const noexcept
+    {
+      return native_.body();
+    }
+
+  private:
+    native_request_t& native_;
+  };
+
+  http_context(detail::handlers_invoker<handler_trait> invoker,
+               const router_type& router,
+               native_request_t& native_request)
       : invoker_(std::move(invoker))
+      , router_(router)
+      , native_request_(native_request)
   {
+  }
+
+  request_t request()
+  {
+    return request_t(native_request_);
   }
 
   handler_result_t<handler_trait> start()
@@ -45,6 +85,8 @@ public:
 
 private:
   detail::handlers_invoker<handler_trait> invoker_;
+  const router_type& router_;
+  native_request_t& native_request_;
 };
 
 FITORIA_NAMESPACE_END

@@ -10,7 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/handler_concept.hpp>
-#include <fitoria/core/methods.hpp>
+#include <fitoria/core/http.hpp>
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/router/router.hpp>
