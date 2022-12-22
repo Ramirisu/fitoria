@@ -9,6 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http_server/detail/handler_trait.hpp>
+
 #include <fitoria/core/net.hpp>
 #include <fitoria/http_server/detail/handlers_invoker.hpp>
 #include <fitoria/router/router.hpp>
@@ -18,17 +20,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_context;
-
-struct handler_trait {
-  using handler_t = std::function<net::awaitable<void>(http_context&)>;
-  using handlers_t = std::vector<handler_t>;
-  using handler_result_t = typename function_traits<handler_t>::result_type;
-  static constexpr bool handler_result_awaitable = true;
-  struct handler_compare_t;
-};
-
 class http_context {
+  using handler_trait = detail::handler_trait;
   using router_type = router<handler_trait>;
   using native_request_t = http::request<http::string_body>;
 

@@ -19,6 +19,7 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_server {
 public:
+  using handler_trait = detail::handler_trait;
   using router_type = router<handler_trait>;
   using router_group_type = router_group<handler_trait>;
   using router_tree_type = router_tree<handler_trait>;
@@ -30,6 +31,11 @@ public:
       , ioc_(nb_threads_)
       , thread_pool_(nb_threads_)
   {
+  }
+
+  ~http_server()
+  {
+    stop();
   }
 
   expected<void, router_error> route(const router_type& router)
@@ -46,11 +52,6 @@ public:
     }
 
     return {};
-  }
-
-  ~http_server()
-  {
-    stop();
   }
 
   void run(string_view addr, std::uint16_t port)
