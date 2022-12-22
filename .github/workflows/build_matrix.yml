@@ -22,6 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Cache CPM.cmake packages
+        id: cache-cpm
+        uses: actions/cache@v3
+        with:
+          path: ~/cpm-cache
+          key: ${{ runner.os }}-cpm-${{ hashFiles('**/') }}
+          restore-keys: |
+            ${{ runner.os }}-cpm-
+
       - name: Add msbuild to PATH env
         if: matrix.cxx == 'cl'
         uses: ilammy/msvc-dev-cmd@v1
@@ -58,6 +67,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
+            -DCPM_SOURCE_CACHE=~/cpm-cache \
             -DFITORIA_BUILD_TESTS=ON
 
       - name: Build
