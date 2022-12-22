@@ -10,7 +10,9 @@
 #include <fitoria/core/config.hpp>
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/beast.hpp>
+#include <boost/beast/ssl.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -20,12 +22,17 @@ using namespace boost::asio;
 
 namespace errc = boost::beast::errc;
 
-using error_code = boost::beast::error_code;
+using boost::beast::error_code;
+using boost::beast::system_error;
+
 using boost::beast::flat_buffer;
 using tcp_stream = typename boost::beast::tcp_stream::rebind_executor<
     use_awaitable_t<>::executor_with_default<any_io_executor>>::other;
+using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 
 using boost::beast::async_write;
+using boost::beast::get_lowest_layer;
+
 }
 
 FITORIA_NAMESPACE_END

@@ -56,17 +56,45 @@ public:
 
   void run(string_view addr, std::uint16_t port)
   {
-    if (running_.exchange(true)) {
-      return;
-    }
+    bool running = running_.exchange(true);
 
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        net::detached);
+        [](std::exception_ptr ptr) {
+          if (ptr)
+            try {
+              std::rethrow_exception(ptr);
+            } catch (std::exception& e) {
+              std::cerr << "Error: " << e.what() << "\n";
+            }
+        });
 
-    for (auto i = 0U; i < nb_threads_; ++i) {
-      net::post(thread_pool_, [&]() { ioc_.run(); });
+    if (!running) {
+      start_worker_threads();
+    }
+  }
+
+  void
+  run_with_tls(string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
+  {
+    bool running = running_.exchange(true);
+
+    net::co_spawn(
+        ioc_,
+        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
+                  std::move(ssl_ctx)),
+        [](std::exception_ptr ptr) {
+          if (ptr)
+            try {
+              std::rethrow_exception(ptr);
+            } catch (std::exception& e) {
+              std::cerr << "Error: " << e.what() << "\n";
+            }
+        });
+
+    if (!running) {
+      start_worker_threads();
     }
   }
 
@@ -76,7 +104,76 @@ public:
   }
 
 private:
+  void start_worker_threads()
+  {
+    for (auto i = 0U; i < nb_threads_; ++i) {
+      net::post(thread_pool_, [&]() { ioc_.run(); });
+    }
+  }
+
+  using acceptor_t = typename net::ip::tcp::acceptor::template rebind_executor<
+      net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
+      other;
+
+  net::awaitable<acceptor_t> new_acceptor(net::ip::tcp::endpoint endpoint)
+  {
+    auto acceptor = net::use_awaitable.as_default_on(
+        net::ip::tcp::acceptor(co_await net::this_coro::executor));
+
+    acceptor.open(endpoint.protocol());
+    acceptor.set_option(net::socket_base::reuse_address(true));
+    acceptor.bind(endpoint);
+    acceptor.listen(net::socket_base::max_listen_connections);
+    co_return acceptor;
+  }
+
+  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint)
+  {
+    auto acceptor = co_await new_acceptor(endpoint);
+
+    for (;;) {
+      net::co_spawn(
+          acceptor.get_executor(),
+          do_session(net::tcp_stream(co_await acceptor.async_accept())),
+          net::detached);
+    }
+  }
+
+  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
+                                 net::ssl::context ssl_ctx)
+  {
+    auto acceptor = co_await new_acceptor(endpoint);
+
+    for (;;) {
+      net::co_spawn(acceptor.get_executor(),
+                    do_session(net::ssl_stream(co_await acceptor.async_accept(),
+                                               ssl_ctx)),
+                    net::detached);
+    }
+  }
+
   net::awaitable<void> do_session(net::tcp_stream stream)
+  {
+    co_await do_session_impl(stream);
+
+    net::error_code ec;
+    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
+  }
+
+  net::awaitable<void> do_session(net::ssl_stream stream)
+  {
+    net::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+
+    co_await stream.async_handshake(net::ssl::stream_base::server);
+
+    co_await do_session_impl(stream.next_layer());
+
+    net::error_code ec;
+    net::get_lowest_layer(stream).socket().shutdown(
+        net::ip::tcp::socket::shutdown_send, ec);
+  }
+
+  net::awaitable<void> do_session_impl(net::tcp_stream& stream)
   {
     net::flat_buffer buffer;
 
@@ -110,27 +207,6 @@ private:
         if (ec.code() != http::error::end_of_stream)
           throw;
       }
-    }
-
-    net::error_code ec;
-    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
-  }
-
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint)
-  {
-    auto acceptor = net::use_awaitable.as_default_on(
-        net::ip::tcp::acceptor(co_await net::this_coro::executor));
-
-    acceptor.open(endpoint.protocol());
-    acceptor.set_option(net::socket_base::reuse_address(true));
-    acceptor.bind(endpoint);
-    acceptor.listen(net::socket_base::max_listen_connections);
-
-    for (;;) {
-      net::co_spawn(
-          acceptor.get_executor(),
-          do_session(net::tcp_stream(co_await acceptor.async_accept())),
-          net::detached);
     }
   }
 
