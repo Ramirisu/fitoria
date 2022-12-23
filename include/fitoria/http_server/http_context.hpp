@@ -61,9 +61,14 @@ public:
   {
   }
 
-  request_t request()
+  request_t request() const noexcept
   {
     return request_t(native_request_);
+  }
+
+  string_view path() const noexcept
+  {
+    return router_.path();
   }
 
   handler_result_t<handler_trait> start()

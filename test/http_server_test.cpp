@@ -252,18 +252,18 @@ TEST_CASE("middlewares and router's invocation order")
   http_server server;
   server.route(
       http_server::router_group_type("/api")
-          .use([&](auto& ctx) -> net::awaitable<void> {
+          .use([&](auto& c) -> net::awaitable<void> {
             CHECK_EQ(++state, 1);
-            co_await ctx.next();
+            co_await c.next();
             CHECK_EQ(++state, 5);
           })
-          .use([&](auto& ctx) -> net::awaitable<void> {
+          .use([&](auto& c) -> net::awaitable<void> {
             CHECK_EQ(++state, 2);
-            co_await ctx.next();
+            co_await c.next();
             CHECK_EQ(++state, 4);
           })
           .route(methods::get, "/get",
-                 [&]([[maybe_unused]] auto& ctx) -> net::awaitable<void> {
+                 [&]([[maybe_unused]] auto& c) -> net::awaitable<void> {
                    CHECK_EQ(++state, 3);
                    co_return;
                  }));
@@ -282,19 +282,20 @@ TEST_CASE("middlewares and router's invocation order")
 TEST_CASE("simple request without tls")
 {
   http_server server;
-  server.route(
-      { methods::get, "/api/get", [&](auto& ctx) -> net::awaitable<void> {
-         auto req = ctx.request();
-         CHECK_EQ(req.method(), methods::get);
-         CHECK_EQ(req.body(), "text");
-         co_return;
-       } });
+  server.route({ methods::get, "/api/users/:name/email",
+                 [&](auto& c) -> net::awaitable<void> {
+                   CHECK_EQ(c.path(), string_view("/api/users/:name/email"));
+                   auto req = c.request();
+                   CHECK_EQ(req.method(), methods::get);
+                   CHECK_EQ(req.body(), "text");
+                   co_return;
+                 } });
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
-                  .with_target("/api/get")
+                  .with_target("/api/users/ramirisu/email")
                   .with_body("text")
                   .send_request();
   CHECK_EQ(resp.result_int(), 200);
@@ -303,19 +304,20 @@ TEST_CASE("simple request without tls")
 TEST_CASE("simple request with tls")
 {
   http_server server;
-  server.route(
-      { methods::get, "/api/get", [&](auto& ctx) -> net::awaitable<void> {
-         auto req = ctx.request();
-         CHECK_EQ(req.method(), methods::get);
-         CHECK_EQ(req.body(), "text");
-         co_return;
-       } });
+  server.route({ methods::get, "/api/users/:name/email",
+                 [&](auto& c) -> net::awaitable<void> {
+                   CHECK_EQ(c.path(), string_view("/api/users/:name/email"));
+                   auto req = c.request();
+                   CHECK_EQ(req.method(), methods::get);
+                   CHECK_EQ(req.body(), "text");
+                   co_return;
+                 } });
   server.run_with_tls(localhost, port, get_server_ssl_ctx());
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
-                  .with_target("/api/get")
+                  .with_target("/api/users/ramirisu/email")
                   .with_body("text")
                   .send_request(get_client_ssl_ctx());
   CHECK_EQ(resp.result_int(), 200);
