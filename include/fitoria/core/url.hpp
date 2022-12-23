@@ -9,14 +9,10 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <boost/beast/http.hpp>
+#include <boost/url/src.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace http = boost::beast::http;
-
-using methods = boost::beast::http::verb;
-using fields = boost::beast::http::field;
-using status = boost::beast::http::status;
+namespace urls = boost::urls;
 
 FITORIA_NAMESPACE_END

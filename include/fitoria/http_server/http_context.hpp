@@ -9,65 +9,42 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/http_server/detail/handler_trait.hpp>
-
 #include <fitoria/core/net.hpp>
-#include <fitoria/http_server/detail/handlers_invoker.hpp>
-#include <fitoria/http_server/router.hpp>
 
-#include <functional>
-#include <vector>
+#include <fitoria/http_server/detail/handler_trait.hpp>
+#include <fitoria/http_server/detail/handlers_invoker.hpp>
+
+#include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/router.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
   using handler_trait = detail::handler_trait;
-  using native_request_t = http::request<http::string_body>;
 
 public:
-  class request_t {
-  public:
-    explicit request_t(native_request_t& native)
-        : native_(native)
-    {
-    }
-
-    methods method() const noexcept
-    {
-      return native_.method();
-    }
-
-    std::string& body() noexcept
-    {
-      return native_.body();
-    }
-
-    const std::string& body() const noexcept
-    {
-      return native_.body();
-    }
-
-  private:
-    native_request_t& native_;
-  };
-
   http_context(detail::handlers_invoker<handler_trait> invoker,
-               const router& router,
-               native_request_t& native_request)
+               string_view path,
+               http_request& request)
       : invoker_(std::move(invoker))
-      , router_(router)
-      , native_request_(native_request)
+      , path_(path)
+      , request_(request)
   {
   }
 
-  request_t request() const noexcept
+  http_request& request() noexcept
   {
-    return request_t(native_request_);
+    return request_;
+  }
+
+  const http_request& request() const noexcept
+  {
+    return request_;
   }
 
   string_view path() const noexcept
   {
-    return router_.path();
+    return path_;
   }
 
   handler_result_t<handler_trait> start()
@@ -82,8 +59,8 @@ public:
 
 private:
   detail::handlers_invoker<handler_trait> invoker_;
-  const router& router_;
-  native_request_t& native_request_;
+  string_view path_;
+  http_request& request_;
 };
 
 FITORIA_NAMESPACE_END

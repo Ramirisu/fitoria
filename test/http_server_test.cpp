@@ -262,7 +262,7 @@ TEST_CASE("middlewares and router's invocation order")
             CHECK_EQ(++state, 4);
           })
           .route(methods::get, "/get",
-                 [&]([[maybe_unused]] auto& c) -> net::awaitable<void> {
+                 [&]([[maybe_unused]] http_context& c) -> net::awaitable<void> {
                    CHECK_EQ(++state, 3);
                    co_return;
                  }));
@@ -278,47 +278,65 @@ TEST_CASE("middlewares and router's invocation order")
   CHECK_EQ(++state, 6);
 }
 
+namespace simple_http_request_test {
+
+void configure_server(http_server& server)
+{
+  server.route(router(
+      methods::get, "/api/v1/users/:user/filmography/years/:year",
+      [&](http_context& c) -> net::awaitable<void> {
+        CHECK_EQ(c.path(), "/api/v1/users/:user/filmography/years/:year");
+        CHECK_EQ(c.request().method(), methods::get);
+        CHECK_EQ(c.request().encoded_path(),
+                 R"(/api/v1/users/Rina%20Hikada/filmography/years/2022)");
+        CHECK_EQ(c.request().path(),
+                 "/api/v1/users/Rina Hikada/filmography/years/2022");
+        CHECK_EQ(c.request().encoded_query(),
+                 R"(name=Rina%20Hikada&birth=1994%2F06%2F15)");
+        CHECK_EQ(c.request().query(), "name=Rina Hikada&birth=1994/06/15");
+        CHECK_EQ((*c.request().encoded_params().find("name")).value,
+                 R"(Rina%20Hikada)");
+        CHECK_EQ((*c.request().encoded_params().find("birth")).value,
+                 R"(1994%2F06%2F15)");
+        CHECK_EQ((*c.request().params().find("name")).value, "Rina Hikada");
+        CHECK_EQ((*c.request().params().find("birth")).value, "1994/06/15");
+        CHECK_EQ(c.request().body(), "text");
+        co_return;
+      }));
+}
+
+void configure_client(simple_http_client& client)
+{
+  client.with(methods::get)
+      .with_target(
+          R"(/api/v1/users/Rina%20Hikada/filmography/years/2022?name=Rina%20Hikada&birth=1994%2F06%2F15)")
+      .with_body("text");
+}
+}
+
 TEST_CASE("simple request without tls")
 {
   http_server server;
-  server.route({ methods::get, "/api/users/:name/email",
-                 [&](auto& c) -> net::awaitable<void> {
-                   CHECK_EQ(c.path(), "/api/users/:name/email");
-                   auto req = c.request();
-                   CHECK_EQ(req.method(), methods::get);
-                   CHECK_EQ(req.body(), "text");
-                   co_return;
-                 } });
+  simple_http_request_test::configure_server(server);
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  auto resp = simple_http_client(localhost, port)
-                  .with(methods::get)
-                  .with_target("/api/users/ramirisu/email")
-                  .with_body("text")
-                  .send_request();
+  auto client = simple_http_client(localhost, port);
+  simple_http_request_test::configure_client(client);
+  auto resp = client.send_request();
   CHECK_EQ(resp.result_int(), 200);
 }
 
 TEST_CASE("simple request with tls")
 {
   http_server server;
-  server.route({ methods::get, "/api/users/:name/email",
-                 [&](auto& c) -> net::awaitable<void> {
-                   CHECK_EQ(c.path(), "/api/users/:name/email");
-                   auto req = c.request();
-                   CHECK_EQ(req.method(), methods::get);
-                   CHECK_EQ(req.body(), "text");
-                   co_return;
-                 } });
+  simple_http_request_test::configure_server(server);
   server.run_with_tls(localhost, port, get_server_ssl_ctx());
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  auto resp = simple_http_client(localhost, port)
-                  .with(methods::get)
-                  .with_target("/api/users/ramirisu/email")
-                  .with_body("text")
-                  .send_request(get_client_ssl_ctx());
+  auto client = simple_http_client(localhost, port);
+  simple_http_request_test::configure_client(client);
+  auto resp = client.send_request(get_client_ssl_ctx());
   CHECK_EQ(resp.result_int(), 200);
 }
 

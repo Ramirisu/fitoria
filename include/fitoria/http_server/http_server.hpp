@@ -10,8 +10,10 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/net.hpp>
+#include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
 #include <fitoria/http_server/http_context.hpp>
+#include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/router_group.hpp>
 #include <fitoria/http_server/router_tree.hpp>
 
@@ -174,15 +176,27 @@ private:
 
         bool keep_alive = req.keep_alive();
 
-        auto router = router_tree_.try_find(
-            req.method(),
-            string_view(req.target().data(), req.target().size()));
-        http_context ctx(handlers_invoker_type(router.value().handlers()),
-                         router.value(), req);
-        co_await ctx.start();
-
         http::response<http::string_body> res;
         res.keep_alive(keep_alive);
+
+        if (auto url = urls::parse_origin_form(req.target()); url) {
+          http_request request(req, url.value());
+
+          if (auto router
+              = router_tree_.try_find(req.method(), url.value().path());
+              router) {
+            http_context ctx(handlers_invoker_type(router.value().handlers()),
+                             router.value().path(), request);
+            co_await ctx.start();
+
+            // TODO: http response
+          } else {
+            res.result(http::status::not_found);
+          }
+        } else {
+          res.result(http::status::bad_request);
+        }
+
         res.prepare_payload();
 
         co_await net::async_write(stream,
