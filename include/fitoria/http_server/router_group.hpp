@@ -9,6 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http_server/detail/handler_trait.hpp>
+
 #include <fitoria/http_server/router.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -58,5 +60,7 @@ private:
   handlers_t<HandlerTrait> middlewares_;
   std::vector<router_type> routers_;
 };
+
+using router_group = basic_router_group<detail::handler_trait>;
 
 FITORIA_NAMESPACE_END

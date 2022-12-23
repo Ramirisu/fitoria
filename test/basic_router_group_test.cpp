@@ -27,7 +27,7 @@ TEST_CASE("basic")
       }
     };
   };
-  using router_group = basic_router_group<handler_trait>;
+  using router_group_type = basic_router_group<handler_trait>;
 
   auto h = []() -> int { return 0; };
   auto l = []() -> int { return 1; };
@@ -35,34 +35,34 @@ TEST_CASE("basic")
   auto a_f = []() -> int { return 3; };
 
   auto rg
-      = router_group("/ramirisu")
+      = router_group_type("/ramirisu")
             .use(l)
             .route(methods::get, "/libraries", h)
             .route(methods::put, "/libraries", h)
-            .sub_group(router_group("/gul")
+            .sub_group(router_group_type("/gul")
                            .use(a_g)
                            .route(methods::get, "/tags", h)
                            .route(methods::put, "/tags", h)
-                           .sub_group(router_group("/tags")
+                           .sub_group(router_group_type("/tags")
                                           .route(methods::get, "/:tag", h)
                                           .route(methods::put, "/:tag", h))
-                           .sub_group(router_group("/branches")
+                           .sub_group(router_group_type("/branches")
                                           .route(methods::get, "/:branch", h)
                                           .route(methods::put, "/:branch", h)))
-            .sub_group(router_group("/fitoria")
+            .sub_group(router_group_type("/fitoria")
                            .use(a_f)
                            .route(methods::get, "/tags", h)
                            .route(methods::put, "/tags", h)
-                           .sub_group(router_group("/tags")
+                           .sub_group(router_group_type("/tags")
                                           .route(methods::get, "/:tag", h)
                                           .route(methods::put, "/:tag", h))
-                           .sub_group(router_group("/branches")
+                           .sub_group(router_group_type("/branches")
                                           .route(methods::get, "/:branch", h)
                                           .route(methods::put, "/:branch", h)));
 
   CHECK(range_equal(
       rg.get_all_routers(),
-      std::vector<router_group::router_type> {
+      std::vector<router_group_type::router_type> {
           { methods::get, "/ramirisu/libraries", { l, h } },
           { methods::put, "/ramirisu/libraries", { l, h } },
           { methods::get, "/ramirisu/gul/tags", { l, a_g, h } },

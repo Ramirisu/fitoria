@@ -20,9 +20,6 @@ FITORIA_NAMESPACE_BEGIN
 class http_server {
 public:
   using handler_trait = detail::handler_trait;
-  using router_type = basic_router<handler_trait>;
-  using router_group_type = basic_router_group<handler_trait>;
-  using router_tree_type = basic_router_tree<handler_trait>;
   using handlers_invoker_type = detail::handlers_invoker<handler_trait>;
 
   http_server(unsigned int nb_threads = std::thread::hardware_concurrency())
@@ -38,12 +35,12 @@ public:
     stop();
   }
 
-  expected<void, router_error> route(const router_type& router)
+  expected<void, router_error> route(const router& router)
   {
-    return router_tree_.try_insert(std::move(router));
+    return router_tree_.try_insert(router);
   }
 
-  expected<void, router_error> route(const router_group_type& router_group)
+  expected<void, router_error> route(const router_group& router_group)
   {
     for (auto&& router : router_group.get_all_routers()) {
       if (auto res = router_tree_.try_insert(router); !res) {
@@ -214,7 +211,7 @@ private:
   std::atomic<bool> running_;
   net::io_context ioc_;
   net::thread_pool thread_pool_;
-  basic_router_tree<handler_trait> router_tree_;
+  router_tree router_tree_;
 };
 
 FITORIA_NAMESPACE_END

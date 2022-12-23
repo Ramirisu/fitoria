@@ -22,7 +22,6 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_context {
   using handler_trait = detail::handler_trait;
-  using router_type = basic_router<handler_trait>;
   using native_request_t = http::request<http::string_body>;
 
 public:
@@ -53,7 +52,7 @@ public:
   };
 
   http_context(detail::handlers_invoker<handler_trait> invoker,
-               const router_type& router,
+               const router& router,
                native_request_t& native_request)
       : invoker_(std::move(invoker))
       , router_(router)
@@ -83,7 +82,7 @@ public:
 
 private:
   detail::handlers_invoker<handler_trait> invoker_;
-  const router_type& router_;
+  const router& router_;
   native_request_t& native_request_;
 };
 

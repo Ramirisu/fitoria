@@ -13,6 +13,7 @@
 
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/net.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <functional>
 

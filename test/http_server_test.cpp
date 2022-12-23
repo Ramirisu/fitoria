@@ -250,7 +250,7 @@ TEST_CASE("middlewares and router's invocation order")
   int state = 0;
   http_server server;
   server.route(
-      http_server::router_group_type("/api")
+      router_group("/api")
           .use([&](auto& c) -> net::awaitable<void> {
             CHECK_EQ(++state, 1);
             co_await c.next();
