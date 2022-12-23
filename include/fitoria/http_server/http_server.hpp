@@ -53,7 +53,7 @@ public:
     return {};
   }
 
-  void run(string_view addr, std::uint16_t port)
+  void run(std::string_view addr, std::uint16_t port)
   {
     bool running = running_.exchange(true);
 
@@ -67,8 +67,9 @@ public:
     }
   }
 
-  void
-  run_with_tls(string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
+  void run_with_tls(std::string_view addr,
+                    std::uint16_t port,
+                    net::ssl::context ssl_ctx)
   {
     bool running = running_.exchange(true);
 

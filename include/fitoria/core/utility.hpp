@@ -11,9 +11,6 @@
 
 #include <gul/expected.hpp>
 #include <gul/optional.hpp>
-#include <gul/string_view.hpp>
-
-#include <boost/core/detail/string_view.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -26,10 +23,6 @@ using gul::unexpected;
 using gul::nullopt;
 using gul::optional;
 
-using gul::string_view;
-
 using gul::function_traits;
-
-using boost_string_view = boost::core::string_view;
 
 FITORIA_NAMESPACE_END

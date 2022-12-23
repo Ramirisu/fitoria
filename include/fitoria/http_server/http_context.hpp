@@ -17,6 +17,8 @@
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/router.hpp>
 
+#include <string_view>
+
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
@@ -24,7 +26,7 @@ class http_context {
 
 public:
   http_context(detail::handlers_invoker<handler_trait> invoker,
-               string_view path,
+               std::string_view path,
                http_request& request)
       : invoker_(std::move(invoker))
       , path_(path)
@@ -42,7 +44,7 @@ public:
     return request_;
   }
 
-  string_view path() const noexcept
+  std::string_view path() const noexcept
   {
     return path_;
   }
@@ -59,7 +61,7 @@ public:
 
 private:
   detail::handlers_invoker<handler_trait> invoker_;
-  string_view path_;
+  std::string_view path_;
   http_request& request_;
 };
 

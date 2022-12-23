@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -36,41 +37,25 @@ private:
 
     struct string_hash {
       using is_transparent = void;
-      size_t operator()(const char* txt) const
+      size_t operator()(const char* s) const
       {
-        return std::hash<std::string_view> {}(txt);
+        return std::hash<std::string_view> {}(s);
       }
 
-      size_t operator()(string_view txt) const
+      size_t operator()(std::string_view sv) const
       {
-        return std::hash<string_view> {}(txt);
+        return std::hash<std::string_view> {}(sv);
       }
 
-      size_t operator()(const std::string& txt) const
+      size_t operator()(const std::string& s) const
       {
-        return std::hash<std::string> {}(txt);
-      }
-    };
-
-    struct equal_to {
-      using is_transparent = void;
-
-      template <class T, class U>
-      constexpr auto operator()(T&& lhs, U&& rhs) const
-          -> decltype(std::forward<T>(lhs) == std::forward<U>(rhs))
-      {
-        return std::forward<T>(lhs) == std::forward<U>(rhs);
-      }
-
-      constexpr auto operator()(string_view sv, const std::string& s) const
-      {
-        return sv == string_view(s);
+        return std::hash<std::string> {}(s);
       }
     };
 
   private:
     auto try_insert(const router_type& r,
-                    const std::vector<string_view>& path_tokens,
+                    const std::vector<std::string_view>& path_tokens,
                     std::size_t path_index) noexcept
         -> expected<void, router_error>
     {
@@ -96,7 +81,7 @@ private:
                                                         path_index + 1);
     }
 
-    auto try_find(const std::vector<string_view>& path_tokens,
+    auto try_find(const std::vector<std::string_view>& path_tokens,
                   std::size_t path_index) const noexcept
         -> expected<const router_type&, router_error>
     {
@@ -118,7 +103,7 @@ private:
           });
     }
 
-    auto try_find_path_trees(string_view token) const noexcept
+    auto try_find_path_trees(std::string_view token) const noexcept
         -> optional<const node&>
     {
       if (auto iter = path_trees_.find(token); iter != path_trees_.end()) {
@@ -128,26 +113,26 @@ private:
       return nullopt;
     }
 
-    static auto try_parse_path(string_view path) noexcept
-        -> expected<std::vector<string_view>, router_error>
+    static auto try_parse_path(std::string_view path) noexcept
+        -> expected<std::vector<std::string_view>, router_error>
     {
       if (path.empty() || !path.starts_with('/')) {
         return unexpected<router_error>(router_error::parse_path_error);
       }
 
-      auto split
-          = [](string_view p) noexcept -> std::tuple<string_view, string_view> {
+      auto split = [](std::string_view p) noexcept
+          -> std::tuple<std::string_view, std::string_view> {
         p.remove_prefix(1);
         auto pos = p.find('/');
-        if (pos == string_view::npos) {
+        if (pos == std::string_view::npos) {
           return { p.substr(0, pos), {} };
         }
         return { p.substr(0, pos), p.substr(pos) };
       };
 
-      std::vector<string_view> tokens;
+      std::vector<std::string_view> tokens;
       while (!path.empty()) {
-        string_view token;
+        std::string_view token;
         std::tie(token, path) = split(path);
         if (token.empty() || (token.starts_with(':') && token.size() == 1)) {
           return unexpected<router_error>(router_error::parse_path_error);
@@ -159,7 +144,8 @@ private:
     }
 
     optional<router_type> router_;
-    std::unordered_map<std::string, node, string_hash, equal_to> path_trees_;
+    std::unordered_map<std::string, node, string_hash, std::equal_to<>>
+        path_trees_;
     optional<std::shared_ptr<node>> param_trees_;
   };
 
@@ -171,7 +157,7 @@ public:
     });
   }
 
-  auto try_find(methods method, string_view path) const noexcept
+  auto try_find(methods method, std::string_view path) const noexcept
       -> expected<const router_type&, router_error>
   {
     return node::try_parse_path(path).and_then([&](auto&& path_tokens) {
