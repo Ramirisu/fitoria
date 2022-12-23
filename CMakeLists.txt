@@ -8,6 +8,7 @@ project(
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
 
 include(cmake/CPM.cmake)
+include(cmake/fitoria_utils.cmake)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
