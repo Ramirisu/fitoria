@@ -283,7 +283,7 @@ TEST_CASE("simple request without tls")
   http_server server;
   server.route({ methods::get, "/api/users/:name/email",
                  [&](auto& c) -> net::awaitable<void> {
-                   CHECK_EQ(c.path(), string_view("/api/users/:name/email"));
+                   CHECK_EQ(c.path(), "/api/users/:name/email");
                    auto req = c.request();
                    CHECK_EQ(req.method(), methods::get);
                    CHECK_EQ(req.body(), "text");
@@ -305,7 +305,7 @@ TEST_CASE("simple request with tls")
   http_server server;
   server.route({ methods::get, "/api/users/:name/email",
                  [&](auto& c) -> net::awaitable<void> {
-                   CHECK_EQ(c.path(), string_view("/api/users/:name/email"));
+                   CHECK_EQ(c.path(), "/api/users/:name/email");
                    auto req = c.request();
                    CHECK_EQ(req.method(), methods::get);
                    CHECK_EQ(req.body(), "text");

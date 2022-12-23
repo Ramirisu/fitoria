@@ -5,6 +5,7 @@ project(
   VERSION 0.0.0
   LANGUAGES CXX)
 
+option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
 
 include(cmake/CPM.cmake)
@@ -15,7 +16,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-cpmaddpackage("gh:Ramirisu/gul#7ca76ca")
+cpmaddpackage("gh:Ramirisu/gul#298c49e")
 cpmaddpackage("gh:boostorg/boost#boost-1.81.0")
 
 find_package(OpenSSL REQUIRED)
@@ -25,6 +26,11 @@ target_link_libraries(fitoria INTERFACE gul OpenSSL::SSL Boost::asio
                                         Boost::beast)
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+                           
+if(FITORIA_BUILD_EXAMPLES)
+  add_subdirectory(example)
+endif()
 
 if(FITORIA_BUILD_TESTS)
   cpmaddpackage("gh:doctest/doctest@2.4.9")

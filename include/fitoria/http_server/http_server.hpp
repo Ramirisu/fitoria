@@ -58,14 +58,7 @@ public:
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        [](std::exception_ptr ptr) {
-          if (ptr)
-            try {
-              std::rethrow_exception(ptr);
-            } catch (std::exception& e) {
-              std::cerr << "Error: " << e.what() << "\n";
-            }
-        });
+        net::detached);
 
     if (!running) {
       start_worker_threads();
@@ -81,18 +74,16 @@ public:
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
                   std::move(ssl_ctx)),
-        [](std::exception_ptr ptr) {
-          if (ptr)
-            try {
-              std::rethrow_exception(ptr);
-            } catch (std::exception& e) {
-              std::cerr << "Error: " << e.what() << "\n";
-            }
-        });
+        net::detached);
 
     if (!running) {
       start_worker_threads();
     }
+  }
+
+  void wait()
+  {
+    ioc_.run();
   }
 
   void stop()
@@ -183,8 +174,9 @@ private:
 
         bool keep_alive = req.keep_alive();
 
-        auto router
-            = router_tree_.try_find(req.method(), string_view(req.target()));
+        auto router = router_tree_.try_find(
+            req.method(),
+            string_view(req.target().data(), req.target().size()));
         http_context ctx(handlers_invoker_type(router.value().handlers()),
                          router.value(), req);
         co_await ctx.start();
