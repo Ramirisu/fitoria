@@ -9,21 +9,21 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/router/router.hpp>
+#include <fitoria/http_server/router.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
-class router_group {
+class basic_router_group {
 public:
-  using router_type = router<HandlerTrait>;
+  using router_type = basic_router<HandlerTrait>;
 
-  router_group(std::string path)
+  basic_router_group(std::string path)
       : path_(std::move(path))
   {
   }
 
-  auto use(handler_t<HandlerTrait> middleware) -> router_group&
+  auto use(handler_t<HandlerTrait> middleware) -> basic_router_group&
   {
     middlewares_.push_back(std::move(middleware));
     return *this;
@@ -31,7 +31,7 @@ public:
 
   auto route(methods method,
              const std::string& path,
-             handler_t<HandlerTrait> handler) -> router_group&
+             handler_t<HandlerTrait> handler) -> basic_router_group&
   {
     auto handlers = middlewares_;
     handlers.push_back(std::move(handler));
@@ -39,7 +39,7 @@ public:
     return *this;
   }
 
-  auto sub_group(router_group rg) -> router_group&
+  auto sub_group(basic_router_group rg) -> basic_router_group&
   {
     for (auto& routers : rg.routers_) {
       routers_.push_back(routers.rebind_parent(path_, middlewares_));

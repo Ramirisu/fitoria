@@ -18,16 +18,20 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
-class router {
+class basic_router {
 public:
-  router(methods method, std::string path, handler_t<HandlerTrait> handler)
+  basic_router(methods method,
+               std::string path,
+               handler_t<HandlerTrait> handler)
       : method_(method)
       , path_(std::move(path))
       , handlers_({ std::move(handler) })
   {
   }
 
-  router(methods method, std::string path, handlers_t<HandlerTrait> handlers)
+  basic_router(methods method,
+               std::string path,
+               handlers_t<HandlerTrait> handlers)
       : method_(method)
       , path_(std::move(path))
       , handlers_(std::move(handlers))
@@ -51,14 +55,15 @@ public:
 
   auto rebind_parent(const std::string& parent_path,
                      const handlers_t<HandlerTrait>& parent_handlers) const
-      -> router
+      -> basic_router
   {
     auto handlers = parent_handlers;
     handlers.insert(handlers.end(), handlers_.begin(), handlers_.end());
-    return router(method_, parent_path + path_, std::move(handlers));
+    return basic_router(method_, parent_path + path_, std::move(handlers));
   }
 
-  friend auto operator==(const router& lhs, const router& rhs) -> bool
+  friend auto operator==(const basic_router& lhs, const basic_router& rhs)
+      -> bool
   {
     handler_compare_t<HandlerTrait> compare;
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()

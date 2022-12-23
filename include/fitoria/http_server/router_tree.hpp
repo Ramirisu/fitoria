@@ -13,8 +13,8 @@
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/router/router.hpp>
-#include <fitoria/router/router_error.hpp>
+#include <fitoria/http_server/router.hpp>
+#include <fitoria/http_server/router_error.hpp>
 
 #include <memory>
 #include <string>
@@ -24,13 +24,13 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
-class router_tree {
+class basic_router_tree {
 public:
-  using router_type = router<HandlerTrait>;
+  using router_type = basic_router<HandlerTrait>;
 
 private:
   class node {
-    friend class router_tree;
+    friend class basic_router_tree;
 
     struct string_hash {
       using is_transparent = void;

@@ -13,7 +13,7 @@
 
 #include <fitoria/core/net.hpp>
 #include <fitoria/http_server/detail/handlers_invoker.hpp>
-#include <fitoria/router/router.hpp>
+#include <fitoria/http_server/router.hpp>
 
 #include <functional>
 #include <vector>
@@ -22,7 +22,7 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_context {
   using handler_trait = detail::handler_trait;
-  using router_type = router<handler_trait>;
+  using router_type = basic_router<handler_trait>;
   using native_request_t = http::request<http::string_body>;
 
 public:

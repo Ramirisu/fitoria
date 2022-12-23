@@ -8,7 +8,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/router/router_tree.hpp>
+#include <fitoria/http_server/router_tree.hpp>
 
 using namespace fitoria;
 
@@ -26,15 +26,15 @@ TEST_CASE("try_insert")
       }
     };
   };
-  using rt_type = router_tree<handler_trait>;
+  using router_tree = basic_router_tree<handler_trait>;
   using exp_t = expected<void, router_error>;
 
   auto r = [=](methods method, std::string path) {
-    return rt_type::router_type(method, std::move(path),
-                                handlers_t<handler_trait> {});
+    return router_tree::router_type(method, std::move(path),
+                                    handlers_t<handler_trait> {});
   };
 
-  rt_type rt;
+  router_tree rt;
   CHECK_EQ(rt.try_insert(r(methods::get, "")),
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "/")),
@@ -70,15 +70,15 @@ TEST_CASE("try_find")
     using handlers_t = std::vector<handler_t>;
     struct handler_compare_t;
   };
-  using rt_type = router_tree<handler_trait>;
+  using router_tree = basic_router_tree<handler_trait>;
 
   auto r = [=](methods method, std::string path, int exp) {
-    return rt_type::router_type(
+    return router_tree::router_type(
         method, std::move(path),
         handlers_t<handler_trait> { [=]() { return exp; } });
   };
 
-  rt_type rt;
+  router_tree rt;
   rt.try_insert(r(methods::get, "/r", 0));
   rt.try_insert(r(methods::put, "/r", 1));
   rt.try_insert(r(methods::get, "/r/x", 10));
