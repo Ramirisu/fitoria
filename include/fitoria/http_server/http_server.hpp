@@ -180,23 +180,7 @@ private:
         http::response<http::string_body> res;
         res.keep_alive(keep_alive);
 
-        if (auto url = urls::parse_origin_form(req.target()); url) {
-          http_request request(req, url.value());
-
-          if (auto router
-              = router_tree_.try_find(req.method(), url.value().path());
-              router) {
-            http_context ctx(handlers_invoker_type(router.value().handlers()),
-                             router.value().path(), request);
-            co_await ctx.start();
-
-            // TODO: http response
-          } else {
-            res.result(http::status::not_found);
-          }
-        } else {
-          res.result(http::status::bad_request);
-        }
+        co_await do_handler(req, res);
 
         res.prepare_payload();
 
@@ -212,6 +196,81 @@ private:
           throw;
       }
     }
+  }
+
+  net::awaitable<void> do_handler(http::request<http::string_body>& req,
+                                  http::response<http::string_body>& res)
+  {
+    if (auto req_url = urls::parse_origin_form(req.target()); req_url) {
+      if (auto router
+          = router_tree_.try_find(req.method(), req_url.value().path());
+          router) {
+        if (auto qs = convert_route_param_to_query_string(
+                router.value().path(), req_url.value().encoded_path());
+            qs) {
+          http_request request(req, req_url.value());
+          http_context ctx(handlers_invoker_type(router.value().handlers()),
+                           router.value().path(),
+                           urls::parse_query(qs.value()).value(), request);
+          co_await ctx.start();
+          // TODO: http response
+        } else {
+          res.result(http::status::bad_request);
+        }
+      } else {
+        res.result(http::status::not_found);
+      }
+    } else {
+      res.result(http::status::bad_request);
+    }
+  }
+
+  /// @brief convert parameterized path and path into name-value pairs for being
+  /// consumed by urls::parse_query()
+  /// @param router_path "/api/v1/users/:user/repos/:repo"
+  /// @param req_path "/api/v1/users/ramirisu/repos/fitoria"
+  /// @return "user=ramirisu&repo=fitoria"
+  static auto
+  convert_route_param_to_query_string(std::string_view router_path,
+                                      std::string_view req_path) noexcept
+      -> optional<std::string>
+  {
+    auto split = [](std::string_view p) noexcept
+        -> std::tuple<std::string_view, std::string_view> {
+      p.remove_prefix(1);
+      auto pos = p.find('/');
+      if (pos == std::string_view::npos) {
+        return { p.substr(0, pos), {} };
+      }
+      return { p.substr(0, pos), p.substr(pos) };
+    };
+
+    std::string qs;
+
+    while (!router_path.empty() && !req_path.empty()) {
+      std::string_view router_path_token;
+      std::string_view req_path_token;
+      std::tie(router_path_token, router_path) = split(router_path);
+      std::tie(req_path_token, req_path) = split(req_path);
+      if (!router_path_token.starts_with(':')) {
+        continue;
+      }
+      router_path_token.remove_prefix(1);
+      qs += router_path_token;
+      qs += '=';
+      qs += req_path_token;
+      qs += '&';
+    }
+
+    if (qs.ends_with('&')) {
+      qs.pop_back();
+    }
+
+    if (!router_path.empty() || !req_path.empty()) {
+      return nullopt;
+    }
+
+    return qs;
   }
 
   unsigned int nb_threads_;

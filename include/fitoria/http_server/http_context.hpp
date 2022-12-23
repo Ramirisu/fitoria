@@ -27,9 +27,11 @@ class http_context {
 public:
   http_context(detail::handlers_invoker<handler_trait> invoker,
                std::string_view path,
+               urls::params_encoded_view params,
                http_request& request)
       : invoker_(std::move(invoker))
       , path_(path)
+      , params_(params)
       , request_(request)
   {
   }
@@ -49,6 +51,16 @@ public:
     return path_;
   }
 
+  urls::params_encoded_view encoded_params() const noexcept
+  {
+    return params_;
+  }
+
+  urls::params_view params() const noexcept
+  {
+    return params_;
+  }
+
   handler_result_t<handler_trait> start()
   {
     co_await invoker_.start(*this);
@@ -62,6 +74,7 @@ public:
 private:
   detail::handlers_invoker<handler_trait> invoker_;
   std::string_view path_;
+  urls::params_encoded_view params_;
   http_request& request_;
 };
 

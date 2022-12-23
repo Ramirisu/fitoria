@@ -286,6 +286,12 @@ void configure_server(http_server& server)
       methods::get, "/api/v1/users/:user/filmography/years/:year",
       [&](http_context& c) -> net::awaitable<void> {
         CHECK_EQ(c.path(), "/api/v1/users/:user/filmography/years/:year");
+        CHECK_EQ(c.encoded_params().size(), 2);
+        CHECK_EQ((*c.encoded_params().find("user")).value, R"(Rina%20Hikada)");
+        CHECK_EQ((*c.encoded_params().find("year")).value, R"(2022)");
+        CHECK_EQ(c.params().size(), 2);
+        CHECK_EQ((*c.params().find("user")).value, "Rina Hikada");
+        CHECK_EQ((*c.params().find("year")).value, "2022");
         CHECK_EQ(c.request().method(), methods::get);
         CHECK_EQ(c.request().encoded_path(),
                  R"(/api/v1/users/Rina%20Hikada/filmography/years/2022)");
@@ -294,10 +300,12 @@ void configure_server(http_server& server)
         CHECK_EQ(c.request().encoded_query(),
                  R"(name=Rina%20Hikada&birth=1994%2F06%2F15)");
         CHECK_EQ(c.request().query(), "name=Rina Hikada&birth=1994/06/15");
+        CHECK_EQ(c.request().encoded_params().size(), 2);
         CHECK_EQ((*c.request().encoded_params().find("name")).value,
                  R"(Rina%20Hikada)");
         CHECK_EQ((*c.request().encoded_params().find("birth")).value,
                  R"(1994%2F06%2F15)");
+        CHECK_EQ(c.request().params().size(), 2);
         CHECK_EQ((*c.request().params().find("name")).value, "Rina Hikada");
         CHECK_EQ((*c.request().params().find("birth")).value, "1994/06/15");
         CHECK_EQ(c.request().body(), "text");
