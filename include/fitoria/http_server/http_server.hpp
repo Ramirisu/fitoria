@@ -86,7 +86,6 @@ public:
 
   http_server(http_server_config config)
       : config_(std::move(config))
-      , running_(false)
       , ioc_(static_cast<int>(config_.threads_))
       , thread_pool_(config_.threads_)
   {
@@ -97,35 +96,35 @@ public:
     stop();
   }
 
-  void run(std::string_view addr, std::uint16_t port)
+  http_server& bind(std::string_view addr, std::uint16_t port)
   {
-    bool running = running_.exchange(true);
-
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
         net::detached);
 
-    if (!running) {
-      run_io();
-    }
+    return *this;
   }
 
-  void run_with_tls(std::string_view addr,
-                    std::uint16_t port,
-                    net::ssl::context ssl_ctx)
+  http_server&
+  bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
   {
-    bool running = running_.exchange(true);
-
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
                   std::move(ssl_ctx)),
         net::detached);
 
-    if (!running) {
-      run_io();
+    return *this;
+  }
+
+  http_server& run()
+  {
+    for (auto i = 0U; i < config_.threads_; ++i) {
+      net::post(thread_pool_, [&]() { ioc_.run(); });
     }
+
+    return *this;
   }
 
   void wait()
@@ -139,13 +138,6 @@ public:
   }
 
 private:
-  void run_io()
-  {
-    for (auto i = 0U; i < config_.threads_; ++i) {
-      net::post(thread_pool_, [&]() { ioc_.run(); });
-    }
-  }
-
   using acceptor_t = typename net::ip::tcp::acceptor::template rebind_executor<
       net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
       other;
@@ -320,7 +312,6 @@ private:
   }
 
   http_server_config config_;
-  std::atomic<bool> running_;
   net::io_context ioc_;
   net::thread_pool thread_pool_;
 };

@@ -252,6 +252,7 @@ net::ssl::context get_client_ssl_ctx()
 
 const char* localhost = "127.0.0.1";
 const std::uint16_t port = 8080;
+const auto server_start_wait_time = std::chrono::milliseconds(200);
 
 }
 
@@ -262,11 +263,17 @@ TEST_CASE("http_server_config")
           .set_threads(1)
           .set_max_listen_connections(2048)
           .set_client_request_timeout(std::chrono::seconds(1))
-          .route(router(methods::get, "/get",
+          .route(router(methods::get, "/api/get",
                         [&]([[maybe_unused]] http_context& c)
                             -> net::awaitable<void> { co_return; })));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto resp = simple_http_client(localhost, port)
+                  .with(methods::get)
+                  .with_target("/api/get")
+                  .send_request();
+  CHECK_EQ(resp.result(), status::ok);
 }
 
 TEST_CASE("middlewares and router's invocation order")
@@ -289,8 +296,8 @@ TEST_CASE("middlewares and router's invocation order")
                    CHECK_EQ(++state, 3);
                    co_return;
                  })));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
@@ -351,8 +358,8 @@ TEST_CASE("simple request without tls")
 {
   auto server = http_server(http_server_config().configure(
       simple_http_request_test::configure_server));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = simple_http_client(localhost, port);
   simple_http_request_test::configure_client(client);
@@ -364,8 +371,8 @@ TEST_CASE("simple request with tls")
 {
   auto server = http_server(http_server_config().configure(
       simple_http_request_test::configure_server));
-  server.run_with_tls(localhost, port, get_server_ssl_ctx());
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind_ssl(localhost, port, get_server_ssl_ctx()).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = simple_http_client(localhost, port);
   simple_http_request_test::configure_client(client);
@@ -380,8 +387,8 @@ TEST_CASE("response status only")
         c.status(status::accepted);
         co_return;
       })));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
@@ -401,8 +408,8 @@ TEST_CASE("response with plain text")
         c.plain_text("plain text");
         co_return;
       })));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
@@ -426,8 +433,8 @@ TEST_CASE("response with plain text")
         });
         co_return;
       })));
-  server.run(localhost, port);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  server.bind(localhost, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)

@@ -18,6 +18,21 @@ int main()
                FITORIA_ASSERT(c.request().method() == methods::get);
                co_return;
              })));
-  server.run("127.0.0.1", 8080);
-  server.wait();
+  server
+      // start to listen to port 8080
+      .bind("127.0.0.1", 8080)
+      // start to listen to port 443 with SSL enabled
+      .bind_ssl("127.0.0.1", 443,
+                []() {
+                  using net::ssl::context;
+                  auto ctx = context(context::tls_server);
+                  ctx.set_options(context::default_workarounds
+                                  | context::no_sslv2 | context::no_sslv3);
+                  return ctx;
+                }())
+      // notify workers to start the IO loop
+      // notice that `run()` will not block current thread
+      .run()
+      // block current thread, current thread will join to process the IO loop
+      .wait();
 }
