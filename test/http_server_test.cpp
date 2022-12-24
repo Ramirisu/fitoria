@@ -36,6 +36,12 @@ public:
     return *this;
   }
 
+  simple_http_client& with_field(fields name, std::string_view value)
+  {
+    fields_.insert(name, value);
+    return *this;
+  }
+
   simple_http_client& with_body(std::string body)
   {
     body_ = std::move(body);
@@ -66,7 +72,7 @@ private:
       net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
       other;
 
-  net::awaitable<http::response<http::dynamic_body>> do_session()
+  net::awaitable<http::response<http::string_body>> do_session()
   {
     auto resolver = co_await new_resolver();
     auto stream = net::tcp_stream(co_await net::this_coro::executor);
@@ -86,7 +92,7 @@ private:
     co_return resp;
   }
 
-  net::awaitable<http::response<http::dynamic_body>>
+  net::awaitable<http::response<http::string_body>>
   do_session(net::ssl::context ssl_ctx)
   {
     auto resolver = co_await new_resolver();
@@ -123,10 +129,13 @@ private:
         net::ip::tcp::resolver(co_await net::this_coro::executor));
   }
 
-  net::awaitable<http::response<http::dynamic_body>>
+  net::awaitable<http::response<http::string_body>>
   do_session_impl(net::tcp_stream& stream)
   {
     http::request<http::string_body> req { method_, target_, 11 };
+    for (const auto& f : fields_) {
+      req.set(f.name(), f.value());
+    }
     req.set(http::field::host, host_);
     req.body() = body_;
     req.prepare_payload();
@@ -137,7 +146,7 @@ private:
 
     net::flat_buffer buffer;
 
-    http::response<http::dynamic_body> res;
+    http::response<http::string_body> res;
 
     co_await http::async_read(stream, buffer, res);
 
@@ -148,6 +157,7 @@ private:
   std::uint16_t port_;
   methods method_ = methods::unknown;
   std::string target_;
+  http::fields fields_;
   std::string body_;
 };
 
@@ -272,8 +282,9 @@ TEST_CASE("middlewares and router's invocation order")
   auto resp = simple_http_client(localhost, port)
                   .with(methods::get)
                   .with_target("/api/get")
+                  .with_field(fields::connection, "close")
                   .send_request();
-  CHECK_EQ(resp.result_int(), 200);
+  CHECK_EQ(resp.result(), status::ok);
 
   CHECK_EQ(++state, 6);
 }
@@ -318,7 +329,8 @@ void configure_client(simple_http_client& client)
   client.with(methods::get)
       .with_target(
           R"(/api/v1/users/Rina%20Hikada/filmography/years/2022?name=Rina%20Hikada&birth=1994%2F06%2F15)")
-      .with_body("text");
+      .with_body("text")
+      .with_field(fields::connection, "close");
 }
 }
 
@@ -332,7 +344,7 @@ TEST_CASE("simple request without tls")
   auto client = simple_http_client(localhost, port);
   simple_http_request_test::configure_client(client);
   auto resp = client.send_request();
-  CHECK_EQ(resp.result_int(), 200);
+  CHECK_EQ(resp.result(), status::ok);
 }
 
 TEST_CASE("simple request with tls")
@@ -345,7 +357,82 @@ TEST_CASE("simple request with tls")
   auto client = simple_http_client(localhost, port);
   simple_http_request_test::configure_client(client);
   auto resp = client.send_request(get_client_ssl_ctx());
-  CHECK_EQ(resp.result_int(), 200);
+  CHECK_EQ(resp.result(), status::ok);
+}
+
+TEST_CASE("response status only")
+{
+  http_server server;
+  server.route(
+      router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
+        c.status(status::accepted);
+        co_return;
+      }));
+  server.run(localhost, port);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  auto resp = simple_http_client(localhost, port)
+                  .with(methods::get)
+                  .with_target("/api")
+                  .with_field(fields::connection, "close")
+                  .send_request();
+  CHECK_EQ(resp.result(), status::accepted);
+  CHECK_EQ(resp.at(fields::connection), "close");
+  CHECK_EQ(resp.at(fields::content_length), "0");
+  CHECK_EQ(resp.body(), "");
+}
+
+TEST_CASE("response with plain text")
+{
+  http_server server;
+  server.route(
+      router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
+        c.plain_text("plain text");
+        co_return;
+      }));
+  server.run(localhost, port);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  auto resp = simple_http_client(localhost, port)
+                  .with(methods::get)
+                  .with_target("/api")
+                  .with_field(fields::connection, "close")
+                  .send_request();
+  CHECK_EQ(resp.result(), status::ok);
+  CHECK_EQ(resp.at(fields::content_type), "text/plain; charset=utf-8");
+  CHECK_EQ(resp.body(), "plain text");
+}
+
+TEST_CASE("response with plain text")
+{
+  http_server server;
+  server.route(
+      router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
+        c.json({
+            { "obj_boolean", true },
+            { "obj_number", 1234567 },
+            { "obj_string", "str" },
+            { "obj_array", json::array { false, 7654321, "rts" } },
+        });
+        co_return;
+      }));
+  server.run(localhost, port);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  auto resp = simple_http_client(localhost, port)
+                  .with(methods::get)
+                  .with_target("/api")
+                  .with_field(fields::connection, "close")
+                  .send_request();
+  CHECK_EQ(resp.result(), status::ok);
+  CHECK_EQ(resp.at(fields::content_type), "application/json; charset=utf-8");
+  CHECK_EQ(resp.body(),
+           json::serialize(json::value({
+               { "obj_boolean", true },
+               { "obj_number", 1234567 },
+               { "obj_string", "str" },
+               { "obj_array", json::array { false, 7654321, "rts" } },
+           })));
 }
 
 TEST_SUITE_END();

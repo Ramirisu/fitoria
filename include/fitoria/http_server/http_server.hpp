@@ -211,9 +211,8 @@ private:
           http_request request(req, req_url.value());
           http_context ctx(handlers_invoker_type(router.value().handlers()),
                            router.value().path(),
-                           urls::parse_query(qs.value()).value(), request);
+                           urls::parse_query(qs.value()).value(), request, res);
           co_await ctx.start();
-          // TODO: http response
         } else {
           res.result(http::status::bad_request);
         }

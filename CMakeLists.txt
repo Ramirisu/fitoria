@@ -23,7 +23,7 @@ find_package(OpenSSL REQUIRED)
 
 add_library(fitoria INTERFACE)
 target_link_libraries(fitoria INTERFACE gul OpenSSL::SSL Boost::asio
-                                        Boost::beast Boost::url)
+                                        Boost::beast Boost::url Boost::json)
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
