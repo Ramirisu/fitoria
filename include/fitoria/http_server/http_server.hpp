@@ -106,6 +106,7 @@ public:
     return *this;
   }
 
+#if defined(FITORIA_USE_OPENSSL)
   http_server&
   bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
   {
@@ -117,6 +118,7 @@ public:
 
     return *this;
   }
+#endif
 
   http_server& run()
   {
@@ -166,6 +168,7 @@ private:
     }
   }
 
+#if defined(FITORIA_USE_OPENSSL)
   net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
                                  net::ssl::context ssl_ctx)
   {
@@ -178,6 +181,7 @@ private:
                     net::detached);
     }
   }
+#endif
 
   net::awaitable<void> do_session(net::tcp_stream stream)
   {
@@ -187,6 +191,7 @@ private:
     stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
   }
 
+#if defined(FITORIA_USE_OPENSSL)
   net::awaitable<void> do_session(net::ssl_stream stream)
   {
     net::get_lowest_layer(stream).expires_after(
@@ -200,6 +205,7 @@ private:
     net::get_lowest_layer(stream).socket().shutdown(
         net::ip::tcp::socket::shutdown_send, ec);
   }
+#endif
 
   net::awaitable<void> do_session_impl(net::tcp_stream& stream)
   {

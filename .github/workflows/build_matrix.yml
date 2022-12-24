@@ -13,6 +13,7 @@ jobs:
         std: [20]
         build_type: [Debug]
         generator: [Ninja]
+        use_openssl: [OFF, ON]
         exclude:
           - os: windows-2022
             cxx: g++-12
@@ -21,7 +22,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+        
       - name: Cache CPM.cmake packages
         id: cache-cpm
         uses: actions/cache@v3
@@ -69,7 +70,8 @@ jobs:
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
             -DCPM_SOURCE_CACHE=~/cpm-cache \
             -DFITORIA_BUILD_EXAMPLES=ON \
-            -DFITORIA_BUILD_TESTS=ON
+            -DFITORIA_BUILD_TESTS=ON \
+            -DFITORIA_USE_OPENSSL=${{ matrix.use_openssl }}
 
       - name: Build
         shell: bash

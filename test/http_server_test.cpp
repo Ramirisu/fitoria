@@ -57,6 +57,7 @@ public:
     return future.get();
   }
 
+#if defined(FITORIA_USE_OPENSSL)
   auto send_request(net::ssl::context ssl_ctx)
   {
     net::io_context ioc;
@@ -66,6 +67,7 @@ public:
 
     return future.get();
   }
+#endif
 
 private:
   using resolver_t = typename net::ip::tcp::resolver::template rebind_executor<
@@ -92,6 +94,7 @@ private:
     co_return resp;
   }
 
+#if defined(FITORIA_USE_OPENSSL)
   net::awaitable<http::response<http::string_body>>
   do_session(net::ssl::context ssl_ctx)
   {
@@ -122,6 +125,7 @@ private:
 
     co_return resp;
   }
+#endif
 
   net::awaitable<resolver_t> new_resolver()
   {
@@ -161,6 +165,7 @@ private:
   std::string body_;
 };
 
+#if defined(FITORIA_USE_OPENSSL)
 net::ssl::context get_server_ssl_ctx()
 {
   const std::string key
@@ -249,6 +254,7 @@ net::ssl::context get_client_ssl_ctx()
   ssl_ctx.set_verify_mode(net::ssl::verify_none);
   return ssl_ctx;
 }
+#endif
 
 const char* localhost = "127.0.0.1";
 const std::uint16_t port = 8080;
@@ -367,6 +373,7 @@ TEST_CASE("simple request without tls")
   CHECK_EQ(resp.result(), status::ok);
 }
 
+#if defined(FITORIA_USE_OPENSSL)
 TEST_CASE("simple request with tls")
 {
   auto server = http_server(http_server_config().configure(
@@ -379,6 +386,7 @@ TEST_CASE("simple request with tls")
   auto resp = client.send_request(get_client_ssl_ctx());
   CHECK_EQ(resp.result(), status::ok);
 }
+#endif
 
 TEST_CASE("response status only")
 {

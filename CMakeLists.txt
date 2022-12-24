@@ -7,6 +7,7 @@ project(
 
 option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
+option(FITORIA_USE_OPENSSL "Build with OpenSSL" OFF)
 
 include(cmake/CPM.cmake)
 include(cmake/fitoria_utils.cmake)
@@ -19,11 +20,16 @@ endif()
 cpmaddpackage("gh:Ramirisu/gul#298c49e")
 cpmaddpackage("gh:boostorg/boost#boost-1.81.0")
 
-find_package(OpenSSL REQUIRED)
+if(FITORIA_USE_OPENSSL)
+  find_package(OpenSSL REQUIRED)
+endif()
 
 add_library(fitoria INTERFACE)
-target_link_libraries(fitoria INTERFACE gul OpenSSL::SSL Boost::asio
-                                        Boost::beast Boost::url Boost::json)
+target_link_libraries(fitoria INTERFACE gul Boost::asio Boost::beast Boost::url
+                                        Boost::json)
+if(OpenSSL_FOUND)
+  target_link_libraries(fitoria INTERFACE OpenSSL::SSL)
+endif()
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
