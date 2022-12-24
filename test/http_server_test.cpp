@@ -255,11 +255,24 @@ const std::uint16_t port = 8080;
 
 }
 
+TEST_CASE("http_server_config")
+{
+  auto server = http_server(
+      http_server_config()
+          .set_threads(1)
+          .set_max_listen_connections(2048)
+          .set_client_request_timeout(std::chrono::seconds(1))
+          .route(router(methods::get, "/get",
+                        [&]([[maybe_unused]] http_context& c)
+                            -> net::awaitable<void> { co_return; })));
+  server.run(localhost, port);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
 TEST_CASE("middlewares and router's invocation order")
 {
   int state = 0;
-  http_server server;
-  server.route(
+  auto server = http_server(http_server_config().route(
       router_group("/api")
           .use([&](auto& c) -> net::awaitable<void> {
             CHECK_EQ(++state, 1);
@@ -275,7 +288,7 @@ TEST_CASE("middlewares and router's invocation order")
                  [&]([[maybe_unused]] http_context& c) -> net::awaitable<void> {
                    CHECK_EQ(++state, 3);
                    co_return;
-                 }));
+                 })));
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -291,9 +304,9 @@ TEST_CASE("middlewares and router's invocation order")
 
 namespace simple_http_request_test {
 
-void configure_server(http_server& server)
+void configure_server(http_server_config& config)
 {
-  server.route(router(
+  config.route(router(
       methods::get, "/api/v1/users/:user/filmography/years/:year",
       [&](http_context& c) -> net::awaitable<void> {
         CHECK_EQ(c.path(), "/api/v1/users/:user/filmography/years/:year");
@@ -336,8 +349,8 @@ void configure_client(simple_http_client& client)
 
 TEST_CASE("simple request without tls")
 {
-  http_server server;
-  simple_http_request_test::configure_server(server);
+  auto server = http_server(http_server_config().configure(
+      simple_http_request_test::configure_server));
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -349,8 +362,8 @@ TEST_CASE("simple request without tls")
 
 TEST_CASE("simple request with tls")
 {
-  http_server server;
-  simple_http_request_test::configure_server(server);
+  auto server = http_server(http_server_config().configure(
+      simple_http_request_test::configure_server));
   server.run_with_tls(localhost, port, get_server_ssl_ctx());
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -362,12 +375,11 @@ TEST_CASE("simple request with tls")
 
 TEST_CASE("response status only")
 {
-  http_server server;
-  server.route(
+  auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.status(status::accepted);
         co_return;
-      }));
+      })));
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -384,12 +396,11 @@ TEST_CASE("response status only")
 
 TEST_CASE("response with plain text")
 {
-  http_server server;
-  server.route(
+  auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.plain_text("plain text");
         co_return;
-      }));
+      })));
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -405,8 +416,7 @@ TEST_CASE("response with plain text")
 
 TEST_CASE("response with plain text")
 {
-  http_server server;
-  server.route(
+  auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.json({
             { "obj_boolean", true },
@@ -415,7 +425,7 @@ TEST_CASE("response with plain text")
             { "obj_array", json::array { false, 7654321, "rts" } },
         });
         co_return;
-      }));
+      })));
   server.run(localhost, port);
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

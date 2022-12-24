@@ -11,13 +11,13 @@ using namespace fitoria;
 
 int main()
 {
-  http_server server;
-  server.route(router { methods::get, "/api/v1/:owner/:repo",
-                        [](http_context& c) -> net::awaitable<void> {
-                          FITORIA_ASSERT(c.path() == "/api/v1/:owner/:repo");
-                          FITORIA_ASSERT(c.request().method() == methods::get);
-                          co_return;
-                        } });
+  auto server = http_server(http_server_config().route(
+      router(methods::get, "/api/v1/:owner/:repo",
+             [](http_context& c) -> net::awaitable<void> {
+               FITORIA_ASSERT(c.path() == "/api/v1/:owner/:repo");
+               FITORIA_ASSERT(c.request().method() == methods::get);
+               co_return;
+             })));
   server.run("127.0.0.1", 8080);
   server.wait();
 }

@@ -17,40 +17,84 @@
 #include <fitoria/http_server/router_group.hpp>
 #include <fitoria/http_server/router_tree.hpp>
 
+#include <thread>
+
 FITORIA_NAMESPACE_BEGIN
+
+class http_server_config {
+  friend class http_server;
+
+public:
+  template <typename F>
+  http_server_config& configure(F&& f)
+    requires std::invocable<F, http_server_config&>
+  {
+    std::invoke(std::forward<F>(f), *this);
+    return *this;
+  }
+
+  http_server_config& set_threads(std::uint32_t num)
+  {
+    threads_ = std::max(num, 1U);
+    return *this;
+  }
+
+  http_server_config& set_max_listen_connections(int num)
+  {
+    max_listen_connections_ = num;
+    return *this;
+  }
+
+  http_server_config&
+  set_client_request_timeout(std::chrono::milliseconds timeout)
+  {
+    client_request_timeout_ = timeout;
+    return *this;
+  }
+
+  http_server_config& route(const router& router)
+  {
+    if (auto res = router_tree_.try_insert(router); !res) {
+      throw res.error();
+    }
+
+    return *this;
+  }
+
+  http_server_config& route(const router_group& router_group)
+  {
+    for (auto&& router : router_group.get_all_routers()) {
+      if (auto res = router_tree_.try_insert(router); !res) {
+        throw res.error();
+      }
+    }
+
+    return *this;
+  }
+
+private:
+  std::uint32_t threads_ = std::thread::hardware_concurrency();
+  int max_listen_connections_ = net::socket_base::max_listen_connections;
+  std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
+  router_tree router_tree_;
+};
 
 class http_server {
 public:
   using handler_trait = detail::handler_trait;
   using handlers_invoker_type = detail::handlers_invoker<handler_trait>;
 
-  http_server(unsigned int nb_threads = std::thread::hardware_concurrency())
-      : nb_threads_(std::max(nb_threads, 1U))
+  http_server(http_server_config config)
+      : config_(std::move(config))
       , running_(false)
-      , ioc_(nb_threads_)
-      , thread_pool_(nb_threads_)
+      , ioc_(static_cast<int>(config_.threads_))
+      , thread_pool_(config_.threads_)
   {
   }
 
   ~http_server()
   {
     stop();
-  }
-
-  expected<void, router_error> route(const router& router)
-  {
-    return router_tree_.try_insert(router);
-  }
-
-  expected<void, router_error> route(const router_group& router_group)
-  {
-    for (auto&& router : router_group.get_all_routers()) {
-      if (auto res = router_tree_.try_insert(router); !res) {
-        return res;
-      }
-    }
-
-    return {};
   }
 
   void run(std::string_view addr, std::uint16_t port)
@@ -63,7 +107,7 @@ public:
         net::detached);
 
     if (!running) {
-      start_worker_threads();
+      run_io();
     }
   }
 
@@ -80,7 +124,7 @@ public:
         net::detached);
 
     if (!running) {
-      start_worker_threads();
+      run_io();
     }
   }
 
@@ -95,9 +139,9 @@ public:
   }
 
 private:
-  void start_worker_threads()
+  void run_io()
   {
-    for (auto i = 0U; i < nb_threads_; ++i) {
+    for (auto i = 0U; i < config_.threads_; ++i) {
       net::post(thread_pool_, [&]() { ioc_.run(); });
     }
   }
@@ -114,7 +158,7 @@ private:
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));
     acceptor.bind(endpoint);
-    acceptor.listen(net::socket_base::max_listen_connections);
+    acceptor.listen(config_.max_listen_connections_);
     co_return acceptor;
   }
 
@@ -153,7 +197,8 @@ private:
 
   net::awaitable<void> do_session(net::ssl_stream stream)
   {
-    net::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    net::get_lowest_layer(stream).expires_after(
+        config_.client_request_timeout_);
 
     co_await stream.async_handshake(net::ssl::stream_base::server);
 
@@ -170,7 +215,7 @@ private:
 
     for (;;) {
       try {
-        stream.expires_after(std::chrono::seconds(30));
+        stream.expires_after(config_.client_request_timeout_);
 
         http::request<http::string_body> req;
         co_await http::async_read(stream, buffer, req);
@@ -183,6 +228,8 @@ private:
         co_await do_handler(req, res);
 
         res.prepare_payload();
+
+        stream.expires_after(config_.client_request_timeout_);
 
         co_await net::async_write(stream,
                                   http::message_generator(std::move(res)),
@@ -203,7 +250,7 @@ private:
   {
     if (auto req_url = urls::parse_origin_form(req.target()); req_url) {
       if (auto router
-          = router_tree_.try_find(req.method(), req_url.value().path());
+          = config_.router_tree_.try_find(req.method(), req_url.value().path());
           router) {
         if (auto qs = convert_route_param_to_query_string(
                 router.value().path(), req_url.value().encoded_path());
@@ -224,8 +271,8 @@ private:
     }
   }
 
-  /// @brief convert parameterized path and path into name-value pairs for being
-  /// consumed by urls::parse_query()
+  /// @brief convert parameterized path and path into name-value pairs for
+  /// being consumed by urls::parse_query()
   /// @param router_path "/api/v1/users/:user/repos/:repo"
   /// @param req_path "/api/v1/users/ramirisu/repos/fitoria"
   /// @return "user=ramirisu&repo=fitoria"
@@ -272,11 +319,10 @@ private:
     return qs;
   }
 
-  unsigned int nb_threads_;
+  http_server_config config_;
   std::atomic<bool> running_;
   net::io_context ioc_;
   net::thread_pool thread_pool_;
-  router_tree router_tree_;
 };
 
 FITORIA_NAMESPACE_END
