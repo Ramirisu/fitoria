@@ -21,7 +21,7 @@ int main()
   server
       // start to listen to port 8080
       .bind("127.0.0.1", 8080)
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
       // start to listen to port 443 with SSL enabled
       .bind_ssl("127.0.0.1", 443,
                 []() {

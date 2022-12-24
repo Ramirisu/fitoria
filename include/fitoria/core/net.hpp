@@ -12,7 +12,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
 #include <boost/asio/ssl.hpp>
 #include <boost/beast/ssl.hpp>
 #endif
@@ -36,7 +36,7 @@ using boost::beast::get_lowest_layer;
 using tcp_stream = typename boost::beast::tcp_stream::rebind_executor<
     use_awaitable_t<>::executor_with_default<any_io_executor>>::other;
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 #endif
 

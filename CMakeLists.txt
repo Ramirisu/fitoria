@@ -27,7 +27,8 @@ endif()
 add_library(fitoria INTERFACE)
 target_link_libraries(fitoria INTERFACE gul Boost::asio Boost::beast Boost::url
                                         Boost::json)
-if(OpenSSL_FOUND)
+if(OPENSSL_FOUND)
+  target_compile_definitions(fitoria INTERFACE FITORIA_HAS_OPENSSL)
   target_link_libraries(fitoria INTERFACE OpenSSL::SSL)
 endif()
 target_include_directories(fitoria

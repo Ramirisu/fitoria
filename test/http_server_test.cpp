@@ -57,7 +57,7 @@ public:
     return future.get();
   }
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
   auto send_request(net::ssl::context ssl_ctx)
   {
     net::io_context ioc;
@@ -94,7 +94,7 @@ private:
     co_return resp;
   }
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
   net::awaitable<http::response<http::string_body>>
   do_session(net::ssl::context ssl_ctx)
   {
@@ -152,6 +152,8 @@ private:
 
     http::response<http::string_body> res;
 
+    stream.expires_after(std::chrono::seconds(5));
+
     co_await http::async_read(stream, buffer, res);
 
     co_return res;
@@ -165,7 +167,7 @@ private:
   std::string body_;
 };
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
 net::ssl::context get_server_ssl_ctx()
 {
   const std::string key
@@ -256,14 +258,19 @@ net::ssl::context get_client_ssl_ctx()
 }
 #endif
 
+const auto server_start_wait_time = std::chrono::milliseconds(500);
 const char* localhost = "127.0.0.1";
-const std::uint16_t port = 8080;
-const auto server_start_wait_time = std::chrono::milliseconds(200);
+std::uint16_t generate_port()
+{
+  static std::uint16_t port = 50000;
+  return ++port;
+}
 
 }
 
 TEST_CASE("http_server_config")
 {
+  const auto port = generate_port();
   auto server = http_server(
       http_server_config()
           .set_threads(1)
@@ -285,6 +292,7 @@ TEST_CASE("http_server_config")
 TEST_CASE("middlewares and router's invocation order")
 {
   int state = 0;
+  const auto port = generate_port();
   auto server = http_server(http_server_config().route(
       router_group("/api")
           .use([&](auto& c) -> net::awaitable<void> {
@@ -362,6 +370,7 @@ void configure_client(simple_http_client& client)
 
 TEST_CASE("simple request without tls")
 {
+  const auto port = generate_port();
   auto server = http_server(http_server_config().configure(
       simple_http_request_test::configure_server));
   server.bind(localhost, port).run();
@@ -373,9 +382,10 @@ TEST_CASE("simple request without tls")
   CHECK_EQ(resp.result(), status::ok);
 }
 
-#if defined(FITORIA_USE_OPENSSL)
+#if defined(FITORIA_HAS_OPENSSL)
 TEST_CASE("simple request with tls")
 {
+  const auto port = generate_port();
   auto server = http_server(http_server_config().configure(
       simple_http_request_test::configure_server));
   server.bind_ssl(localhost, port, get_server_ssl_ctx()).run();
@@ -390,6 +400,7 @@ TEST_CASE("simple request with tls")
 
 TEST_CASE("response status only")
 {
+  const auto port = generate_port();
   auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.status(status::accepted);
@@ -411,6 +422,7 @@ TEST_CASE("response status only")
 
 TEST_CASE("response with plain text")
 {
+  const auto port = generate_port();
   auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.plain_text("plain text");
@@ -431,6 +443,7 @@ TEST_CASE("response with plain text")
 
 TEST_CASE("response with plain text")
 {
+  const auto port = generate_port();
   auto server = http_server(http_server_config().route(
       router(methods::get, "/api", [](http_context& c) -> net::awaitable<void> {
         c.json({
