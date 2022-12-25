@@ -137,7 +137,7 @@ public:
     });
   }
 
-  auto try_find(methods method, std::string_view path) const noexcept
+  auto try_find(verb method, std::string_view path) const noexcept
       -> expected<const router_type&, router_error>
   {
     return node::try_parse_path(path).and_then([&](auto&& segments) {
@@ -148,7 +148,7 @@ public:
   }
 
 private:
-  auto try_find(methods method) const noexcept -> optional<const node&>
+  auto try_find(verb method) const noexcept -> optional<const node&>
   {
     if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
       return iter->second;
@@ -157,7 +157,7 @@ private:
     return nullopt;
   }
 
-  std::unordered_map<methods, node> subtrees_;
+  std::unordered_map<verb, node> subtrees_;
 };
 
 using router_tree = basic_router_tree<detail::handler_trait>;

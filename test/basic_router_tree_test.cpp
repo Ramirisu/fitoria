@@ -28,42 +28,41 @@ TEST_CASE("try_insert")
   using router_tree_type = basic_router_tree<handler_trait>;
   using exp_t = expected<void, router_error>;
 
-  auto r = [=](methods method, std::string path) {
+  auto r = [=](verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
                                          handlers_t<handler_trait> {});
   };
 
   router_tree_type rt;
-  CHECK_EQ(rt.try_insert(r(methods::get, "")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/{")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/{")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/}")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/}")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "//")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "//")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/{")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/}")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/}")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu//")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu//")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu")), exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu")), exp_t());
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu")),
            exp_t(unexpect, router_error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(methods::put, "/ramirisu")), exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::put, "/ramirisu")),
+  CHECK_EQ(rt.try_insert(r(verb::put, "/ramirisu")), exp_t());
+  CHECK_EQ(rt.try_insert(r(verb::put, "/ramirisu")),
            exp_t(unexpect, router_error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{repo}")), exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{r}")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/{repo}")), exp_t());
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/{r}")),
            exp_t(unexpect, router_error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{repo}/{branch}")),
-           exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{r}/{b}")),
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/{repo}/{branch}")), exp_t());
+  CHECK_EQ(rt.try_insert(r(verb::get, "/ramirisu/{r}/{b}")),
            exp_t(unexpect, router_error::route_already_exists));
 }
 
@@ -76,36 +75,36 @@ TEST_CASE("try_find")
   };
   using router_tree_type = basic_router_tree<handler_trait>;
 
-  auto r = [=](methods method, std::string path, int exp) {
+  auto r = [=](verb method, std::string path, int exp) {
     return router_tree_type::router_type(
         method, std::move(path),
         handlers_t<handler_trait> { [=]() { return exp; } });
   };
 
   router_tree_type rt;
-  rt.try_insert(r(methods::get, "/r", 0));
-  rt.try_insert(r(methods::put, "/r", 1));
-  rt.try_insert(r(methods::get, "/r/x", 10));
-  rt.try_insert(r(methods::put, "/r/x", 11));
-  rt.try_insert(r(methods::get, "/r/{x}", 12));
-  rt.try_insert(r(methods::put, "/r/{x}", 13));
-  rt.try_insert(r(methods::get, "/r/x/y", 20));
-  rt.try_insert(r(methods::put, "/r/x/y", 21));
-  rt.try_insert(r(methods::get, "/r/{x}/{y}", 22));
-  rt.try_insert(r(methods::put, "/r/{x}/{y}", 23));
+  rt.try_insert(r(verb::get, "/r", 0));
+  rt.try_insert(r(verb::put, "/r", 1));
+  rt.try_insert(r(verb::get, "/r/x", 10));
+  rt.try_insert(r(verb::put, "/r/x", 11));
+  rt.try_insert(r(verb::get, "/r/{x}", 12));
+  rt.try_insert(r(verb::put, "/r/{x}", 13));
+  rt.try_insert(r(verb::get, "/r/x/y", 20));
+  rt.try_insert(r(verb::put, "/r/x/y", 21));
+  rt.try_insert(r(verb::get, "/r/{x}/{y}", 22));
+  rt.try_insert(r(verb::put, "/r/{x}/{y}", 23));
 
-  CHECK_EQ(rt.try_find(methods::get, "/r")->handlers()[0](), 0);
-  CHECK_EQ(rt.try_find(methods::put, "/r")->handlers()[0](), 1);
-  CHECK_EQ(rt.try_find(methods::get, "/r/x")->handlers()[0](), 10);
-  CHECK_EQ(rt.try_find(methods::put, "/r/x")->handlers()[0](), 11);
-  CHECK_EQ(rt.try_find(methods::get, "/r/xx")->handlers()[0](), 12);
-  CHECK_EQ(rt.try_find(methods::put, "/r/xx")->handlers()[0](), 13);
-  CHECK_EQ(rt.try_find(methods::get, "/r/x/y")->handlers()[0](), 20);
-  CHECK_EQ(rt.try_find(methods::put, "/r/x/y")->handlers()[0](), 21);
-  CHECK_EQ(rt.try_find(methods::get, "/r/xx/y")->handlers()[0](), 22);
-  CHECK_EQ(rt.try_find(methods::put, "/r/xx/y")->handlers()[0](), 23);
-  CHECK_EQ(rt.try_find(methods::get, "/r/x/yy")->handlers()[0](), 22);
-  CHECK_EQ(rt.try_find(methods::put, "/r/x/yy")->handlers()[0](), 23);
+  CHECK_EQ(rt.try_find(verb::get, "/r")->handlers()[0](), 0);
+  CHECK_EQ(rt.try_find(verb::put, "/r")->handlers()[0](), 1);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x")->handlers()[0](), 10);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x")->handlers()[0](), 11);
+  CHECK_EQ(rt.try_find(verb::get, "/r/xx")->handlers()[0](), 12);
+  CHECK_EQ(rt.try_find(verb::put, "/r/xx")->handlers()[0](), 13);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x/y")->handlers()[0](), 20);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x/y")->handlers()[0](), 21);
+  CHECK_EQ(rt.try_find(verb::get, "/r/xx/y")->handlers()[0](), 22);
+  CHECK_EQ(rt.try_find(verb::put, "/r/xx/y")->handlers()[0](), 23);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x/yy")->handlers()[0](), 22);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x/yy")->handlers()[0](), 23);
 }
 
 TEST_SUITE_END();

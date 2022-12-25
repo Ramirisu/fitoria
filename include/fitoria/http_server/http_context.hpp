@@ -75,7 +75,7 @@ public:
   http_context& plain_text(std::string s)
   {
     response_.result(status::ok);
-    response_.insert(fields::content_type, plain_text_content_type());
+    response_.insert(field::content_type, plain_text_content_type());
     response_.body() = std::move(s);
     return *this;
   }
@@ -83,7 +83,7 @@ public:
   http_context& json(json::value json)
   {
     response_.result(status::ok);
-    response_.insert(fields::content_type, application_json_content_type());
+    response_.insert(field::content_type, application_json_content_type());
     response_.body() = json::serialize(json);
     return *this;
   }

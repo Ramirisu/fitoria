@@ -24,7 +24,7 @@ public:
   {
   }
 
-  methods method() const noexcept
+  verb method() const noexcept
   {
     return native_.method();
   }

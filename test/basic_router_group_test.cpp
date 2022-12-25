@@ -37,51 +37,46 @@ TEST_CASE("basic")
   auto rg
       = router_group_type("/ramirisu")
             .use(l)
-            .route(methods::get, "/libraries", h)
-            .route(methods::put, "/libraries", h)
+            .route(verb::get, "/libraries", h)
+            .route(verb::put, "/libraries", h)
             .sub_group(router_group_type("/gul")
                            .use(a_g)
-                           .route(methods::get, "/tags", h)
-                           .route(methods::put, "/tags", h)
+                           .route(verb::get, "/tags", h)
+                           .route(verb::put, "/tags", h)
                            .sub_group(router_group_type("/tags")
-                                          .route(methods::get, "/{tag}", h)
-                                          .route(methods::put, "/{tag}", h))
+                                          .route(verb::get, "/{tag}", h)
+                                          .route(verb::put, "/{tag}", h))
                            .sub_group(router_group_type("/branches")
-                                          .route(methods::get, "/{branch}", h)
-                                          .route(methods::put, "/{branch}", h)))
-            .sub_group(
-                router_group_type("/fitoria")
-                    .use(a_f)
-                    .route(methods::get, "/tags", h)
-                    .route(methods::put, "/tags", h)
-                    .sub_group(router_group_type("/tags")
-                                   .route(methods::get, "/{tag}", h)
-                                   .route(methods::put, "/{tag}", h))
-                    .sub_group(router_group_type("/branches")
-                                   .route(methods::get, "/{branch}", h)
-                                   .route(methods::put, "/{branch}", h)));
+                                          .route(verb::get, "/{branch}", h)
+                                          .route(verb::put, "/{branch}", h)))
+            .sub_group(router_group_type("/fitoria")
+                           .use(a_f)
+                           .route(verb::get, "/tags", h)
+                           .route(verb::put, "/tags", h)
+                           .sub_group(router_group_type("/tags")
+                                          .route(verb::get, "/{tag}", h)
+                                          .route(verb::put, "/{tag}", h))
+                           .sub_group(router_group_type("/branches")
+                                          .route(verb::get, "/{branch}", h)
+                                          .route(verb::put, "/{branch}", h)));
 
   CHECK(range_equal(
       rg.get_all_routers(),
       std::vector<router_group_type::router_type> {
-          { methods::get, "/ramirisu/libraries", { l, h } },
-          { methods::put, "/ramirisu/libraries", { l, h } },
-          { methods::get, "/ramirisu/gul/tags", { l, a_g, h } },
-          { methods::put, "/ramirisu/gul/tags", { l, a_g, h } },
-          { methods::get, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
-          { methods::put, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
-          { methods::get, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
-          { methods::put, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
-          { methods::get, "/ramirisu/fitoria/tags", { l, a_f, h } },
-          { methods::put, "/ramirisu/fitoria/tags", { l, a_f, h } },
-          { methods::get, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
-          { methods::put, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
-          { methods::get,
-            "/ramirisu/fitoria/branches/{branch}",
-            { l, a_f, h } },
-          { methods::put,
-            "/ramirisu/fitoria/branches/{branch}",
-            { l, a_f, h } },
+          { verb::get, "/ramirisu/libraries", { l, h } },
+          { verb::put, "/ramirisu/libraries", { l, h } },
+          { verb::get, "/ramirisu/gul/tags", { l, a_g, h } },
+          { verb::put, "/ramirisu/gul/tags", { l, a_g, h } },
+          { verb::get, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
+          { verb::put, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
+          { verb::get, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
+          { verb::put, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
+          { verb::get, "/ramirisu/fitoria/tags", { l, a_f, h } },
+          { verb::put, "/ramirisu/fitoria/tags", { l, a_f, h } },
+          { verb::get, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
+          { verb::put, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
+          { verb::get, "/ramirisu/fitoria/branches/{branch}", { l, a_f, h } },
+          { verb::put, "/ramirisu/fitoria/branches/{branch}", { l, a_f, h } },
       }));
 }
 
