@@ -50,6 +50,12 @@ public:
     return *this;
   }
 
+  simple_http_client& set_request_timeout(std::chrono::milliseconds timeout)
+  {
+    request_timeout_ = timeout;
+    return *this;
+  }
+
   auto send_request()
   {
     net::io_context ioc;
@@ -84,14 +90,14 @@ private:
     const auto results
         = co_await resolver.async_resolve(host_, std::to_string(port_));
 
-    stream.expires_after(std::chrono::seconds(5));
+    stream.expires_after(request_timeout_);
 
     co_await stream.async_connect(results);
 
     auto resp = co_await do_session_impl(stream);
 
     net::error_code ec;
-    stream.socket().shutdown(net::ip::tcp::socket::shutdown_both, ec);
+    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
 
     co_return resp;
   }
@@ -109,11 +115,11 @@ private:
     const auto results
         = co_await resolver.async_resolve(host_, std::to_string(port_));
 
-    net::get_lowest_layer(stream).expires_after(std::chrono::seconds(5));
+    net::get_lowest_layer(stream).expires_after(request_timeout_);
 
     co_await net::get_lowest_layer(stream).async_connect(results);
 
-    net::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    net::get_lowest_layer(stream).expires_after(request_timeout_);
 
     co_await stream.async_handshake(net::ssl::stream_base::client);
 
@@ -149,7 +155,7 @@ private:
     req.body() = body_;
     req.prepare_payload();
 
-    stream.expires_after(std::chrono::seconds(5));
+    stream.expires_after(request_timeout_);
 
     co_await http::async_write(stream, req);
 
@@ -157,7 +163,7 @@ private:
 
     http::response<http::string_body> res;
 
-    stream.expires_after(std::chrono::seconds(5));
+    stream.expires_after(request_timeout_);
 
     co_await http::async_read(stream, buffer, res);
 
@@ -170,6 +176,7 @@ private:
   std::string target_;
   http::fields fields_;
   std::string body_;
+  std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
 
 const auto server_start_wait_time = std::chrono::milliseconds(1000);

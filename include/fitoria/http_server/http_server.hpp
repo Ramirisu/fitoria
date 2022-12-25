@@ -207,9 +207,7 @@ private:
 
     co_await do_session_impl(stream.next_layer());
 
-    net::error_code ec;
-    net::get_lowest_layer(stream).socket().shutdown(
-        net::ip::tcp::socket::shutdown_send, ec);
+    co_await stream.async_shutdown();
   }
 #endif
 
@@ -236,8 +234,7 @@ private:
         stream.expires_after(config_.client_request_timeout_);
 
         co_await net::async_write(stream,
-                                  http::message_generator(std::move(res)),
-                                  net::use_awaitable);
+                                  http::message_generator(std::move(res)));
 
         if (!keep_alive) {
           break;
