@@ -15,6 +15,7 @@
 
 #include <fitoria/http_server/detail/handler_trait.hpp>
 
+#include <fitoria/http_server/route.hpp>
 #include <fitoria/http_server/router.hpp>
 #include <fitoria/http_server/router_error.hpp>
 
@@ -55,11 +56,11 @@ private:
 
   private:
     auto try_insert(const router_type& r,
-                    const std::vector<std::string_view>& path_tokens,
-                    std::size_t path_index) noexcept
+                    const route::segments& segments,
+                    std::size_t segment_index) noexcept
         -> expected<void, router_error>
     {
-      if (path_index == path_tokens.size()) {
+      if (segment_index == segments.size()) {
         if (router_) {
           return unexpected<router_error>(router_error::route_already_exists);
         }
@@ -68,37 +69,36 @@ private:
         return {};
       }
 
-      const auto& token = path_tokens[path_index];
-      if (token.starts_with(':')) {
+      const auto& segment = segments[segment_index];
+      if (segment.is_param) {
         if (!param_trees_) {
           param_trees_.emplace(std::make_shared<node>());
         }
-
-        return param_trees_.value()->try_insert(r, path_tokens, path_index + 1);
+        return param_trees_.value()->try_insert(r, segments, segment_index + 1);
       }
 
-      return path_trees_[std::string(token)].try_insert(r, path_tokens,
-                                                        path_index + 1);
+      return path_trees_[std::string(segment.escaped)].try_insert(
+          r, segments, segment_index + 1);
     }
 
-    auto try_find(const std::vector<std::string_view>& path_tokens,
-                  std::size_t path_index) const noexcept
+    auto try_find(const route::segments& segments,
+                  std::size_t segment_index) const noexcept
         -> expected<const router_type&, router_error>
     {
-      if (path_index == path_tokens.size()) {
+      if (segment_index == segments.size()) {
         return expected<const router_type&, router_error>(router_.value());
       }
 
-      return try_find_path_trees(path_tokens[path_index])
+      return try_find_path_trees(segments[segment_index].original)
           .to_expected_or(router_error::route_not_exists)
           .and_then([&](auto&& node) {
-            return node.try_find(path_tokens, path_index + 1);
+            return node.try_find(segments, segment_index + 1);
           })
           .or_else([&](auto&& error) {
             return param_trees_.to_expected_or(error).and_then(
                 [&](auto&& node_ptr)
                     -> expected<const router_type&, router_error> {
-                  return node_ptr->try_find(path_tokens, path_index + 1);
+                  return node_ptr->try_find(segments, segment_index + 1);
                 });
           });
     }
@@ -114,33 +114,13 @@ private:
     }
 
     static auto try_parse_path(std::string_view path) noexcept
-        -> expected<std::vector<std::string_view>, router_error>
+        -> expected<route::segments, router_error>
     {
-      if (path.empty() || !path.starts_with('/')) {
+      if (path.empty()) {
         return unexpected<router_error>(router_error::parse_path_error);
       }
 
-      auto split = [](std::string_view p) noexcept
-          -> std::tuple<std::string_view, std::string_view> {
-        p.remove_prefix(1);
-        auto pos = p.find('/');
-        if (pos == std::string_view::npos) {
-          return { p.substr(0, pos), {} };
-        }
-        return { p.substr(0, pos), p.substr(pos) };
-      };
-
-      std::vector<std::string_view> tokens;
-      while (!path.empty()) {
-        std::string_view token;
-        std::tie(token, path) = split(path);
-        if (token.empty() || (token.starts_with(':') && token.size() == 1)) {
-          return unexpected<router_error>(router_error::parse_path_error);
-        }
-        tokens.push_back(token);
-      }
-
-      return tokens;
+      return route::to_segments(path);
     }
 
     optional<router_type> router_;
@@ -152,18 +132,18 @@ private:
 public:
   auto try_insert(const router_type& r) noexcept -> expected<void, router_error>
   {
-    return node::try_parse_path(r.path()).and_then([&](auto&& path_tokens) {
-      return subtrees_[r.method()].try_insert(r, path_tokens, 0);
+    return node::try_parse_path(r.path()).and_then([&](auto&& segments) {
+      return subtrees_[r.method()].try_insert(r, segments, 0);
     });
   }
 
   auto try_find(methods method, std::string_view path) const noexcept
       -> expected<const router_type&, router_error>
   {
-    return node::try_parse_path(path).and_then([&](auto&& path_tokens) {
+    return node::try_parse_path(path).and_then([&](auto&& segments) {
       return try_find(method)
           .to_expected_or(router_error::route_not_exists)
-          .and_then([&](auto&& node) { return node.try_find(path_tokens, 0); });
+          .and_then([&](auto&& node) { return node.try_find(segments, 0); });
     });
   }
 

@@ -271,47 +271,34 @@ private:
 
   /// @brief convert parameterized path and path into name-value pairs for
   /// being consumed by urls::parse_query()
-  /// @param router_path "/api/v1/users/:user/repos/:repo"
+  /// @param router_path "/api/v1/users/{user}/repos/{repo}"
   /// @param req_path "/api/v1/users/ramirisu/repos/fitoria"
   /// @return "user=ramirisu&repo=fitoria"
   static auto
   convert_route_param_to_query_string(std::string_view router_path,
                                       std::string_view req_path) noexcept
-      -> optional<std::string>
+      -> expected<std::string, router_error>
   {
-    auto split = [](std::string_view p) noexcept
-        -> std::tuple<std::string_view, std::string_view> {
-      p.remove_prefix(1);
-      auto pos = p.find('/');
-      if (pos == std::string_view::npos) {
-        return { p.substr(0, pos), {} };
-      }
-      return { p.substr(0, pos), p.substr(pos) };
-    };
+    auto router_segs = route::to_segments(router_path);
+    auto req_segs = route::to_segments(req_path);
+
+    if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
+      return unexpected<router_error>(router_error::parse_path_error);
+    }
 
     std::string qs;
 
-    while (!router_path.empty() && !req_path.empty()) {
-      std::string_view router_path_token;
-      std::string_view req_path_token;
-      std::tie(router_path_token, router_path) = split(router_path);
-      std::tie(req_path_token, req_path) = split(req_path);
-      if (!router_path_token.starts_with(':')) {
-        continue;
+    for (std::size_t i = 0; i < router_segs->size(); ++i) {
+      if (router_segs.value()[i].is_param) {
+        qs += router_segs.value()[i].escaped;
+        qs += '=';
+        qs += req_segs.value()[i].original;
+        qs += '&';
       }
-      router_path_token.remove_prefix(1);
-      qs += router_path_token;
-      qs += '=';
-      qs += req_path_token;
-      qs += '&';
     }
 
     if (qs.ends_with('&')) {
       qs.pop_back();
-    }
-
-    if (!router_path.empty() || !req_path.empty()) {
-      return nullopt;
     }
 
     return qs;

@@ -242,9 +242,9 @@ namespace simple_http_request_test {
 void configure_server(http_server_config& config)
 {
   config.route(router(
-      methods::get, "/api/v1/users/:user/filmography/years/:year",
+      methods::get, "/api/v1/users/{user}/filmography/years/{year}",
       [&](http_context& c) -> net::awaitable<void> {
-        CHECK_EQ(c.path(), "/api/v1/users/:user/filmography/years/:year");
+        CHECK_EQ(c.path(), "/api/v1/users/{user}/filmography/years/{year}");
         CHECK_EQ(c.encoded_params().size(), 2);
         CHECK_EQ((*c.encoded_params().find("user")).value, R"(Rina%20Hikada)");
         CHECK_EQ((*c.encoded_params().find("year")).value, R"(2022)");

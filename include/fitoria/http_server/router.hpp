@@ -45,7 +45,7 @@ public:
     return method_;
   }
 
-  auto path() const noexcept -> const std::string&
+  auto path() const noexcept -> std::string_view
   {
     return path_;
   }

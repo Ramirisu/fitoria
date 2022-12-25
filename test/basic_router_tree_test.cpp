@@ -38,13 +38,17 @@ TEST_CASE("try_insert")
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "/")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/:")),
+  CHECK_EQ(rt.try_insert(r(methods::get, "/{")),
+           exp_t(unexpect, router_error::parse_path_error));
+  CHECK_EQ(rt.try_insert(r(methods::get, "/}")),
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "//")),
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/")),
            exp_t(unexpect, router_error::parse_path_error));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/:")),
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{")),
+           exp_t(unexpect, router_error::parse_path_error));
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/}")),
            exp_t(unexpect, router_error::parse_path_error));
   CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu//")),
            exp_t(unexpect, router_error::parse_path_error));
@@ -54,11 +58,12 @@ TEST_CASE("try_insert")
   CHECK_EQ(rt.try_insert(r(methods::put, "/ramirisu")), exp_t());
   CHECK_EQ(rt.try_insert(r(methods::put, "/ramirisu")),
            exp_t(unexpect, router_error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/:repo")), exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/:r")),
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{repo}")), exp_t());
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{r}")),
            exp_t(unexpect, router_error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/:repo/:branch")), exp_t());
-  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/:r/:b")),
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{repo}/{branch}")),
+           exp_t());
+  CHECK_EQ(rt.try_insert(r(methods::get, "/ramirisu/{r}/{b}")),
            exp_t(unexpect, router_error::route_already_exists));
 }
 
@@ -82,12 +87,12 @@ TEST_CASE("try_find")
   rt.try_insert(r(methods::put, "/r", 1));
   rt.try_insert(r(methods::get, "/r/x", 10));
   rt.try_insert(r(methods::put, "/r/x", 11));
-  rt.try_insert(r(methods::get, "/r/:x", 12));
-  rt.try_insert(r(methods::put, "/r/:x", 13));
+  rt.try_insert(r(methods::get, "/r/{x}", 12));
+  rt.try_insert(r(methods::put, "/r/{x}", 13));
   rt.try_insert(r(methods::get, "/r/x/y", 20));
   rt.try_insert(r(methods::put, "/r/x/y", 21));
-  rt.try_insert(r(methods::get, "/r/:x/:y", 22));
-  rt.try_insert(r(methods::put, "/r/:x/:y", 23));
+  rt.try_insert(r(methods::get, "/r/{x}/{y}", 22));
+  rt.try_insert(r(methods::put, "/r/{x}/{y}", 23));
 
   CHECK_EQ(rt.try_find(methods::get, "/r")->handlers()[0](), 0);
   CHECK_EQ(rt.try_find(methods::put, "/r")->handlers()[0](), 1);

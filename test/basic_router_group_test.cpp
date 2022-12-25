@@ -44,21 +44,22 @@ TEST_CASE("basic")
                            .route(methods::get, "/tags", h)
                            .route(methods::put, "/tags", h)
                            .sub_group(router_group_type("/tags")
-                                          .route(methods::get, "/:tag", h)
-                                          .route(methods::put, "/:tag", h))
+                                          .route(methods::get, "/{tag}", h)
+                                          .route(methods::put, "/{tag}", h))
                            .sub_group(router_group_type("/branches")
-                                          .route(methods::get, "/:branch", h)
-                                          .route(methods::put, "/:branch", h)))
-            .sub_group(router_group_type("/fitoria")
-                           .use(a_f)
-                           .route(methods::get, "/tags", h)
-                           .route(methods::put, "/tags", h)
-                           .sub_group(router_group_type("/tags")
-                                          .route(methods::get, "/:tag", h)
-                                          .route(methods::put, "/:tag", h))
-                           .sub_group(router_group_type("/branches")
-                                          .route(methods::get, "/:branch", h)
-                                          .route(methods::put, "/:branch", h)));
+                                          .route(methods::get, "/{branch}", h)
+                                          .route(methods::put, "/{branch}", h)))
+            .sub_group(
+                router_group_type("/fitoria")
+                    .use(a_f)
+                    .route(methods::get, "/tags", h)
+                    .route(methods::put, "/tags", h)
+                    .sub_group(router_group_type("/tags")
+                                   .route(methods::get, "/{tag}", h)
+                                   .route(methods::put, "/{tag}", h))
+                    .sub_group(router_group_type("/branches")
+                                   .route(methods::get, "/{branch}", h)
+                                   .route(methods::put, "/{branch}", h)));
 
   CHECK(range_equal(
       rg.get_all_routers(),
@@ -67,16 +68,20 @@ TEST_CASE("basic")
           { methods::put, "/ramirisu/libraries", { l, h } },
           { methods::get, "/ramirisu/gul/tags", { l, a_g, h } },
           { methods::put, "/ramirisu/gul/tags", { l, a_g, h } },
-          { methods::get, "/ramirisu/gul/tags/:tag", { l, a_g, h } },
-          { methods::put, "/ramirisu/gul/tags/:tag", { l, a_g, h } },
-          { methods::get, "/ramirisu/gul/branches/:branch", { l, a_g, h } },
-          { methods::put, "/ramirisu/gul/branches/:branch", { l, a_g, h } },
+          { methods::get, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
+          { methods::put, "/ramirisu/gul/tags/{tag}", { l, a_g, h } },
+          { methods::get, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
+          { methods::put, "/ramirisu/gul/branches/{branch}", { l, a_g, h } },
           { methods::get, "/ramirisu/fitoria/tags", { l, a_f, h } },
           { methods::put, "/ramirisu/fitoria/tags", { l, a_f, h } },
-          { methods::get, "/ramirisu/fitoria/tags/:tag", { l, a_f, h } },
-          { methods::put, "/ramirisu/fitoria/tags/:tag", { l, a_f, h } },
-          { methods::get, "/ramirisu/fitoria/branches/:branch", { l, a_f, h } },
-          { methods::put, "/ramirisu/fitoria/branches/:branch", { l, a_f, h } },
+          { methods::get, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
+          { methods::put, "/ramirisu/fitoria/tags/{tag}", { l, a_f, h } },
+          { methods::get,
+            "/ramirisu/fitoria/branches/{branch}",
+            { l, a_f, h } },
+          { methods::put,
+            "/ramirisu/fitoria/branches/{branch}",
+            { l, a_f, h } },
       }));
 }
 
