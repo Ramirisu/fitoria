@@ -1,0 +1,1 @@
+fitoria_add_example(NAME quick_start_http_server SRCS quick_start_http_server.cpp)

@@ -83,6 +83,7 @@ class http_server {
 public:
   using handler_trait = detail::handler_trait;
   using handlers_invoker_type = detail::handlers_invoker<handler_trait>;
+  using execution_context = net::io_context;
 
   http_server(http_server_config config)
       : config_(std::move(config))
@@ -137,6 +138,11 @@ public:
   void stop()
   {
     ioc_.stop();
+  }
+
+  execution_context& get_execution_context()
+  {
+    return ioc_;
   }
 
 private:
@@ -305,7 +311,7 @@ private:
   }
 
   http_server_config config_;
-  net::io_context ioc_;
+  execution_context ioc_;
   net::thread_pool thread_pool_;
 };
 

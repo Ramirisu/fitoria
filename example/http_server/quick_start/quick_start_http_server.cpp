@@ -34,7 +34,12 @@ int main()
 #endif
       // notify workers to start the IO loop
       // notice that `run()` will not block current thread
-      .run()
-      // block current thread, current thread will join to process the IO loop
-      .wait();
+      .run();
+
+  // register signals to terminate the server
+  net::signal_set signal(server.get_execution_context(), SIGINT, SIGTERM);
+  signal.async_wait([&](auto, auto) { server.stop(); });
+
+  // block current thread, current thread will process the IO loop
+  server.wait();
 }

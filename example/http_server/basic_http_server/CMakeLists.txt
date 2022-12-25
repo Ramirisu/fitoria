@@ -1,1 +1,0 @@
-fitoria_add_example(NAME basic_http_server SRCS basic_http_server.cpp)
