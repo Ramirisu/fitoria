@@ -251,15 +251,28 @@ void configure_server(http_server_config& config)
 {
   config.route(router(
       verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-      [&](http_context& c, http_request& req) -> net::awaitable<void> {
-        CHECK_EQ(c.path(), "/api/v1/users/{user}/filmography/years/{year}");
-        CHECK_EQ(c.encoded_params().size(), 2);
-        CHECK_EQ((*c.encoded_params().find("user")).value, R"(Rina%20Hikada)");
-        CHECK_EQ((*c.encoded_params().find("year")).value, R"(2022)");
+      [&](http_context& c, http_route& route,
+          http_request& req) -> net::awaitable<void> {
+        auto test_route = [](http_route& route) {
+          CHECK_EQ(route.path(),
+                   "/api/v1/users/{user}/filmography/years/{year}");
 
-        CHECK_EQ(c.params().size(), 2);
-        CHECK_EQ((*c.params().find("user")).value, "Rina Hikada");
-        CHECK_EQ((*c.params().find("year")).value, "2022");
+          CHECK(range_equal(route.segments(),
+                            std::vector({ "api", "v1", "users", "{user}",
+                                          "filmography", "years", "{year}" })));
+
+          CHECK_EQ(route.encoded_params().size(), 2);
+          CHECK_EQ((*route.encoded_params().find("user")).value,
+                   R"(Rina%20Hikada)");
+          CHECK_EQ((*route.encoded_params().find("year")).value, R"(2022)");
+
+          CHECK_EQ(route.params().size(), 2);
+          CHECK_EQ((*route.params().find("user")).value, "Rina Hikada");
+          CHECK_EQ((*route.params().find("year")).value, "2022");
+        };
+
+        test_route(c.route());
+        test_route(route);
 
         auto test_request = [](http_request& req) {
           CHECK_EQ(req.method(), verb::get);

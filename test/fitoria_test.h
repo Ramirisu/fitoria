@@ -18,6 +18,6 @@ bool range_equal(const L& lhs,
                  const R& rhs,
                  Comparator comparator = Comparator())
 {
-  return std::equal(begin(lhs), end(lhs), begin(rhs), end(rhs),
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
                     std::move(comparator));
 }

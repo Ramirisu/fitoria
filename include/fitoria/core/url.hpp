@@ -9,7 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <boost/url/src.hpp>
+#include <boost/url.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

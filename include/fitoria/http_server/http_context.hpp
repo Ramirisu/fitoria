@@ -17,6 +17,7 @@
 #include <fitoria/http_server/detail/handlers_invoker.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/http_route.hpp>
 #include <fitoria/http_server/router.hpp>
 
 #include <string_view>
@@ -29,31 +30,34 @@ class http_context {
 
 public:
   http_context(detail::handlers_invoker<handler_trait> invoker,
-               std::string_view path,
-               urls::params_encoded_view params,
+               http_route& route,
                http_request& request,
                native_response_type& response)
       : invoker_(std::move(invoker))
-      , path_(path)
-      , params_(params)
+      , route_(route)
       , request_(request)
       , response_(response)
   {
   }
 
-  std::string_view path() const noexcept
+  http_route& route() noexcept
   {
-    return path_;
+    return route_;
   }
 
-  urls::params_encoded_view encoded_params() const noexcept
+  const http_route& route() const noexcept
   {
-    return params_;
+    return route_;
   }
 
-  urls::params_view params() const noexcept
+  operator http_route&() noexcept
   {
-    return params_;
+    return route_;
+  }
+
+  operator const http_route&() const noexcept
+  {
+    return route_;
   }
 
   http_request& request() noexcept
@@ -120,8 +124,7 @@ public:
 
 private:
   detail::handlers_invoker<handler_trait> invoker_;
-  std::string_view path_;
-  urls::params_encoded_view params_;
+  http_route& route_;
   http_request& request_;
   native_response_type& response_;
 };

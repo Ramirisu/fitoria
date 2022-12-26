@@ -256,10 +256,10 @@ private:
         if (auto qs = convert_route_param_to_query_string(
                 router.value().path(), req_url.value().encoded_path());
             qs) {
-          http_request request(req, req_url.value());
-          http_context ctx(handlers_invoker_type(router.value().handlers()),
-                           router.value().path(),
-                           urls::parse_query(qs.value()).value(), request, res);
+          auto route = http_route(router->path(), *qs);
+          auto request = http_request(req, req_url.value());
+          auto ctx = http_context(handlers_invoker_type(router->handlers()),
+                                  route, request, res);
           co_await ctx.start();
         } else {
           res.result(http::status::bad_request);
