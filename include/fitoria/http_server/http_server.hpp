@@ -12,6 +12,7 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
+
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/router_group.hpp>
@@ -253,11 +254,13 @@ private:
       if (auto router
           = config_.router_tree_.try_find(req.method(), req_url.value().path());
           router) {
-        if (auto qs = convert_route_param_to_query_string(
-                router.value().path(), req_url.value().encoded_path());
-            qs) {
-          auto route = http_route(router->path(), *qs);
-          auto request = http_request(req, req_url.value());
+        if (auto route_params
+            = route::parse_param_map(router->path(), req_url->path());
+            route_params) {
+          auto route = http_route(*route_params, std::string(router->path()));
+          auto request
+              = http_request(req, req_url->path(),
+                             route::to_unordered_string_map(req_url->params()));
           auto ctx = http_context(handlers_invoker_type(router->handlers()),
                                   route, request, res);
           co_await ctx.start();
@@ -270,41 +273,6 @@ private:
     } else {
       res.result(http::status::bad_request);
     }
-  }
-
-  /// @brief convert parameterized path and path into name-value pairs for
-  /// being consumed by urls::parse_query()
-  /// @param router_path "/api/v1/users/{user}/repos/{repo}"
-  /// @param req_path "/api/v1/users/ramirisu/repos/fitoria"
-  /// @return "user=ramirisu&repo=fitoria"
-  static auto
-  convert_route_param_to_query_string(std::string_view router_path,
-                                      std::string_view req_path) noexcept
-      -> expected<std::string, router_error>
-  {
-    auto router_segs = route::to_segments(router_path);
-    auto req_segs = route::to_segments(req_path);
-
-    if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
-      return unexpected<router_error>(router_error::parse_path_error);
-    }
-
-    std::string qs;
-
-    for (std::size_t i = 0; i < router_segs->size(); ++i) {
-      if (router_segs.value()[i].is_param) {
-        qs += router_segs.value()[i].escaped;
-        qs += '=';
-        qs += req_segs.value()[i].original;
-        qs += '&';
-      }
-    }
-
-    if (qs.ends_with('&')) {
-      qs.pop_back();
-    }
-
-    return qs;
   }
 
   http_server_config config_;

@@ -11,6 +11,7 @@
 
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/url.hpp>
+#include <fitoria/core/utility.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -18,9 +19,12 @@ class http_request {
   using native_type = http::request<http::string_body>;
 
 public:
-  explicit http_request(native_type& native, urls::url_view url)
+  explicit http_request(native_type& native,
+                        std::string path,
+                        unordered_string_map<std::string> params)
       : native_(native)
-      , url_(std::move(url))
+      , path_(std::move(path))
+      , params_(std::move(params))
   {
   }
 
@@ -29,34 +33,24 @@ public:
     return native_.method();
   }
 
-  urls::pct_string_view encoded_path() const noexcept
+  std::string& path() noexcept
   {
-    return url_.encoded_path();
+    return path_;
   }
 
-  std::string path() const noexcept
+  const std::string& path() const noexcept
   {
-    return url_.path();
+    return path_;
   }
 
-  urls::pct_string_view encoded_query() const noexcept
+  unordered_string_map<std::string>& params() noexcept
   {
-    return url_.encoded_query();
+    return params_;
   }
 
-  std::string query() const noexcept
+  const unordered_string_map<std::string>& params() const noexcept
   {
-    return url_.query();
-  }
-
-  urls::params_encoded_view encoded_params() const noexcept
-  {
-    return url_.encoded_params();
-  }
-
-  urls::params_view params() const noexcept
-  {
-    return url_.params();
+    return params_;
   }
 
   std::string& body() noexcept
@@ -71,7 +65,8 @@ public:
 
 private:
   native_type& native_;
-  urls::url_view url_;
+  std::string path_;
+  unordered_string_map<std::string> params_;
 };
 
 FITORIA_NAMESPACE_END

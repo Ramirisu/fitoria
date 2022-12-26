@@ -79,60 +79,40 @@ namespace simple_http_request_test {
 
 void configure_server(http_server_config& config)
 {
-  config.route(router(
-      verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-      [&](http_context& c, http_route& route,
-          http_request& req) -> net::awaitable<void> {
-        auto test_route = [](http_route& route) {
-          CHECK_EQ(route.path(),
-                   "/api/v1/users/{user}/filmography/years/{year}");
+  config.route(
+      router(verb::get, "/api/v1/users/{user}/filmography/years/{year}",
+             [&](http_context& c, http_route& route,
+                 http_request& req) -> net::awaitable<void> {
+               auto test_route = [](http_route& route) {
+                 CHECK_EQ(route.path(),
+                          "/api/v1/users/{user}/filmography/years/{year}");
 
-          CHECK(range_equal(route.segments(),
-                            std::vector({ "api", "v1", "users", "{user}",
-                                          "filmography", "years", "{year}" })));
+                 CHECK_EQ(route.at("user"), "Rina Hikada");
+                 CHECK_EQ(route.at("year"), "2022");
+               };
 
-          CHECK_EQ(route.encoded_params().size(), 2);
-          CHECK_EQ((*route.encoded_params().find("user")).value,
-                   R"(Rina%20Hikada)");
-          CHECK_EQ((*route.encoded_params().find("year")).value, R"(2022)");
+               test_route(c.route());
+               test_route(route);
 
-          CHECK_EQ(route.params().size(), 2);
-          CHECK_EQ((*route.params().find("user")).value, "Rina Hikada");
-          CHECK_EQ((*route.params().find("year")).value, "2022");
-        };
+               auto test_request = [](http_request& req) {
+                 CHECK_EQ(req.method(), verb::get);
+                 CHECK_EQ(req.path(),
+                          "/api/v1/users/Rina Hikada/filmography/years/2022");
+                 CHECK_EQ(req.params().size(), 2);
+                 CHECK_EQ(req.params().at("name"), "Rina Hikada");
+                 CHECK_EQ(req.params().at("birth"), "1994/06/15");
 
-        test_route(c.route());
-        test_route(route);
+                 CHECK_EQ(req.body(),
+                          json::serialize(json::value {
+                              { "name", "Rina Hikada" },
+                              { "birth", "1994/06/15" },
+                          }));
+               };
 
-        auto test_request = [](http_request& req) {
-          CHECK_EQ(req.method(), verb::get);
-          CHECK_EQ(req.encoded_path(),
-                   R"(/api/v1/users/Rina%20Hikada/filmography/years/2022)");
-          CHECK_EQ(req.path(),
-                   "/api/v1/users/Rina Hikada/filmography/years/2022");
-          CHECK_EQ(req.encoded_query(),
-                   R"(name=Rina%20Hikada&birth=1994%2F06%2F15)");
-          CHECK_EQ(req.query(), "name=Rina Hikada&birth=1994/06/15");
-          CHECK_EQ(req.encoded_params().size(), 2);
-          CHECK_EQ((*req.encoded_params().find("name")).value,
-                   R"(Rina%20Hikada)");
-          CHECK_EQ((*req.encoded_params().find("birth")).value,
-                   R"(1994%2F06%2F15)");
-          CHECK_EQ(req.params().size(), 2);
-          CHECK_EQ((*req.params().find("name")).value, "Rina Hikada");
-          CHECK_EQ((*req.params().find("birth")).value, "1994/06/15");
-
-          CHECK_EQ(req.body(),
-                   json::serialize(json::value {
-                       { "name", "Rina Hikada" },
-                       { "birth", "1994/06/15" },
-                   }));
-        };
-
-        test_request(c.request());
-        test_request(req);
-        co_return;
-      }));
+               test_request(c.request());
+               test_request(req);
+               co_return;
+             }));
 }
 
 void configure_client(simple_http_client& client)

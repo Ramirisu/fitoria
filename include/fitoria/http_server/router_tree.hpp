@@ -36,24 +36,6 @@ private:
   class node {
     friend class basic_router_tree;
 
-    struct string_hash {
-      using is_transparent = void;
-      size_t operator()(const char* s) const
-      {
-        return std::hash<std::string_view> {}(s);
-      }
-
-      size_t operator()(std::string_view sv) const
-      {
-        return std::hash<std::string_view> {}(sv);
-      }
-
-      size_t operator()(const std::string& s) const
-      {
-        return std::hash<std::string> {}(s);
-      }
-    };
-
   private:
     auto try_insert(const router_type& r,
                     const route::segments& segments,
@@ -124,8 +106,7 @@ private:
     }
 
     optional<router_type> router_;
-    std::unordered_map<std::string, node, string_hash, std::equal_to<>>
-        path_trees_;
+    unordered_string_map<node> path_trees_;
     optional<std::shared_ptr<node>> param_trees_;
   };
 

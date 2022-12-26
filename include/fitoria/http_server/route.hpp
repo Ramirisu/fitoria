@@ -9,6 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/router_error.hpp>
@@ -88,6 +89,41 @@ public:
     s += segment;
     s += "}";
     return s;
+  }
+
+  static auto parse_param_map(std::string_view router_path,
+                              std::string_view req_path) noexcept
+      -> expected<unordered_string_map<std::string>, router_error>
+  {
+    auto router_segs = to_segments(router_path);
+    auto req_segs = to_segments(req_path);
+
+    if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
+      return unexpected<router_error>(router_error::parse_path_error);
+    }
+
+    unordered_string_map<std::string> map;
+    for (std::size_t i = 0; i < router_segs->size(); ++i) {
+      if (router_segs.value()[i].is_param) {
+        map[std::string(router_segs.value()[i].escaped)]
+            = req_segs.value()[i].original;
+      }
+    }
+
+    return map;
+  }
+
+  static auto to_unordered_string_map(urls::params_view params) noexcept
+      -> unordered_string_map<std::string>
+  {
+    unordered_string_map<std::string> map;
+    for (auto param : params) {
+      if (param.has_value) {
+        map[param.key] = param.value;
+      }
+    }
+
+    return map;
   }
 };
 

@@ -9,43 +9,32 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/url.hpp>
+#include <fitoria/core/utility.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_route {
+class http_route : public unordered_string_map<std::string> {
 public:
-  explicit http_route(std::string_view path,
-                      std::string_view params_as_query_string)
+  http_route(unordered_string_map<std::string> params, std::string path)
+      : unordered_string_map<std::string>(std::move(params))
+      , path_(std::move(path))
   {
-    url_.set_path(path);
-    url_.set_encoded_query(params_as_query_string);
   }
 
   /// @brief get the routing path that is configured for the handler
   /// @return "/api/v1/users/{user}"
-  std::string path() const noexcept
+  std::string& path() noexcept
   {
-    return url_.path();
+    return path_;
   }
 
-  urls::segments_view segments() noexcept
+  const std::string& path() const noexcept
   {
-    return url_.segments();
-  }
-
-  urls::params_encoded_view encoded_params() noexcept
-  {
-    return url_.encoded_params();
-  }
-
-  urls::params_view params() noexcept
-  {
-    return url_.params();
+    return path_;
   }
 
 private:
-  urls::url url_;
+  std::string path_;
 };
 
 FITORIA_NAMESPACE_END
