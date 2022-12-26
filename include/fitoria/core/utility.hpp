@@ -24,5 +24,6 @@ using gul::nullopt;
 using gul::optional;
 
 using gul::function_traits;
+using gul::is_specialization_of;
 
 FITORIA_NAMESPACE_END

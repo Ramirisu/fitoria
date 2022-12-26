@@ -16,15 +16,56 @@
 #include <fitoria/core/utility.hpp>
 
 #include <functional>
+#include <variant>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace detail {
 
+template <typename R,
+          typename T,
+          std::size_t N,
+          typename = std::make_index_sequence<N>>
+struct repeated_input_function;
+
+template <typename R, typename T, std::size_t N, std::size_t... Ints>
+struct repeated_input_function<R, T, N, std::index_sequence<Ints...>> {
+private:
+  template <std::size_t>
+  using rebind = T;
+
+public:
+  using type = std::function<R(rebind<Ints>...)>;
+};
+
+template <typename R,
+          typename T,
+          std::size_t N,
+          typename = std::make_index_sequence<N>>
+struct repeated_input_variant_function;
+
+template <typename R, typename T, std::size_t N, std::size_t... Ints>
+struct repeated_input_variant_function<R, T, N, std::index_sequence<Ints...>> {
+private:
+  template <std::size_t N2>
+  using rebind = typename repeated_input_function<R, T, N2>::type;
+
+public:
+  using type = std::variant<rebind<Ints>...>;
+};
+
+template <typename R, typename T, std::size_t N>
+using repeated_input_variant_function_t
+    = repeated_input_variant_function<R, T, N>::type;
+
 struct handler_trait {
-  using handler_t = std::function<net::awaitable<void>(http_context&)>;
+  using result_t = net::awaitable<void>;
+
+public:
+  using handler_t
+      = repeated_input_variant_function_t<result_t, http_context&, 5>;
   using handlers_t = std::vector<handler_t>;
-  using handler_result_t = typename function_traits<handler_t>::result_type;
+  using handler_result_t = result_t;
   static constexpr bool handler_result_awaitable = true;
   struct handler_compare_t;
 };

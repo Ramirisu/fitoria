@@ -41,16 +41,6 @@ public:
   {
   }
 
-  http_request& request() noexcept
-  {
-    return request_;
-  }
-
-  const http_request& request() const noexcept
-  {
-    return request_;
-  }
-
   std::string_view path() const noexcept
   {
     return path_;
@@ -64,6 +54,26 @@ public:
   urls::params_view params() const noexcept
   {
     return params_;
+  }
+
+  http_request& request() noexcept
+  {
+    return request_;
+  }
+
+  const http_request& request() const noexcept
+  {
+    return request_;
+  }
+
+  operator http_request&() noexcept
+  {
+    return request_;
+  }
+
+  operator const http_request&() const noexcept
+  {
+    return request_;
   }
 
   http_context& status(status s)
