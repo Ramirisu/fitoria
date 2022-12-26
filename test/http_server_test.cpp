@@ -12,7 +12,7 @@
 #include <fitoria_simple_http_client.h>
 
 #include <fitoria/core/http.hpp>
-#include <fitoria/http_server/http_server.hpp>
+#include <fitoria/http_server.hpp>
 
 using namespace fitoria;
 
@@ -77,12 +77,27 @@ TEST_CASE("middlewares and router's invocation order")
 
 namespace simple_http_request_test {
 
+struct user_t {
+  std::string name;
+  std::string birth;
+
+  friend bool operator==(const user_t&, const user_t&) = default;
+};
+
+user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
+{
+  return user_t {
+    .name = std::string(jv.at("name").as_string()),
+    .birth = std::string(jv.at("birth").as_string()),
+  };
+}
+
 void configure_server(http_server_config& config)
 {
   config.route(
       router(verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-             [&](http_context& c, http_route& route,
-                 http_request& req) -> net::awaitable<void> {
+             [&](http_context& c, http_route& route, http_request& req,
+                 from_json<user_t> user) -> net::awaitable<void> {
                auto test_route = [](http_route& route) {
                  CHECK_EQ(route.path(),
                           "/api/v1/users/{user}/filmography/years/{year}");
@@ -90,7 +105,6 @@ void configure_server(http_server_config& config)
                  CHECK_EQ(route.at("user"), "Rina Hikada");
                  CHECK_EQ(route.at("year"), "2022");
                };
-
                test_route(c.route());
                test_route(route);
 
@@ -108,9 +122,14 @@ void configure_server(http_server_config& config)
                               { "birth", "1994/06/15" },
                           }));
                };
-
                test_request(c.request());
                test_request(req);
+
+               CHECK_EQ(user.value(),
+                        user_t {
+                            .name = "Rina Hikada",
+                            .birth = "1994/06/15",
+                        });
                co_return;
              }));
 }
