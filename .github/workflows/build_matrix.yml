@@ -13,7 +13,7 @@ jobs:
         std: [20]
         build_type: [Debug]
         generator: [Ninja]
-        use_openssl: [OFF, ON]
+        disable_openssl: [ON, OFF]
         exclude:
           - os: windows-2022
             cxx: g++-12
@@ -71,7 +71,7 @@ jobs:
             -DCPM_SOURCE_CACHE=~/cpm-cache \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
-            -DFITORIA_USE_OPENSSL=${{ matrix.use_openssl }}
+            -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }}
 
       - name: Build
         shell: bash

@@ -7,7 +7,12 @@ project(
 
 option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
-option(FITORIA_USE_OPENSSL "Build with OpenSSL" OFF)
+option(FITORIA_DISABLE_OPENSSL "Do not use OpenSSL, disable the auto detection"
+       OFF)
+
+message(STATUS "[fitoria] FITORIA_BUILD_EXAMPLES = ${FITORIA_BUILD_EXAMPLES}")
+message(STATUS "[fitoria] FITORIA_BUILD_TESTS = ${FITORIA_BUILD_TESTS}")
+message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
 
 include(cmake/CPM.cmake)
 include(cmake/fitoria_utils.cmake)
@@ -20,8 +25,10 @@ endif()
 cpmaddpackage("gh:Ramirisu/gul#298c49e")
 cpmaddpackage("gh:boostorg/boost#boost-1.81.0")
 
-if(FITORIA_USE_OPENSSL)
-  find_package(OpenSSL REQUIRED)
+if(NOT FITORIA_DISABLE_OPENSSL)
+  message(STATUS "[fitoria] try to find OpenSSL")
+  find_package(OpenSSL)
+  message(STATUS "[fitoria] OpenSSL found = ${OPENSSL_FOUND}")
 endif()
 
 add_library(fitoria INTERFACE)
