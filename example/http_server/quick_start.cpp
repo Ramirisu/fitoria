@@ -5,7 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria/http_server/http_server.hpp>
+#include <fitoria/http_server.hpp>
 
 using namespace fitoria;
 
@@ -13,10 +13,11 @@ int main()
 {
   auto server = http_server(http_server_config().route(
       router(verb::get, "/api/v1/{owner}/{repo}",
-             [](http_context& c) -> net::awaitable<void> {
+             [](http_context& c)
+                 -> net::awaitable<expected<http_response, http_error>> {
                FITORIA_ASSERT(c.route().path() == "/api/v1/{owner}/{repo}");
                FITORIA_ASSERT(c.request().method() == verb::get);
-               co_return;
+               co_return http_response(status::ok);
              })));
   server
       // start to listen to port 8080

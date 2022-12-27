@@ -11,8 +11,6 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_context;
-class http_request;
-class http_response;
+class http_error { };
 
 FITORIA_NAMESPACE_END

@@ -11,6 +11,8 @@
 
 #include <fitoria/core/handler_concept.hpp>
 
+#include <fitoria/http_server/http_error.hpp>
+
 #include <functional>
 #include <variant>
 
@@ -31,7 +33,8 @@ public:
     requires(handler_result_awaitable<HandlerTrait>)
   {
     curr_ = handlers_.begin();
-    co_await invoke_awaitable(ctx);
+    FITORIA_ASSERT(curr_ != handlers_.end());
+    co_return co_await invoke_awaitable(ctx);
   }
 
   template <typename Context>
@@ -39,6 +42,7 @@ public:
     requires(!handler_result_awaitable<HandlerTrait>)
   {
     curr_ = handlers_.begin();
+    FITORIA_ASSERT(curr_ != handlers_.end());
     invoke(ctx);
   }
 
@@ -47,7 +51,8 @@ public:
     requires(handler_result_awaitable<HandlerTrait>)
   {
     ++curr_;
-    co_await invoke_awaitable(ctx);
+    FITORIA_ASSERT(curr_ != handlers_.end());
+    co_return co_await invoke_awaitable(ctx);
   }
 
   template <typename Context>
@@ -55,6 +60,7 @@ public:
     requires(!handler_result_awaitable<HandlerTrait>)
   {
     ++curr_;
+    FITORIA_ASSERT(curr_ != handlers_.end());
     invoke(ctx);
   }
 
@@ -63,15 +69,11 @@ private:
   handler_result_t<HandlerTrait> invoke_awaitable(Context& ctx)
     requires(handler_result_awaitable<HandlerTrait>)
   {
-    if (curr_ == handlers_.end()) {
-      co_return;
-    }
-
     if constexpr (is_specialization_of<handler_t<HandlerTrait>,
                                        std::variant>::value) {
-      co_await invoke_awaitable_variant(ctx);
+      co_return co_await invoke_awaitable_variant(ctx);
     } else {
-      co_await std::invoke(*curr_, ctx);
+      co_return co_await std::invoke(*curr_, ctx);
     }
   }
 
@@ -79,10 +81,6 @@ private:
   handler_result_t<HandlerTrait> invoke(Context& ctx)
     requires(!handler_result_awaitable<HandlerTrait>)
   {
-    if (curr_ == handlers_.end()) {
-      return;
-    }
-
     if constexpr (is_specialization_of<handler_t<HandlerTrait>,
                                        std::variant>::value) {
       invoke_variant(ctx);
@@ -98,19 +96,19 @@ private:
     static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
     switch (curr_->index()) {
     case 0:
-      co_await std::invoke(std::get<0>(*curr_));
+      co_return co_await std::invoke(std::get<0>(*curr_));
       break;
     case 1:
-      co_await std::invoke(std::get<1>(*curr_), ctx);
+      co_return co_await std::invoke(std::get<1>(*curr_), ctx);
       break;
     case 2:
-      co_await std::invoke(std::get<2>(*curr_), ctx, ctx);
+      co_return co_await std::invoke(std::get<2>(*curr_), ctx, ctx);
       break;
     case 3:
-      co_await std::invoke(std::get<3>(*curr_), ctx, ctx, ctx);
+      co_return co_await std::invoke(std::get<3>(*curr_), ctx, ctx, ctx);
       break;
     case 4:
-      co_await std::invoke(std::get<4>(*curr_), ctx, ctx, ctx, ctx);
+      co_return co_await std::invoke(std::get<4>(*curr_), ctx, ctx, ctx, ctx);
       break;
     }
   }

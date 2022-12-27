@@ -80,46 +80,14 @@ public:
     return request_;
   }
 
-  http_context& status(status s)
-  {
-    response_.result(s);
-    return *this;
-  }
-
-  http_context& plain_text(std::string s)
-  {
-    response_.result(status::ok);
-    response_.insert(field::content_type, plain_text_content_type());
-    response_.body() = std::move(s);
-    return *this;
-  }
-
-  http_context& json(json::value json)
-  {
-    response_.result(status::ok);
-    response_.insert(field::content_type, application_json_content_type());
-    response_.body() = json::serialize(json);
-    return *this;
-  }
-
-  std::string_view plain_text_content_type()
-  {
-    return "text/plain; charset=utf-8";
-  }
-
-  std::string_view application_json_content_type()
-  {
-    return "application/json; charset=utf-8";
-  }
-
   handler_result_t<handler_trait> start()
   {
-    co_await invoker_.start(*this);
+    co_return co_await invoker_.start(*this);
   }
 
   handler_result_t<handler_trait> next()
   {
-    co_await invoker_.next(*this);
+    co_return co_await invoker_.next(*this);
   }
 
 private:

@@ -13,6 +13,7 @@
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_header.hpp>
 #include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/http_response.hpp>
 #include <fitoria/http_server/http_route.hpp>
 #include <fitoria/http_server/http_server.hpp>
 #include <fitoria/http_server/route.hpp>

@@ -263,7 +263,15 @@ private:
                              route::to_unordered_string_map(req_url->params()));
           auto ctx = http_context(handlers_invoker_type(router->handlers()),
                                   route, request, res);
-          co_await ctx.start();
+          if (auto response = co_await ctx.start(); response) {
+            res.result(response->status_);
+            for (const auto& header : response->headers()) {
+              res.insert(header.first, header.second);
+            }
+            res.body() = std::move(response->body_);
+          } else {
+            res.result(http::status::internal_server_error);
+          }
         } else {
           res.result(http::status::bad_request);
         }

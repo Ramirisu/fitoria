@@ -15,6 +15,9 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/http_server/http_error.hpp>
+#include <fitoria/http_server/http_response.hpp>
+
 #include <functional>
 #include <variant>
 
@@ -59,7 +62,7 @@ using repeated_input_variant_function_t
     = repeated_input_variant_function<R, T, N>::type;
 
 struct handler_trait {
-  using result_t = net::awaitable<void>;
+  using result_t = net::awaitable<expected<http_response, http_error>>;
 
 public:
   using handler_t
