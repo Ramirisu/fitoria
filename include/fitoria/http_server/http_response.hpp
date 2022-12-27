@@ -60,6 +60,14 @@ public:
     return *this;
   }
 
+  template <typename T>
+  http_response& set_json(const T& obj)
+  {
+    header_.set(field::content_type, "application/json");
+    body_ = json::serialize(json::value_from(obj));
+    return *this;
+  }
+
   operator http::response<http::string_body>() const&
   {
     http::response<http::string_body> res;

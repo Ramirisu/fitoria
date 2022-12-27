@@ -100,6 +100,13 @@ user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
   };
 }
 
+void tag_invoke(const json::value_from_tag&,
+                json::value& jv,
+                const user_t& user)
+{
+  jv = { { "name", user.name }, { "birth", user.birth } };
+}
+
 void configure_server(http_server_config& config)
 {
   config.route(
@@ -287,6 +294,58 @@ TEST_CASE("response with json")
                { "obj_string", "str" },
                { "obj_array", json::array { false, 7654321, "rts" } },
            })));
+}
+
+struct user_t {
+  std::string name;
+  std::string birth;
+
+  friend bool operator==(const user_t&, const user_t&) = default;
+};
+
+user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
+{
+  return user_t {
+    .name = std::string(jv.at("name").as_string()),
+    .birth = std::string(jv.at("birth").as_string()),
+  };
+}
+
+void tag_invoke(const json::value_from_tag&,
+                json::value& jv,
+                const user_t& user)
+{
+  jv = { { "name", user.name }, { "birth", user.birth } };
+}
+
+TEST_CASE("response with struct to json")
+{
+  const auto port = generate_port();
+  auto server = http_server(http_server_config().route(router(
+      verb::get, "/api",
+      [](http_context&) -> net::awaitable<expected<http_response, http_error>> {
+        co_return http_response(status::ok)
+            .set_header(field::content_type, "application/json")
+            .set_json(user_t {
+                .name = "Rina Hikada",
+                .birth = "1994/06/15",
+            });
+      })));
+  server.bind(server_ip, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto resp = simple_http_client(localhost, port)
+                  .with(verb::get)
+                  .with_target("/api")
+                  .with_field(field::connection, "close")
+                  .send_request();
+  CHECK_EQ(resp.result(), status::ok);
+  CHECK_EQ(resp.at(field::content_type), "application/json");
+  CHECK_EQ(json::value_to<user_t>(json::parse(resp.body())),
+           user_t {
+               .name = "Rina Hikada",
+               .birth = "1994/06/15",
+           });
 }
 
 TEST_SUITE_END();
