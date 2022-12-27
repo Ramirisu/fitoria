@@ -151,6 +151,8 @@ private:
       net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
       other;
 
+  using native_response_t = http::response<http::string_body>;
+
   net::awaitable<acceptor_t> new_acceptor(net::ip::tcp::endpoint endpoint)
   {
     auto acceptor = net::use_awaitable.as_default_on(
@@ -225,11 +227,8 @@ private:
 
         bool keep_alive = req.keep_alive();
 
-        http::response<http::string_body> res;
+        auto res = co_await do_handler(req);
         res.keep_alive(keep_alive);
-
-        co_await do_handler(req, res);
-
         res.prepare_payload();
 
         stream.expires_after(config_.client_request_timeout_);
@@ -247,40 +246,33 @@ private:
     }
   }
 
-  net::awaitable<void> do_handler(http::request<http::string_body>& req,
-                                  http::response<http::string_body>& res)
+  net::awaitable<native_response_t>
+  do_handler(http::request<http::string_body>& req)
   {
-    if (auto req_url = urls::parse_origin_form(req.target()); req_url) {
-      if (auto router
-          = config_.router_tree_.try_find(req.method(), req_url.value().path());
-          router) {
-        if (auto route_params
-            = route::parse_param_map(router->path(), req_url->path());
-            route_params) {
-          auto route = http_route(*route_params, std::string(router->path()));
-          auto request
-              = http_request(req, req_url->path(),
-                             route::to_unordered_string_map(req_url->params()));
-          auto ctx = http_context(handlers_invoker_type(router->handlers()),
-                                  route, request, res);
-          if (auto response = co_await ctx.start(); response) {
-            res.result(response->status_);
-            for (const auto& header : response->headers()) {
-              res.insert(header.first, header.second);
-            }
-            res.body() = std::move(response->body_);
-          } else {
-            res.result(http::status::internal_server_error);
-          }
-        } else {
-          res.result(http::status::bad_request);
-        }
-      } else {
-        res.result(http::status::not_found);
-      }
-    } else {
-      res.result(http::status::bad_request);
+    auto req_url = urls::parse_origin_form(req.target());
+    if (!req_url) {
+      co_return http_response(http::status::bad_request);
     }
+
+    auto router
+        = config_.router_tree_.try_find(req.method(), req_url.value().path());
+    if (!router) {
+      co_return http_response(http::status::not_found);
+    }
+
+    auto route_params = route::parse_param_map(router->path(), req_url->path());
+    if (!route_params) {
+      co_return http_response(http::status::bad_request);
+    }
+
+    auto route = http_route(*route_params, std::string(router->path()));
+    auto request
+        = http_request(req, req_url->path(),
+                       route::to_unordered_string_map(req_url->params()));
+    auto ctx = http_context(handlers_invoker_type(router->handlers()), route,
+                            request);
+    co_return (co_await ctx.start())
+        .value_or(http_response(http::status::internal_server_error));
   }
 
   http_server_config config_;

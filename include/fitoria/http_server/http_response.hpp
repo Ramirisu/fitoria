@@ -19,8 +19,6 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_response {
-  friend class http_server;
-
 public:
   http_response(status status)
       : status_(status)
@@ -60,6 +58,30 @@ public:
     header_.set(field::content_type, "application/json");
     body_ = json::serialize(jv);
     return *this;
+  }
+
+  operator http::response<http::string_body>() const&
+  {
+    http::response<http::string_body> res;
+    res.result(status_);
+    for (auto&& header : header_) {
+      res.insert(header.first, header.second);
+    }
+    res.body() = body_;
+
+    return res;
+  }
+
+  operator http::response<http::string_body>() &&
+  {
+    http::response<http::string_body> res;
+    res.result(status_);
+    for (auto&& header : header_) {
+      res.insert(header.first, header.second);
+    }
+    res.body() = std::move(body_);
+
+    return res;
   }
 
 private:

@@ -26,17 +26,14 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_context {
   using handler_trait = detail::handler_trait;
-  using native_response_type = http::response<http::string_body>;
 
 public:
   http_context(detail::handlers_invoker<handler_trait> invoker,
                http_route& route,
-               http_request& request,
-               native_response_type& response)
+               http_request& request)
       : invoker_(std::move(invoker))
       , route_(route)
       , request_(request)
-      , response_(response)
   {
   }
 
@@ -94,7 +91,6 @@ private:
   detail::handlers_invoker<handler_trait> invoker_;
   http_route& route_;
   http_request& request_;
-  native_response_type& response_;
 };
 
 FITORIA_NAMESPACE_END
