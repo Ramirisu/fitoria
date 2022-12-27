@@ -9,12 +9,11 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/detail/utility.hpp>
+
 #include <gul/expected.hpp>
 #include <gul/optional.hpp>
 
-#include <boost/core/detail/string_view.hpp>
-
-#include <string_view>
 #include <unordered_map>
 
 FITORIA_NAMESPACE_BEGIN
@@ -30,34 +29,6 @@ using gul::optional;
 
 using gul::function_traits;
 using gul::is_specialization_of;
-
-namespace detail {
-
-struct string_hash {
-  using is_transparent = void;
-
-  size_t operator()(const char* s) const
-  {
-    return std::hash<std::string_view> {}(s);
-  }
-
-  size_t operator()(std::string_view sv) const
-  {
-    return std::hash<std::string_view> {}(sv);
-  }
-
-  size_t operator()(const std::string& s) const
-  {
-    return std::hash<std::string> {}(s);
-  }
-
-  size_t operator()(boost::core::string_view sv) const
-  {
-    return std::hash<std::string_view> {}(sv);
-  }
-};
-
-}
 
 template <typename T>
 using unordered_string_map
