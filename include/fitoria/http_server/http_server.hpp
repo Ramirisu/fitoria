@@ -147,16 +147,11 @@ public:
   }
 
 private:
-  using acceptor_t = typename net::ip::tcp::acceptor::template rebind_executor<
-      net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
-      other;
-
   using native_response_t = http::response<http::string_body>;
 
-  net::awaitable<acceptor_t> new_acceptor(net::ip::tcp::endpoint endpoint)
+  net::awaitable<net::accepter> new_acceptor(net::ip::tcp::endpoint endpoint)
   {
-    auto acceptor = net::use_awaitable.as_default_on(
-        net::ip::tcp::acceptor(co_await net::this_coro::executor));
+    auto acceptor = net::accepter(co_await net::this_coro::executor);
 
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));
@@ -170,10 +165,15 @@ private:
     auto acceptor = co_await new_acceptor(endpoint);
 
     for (;;) {
-      net::co_spawn(
-          acceptor.get_executor(),
-          do_session(net::tcp_stream(co_await acceptor.async_accept())),
-          net::detached);
+      auto [ec, socket] = co_await acceptor.async_accept();
+      if (ec) {
+        // TODO: log error
+        continue;
+      }
+
+      net::co_spawn(acceptor.get_executor(),
+                    do_session(net::tcp_stream(std::move(socket))),
+                    net::detached);
     }
   }
 
@@ -184,70 +184,97 @@ private:
     auto acceptor = co_await new_acceptor(endpoint);
 
     for (;;) {
+      auto [ec, socket] = co_await acceptor.async_accept();
+      if (ec) {
+        // TODO: log error
+        continue;
+      }
+
       net::co_spawn(acceptor.get_executor(),
-                    do_session(net::ssl_stream(co_await acceptor.async_accept(),
-                                               ssl_ctx)),
+                    do_session(net::ssl_stream(std::move(socket), ssl_ctx)),
                     net::detached);
     }
   }
 #endif
 
-  net::awaitable<void> do_session(net::tcp_stream stream)
+  net::awaitable<void> do_session(net::tcp_stream stream) const noexcept
   {
-    co_await do_session_impl(stream);
+    auto ec = co_await do_session_impl(stream);
+    if (ec) {
+      // TODO: log error
+      co_return;
+    }
 
-    net::error_code ec;
     stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(net::ssl_stream stream)
+  net::awaitable<void> do_session(net::ssl_stream stream) const noexcept
   {
     net::get_lowest_layer(stream).expires_after(
         config_.client_request_timeout_);
 
-    co_await stream.async_handshake(net::ssl::stream_base::server);
+    auto [ec] = co_await stream.async_handshake(net::ssl::stream_base::server);
+    if (ec) {
+      // TODO: log error
+      co_return;
+    }
 
-    co_await do_session_impl(stream.next_layer());
+    if (ec = co_await do_session_impl(stream); ec) {
+      co_return;
+    }
 
-    co_await stream.async_shutdown();
+    std::tie(ec) = co_await stream.async_shutdown();
+    if (ec) {
+      // TODO: log error
+    }
   }
 #endif
 
-  net::awaitable<void> do_session_impl(net::tcp_stream& stream)
+  template <typename Stream>
+  net::awaitable<net::error_code> do_session_impl(Stream& stream) const noexcept
   {
     net::flat_buffer buffer;
+    net::error_code ec;
 
     for (;;) {
-      try {
-        stream.expires_after(config_.client_request_timeout_);
+      net::get_lowest_layer(stream).expires_after(
+          config_.client_request_timeout_);
 
-        http::request<http::string_body> req;
-        co_await http::async_read(stream, buffer, req);
+      http::request<http::string_body> req;
+      std::tie(ec, std::ignore)
+          = co_await http::async_read(stream, buffer, req);
+      if (ec) {
+        // TODO: log error
+        co_return ec;
+      }
 
-        bool keep_alive = req.keep_alive();
+      bool keep_alive = req.keep_alive();
 
-        auto res = co_await do_handler(req);
-        res.keep_alive(keep_alive);
-        res.prepare_payload();
+      auto res = co_await do_handler(req);
+      res.keep_alive(keep_alive);
+      res.prepare_payload();
 
-        stream.expires_after(config_.client_request_timeout_);
+      net::get_lowest_layer(stream).expires_after(
+          config_.client_request_timeout_);
 
-        co_await net::async_write(stream,
-                                  http::message_generator(std::move(res)));
+      std::tie(ec, std::ignore) = co_await net::async_write(
+          stream, http::message_generator(std::move(res)));
+      if (ec) {
+        // TODO: log error
+        co_return ec;
+      }
 
-        if (!keep_alive) {
-          break;
-        }
-      } catch (boost::system::system_error& ec) {
-        if (ec.code() != http::error::end_of_stream)
-          throw;
+      if (!keep_alive) {
+        break;
       }
     }
+
+    co_return ec;
   }
 
   net::awaitable<native_response_t>
-  do_handler(http::request<http::string_body>& req)
+  do_handler(http::request<http::string_body>& req) const noexcept
   {
     auto req_url = urls::parse_origin_form(req.target());
     if (!req_url) {

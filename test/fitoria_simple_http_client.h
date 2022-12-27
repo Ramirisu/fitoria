@@ -77,14 +77,23 @@ public:
 #endif
 
 private:
-  using resolver_t = typename net::ip::tcp::resolver::template rebind_executor<
-      net::use_awaitable_t<>::executor_with_default<net::any_io_executor>>::
-      other;
+  using resolver
+      = net::use_awaitable_t<>::as_default_on_t<net::ip::tcp::resolver>;
+  using tcp_stream
+      = net::use_awaitable_t<>::as_default_on_t<boost::beast::tcp_stream>;
+#if defined(FITORIA_HAS_OPENSSL)
+  using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
+#endif
+
+  net::awaitable<resolver> new_resolver()
+  {
+    co_return resolver(co_await net::this_coro::executor);
+  }
 
   net::awaitable<http::response<http::string_body>> do_session()
   {
     auto resolver = co_await new_resolver();
-    auto stream = net::tcp_stream(co_await net::this_coro::executor);
+    auto stream = tcp_stream(co_await net::this_coro::executor);
 
     const auto results
         = co_await resolver.async_resolve(host_, std::to_string(port_));
@@ -106,7 +115,7 @@ private:
   do_session(net::ssl::context ssl_ctx)
   {
     auto resolver = co_await new_resolver();
-    auto stream = net::ssl_stream(co_await net::this_coro::executor, ssl_ctx);
+    auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
 
     auto hostname = net::ip::host_name();
     SSL_set_tlsext_host_name(stream.native_handle(), hostname.c_str());
@@ -122,7 +131,7 @@ private:
 
     co_await stream.async_handshake(net::ssl::stream_base::client);
 
-    auto resp = co_await do_session_impl(stream.next_layer());
+    auto resp = co_await do_session_impl(stream);
 
     net::error_code ec;
     stream.shutdown(ec);
@@ -137,14 +146,9 @@ private:
   }
 #endif
 
-  net::awaitable<resolver_t> new_resolver()
-  {
-    co_return net::use_awaitable.as_default_on(
-        net::ip::tcp::resolver(co_await net::this_coro::executor));
-  }
-
+  template <typename Stream>
   net::awaitable<http::response<http::string_body>>
-  do_session_impl(net::tcp_stream& stream)
+  do_session_impl(Stream& stream)
   {
     http::request<http::string_body> req { method_, target_, 11 };
     for (const auto& f : fields_) {
@@ -154,7 +158,7 @@ private:
     req.body() = body_;
     req.prepare_payload();
 
-    stream.expires_after(request_timeout_);
+    net::get_lowest_layer(stream).expires_after(request_timeout_);
 
     co_await http::async_write(stream, req);
 
@@ -162,7 +166,7 @@ private:
 
     http::response<http::string_body> res;
 
-    stream.expires_after(request_timeout_);
+    net::get_lowest_layer(stream).expires_after(request_timeout_);
 
     co_await http::async_read(stream, buffer, res);
 

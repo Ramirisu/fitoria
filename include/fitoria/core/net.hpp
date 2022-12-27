@@ -33,8 +33,11 @@ using boost::beast::flat_buffer;
 using boost::beast::async_write;
 using boost::beast::get_lowest_layer;
 
-using tcp_stream = typename boost::beast::tcp_stream::rebind_executor<
-    use_awaitable_t<>::executor_with_default<any_io_executor>>::other;
+using accepter = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
+    net::ip::tcp::acceptor>;
+
+using tcp_stream = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
+    boost::beast::tcp_stream>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
