@@ -12,6 +12,9 @@
 #include <gul/expected.hpp>
 #include <gul/optional.hpp>
 
+#include <boost/core/detail/string_view.hpp>
+
+#include <string_view>
 #include <unordered_map>
 
 FITORIA_NAMESPACE_BEGIN
@@ -46,6 +49,11 @@ struct string_hash {
   size_t operator()(const std::string& s) const
   {
     return std::hash<std::string> {}(s);
+  }
+
+  size_t operator()(boost::core::string_view sv) const
+  {
+    return std::hash<std::string_view> {}(sv);
   }
 };
 

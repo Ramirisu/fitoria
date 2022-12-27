@@ -116,6 +116,9 @@ void configure_server(http_server_config& config)
                  CHECK_EQ(req.params().at("name"), "Rina Hikada");
                  CHECK_EQ(req.params().at("birth"), "1994/06/15");
 
+                 CHECK_EQ(req.headers().at(field::content_type),
+                          optional<std::string>("application/json"));
+
                  CHECK_EQ(req.body(),
                           json::serialize(json::value {
                               { "name", "Rina Hikada" },
@@ -140,12 +143,11 @@ void configure_client(simple_http_client& client)
       .with_target(
           R"(/api/v1/users/Rina%20Hikada/filmography/years/2022?name=Rina%20Hikada&birth=1994%2F06%2F15)")
       .with_field(field::content_type, "application/json")
-      .with_field(field::content_type, "charset=utf-8")
+      .with_field(field::connection, "close")
       .with_body(json::serialize(json::value {
           { "name", "Rina Hikada" },
           { "birth", "1994/06/15" },
-      }))
-      .with_field(field::connection, "close");
+      }));
 }
 
 TEST_CASE("simple request without tls")

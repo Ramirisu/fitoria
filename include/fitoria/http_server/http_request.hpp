@@ -13,6 +13,8 @@
 #include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/http_server/http_header.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
 class http_request {
@@ -26,6 +28,9 @@ public:
       , path_(std::move(path))
       , params_(std::move(params))
   {
+    for (auto it = native.begin(); it != native.end(); ++it) {
+      header_.set(it->name_string(), it->value());
+    }
   }
 
   verb method() const noexcept
@@ -53,6 +58,16 @@ public:
     return params_;
   }
 
+  http_header& headers() noexcept
+  {
+    return header_;
+  }
+
+  const http_header& headers() const noexcept
+  {
+    return header_;
+  }
+
   std::string& body() noexcept
   {
     return native_.body();
@@ -67,6 +82,7 @@ private:
   native_type& native_;
   std::string path_;
   unordered_string_map<std::string> params_;
+  http_header header_;
 };
 
 FITORIA_NAMESPACE_END

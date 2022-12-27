@@ -39,7 +39,7 @@ public:
 
   simple_http_client& with_field(field name, std::string_view value)
   {
-    fields_.insert(name, value);
+    fields_.set(name, value);
     return *this;
   }
 
