@@ -83,7 +83,7 @@ TEST_CASE("middlewares and router's invocation order")
   CHECK_EQ(++state, 6);
 }
 
-namespace simple_http_request_test {
+namespace {
 
 struct user_t {
   std::string name;
@@ -106,6 +106,10 @@ void tag_invoke(const json::value_from_tag&,
 {
   jv = { { "name", user.name }, { "birth", user.birth } };
 }
+
+}
+
+namespace simple_http_request_test {
 
 void configure_server(http_server_config& config)
 {
@@ -289,28 +293,6 @@ TEST_CASE("response with json")
                { "obj_string", "str" },
                { "obj_array", json::array { false, 7654321, "rts" } },
            })));
-}
-
-struct user_t {
-  std::string name;
-  std::string birth;
-
-  friend bool operator==(const user_t&, const user_t&) = default;
-};
-
-user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
-{
-  return user_t {
-    .name = std::string(jv.at("name").as_string()),
-    .birth = std::string(jv.at("birth").as_string()),
-  };
-}
-
-void tag_invoke(const json::value_from_tag&,
-                json::value& jv,
-                const user_t& user)
-{
-  jv = { { "name", user.name }, { "birth", user.birth } };
 }
 
 TEST_CASE("response with struct to json")
