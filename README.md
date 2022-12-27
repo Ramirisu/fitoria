@@ -4,9 +4,24 @@
 ![std](https://img.shields.io/badge/std-20-blue.svg)
 ![license](https://img.shields.io/badge/license-BSL--1.0-blue)
 
-`fitoria` is an HTTP web framework, built on top of `boost::asio`, `boost::beast`, `boost::url` and `boost::json`.
+`fitoria` is an HTTP web framework built on top of C++20 coroutines.
 
 ## Building
+
+Compiler Supported
+
+* GCC 12
+* MSVC 17 2022
+
+Dependencies
+
+* `boost::asio` for networking (Required)
+* `boost::beast` for http/websocket (Required)
+* `boost::url` for url parsing (Required)
+* `boost::json` for json serialization/deserialization (Required)
+* `OpenSSL` for secure networking (Optional)
+* `gul` for utilities (Required)
+* `doctest` for unittesting (Optional)
 
 CMake
 
