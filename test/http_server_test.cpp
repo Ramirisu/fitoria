@@ -202,16 +202,11 @@ TEST_CASE("simple request with tls/tlsv12")
   test_with_tls(context::method::tls_server, context::method::tlsv12_client);
 }
 
-#if 0
-// TODO: tlsv13 client throws bad version error
-
 TEST_CASE("simple request with tls/tlsv13")
 {
   using net::ssl::context;
   test_with_tls(context::method::tls_server, context::method::tlsv13_client);
 }
-
-#endif
 
 #endif
 
