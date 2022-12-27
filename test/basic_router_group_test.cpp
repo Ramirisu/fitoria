@@ -17,7 +17,7 @@ TEST_SUITE_BEGIN("router_group");
 
 TEST_CASE("basic")
 {
-  struct handler_trait {
+  struct test_handler_trait {
     using handler_t = std::function<int()>;
     using handlers_t = std::vector<handler_t>;
     struct handler_compare_t {
@@ -27,7 +27,7 @@ TEST_CASE("basic")
       }
     };
   };
-  using router_group_type = basic_router_group<handler_trait>;
+  using router_group_type = basic_router_group<test_handler_trait>;
 
   auto h = []() -> int { return 0; };
   auto l = []() -> int { return 1; };

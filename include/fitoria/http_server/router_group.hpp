@@ -9,7 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/http_server/detail/handler_trait.hpp>
+#include <fitoria/http_server/http_handler_trait.hpp>
 
 #include <fitoria/http_server/router.hpp>
 
@@ -61,6 +61,6 @@ private:
   std::vector<router_type> routers_;
 };
 
-using router_group = basic_router_group<detail::handler_trait>;
+using router_group = basic_router_group<http_handler_trait>;
 
 FITORIA_NAMESPACE_END

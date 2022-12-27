@@ -9,10 +9,10 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/http_server/detail/handler_trait.hpp>
-
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/http.hpp>
+
+#include <fitoria/http_server/http_handler_trait.hpp>
 
 #include <string>
 #include <vector>
@@ -84,6 +84,6 @@ private:
   handlers_t<HandlerTrait> handlers_;
 };
 
-using router = basic_router<detail::handler_trait>;
+using router = basic_router<http_handler_trait>;
 
 FITORIA_NAMESPACE_END

@@ -15,7 +15,7 @@ TEST_SUITE_BEGIN("router_tree");
 
 TEST_CASE("try_insert")
 {
-  struct handler_trait {
+  struct test_handler_trait {
     using handler_t = std::function<int()>;
     using handlers_t = std::vector<handler_t>;
     struct handler_compare_t {
@@ -25,12 +25,12 @@ TEST_CASE("try_insert")
       }
     };
   };
-  using router_tree_type = basic_router_tree<handler_trait>;
+  using router_tree_type = basic_router_tree<test_handler_trait>;
   using exp_t = expected<void, router_error>;
 
   auto r = [=](verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
-                                         handlers_t<handler_trait> {});
+                                         handlers_t<test_handler_trait> {});
   };
 
   router_tree_type rt;
@@ -68,17 +68,17 @@ TEST_CASE("try_insert")
 
 TEST_CASE("try_find")
 {
-  struct handler_trait {
+  struct test_handler_trait {
     using handler_t = std::function<int()>;
     using handlers_t = std::vector<handler_t>;
     struct handler_compare_t;
   };
-  using router_tree_type = basic_router_tree<handler_trait>;
+  using router_tree_type = basic_router_tree<test_handler_trait>;
 
   auto r = [=](verb method, std::string path, int exp) {
     return router_tree_type::router_type(
         method, std::move(path),
-        handlers_t<handler_trait> { [=]() { return exp; } });
+        handlers_t<test_handler_trait> { [=]() { return exp; } });
   };
 
   router_tree_type rt;

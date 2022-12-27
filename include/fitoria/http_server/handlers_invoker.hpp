@@ -10,6 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/handler_concept.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/http_error.hpp>
 
@@ -17,8 +18,6 @@
 #include <variant>
 
 FITORIA_NAMESPACE_BEGIN
-
-namespace detail {
 
 template <typename HandlerTrait>
 class handlers_invoker {
@@ -140,7 +139,5 @@ private:
   const handlers_t<HandlerTrait>& handlers_;
   typename std::remove_cvref_t<decltype(handlers_)>::const_iterator curr_;
 };
-
-}
 
 FITORIA_NAMESPACE_END

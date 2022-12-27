@@ -82,8 +82,8 @@ private:
 
 class http_server {
 public:
-  using handler_trait = detail::handler_trait;
-  using handlers_invoker_type = detail::handlers_invoker<handler_trait>;
+  using handler_trait = http_handler_trait;
+  using handlers_invoker_type = handlers_invoker<handler_trait>;
   using execution_context = net::io_context;
 
   http_server(http_server_config config)

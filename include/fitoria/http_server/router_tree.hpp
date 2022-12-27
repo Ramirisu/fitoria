@@ -13,8 +13,7 @@
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/http_server/detail/handler_trait.hpp>
-
+#include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/route.hpp>
 #include <fitoria/http_server/router.hpp>
 #include <fitoria/http_server/router_error.hpp>
@@ -141,6 +140,6 @@ private:
   std::unordered_map<verb, node> subtrees_;
 };
 
-using router_tree = basic_router_tree<detail::handler_trait>;
+using router_tree = basic_router_tree<http_handler_trait>;
 
 FITORIA_NAMESPACE_END

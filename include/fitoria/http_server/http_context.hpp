@@ -13,8 +13,8 @@
 #include <fitoria/core/json.hpp>
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/http_server/detail/handler_trait.hpp>
-#include <fitoria/http_server/detail/handlers_invoker.hpp>
+#include <fitoria/http_server/handlers_invoker.hpp>
+#include <fitoria/http_server/http_handler_trait.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/http_route.hpp>
@@ -25,10 +25,10 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
-  using handler_trait = detail::handler_trait;
+  using handler_trait = http_handler_trait;
 
 public:
-  http_context(detail::handlers_invoker<handler_trait> invoker,
+  http_context(handlers_invoker<handler_trait> invoker,
                http_route& route,
                http_request& request)
       : invoker_(std::move(invoker))
@@ -88,7 +88,7 @@ public:
   }
 
 private:
-  detail::handlers_invoker<handler_trait> invoker_;
+  handlers_invoker<handler_trait> invoker_;
   http_route& route_;
   http_request& request_;
 };

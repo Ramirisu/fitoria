@@ -22,20 +22,16 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace detail {
-
-struct handler_trait {
+struct http_handler_trait {
+private:
   using result_t = net::awaitable<expected<http_response, http_error>>;
 
 public:
   using handler_t
-      = repeated_input_variant_function_t<result_t, http_context&, 5>;
+      = detail::repeated_input_variant_function_t<result_t, http_context&, 5>;
   using handlers_t = std::vector<handler_t>;
   using handler_result_t = result_t;
-  static constexpr bool handler_result_awaitable = true;
   struct handler_compare_t;
 };
-
-}
 
 FITORIA_NAMESPACE_END

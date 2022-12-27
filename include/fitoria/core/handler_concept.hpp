@@ -9,6 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/coroutine_concept.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
@@ -22,7 +24,7 @@ using handler_result_t = typename HandlerTrait::handler_result_t;
 
 template <typename HandlerTrait>
 inline constexpr bool handler_result_awaitable
-    = HandlerTrait::handler_result_awaitable;
+    = awaitable<handler_result_t<HandlerTrait>>;
 
 template <typename HandlerTrait>
 using handler_compare_t = typename HandlerTrait::handler_compare_t;
