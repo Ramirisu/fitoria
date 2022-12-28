@@ -11,41 +11,30 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/json.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 template <typename T>
-class from_json {
+class from_json : public expected<T, net::error_code> {
 public:
   from_json(const http_request& c)
-      : value_(json::value_to<T>(json::parse(c.body())))
+      : expected<T, net::error_code>(parse(c.body()))
   {
-  }
-
-  T& value() & noexcept
-  {
-    return value_;
-  }
-
-  const T& value() const& noexcept
-  {
-    return value_;
-  }
-
-  T&& value() && noexcept
-  {
-    return std::move(value_);
-  }
-
-  const T&& value() const&& noexcept
-  {
-    return std::move(value_);
   }
 
 private:
-  T value_;
+  static expected<T, net::error_code> parse(const std::string& s)
+  {
+    net::error_code ec;
+    auto jv = json::parse(s, ec);
+    if (ec) {
+      return unexpected<net::error_code>(ec);
+    }
+    return json::value_to<T>(jv);
+  }
 };
 
 FITORIA_NAMESPACE_END
