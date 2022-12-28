@@ -13,24 +13,52 @@
 #include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/http_server/handlers_invoker.hpp>
+#include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
+#include <fitoria/http_server/http_route.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_request {
   using native_type = http::request<http::string_body>;
+  using handler_trait = http_handler_trait;
 
 public:
-  explicit http_request(native_type& native,
+  explicit http_request(handlers_invoker<handler_trait> invoker,
+                        http_route& route,
+                        native_type& native,
                         std::string path,
                         unordered_string_map<std::string> params)
-      : native_(native)
+      : invoker_(std::move(invoker))
+      , route_(route)
+      , native_(native)
       , path_(std::move(path))
       , params_(std::move(params))
   {
     for (auto it = native.begin(); it != native.end(); ++it) {
       header_.set(it->name_string(), it->value());
     }
+  }
+
+  http_route& route() noexcept
+  {
+    return route_;
+  }
+
+  const http_route& route() const noexcept
+  {
+    return route_;
+  }
+
+  operator http_route&() noexcept
+  {
+    return route_;
+  }
+
+  operator const http_route&() const noexcept
+  {
+    return route_;
   }
 
   verb method() const noexcept
@@ -78,7 +106,19 @@ public:
     return native_.body();
   }
 
+  handler_result_t<handler_trait> start()
+  {
+    co_return co_await invoker_.start(*this);
+  }
+
+  handler_result_t<handler_trait> next()
+  {
+    co_return co_await invoker_.next(*this);
+  }
+
 private:
+  handlers_invoker<handler_trait> invoker_;
+  http_route& route_;
   native_type& native_;
   std::string path_;
   unordered_string_map<std::string> params_;

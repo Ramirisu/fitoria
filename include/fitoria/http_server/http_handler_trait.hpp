@@ -28,7 +28,7 @@ private:
 
 public:
   using handler_t
-      = detail::repeated_input_variant_function_t<result_t, http_context&, 5>;
+      = detail::repeated_input_variant_function_t<result_t, http_request&, 5>;
   using handlers_t = std::vector<handler_t>;
   using handler_result_t = result_t;
   struct handler_compare_t;

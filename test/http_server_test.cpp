@@ -30,7 +30,7 @@ TEST_CASE("http_server_config")
           .set_client_request_timeout(std::chrono::seconds(1))
           .route(router(
               verb::get, "/api/get",
-              [&]([[maybe_unused]] http_context& c)
+              [&]([[maybe_unused]] http_request& req)
                   -> net::awaitable<expected<http_response, http_error>> {
                 co_return http_response(status::ok);
               })));
@@ -65,7 +65,7 @@ TEST_CASE("middlewares and router's invocation order")
             co_return resp;
           })
           .route(verb::get, "/get",
-                 [&]([[maybe_unused]] http_context& c)
+                 [&]([[maybe_unused]] http_request& req)
                      -> net::awaitable<expected<http_response, http_error>> {
                    CHECK_EQ(++state, 3);
                    co_return http_response(status::ok);
@@ -115,8 +115,7 @@ void configure_server(http_server_config& config)
 {
   config.route(
       router(verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-             [&](http_context& c, http_route& route, http_request& req,
-                 from_json<user_t> user)
+             [&](http_request& req, http_route& route, from_json<user_t> user)
                  -> net::awaitable<expected<http_response, http_error>> {
                auto test_route = [](http_route& route) {
                  CHECK_EQ(route.path(),
@@ -125,28 +124,24 @@ void configure_server(http_server_config& config)
                  CHECK_EQ(route.at("user"), "Rina Hikada");
                  CHECK_EQ(route.at("year"), "2022");
                };
-               test_route(c.route());
+               test_route(req.route());
                test_route(route);
 
-               auto test_request = [](http_request& req) {
-                 CHECK_EQ(req.method(), verb::get);
-                 CHECK_EQ(req.path(),
-                          "/api/v1/users/Rina Hikada/filmography/years/2022");
-                 CHECK_EQ(req.params().size(), 2);
-                 CHECK_EQ(req.params().at("name"), "Rina Hikada");
-                 CHECK_EQ(req.params().at("birth"), "1994/06/15");
+               CHECK_EQ(req.method(), verb::get);
+               CHECK_EQ(req.path(),
+                        "/api/v1/users/Rina Hikada/filmography/years/2022");
+               CHECK_EQ(req.params().size(), 2);
+               CHECK_EQ(req.params().at("name"), "Rina Hikada");
+               CHECK_EQ(req.params().at("birth"), "1994/06/15");
 
-                 CHECK_EQ(req.headers().at(field::content_type),
-                          optional<std::string>("application/json"));
+               CHECK_EQ(req.headers().at(field::content_type),
+                        optional<std::string>("application/json"));
 
-                 CHECK_EQ(req.body(),
-                          json::serialize(json::value {
-                              { "name", "Rina Hikada" },
-                              { "birth", "1994/06/15" },
-                          }));
-               };
-               test_request(c.request());
-               test_request(req);
+               CHECK_EQ(req.body(),
+                        json::serialize(json::value {
+                            { "name", "Rina Hikada" },
+                            { "birth", "1994/06/15" },
+                        }));
 
                CHECK_EQ(user.value(),
                         user_t {
@@ -219,11 +214,12 @@ TEST_CASE("simple request with tls/tlsv13")
 TEST_CASE("response status only")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      verb::get, "/api",
-      [](http_context&) -> net::awaitable<expected<http_response, http_error>> {
-        co_return http_response(status::accepted);
-      })));
+  auto server = http_server(http_server_config().route(
+      router(verb::get, "/api",
+             []([[maybe_unused]] http_request& req)
+                 -> net::awaitable<expected<http_response, http_error>> {
+               co_return http_response(status::accepted);
+             })));
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -241,13 +237,14 @@ TEST_CASE("response status only")
 TEST_CASE("response with plain text")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      verb::get, "/api",
-      [](http_context&) -> net::awaitable<expected<http_response, http_error>> {
-        co_return http_response(status::ok)
-            .set_header(field::content_type, "text/plain")
-            .set_body("plain text");
-      })));
+  auto server = http_server(http_server_config().route(
+      router(verb::get, "/api",
+             []([[maybe_unused]] http_request& req)
+                 -> net::awaitable<expected<http_response, http_error>> {
+               co_return http_response(status::ok)
+                   .set_header(field::content_type, "text/plain")
+                   .set_body("plain text");
+             })));
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -264,18 +261,19 @@ TEST_CASE("response with plain text")
 TEST_CASE("response with json")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      verb::get, "/api",
-      [](http_context&) -> net::awaitable<expected<http_response, http_error>> {
-        co_return http_response(status::ok)
-            .set_header(field::content_type, "application/json")
-            .set_json({
-                { "obj_boolean", true },
-                { "obj_number", 1234567 },
-                { "obj_string", "str" },
-                { "obj_array", json::array { false, 7654321, "rts" } },
-            });
-      })));
+  auto server = http_server(http_server_config().route(
+      router(verb::get, "/api",
+             []([[maybe_unused]] http_request& req)
+                 -> net::awaitable<expected<http_response, http_error>> {
+               co_return http_response(status::ok)
+                   .set_header(field::content_type, "application/json")
+                   .set_json({
+                       { "obj_boolean", true },
+                       { "obj_number", 1234567 },
+                       { "obj_string", "str" },
+                       { "obj_array", json::array { false, 7654321, "rts" } },
+                   });
+             })));
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -298,16 +296,17 @@ TEST_CASE("response with json")
 TEST_CASE("response with struct to json")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      verb::get, "/api",
-      [](http_context&) -> net::awaitable<expected<http_response, http_error>> {
-        co_return http_response(status::ok)
-            .set_header(field::content_type, "application/json")
-            .set_json(user_t {
-                .name = "Rina Hikada",
-                .birth = "1994/06/15",
-            });
-      })));
+  auto server = http_server(http_server_config().route(
+      router(verb::get, "/api",
+             []([[maybe_unused]] http_request& req)
+                 -> net::awaitable<expected<http_response, http_error>> {
+               co_return http_response(status::ok)
+                   .set_header(field::content_type, "application/json")
+                   .set_json(user_t {
+                       .name = "Rina Hikada",
+                       .birth = "1994/06/15",
+                   });
+             })));
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

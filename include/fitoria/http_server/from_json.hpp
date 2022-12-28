@@ -12,15 +12,15 @@
 
 #include <fitoria/core/json.hpp>
 
-#include <fitoria/http_server/http_context.hpp>
+#include <fitoria/http_server/http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 template <typename T>
 class from_json {
 public:
-  from_json(const http_context& c)
-      : value_(json::value_to<T>(json::parse(c.request().body())))
+  from_json(const http_request& c)
+      : value_(json::value_to<T>(json::parse(c.body())))
   {
   }
 

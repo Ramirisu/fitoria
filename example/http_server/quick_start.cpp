@@ -13,10 +13,10 @@ int main()
 {
   auto server = http_server(http_server_config().route(
       router(verb::get, "/api/v1/{owner}/{repo}",
-             [](http_context& c)
+             [](http_request& req)
                  -> net::awaitable<expected<http_response, http_error>> {
-               FITORIA_ASSERT(c.route().path() == "/api/v1/{owner}/{repo}");
-               FITORIA_ASSERT(c.request().method() == verb::get);
+               FITORIA_ASSERT(req.route().path() == "/api/v1/{owner}/{repo}");
+               FITORIA_ASSERT(req.method() == verb::get);
                co_return http_response(status::ok);
              })));
   server
