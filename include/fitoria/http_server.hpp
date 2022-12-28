@@ -18,6 +18,7 @@
 #include <fitoria/http_server/http_response.hpp>
 #include <fitoria/http_server/http_route.hpp>
 #include <fitoria/http_server/http_server.hpp>
+#include <fitoria/http_server/query_map.hpp>
 #include <fitoria/http_server/route.hpp>
 #include <fitoria/http_server/router.hpp>
 #include <fitoria/http_server/router_error.hpp>

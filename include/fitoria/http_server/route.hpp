@@ -112,19 +112,6 @@ public:
 
     return map;
   }
-
-  static auto to_unordered_string_map(urls::params_view params) noexcept
-      -> unordered_string_map<std::string>
-  {
-    unordered_string_map<std::string> map;
-    for (auto param : params) {
-      if (param.has_value) {
-        map[param.key] = param.value;
-      }
-    }
-
-    return map;
-  }
 };
 
 FITORIA_NAMESPACE_END

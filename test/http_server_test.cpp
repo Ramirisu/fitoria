@@ -115,13 +115,14 @@ void configure_server(http_server_config& config)
 {
   config.route(
       router(verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-             [&](http_request& req, http_route& route, from_json<user_t> user)
+             [&](http_request& req, http_route& route, query_map& query,
+                 from_json<user_t> user)
                  -> net::awaitable<expected<http_response, http_error>> {
                auto test_route = [](http_route& route) {
                  CHECK_EQ(route.path(),
                           "/api/v1/users/{user}/filmography/years/{year}");
 
-                 CHECK_EQ(route.at("user"), "Rina Hikada");
+                 CHECK_EQ(route.at("user"), "Rina Hidaka");
                  CHECK_EQ(route.at("year"), "2022");
                };
                test_route(req.route());
@@ -129,23 +130,28 @@ void configure_server(http_server_config& config)
 
                CHECK_EQ(req.method(), verb::get);
                CHECK_EQ(req.path(),
-                        "/api/v1/users/Rina Hikada/filmography/years/2022");
-               CHECK_EQ(req.params().size(), 2);
-               CHECK_EQ(req.params().at("name"), "Rina Hikada");
-               CHECK_EQ(req.params().at("birth"), "1994/06/15");
+                        "/api/v1/users/Rina Hidaka/filmography/years/2022");
 
-               CHECK_EQ(req.headers().at(field::content_type),
+               auto test_query = [](query_map& query) {
+                 CHECK_EQ(query.size(), 2);
+                 CHECK_EQ(query.at("name"), "Rina Hidaka");
+                 CHECK_EQ(query.at("birth"), "1994/06/15");
+               };
+               test_query(req.query());
+               test_query(query);
+
+               CHECK_EQ(req.headers().get(field::content_type),
                         optional<std::string>("application/json"));
 
                CHECK_EQ(req.body(),
                         json::serialize(json::value {
-                            { "name", "Rina Hikada" },
+                            { "name", "Rina Hidaka" },
                             { "birth", "1994/06/15" },
                         }));
 
                CHECK_EQ(user.value(),
                         user_t {
-                            .name = "Rina Hikada",
+                            .name = "Rina Hidaka",
                             .birth = "1994/06/15",
                         });
                co_return http_response(status::ok);
@@ -156,11 +162,11 @@ void configure_client(simple_http_client& client)
 {
   client.with(verb::get)
       .with_target(
-          R"(/api/v1/users/Rina%20Hikada/filmography/years/2022?name=Rina%20Hikada&birth=1994%2F06%2F15)")
+          R"(/api/v1/users/Rina%20Hidaka/filmography/years/2022?name=Rina%20Hidaka&birth=1994%2F06%2F15)")
       .with_field(field::content_type, "application/json")
       .with_field(field::connection, "close")
       .with_body(json::serialize(json::value {
-          { "name", "Rina Hikada" },
+          { "name", "Rina Hidaka" },
           { "birth", "1994/06/15" },
       }));
 }
@@ -303,7 +309,7 @@ TEST_CASE("response with struct to json")
                co_return http_response(status::ok)
                    .set_header(field::content_type, "application/json")
                    .set_json(user_t {
-                       .name = "Rina Hikada",
+                       .name = "Rina Hidaka",
                        .birth = "1994/06/15",
                    });
              })));
@@ -319,7 +325,7 @@ TEST_CASE("response with struct to json")
   CHECK_EQ(resp.at(field::content_type), "application/json");
   CHECK_EQ(json::value_to<user_t>(json::parse(resp.body())),
            user_t {
-               .name = "Rina Hikada",
+               .name = "Rina Hidaka",
                .birth = "1994/06/15",
            });
 }

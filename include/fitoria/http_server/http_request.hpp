@@ -17,24 +17,25 @@
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
 #include <fitoria/http_server/http_route.hpp>
+#include <fitoria/http_server/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_request {
-  using native_type = http::request<http::string_body>;
   using handler_trait = http_handler_trait;
+  using native_type = http::request<http::string_body>;
 
 public:
   explicit http_request(handlers_invoker<handler_trait> invoker,
                         http_route& route,
                         native_type& native,
                         std::string path,
-                        unordered_string_map<std::string> params)
+                        query_map query)
       : invoker_(std::move(invoker))
       , route_(route)
       , native_(native)
       , path_(std::move(path))
-      , params_(std::move(params))
+      , query_(std::move(query))
   {
     for (auto it = native.begin(); it != native.end(); ++it) {
       header_.set(it->name_string(), it->value());
@@ -76,14 +77,24 @@ public:
     return path_;
   }
 
-  unordered_string_map<std::string>& params() noexcept
+  query_map& query() noexcept
   {
-    return params_;
+    return query_;
   }
 
-  const unordered_string_map<std::string>& params() const noexcept
+  const query_map& query() const noexcept
   {
-    return params_;
+    return query_;
+  }
+
+  operator query_map&() noexcept
+  {
+    return query_;
+  }
+
+  operator const query_map&() const noexcept
+  {
+    return query_;
   }
 
   http_header& headers() noexcept
@@ -121,7 +132,7 @@ private:
   http_route& route_;
   native_type& native_;
   std::string path_;
-  unordered_string_map<std::string> params_;
+  query_map query_;
   http_header header_;
 };
 

@@ -292,11 +292,22 @@ private:
     }
 
     auto route = http_route(*route_params, std::string(router->path()));
-    auto request
-        = http_request(router->handlers(), route, req, req_url->path(),
-                       route::to_unordered_string_map(req_url->params()));
+    auto request = http_request(router->handlers(), route, req, req_url->path(),
+                                to_query_map(req_url->params()));
     co_return (co_await request.start())
         .value_or(http_response(http::status::internal_server_error));
+  }
+
+  static auto to_query_map(urls::params_view params) noexcept -> query_map
+  {
+    query_map query;
+    for (auto param : params) {
+      if (param.has_value) {
+        query[param.key] = param.value;
+      }
+    }
+
+    return query;
   }
 
   http_server_config config_;
