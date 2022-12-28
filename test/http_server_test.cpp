@@ -118,6 +118,9 @@ void configure_server(http_server_config& config)
       [&](http_request& req, http_route& route, query_map& query,
           from_json<user_t> user)
           -> net::awaitable<expected<http_response, http_error>> {
+        CHECK_EQ(req.remote_endpoint().address(),
+                 net::ip::make_address(server_ip));
+
         auto test_route = [](http_route& route) {
           CHECK_EQ(route.path(),
                    "/api/v1/users/{user}/filmography/years/{year}");

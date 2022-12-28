@@ -250,7 +250,8 @@ private:
 
       bool keep_alive = req.keep_alive();
 
-      auto res = co_await do_handler(req);
+      auto res = co_await do_handler(
+          net::get_lowest_layer(stream).socket().remote_endpoint(), req);
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
@@ -273,7 +274,8 @@ private:
   }
 
   net::awaitable<native_response_t>
-  do_handler(http::request<http::string_body>& req) const noexcept
+  do_handler(net::ip::tcp::endpoint remote_endpoint,
+             http::request<http::string_body>& req) const noexcept
   {
     auto req_url = urls::parse_origin_form(req.target());
     if (!req_url) {
@@ -292,9 +294,9 @@ private:
     }
 
     auto route = http_route(*route_params, std::string(router->path()));
-    auto request
-        = http_request(router->handlers(), route, req, req_url->path(),
-                       req_url->query(), to_query_map(req_url->params()));
+    auto request = http_request(router->handlers(), remote_endpoint, route, req,
+                                req_url->path(), req_url->query(),
+                                to_query_map(req_url->params()));
     co_return (co_await request.start())
         .value_or(http_response(http::status::internal_server_error));
   }

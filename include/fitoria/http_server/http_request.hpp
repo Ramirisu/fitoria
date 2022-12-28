@@ -27,12 +27,14 @@ class http_request {
 
 public:
   explicit http_request(handlers_invoker<handler_trait> invoker,
+                        net::ip::tcp::endpoint remote_endpoint,
                         http_route& route,
                         native_type& native,
                         std::string path,
                         std::string query_string,
                         query_map query)
       : invoker_(std::move(invoker))
+      , remote_endpoint_(remote_endpoint)
       , route_(route)
       , native_(native)
       , path_(std::move(path))
@@ -42,6 +44,11 @@ public:
     for (auto it = native.begin(); it != native.end(); ++it) {
       header_.set(it->name_string(), it->value());
     }
+  }
+
+  net::ip::tcp::endpoint remote_endpoint() const noexcept
+  {
+    return remote_endpoint_;
   }
 
   http_route& route() noexcept
@@ -141,6 +148,7 @@ public:
 
 private:
   handlers_invoker<handler_trait> invoker_;
+  net::ip::tcp::endpoint remote_endpoint_;
   http_route& route_;
   native_type& native_;
   std::string path_;
