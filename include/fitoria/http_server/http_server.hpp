@@ -292,8 +292,9 @@ private:
     }
 
     auto route = http_route(*route_params, std::string(router->path()));
-    auto request = http_request(router->handlers(), route, req, req_url->path(),
-                                to_query_map(req_url->params()));
+    auto request
+        = http_request(router->handlers(), route, req, req_url->path(),
+                       req_url->query(), to_query_map(req_url->params()));
     co_return (co_await request.start())
         .value_or(http_response(http::status::internal_server_error));
   }

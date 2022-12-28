@@ -28,6 +28,13 @@ int main()
                 co_return http_response(status::ok);
               }))
           .route(router(
+              verb::get, "/api/v1/games/{game}",
+              [](query_map& query)
+                  -> net::awaitable<expected<http_response, http_error>> {
+                FITORIA_ASSERT(query.get("name") == "Mario Bros.");
+                co_return http_response(status::ok);
+              }))
+          .route(router(
               verb::patch, "/api/v1/languages/{language}",
               [](http_route& r, http_request& req)
                   -> net::awaitable<expected<http_response, http_error>> {

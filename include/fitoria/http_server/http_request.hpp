@@ -30,11 +30,13 @@ public:
                         http_route& route,
                         native_type& native,
                         std::string path,
+                        std::string query_string,
                         query_map query)
       : invoker_(std::move(invoker))
       , route_(route)
       , native_(native)
       , path_(std::move(path))
+      , query_string_(std::move(query_string))
       , query_(std::move(query))
   {
     for (auto it = native.begin(); it != native.end(); ++it) {
@@ -75,6 +77,16 @@ public:
   const std::string& path() const noexcept
   {
     return path_;
+  }
+
+  std::string& query_string() noexcept
+  {
+    return query_string_;
+  }
+
+  const std::string& query_string() const noexcept
+  {
+    return query_string_;
   }
 
   query_map& query() noexcept
@@ -132,6 +144,7 @@ private:
   http_route& route_;
   native_type& native_;
   std::string path_;
+  std::string query_string_;
   query_map query_;
   http_header header_;
 };
