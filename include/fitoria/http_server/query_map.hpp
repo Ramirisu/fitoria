@@ -9,7 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/utility.hpp>
+#include <fitoria/core/optional.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

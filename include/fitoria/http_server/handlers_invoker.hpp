@@ -10,6 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/handler_concept.hpp>
+#include <fitoria/core/type_traits.hpp>
 #include <fitoria/core/utility.hpp>
 
 #include <functional>
@@ -68,8 +69,8 @@ private:
   invoke(handler_input_param_t<HandlerTrait>& ctx)
     requires(!handler_result_awaitable<HandlerTrait>)
   {
-    if constexpr (is_specialization_of<handler_t<HandlerTrait>,
-                                       std::variant>::value) {
+    if constexpr (is_specialization_of_v<handler_t<HandlerTrait>,
+                                         std::variant>) {
       invoke_variant(ctx);
     } else {
       std::invoke(handler_, ctx);
@@ -78,7 +79,7 @@ private:
 
   handler_result_t<HandlerTrait>
   invoke_awaitable_variant(handler_input_param_t<HandlerTrait>& ctx)
-    requires(is_specialization_of<handler_t<HandlerTrait>, std::variant>::value)
+    requires(is_specialization_of_v<handler_t<HandlerTrait>, std::variant>)
   {
     static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
     switch (handler_.index()) {
@@ -102,7 +103,7 @@ private:
 
   handler_result_t<HandlerTrait>
   invoke_variant(handler_input_param_t<HandlerTrait>& ctx)
-    requires(is_specialization_of<handler_t<HandlerTrait>, std::variant>::value)
+    requires(is_specialization_of_v<handler_t<HandlerTrait>, std::variant>)
   {
     static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
     switch (handler_.index()) {

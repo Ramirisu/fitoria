@@ -10,7 +10,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/http.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/query_map.hpp>
 

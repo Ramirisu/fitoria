@@ -12,7 +12,6 @@
 #include <fitoria/core/detail/utility.hpp>
 
 #include <gul/expected.hpp>
-#include <gul/optional.hpp>
 
 #include <unordered_map>
 
@@ -24,11 +23,7 @@ using gul::expected;
 using gul::unexpect;
 using gul::unexpected;
 
-using gul::nullopt;
-using gul::optional;
-
 using gul::function_traits;
-using gul::is_specialization_of;
 
 template <typename T>
 using unordered_string_map
