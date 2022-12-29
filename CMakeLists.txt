@@ -34,12 +34,15 @@ endif()
 add_library(fitoria INTERFACE)
 target_link_libraries(fitoria INTERFACE gul Boost::asio Boost::beast Boost::url
                                         Boost::json)
+target_include_directories(fitoria
+                           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(WIN32)
+  target_compile_definitions(fitoria INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX)
+endif()
 if(OPENSSL_FOUND)
   target_compile_definitions(fitoria INTERFACE FITORIA_HAS_OPENSSL)
   target_link_libraries(fitoria INTERFACE OpenSSL::SSL)
 endif()
-target_include_directories(fitoria
-                           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(FITORIA_BUILD_EXAMPLES)
   add_subdirectory(example)
