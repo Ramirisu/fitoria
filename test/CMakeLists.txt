@@ -1,4 +1,4 @@
-file(GLOB FITORIA_TESTS_SOURCE_FILES "*_test.cpp")
+file(GLOB_RECURSE FITORIA_TESTS_SOURCE_FILES "*_test.cpp")
 
 foreach(file ${FITORIA_TESTS_SOURCE_FILES})
   get_filename_component(file_name ${file} NAME)

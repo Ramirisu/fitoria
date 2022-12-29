@@ -136,12 +136,12 @@ public:
     return native_.body();
   }
 
-  handler_result_t<handler_trait> start()
+  [[nodiscard]] handler_result_t<handler_trait> start()
   {
     co_return co_await invoker_.start(*this);
   }
 
-  handler_result_t<handler_trait> next()
+  [[nodiscard]] handler_result_t<handler_trait> next()
   {
     co_return co_await invoker_.next(*this);
   }
