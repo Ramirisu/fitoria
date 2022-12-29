@@ -17,12 +17,21 @@ TEST_SUITE_BEGIN("handlers_invoker");
 namespace {
 
 class context;
+class request;
 
 struct test_handler_trait {
-  using handler_t = std::function<void(context&)>;
-  using handlers_t = std::vector<handler_t>;
+  using middleware_input_param_t = context&;
+  using middleware_t = std::function<void(context&)>;
+  using middleware_result_t =
+      typename function_traits<middleware_t>::result_type;
+  using middlewares_t = std::vector<middleware_t>;
+
+  using handler_input_param_t = request&;
+  using handler_t = std::function<void(request&)>;
   using handler_result_t = typename function_traits<handler_t>::result_type;
 };
+
+class request { };
 
 class context {
 public:
@@ -31,25 +40,26 @@ public:
   {
   }
 
-  void start()
-  {
-    chain_.start(*this);
-  }
-
   void next()
   {
     chain_.next(*this);
   }
 
+  operator request&() noexcept
+  {
+    return req_;
+  }
+
 private:
   handlers_invoker<test_handler_trait> chain_;
+  request req_;
 };
 }
 
 TEST_CASE("handlers invocation order")
 {
   int state = 0;
-  typename test_handler_trait::handlers_t handlers {
+  typename test_handler_trait::middlewares_t middlewares {
     [&](context& ctx) {
       CHECK_EQ(++state, 1);
       ctx.next();
@@ -60,11 +70,14 @@ TEST_CASE("handlers invocation order")
       ctx.next();
       CHECK_EQ(++state, 4);
     },
-    [&](context&) { CHECK_EQ(++state, 3); },
   };
 
-  context ctx(handlers);
-  ctx.start();
+  typename test_handler_trait::handler_t handlers {
+    [&](request&) { CHECK_EQ(++state, 3); },
+  };
+
+  context ctx(handlers_invoker<test_handler_trait>(middlewares, handlers));
+  ctx.next();
   CHECK_EQ(++state, 6);
 }
 

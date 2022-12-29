@@ -25,7 +25,7 @@ public:
   {
   }
 
-  auto use(handler_t<HandlerTrait> middleware) -> basic_router_group&
+  auto use(middleware_t<HandlerTrait> middleware) -> basic_router_group&
   {
     middlewares_.push_back(std::move(middleware));
     return *this;
@@ -35,9 +35,8 @@ public:
              const std::string& path,
              handler_t<HandlerTrait> handler) -> basic_router_group&
   {
-    auto handlers = middlewares_;
-    handlers.push_back(std::move(handler));
-    routers_.push_back(router_type(method, path_ + path, std::move(handlers)));
+    routers_.push_back(
+        router_type(method, path_ + path, middlewares_, std::move(handler)));
     return *this;
   }
 
@@ -57,7 +56,7 @@ public:
 
 private:
   std::string path_;
-  handlers_t<HandlerTrait> middlewares_;
+  middlewares_t<HandlerTrait> middlewares_;
   std::vector<router_type> routers_;
 };
 

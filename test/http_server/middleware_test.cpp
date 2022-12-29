@@ -11,7 +11,6 @@
 #include <fitoria_http_server_utils.h>
 #include <fitoria_simple_http_client.h>
 
-#include <fitoria/core/http.hpp>
 #include <fitoria/http_server.hpp>
 
 using namespace fitoria;
@@ -26,17 +25,17 @@ TEST_CASE("middlewares invocation order")
   const auto port = generate_port();
   auto server = http_server(http_server_config().route(
       router_group("/api")
-          .use([&](http_request& req)
+          .use([&](http_context& c)
                    -> net::awaitable<expected<http_response, http_error>> {
             CHECK_EQ(++state, 1);
-            auto resp = co_await req.next();
+            auto resp = co_await c.next();
             CHECK_EQ(++state, 5);
             co_return resp;
           })
-          .use([&](http_request& req)
+          .use([&](http_context& c)
                    -> net::awaitable<expected<http_response, http_error>> {
             CHECK_EQ(++state, 2);
-            auto resp = co_await req.next();
+            auto resp = co_await c.next();
             CHECK_EQ(++state, 4);
             co_return resp;
           })

@@ -12,8 +12,6 @@
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
-
-#include <fitoria/http_server/handlers_invoker.hpp>
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
 #include <fitoria/http_server/http_route.hpp>
@@ -22,19 +20,16 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_request {
-  using handler_trait = http_handler_trait;
   using native_type = http::request<http::string_body>;
 
 public:
-  explicit http_request(handlers_invoker<handler_trait> invoker,
-                        net::ip::tcp::endpoint remote_endpoint,
+  explicit http_request(net::ip::tcp::endpoint remote_endpoint,
                         http_route& route,
                         native_type& native,
                         std::string path,
                         std::string query_string,
                         query_map query)
-      : invoker_(std::move(invoker))
-      , remote_endpoint_(remote_endpoint)
+      : remote_endpoint_(remote_endpoint)
       , route_(route)
       , native_(native)
       , path_(std::move(path))
@@ -136,18 +131,7 @@ public:
     return native_.body();
   }
 
-  [[nodiscard]] handler_result_t<handler_trait> start()
-  {
-    co_return co_await invoker_.start(*this);
-  }
-
-  [[nodiscard]] handler_result_t<handler_trait> next()
-  {
-    co_return co_await invoker_.next(*this);
-  }
-
 private:
-  handlers_invoker<handler_trait> invoker_;
   net::ip::tcp::endpoint remote_endpoint_;
   http_route& route_;
   native_type& native_;

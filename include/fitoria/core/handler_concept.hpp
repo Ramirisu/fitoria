@@ -14,10 +14,26 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
-using handler_t = typename HandlerTrait::handler_t;
+using middleware_input_param_t =
+    typename HandlerTrait::middleware_input_param_t;
 
 template <typename HandlerTrait>
-using handlers_t = typename HandlerTrait::handlers_t;
+using middleware_t = typename HandlerTrait::middleware_t;
+
+template <typename HandlerTrait>
+using middleware_result_t = typename HandlerTrait::middleware_result_t;
+
+template <typename HandlerTrait>
+using middlewares_t = typename HandlerTrait::middlewares_t;
+
+template <typename HandlerTrait>
+using middleware_compare_t = typename HandlerTrait::middleware_compare_t;
+
+template <typename HandlerTrait>
+using handler_input_param_t = typename HandlerTrait::handler_input_param_t;
+
+template <typename HandlerTrait>
+using handler_t = typename HandlerTrait::handler_t;
 
 template <typename HandlerTrait>
 using handler_result_t = typename HandlerTrait::handler_result_t;

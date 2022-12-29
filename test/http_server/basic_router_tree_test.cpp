@@ -13,24 +13,36 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("router_tree");
 
+namespace {
+
+struct test_handler_trait {
+  using middleware_t = std::function<int()>;
+  using middlewares_t = std::vector<middleware_t>;
+  struct middleware_compare_t {
+    bool operator()(const middleware_t& lhs, const middleware_t& rhs) const
+    {
+      return lhs() == rhs();
+    }
+  };
+  using handler_t = std::function<int()>;
+  struct handler_compare_t {
+    bool operator()(const handler_t& lhs, const handler_t& rhs) const
+    {
+      return lhs() == rhs();
+    }
+  };
+};
+
+}
+
 TEST_CASE("try_insert")
 {
-  struct test_handler_trait {
-    using handler_t = std::function<int()>;
-    using handlers_t = std::vector<handler_t>;
-    struct handler_compare_t {
-      bool operator()(const handler_t& lhs, const handler_t& rhs) const
-      {
-        return lhs() == rhs();
-      }
-    };
-  };
   using router_tree_type = basic_router_tree<test_handler_trait>;
   using exp_t = expected<void, router_error>;
 
   auto r = [=](verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
-                                         handlers_t<test_handler_trait> {});
+                                         handler_t<test_handler_trait> {});
   };
 
   router_tree_type rt;
@@ -68,17 +80,12 @@ TEST_CASE("try_insert")
 
 TEST_CASE("try_find")
 {
-  struct test_handler_trait {
-    using handler_t = std::function<int()>;
-    using handlers_t = std::vector<handler_t>;
-    struct handler_compare_t;
-  };
   using router_tree_type = basic_router_tree<test_handler_trait>;
 
   auto r = [=](verb method, std::string path, int exp) {
     return router_tree_type::router_type(
         method, std::move(path),
-        handlers_t<test_handler_trait> { [=]() { return exp; } });
+        handler_t<test_handler_trait> { [=]() { return exp; } });
   };
 
   router_tree_type rt;
@@ -93,18 +100,18 @@ TEST_CASE("try_find")
   rt.try_insert(r(verb::get, "/r/{x}/{y}", 22));
   rt.try_insert(r(verb::put, "/r/{x}/{y}", 23));
 
-  CHECK_EQ(rt.try_find(verb::get, "/r")->handlers()[0](), 0);
-  CHECK_EQ(rt.try_find(verb::put, "/r")->handlers()[0](), 1);
-  CHECK_EQ(rt.try_find(verb::get, "/r/x")->handlers()[0](), 10);
-  CHECK_EQ(rt.try_find(verb::put, "/r/x")->handlers()[0](), 11);
-  CHECK_EQ(rt.try_find(verb::get, "/r/xx")->handlers()[0](), 12);
-  CHECK_EQ(rt.try_find(verb::put, "/r/xx")->handlers()[0](), 13);
-  CHECK_EQ(rt.try_find(verb::get, "/r/x/y")->handlers()[0](), 20);
-  CHECK_EQ(rt.try_find(verb::put, "/r/x/y")->handlers()[0](), 21);
-  CHECK_EQ(rt.try_find(verb::get, "/r/xx/y")->handlers()[0](), 22);
-  CHECK_EQ(rt.try_find(verb::put, "/r/xx/y")->handlers()[0](), 23);
-  CHECK_EQ(rt.try_find(verb::get, "/r/x/yy")->handlers()[0](), 22);
-  CHECK_EQ(rt.try_find(verb::put, "/r/x/yy")->handlers()[0](), 23);
+  CHECK_EQ(rt.try_find(verb::get, "/r")->handler()(), 0);
+  CHECK_EQ(rt.try_find(verb::put, "/r")->handler()(), 1);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x")->handler()(), 10);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x")->handler()(), 11);
+  CHECK_EQ(rt.try_find(verb::get, "/r/xx")->handler()(), 12);
+  CHECK_EQ(rt.try_find(verb::put, "/r/xx")->handler()(), 13);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x/y")->handler()(), 20);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x/y")->handler()(), 21);
+  CHECK_EQ(rt.try_find(verb::get, "/r/xx/y")->handler()(), 22);
+  CHECK_EQ(rt.try_find(verb::put, "/r/xx/y")->handler()(), 23);
+  CHECK_EQ(rt.try_find(verb::get, "/r/x/yy")->handler()(), 22);
+  CHECK_EQ(rt.try_find(verb::put, "/r/x/yy")->handler()(), 23);
 }
 
 TEST_SUITE_END();

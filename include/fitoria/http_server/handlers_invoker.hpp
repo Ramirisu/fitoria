@@ -12,8 +12,6 @@
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/http_server/http_error.hpp>
-
 #include <functional>
 #include <variant>
 
@@ -21,123 +19,114 @@ FITORIA_NAMESPACE_BEGIN
 
 template <typename HandlerTrait>
 class handlers_invoker {
+
 public:
-  handlers_invoker(const handlers_t<HandlerTrait>& handlers)
-      : handlers_(handlers)
+  handlers_invoker(const middlewares_t<HandlerTrait>& middlewares,
+                   const handler_t<HandlerTrait>& handler)
+      : middlewares_(middlewares)
+      , curr_(middlewares_.begin())
+      , handler_(handler)
   {
   }
 
-  template <typename Context>
-  handler_result_t<HandlerTrait> start(Context& ctx)
+  middleware_result_t<HandlerTrait>
+  next(middleware_input_param_t<HandlerTrait>& ctx)
     requires(handler_result_awaitable<HandlerTrait>)
   {
-    curr_ = handlers_.begin();
-    FITORIA_ASSERT(curr_ != handlers_.end());
-    co_return co_await invoke_awaitable(ctx);
+    if (curr_ != middlewares_.end()) {
+      co_return co_await (*curr_++)(ctx);
+    } else {
+      co_return co_await invoke_awaitable(ctx);
+    }
   }
 
-  template <typename Context>
-  handler_result_t<HandlerTrait> start(Context& ctx)
+  middleware_result_t<HandlerTrait>
+  next(middleware_input_param_t<HandlerTrait>& ctx)
     requires(!handler_result_awaitable<HandlerTrait>)
   {
-    curr_ = handlers_.begin();
-    FITORIA_ASSERT(curr_ != handlers_.end());
-    invoke(ctx);
-  }
-
-  template <typename Context>
-  handler_result_t<HandlerTrait> next(Context& ctx)
-    requires(handler_result_awaitable<HandlerTrait>)
-  {
-    ++curr_;
-    FITORIA_ASSERT(curr_ != handlers_.end());
-    co_return co_await invoke_awaitable(ctx);
-  }
-
-  template <typename Context>
-  handler_result_t<HandlerTrait> next(Context& ctx)
-    requires(!handler_result_awaitable<HandlerTrait>)
-  {
-    ++curr_;
-    FITORIA_ASSERT(curr_ != handlers_.end());
-    invoke(ctx);
+    if (curr_ != middlewares_.end()) {
+      (*curr_++)(ctx);
+    } else {
+      invoke(ctx);
+    }
   }
 
 private:
-  template <typename Context>
-  handler_result_t<HandlerTrait> invoke_awaitable(Context& ctx)
+  handler_result_t<HandlerTrait>
+  invoke_awaitable(handler_input_param_t<HandlerTrait>& ctx)
     requires(handler_result_awaitable<HandlerTrait>)
   {
     if constexpr (is_specialization_of<handler_t<HandlerTrait>,
                                        std::variant>::value) {
       co_return co_await invoke_awaitable_variant(ctx);
     } else {
-      co_return co_await std::invoke(*curr_, ctx);
+      co_return co_await std::invoke(handler_, ctx);
     }
   }
 
-  template <typename Context>
-  handler_result_t<HandlerTrait> invoke(Context& ctx)
+  handler_result_t<HandlerTrait>
+  invoke(handler_input_param_t<HandlerTrait>& ctx)
     requires(!handler_result_awaitable<HandlerTrait>)
   {
     if constexpr (is_specialization_of<handler_t<HandlerTrait>,
                                        std::variant>::value) {
       invoke_variant(ctx);
     } else {
-      std::invoke(*curr_, ctx);
+      std::invoke(handler_, ctx);
     }
   }
 
-  template <typename Context>
-  handler_result_t<HandlerTrait> invoke_awaitable_variant(Context& ctx)
+  handler_result_t<HandlerTrait>
+  invoke_awaitable_variant(handler_input_param_t<HandlerTrait>& ctx)
     requires(is_specialization_of<handler_t<HandlerTrait>, std::variant>::value)
   {
     static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
-    switch (curr_->index()) {
+    switch (handler_.index()) {
     case 0:
-      co_return co_await std::invoke(std::get<0>(*curr_));
+      co_return co_await std::invoke(std::get<0>(handler_));
       break;
     case 1:
-      co_return co_await std::invoke(std::get<1>(*curr_), ctx);
+      co_return co_await std::invoke(std::get<1>(handler_), ctx);
       break;
     case 2:
-      co_return co_await std::invoke(std::get<2>(*curr_), ctx, ctx);
+      co_return co_await std::invoke(std::get<2>(handler_), ctx, ctx);
       break;
     case 3:
-      co_return co_await std::invoke(std::get<3>(*curr_), ctx, ctx, ctx);
+      co_return co_await std::invoke(std::get<3>(handler_), ctx, ctx, ctx);
       break;
     case 4:
-      co_return co_await std::invoke(std::get<4>(*curr_), ctx, ctx, ctx, ctx);
+      co_return co_await std::invoke(std::get<4>(handler_), ctx, ctx, ctx, ctx);
       break;
     }
   }
 
-  template <typename Context>
-  handler_result_t<HandlerTrait> invoke_variant(Context& ctx)
+  handler_result_t<HandlerTrait>
+  invoke_variant(handler_input_param_t<HandlerTrait>& ctx)
     requires(is_specialization_of<handler_t<HandlerTrait>, std::variant>::value)
   {
     static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
-    switch (curr_->index()) {
+    switch (handler_.index()) {
     case 0:
-      std::invoke(std::get<0>(*curr_));
+      std::invoke(std::get<0>(handler_));
       break;
     case 1:
-      std::invoke(std::get<1>(*curr_), ctx);
+      std::invoke(std::get<1>(handler_), ctx);
       break;
     case 2:
-      std::invoke(std::get<2>(*curr_), ctx, ctx);
+      std::invoke(std::get<2>(handler_), ctx, ctx);
       break;
     case 3:
-      std::invoke(std::get<3>(*curr_), ctx, ctx, ctx);
+      std::invoke(std::get<3>(handler_), ctx, ctx, ctx);
       break;
     case 4:
-      std::invoke(std::get<4>(*curr_), ctx, ctx, ctx, ctx);
+      std::invoke(std::get<4>(handler_), ctx, ctx, ctx, ctx);
       break;
     }
   }
 
-  const handlers_t<HandlerTrait>& handlers_;
-  typename std::remove_cvref_t<decltype(handlers_)>::const_iterator curr_;
+  const middlewares_t<HandlerTrait>& middlewares_;
+  middlewares_t<HandlerTrait>::const_iterator curr_;
+  const handler_t<HandlerTrait>& handler_;
 };
 
 FITORIA_NAMESPACE_END

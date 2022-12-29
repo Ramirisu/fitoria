@@ -13,6 +13,7 @@
 #include <fitoria/core/url.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/router_group.hpp>
 #include <fitoria/http_server/router_tree.hpp>
@@ -294,10 +295,13 @@ private:
     }
 
     auto route = http_route(*route_params, std::string(router->path()));
-    auto request = http_request(router->handlers(), remote_endpoint, route, req,
-                                req_url->path(), req_url->query(),
-                                to_query_map(req_url->params()));
-    co_return (co_await request.start())
+    auto request
+        = http_request(remote_endpoint, route, req, req_url->path(),
+                       req_url->query(), to_query_map(req_url->params()));
+    auto context = http_context(handlers_invoker<handler_trait>(
+                                    router->middlewares(), router->handler()),
+                                request);
+    co_return (co_await context.next())
         .value_or(http_response(http::status::internal_server_error));
   }
 

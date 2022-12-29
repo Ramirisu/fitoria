@@ -25,14 +25,18 @@ public:
   basic_router(verb method, std::string path, handler_t<HandlerTrait> handler)
       : method_(method)
       , path_(std::move(path))
-      , handlers_({ std::move(handler) })
+      , handler_(std::move(handler))
   {
   }
 
-  basic_router(verb method, std::string path, handlers_t<HandlerTrait> handlers)
+  basic_router(verb method,
+               std::string path,
+               middlewares_t<HandlerTrait> middlewares,
+               handler_t<HandlerTrait> handler)
       : method_(method)
       , path_(std::move(path))
-      , handlers_(std::move(handlers))
+      , middlewares_(std::move(middlewares))
+      , handler_(std::move(handler))
   {
   }
 
@@ -46,30 +50,42 @@ public:
     return path_;
   }
 
-  auto handlers() const noexcept -> const handlers_t<HandlerTrait>&
+  auto middlewares() const noexcept -> const middlewares_t<HandlerTrait>&
   {
-    return handlers_;
+    return middlewares_;
   }
 
-  auto rebind_parent(const std::string& parent_path,
-                     const handlers_t<HandlerTrait>& parent_handlers) const
+  auto handler() const noexcept -> const handler_t<HandlerTrait>&
+  {
+    return handler_;
+  }
+
+  auto
+  rebind_parent(const std::string& parent_path,
+                const middlewares_t<HandlerTrait>& parent_middlewares) const
       -> basic_router
   {
-    auto handlers = parent_handlers;
-    handlers.insert(handlers.end(), handlers_.begin(), handlers_.end());
-    return basic_router(method_, parent_path + path_, std::move(handlers));
+    auto middlewares = parent_middlewares;
+    middlewares.insert(middlewares.end(), middlewares_.begin(),
+                       middlewares_.end());
+    return basic_router(method_, parent_path + path_, std::move(middlewares),
+                        handler_);
   }
 
   friend auto operator==(const basic_router& lhs, const basic_router& rhs)
       -> bool
   {
-    handler_compare_t<HandlerTrait> compare;
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
-        && lhs.handlers().size() == rhs.handlers().size()) {
-      for (std::size_t i = 0; i < lhs.handlers().size(); ++i) {
-        if (!compare(lhs.handlers()[i], rhs.handlers()[i])) {
+        && lhs.middlewares().size() == rhs.middlewares().size()) {
+      for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
+        if (!middleware_compare_t<HandlerTrait>()(lhs.middlewares()[i],
+                                                  rhs.middlewares()[i])) {
           return false;
         }
+      }
+
+      if (!handler_compare_t<HandlerTrait>()(lhs.handler(), rhs.handler())) {
+        return false;
       }
 
       return true;
@@ -81,7 +97,8 @@ public:
 private:
   verb method_;
   std::string path_;
-  handlers_t<HandlerTrait> handlers_;
+  middlewares_t<HandlerTrait> middlewares_;
+  handler_t<HandlerTrait> handler_;
 };
 
 using router = basic_router<http_handler_trait>;
