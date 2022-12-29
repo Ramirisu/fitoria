@@ -32,6 +32,7 @@ if(NOT FITORIA_DISABLE_OPENSSL)
 endif()
 
 add_library(fitoria INTERFACE)
+add_library(fitoria::fitoria ALIAS fitoria)
 target_link_libraries(fitoria INTERFACE gul Boost::asio Boost::beast Boost::url
                                         Boost::json)
 target_include_directories(fitoria
