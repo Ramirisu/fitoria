@@ -23,8 +23,6 @@ using gul::expected;
 using gul::unexpect;
 using gul::unexpected;
 
-using gul::function_traits;
-
 template <typename T>
 using unordered_string_map
     = std::unordered_map<std::string, T, detail::string_hash, std::equal_to<>>;

@@ -23,4 +23,74 @@ template <typename T, template <typename...> class U>
 inline constexpr bool is_specialization_of_v
     = is_specialization_of<T, U>::value;
 
+template <typename F>
+struct function_traits_helper;
+
+template <typename R, typename... Args>
+struct function_traits_helper<R(Args...)> {
+  using result_type = R;
+  static constexpr std::size_t arity = sizeof...(Args);
+  template <std::size_t Index>
+  struct arg {
+    using type = typename std::tuple_element<Index, std::tuple<Args...>>::type;
+  };
+};
+
+template <typename F>
+struct function_traits : function_traits<decltype(&F::operator())> { };
+
+template <typename R, typename... Args>
+struct function_traits<R(Args...)> : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename... Args>
+struct function_traits<R (*)(Args...)> : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...)> : function_traits_helper<R(Args...)> {
+};
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...)&>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const&>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) &&>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const&&>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) noexcept>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const noexcept>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) & noexcept>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const & noexcept>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) && noexcept>
+    : function_traits_helper<R(Args...)> { };
+
+template <typename R, typename C, typename... Args>
+struct function_traits<R (C::*)(Args...) const && noexcept>
+    : function_traits_helper<R(Args...)> { };
+
 FITORIA_NAMESPACE_END
