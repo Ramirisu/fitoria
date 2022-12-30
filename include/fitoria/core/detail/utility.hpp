@@ -78,8 +78,8 @@ public:
 };
 
 template <typename R, typename T, std::size_t N>
-using repeated_input_variant_function_t
-    = repeated_input_variant_function<R, T, N>::type;
+using repeated_input_variant_function_t =
+    typename repeated_input_variant_function<R, T, N>::type;
 
 }
 

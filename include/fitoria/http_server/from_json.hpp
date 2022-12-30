@@ -10,8 +10,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
 

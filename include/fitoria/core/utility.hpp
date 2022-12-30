@@ -11,17 +11,9 @@
 
 #include <fitoria/core/detail/utility.hpp>
 
-#include <gul/expected.hpp>
-
 #include <unordered_map>
 
 FITORIA_NAMESPACE_BEGIN
-
-using gul::in_place;
-
-using gul::expected;
-using gul::unexpect;
-using gul::unexpected;
 
 template <typename T>
 using unordered_string_map

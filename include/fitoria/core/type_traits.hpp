@@ -9,6 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <tuple>
 #include <type_traits>
 
 FITORIA_NAMESPACE_BEGIN

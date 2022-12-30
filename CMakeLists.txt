@@ -22,7 +22,6 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-cpmaddpackage("gh:Ramirisu/gul#298c49e")
 cpmaddpackage("gh:boostorg/boost#boost-1.81.0")
 
 if(NOT FITORIA_DISABLE_OPENSSL)
@@ -33,7 +32,7 @@ endif()
 
 add_library(fitoria INTERFACE)
 add_library(fitoria::fitoria ALIAS fitoria)
-target_link_libraries(fitoria INTERFACE gul Boost::asio Boost::beast Boost::url
+target_link_libraries(fitoria INTERFACE Boost::asio Boost::beast Boost::url
                                         Boost::json)
 target_include_directories(fitoria
                            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)

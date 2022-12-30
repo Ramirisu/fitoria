@@ -9,14 +9,19 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
 #include <fitoria/core/type_traits.hpp>
 
-#include <fitoria/core/utility.hpp>
-
+#include <exception>
+#include <functional>
 #include <initializer_list>
+#include <memory>
 #include <utility>
 
 FITORIA_NAMESPACE_BEGIN
+
+template <typename T, typename E>
+class expected;
 
 struct nullopt_t {
   struct tag_t {
@@ -212,7 +217,7 @@ public:
     requires(!is_reference_v && std::is_constructible_v<T, U &&>
              && !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t>
              && !std::is_same_v<std::remove_cvref_t<U>, optional>)
-      : base_type(std::forward<U>(value))
+      : base_type(std::in_place, std::forward<U>(value))
   {
   }
 
@@ -247,8 +252,8 @@ public:
 
   constexpr optional& operator=(const optional&)
     requires(is_reference_v
-             || std::is_trivially_copy_constructible_v<T>
-                 && std::is_trivially_copy_assignable_v<T>)
+             || (std::is_trivially_copy_constructible_v<T>
+                 && std::is_trivially_copy_assignable_v<T>))
   = default;
 
   constexpr optional& operator=(const optional& other)
@@ -273,8 +278,8 @@ public:
 
   constexpr optional& operator=(optional&&)
     requires(is_reference_v
-             || std::is_trivially_move_constructible_v<T>
-                 && std::is_trivially_move_assignable_v<T>)
+             || (std::is_trivially_move_constructible_v<T>
+                 && std::is_trivially_move_assignable_v<T>))
   = default;
 
   constexpr optional& operator=(optional&& other)

@@ -20,7 +20,6 @@ Dependencies
 * `boost::url` for url parsing (Required)
 * `boost::json` for json serialization/deserialization (Required)
 * `OpenSSL` for secure networking (Optional)
-* `gul` for utilities (Required)
 * `doctest` for unittesting (Optional)
 
 CMake
