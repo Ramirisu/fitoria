@@ -31,6 +31,18 @@ public:
     return *this;
   }
 
+  auto route(const router_type& router) -> basic_router_group&
+  {
+    std::string path = path_;
+    path += router.path();
+    auto middlewares = middlewares_;
+    middlewares.insert(middlewares.end(), router.middlewares().begin(),
+                       router.middlewares().end());
+    routers_.push_back(router_type(router.method(), std::move(path),
+                                   std::move(middlewares), router.handler()));
+    return *this;
+  }
+
   auto route(http::verb method,
              const std::string& path,
              handler_t<HandlerTrait> handler) -> basic_router_group&
