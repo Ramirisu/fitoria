@@ -9,8 +9,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/unordered_string_map.hpp>
 #include <fitoria/core/url.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/router_error.hpp>
 

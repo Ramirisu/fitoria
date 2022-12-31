@@ -11,7 +11,7 @@
 
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/url.hpp>
-#include <fitoria/core/utility.hpp>
+
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
 #include <fitoria/http_server/http_route.hpp>

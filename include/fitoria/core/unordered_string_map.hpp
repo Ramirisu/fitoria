@@ -9,7 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/detail/utility.hpp>
+#include <fitoria/core/detail/unordered_string_map.hpp>
 
 #include <unordered_map>
 

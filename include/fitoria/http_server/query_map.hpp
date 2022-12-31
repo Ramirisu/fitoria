@@ -10,6 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/optional.hpp>
+#include <fitoria/core/unordered_string_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

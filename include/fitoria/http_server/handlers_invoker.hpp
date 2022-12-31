@@ -11,7 +11,6 @@
 
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/type_traits.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <functional>
 #include <variant>

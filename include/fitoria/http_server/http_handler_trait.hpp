@@ -11,11 +11,9 @@
 
 #include <fitoria/core/fwd.hpp>
 
-#include <fitoria/core/detail/utility.hpp>
-
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/net.hpp>
-#include <fitoria/core/utility.hpp>
+#include <fitoria/core/variant_function.hpp>
 
 #include <fitoria/http_server/http_error.hpp>
 #include <fitoria/http_server/http_response.hpp>
@@ -36,9 +34,7 @@ public:
 
   using handler_input_param_t = http_request&;
   using handler_t
-      = detail::repeated_input_variant_function_t<net::awaitable<result_t>,
-                                                  handler_input_param_t,
-                                                  5>;
+      = variant_function_t<net::awaitable<result_t>, handler_input_param_t, 5>;
   using handler_result_t = net::awaitable<result_t>;
   struct handler_compare_t;
 };

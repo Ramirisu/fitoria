@@ -11,7 +11,6 @@
 
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>
