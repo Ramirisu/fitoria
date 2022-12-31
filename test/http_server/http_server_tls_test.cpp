@@ -25,25 +25,25 @@ namespace {
 
 void configure_server(http_server_config& config)
 {
-  config.route(
-      router(verb::get, "/api/repos/{repo}",
-             [](http_request& req)
-                 -> net::awaitable<expected<http_response, http_error>> {
-               CHECK_EQ(req.method(), verb::get);
-               CHECK_EQ(req.route().size(), 1);
-               CHECK_EQ(req.route().at("repo"), "fitoria");
-               CHECK_EQ(req.path(), "/api/repos/fitoria");
-               CHECK_EQ(req.headers().at(field::content_type), "text/plain");
-               CHECK_EQ(req.body(), "hello world");
-               co_return http_response(status::ok);
-             }));
+  config.route(router(
+      http::verb::get, "/api/repos/{repo}",
+      [](http_request& req)
+          -> net::awaitable<expected<http_response, http_error>> {
+        CHECK_EQ(req.method(), http::verb::get);
+        CHECK_EQ(req.route().size(), 1);
+        CHECK_EQ(req.route().at("repo"), "fitoria");
+        CHECK_EQ(req.path(), "/api/repos/fitoria");
+        CHECK_EQ(req.headers().at(http::field::content_type), "text/plain");
+        CHECK_EQ(req.body(), "hello world");
+        co_return http_response(http::status::ok);
+      }));
 }
 
 void configure_client(simple_http_client& client)
 {
-  client.with(verb::get)
+  client.with(http::verb::get)
       .with_target("/api/repos/fitoria")
-      .with_field(field::content_type, "text/plain")
+      .with_field(http::field::content_type, "text/plain")
       .with_body("hello world");
 }
 
@@ -61,7 +61,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   auto client = simple_http_client(localhost, port);
   configure_client(client);
   auto resp = client.send_request(cert::get_client_ssl_ctx(client_ssl_ver));
-  CHECK_EQ(resp.result(), status::ok);
+  CHECK_EQ(resp.result(), http::status::ok);
 }
 
 #if OPENSSL_VERSION_MAJOR < 3

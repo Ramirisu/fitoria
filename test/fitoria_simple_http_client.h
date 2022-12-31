@@ -25,7 +25,7 @@ public:
   {
   }
 
-  simple_http_client& with(verb method)
+  simple_http_client& with(http::verb method)
   {
     method_ = method;
     return *this;
@@ -37,7 +37,7 @@ public:
     return *this;
   }
 
-  simple_http_client& with_field(field name, std::string_view value)
+  simple_http_client& with_field(http::field name, std::string_view value)
   {
     fields_.set(name, value);
     return *this;
@@ -175,7 +175,7 @@ private:
 
   std::string host_;
   std::uint16_t port_;
-  verb method_ = verb::unknown;
+  http::verb method_ = http::verb::unknown;
   std::string target_;
   http::fields fields_;
   std::string body_;

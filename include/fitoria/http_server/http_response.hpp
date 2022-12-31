@@ -20,7 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_response {
 public:
-  http_response(status status)
+  http_response(http::status status)
       : status_(status)
   {
   }
@@ -41,7 +41,7 @@ public:
     return *this;
   }
 
-  http_response& set_header(field name, std::string value)
+  http_response& set_header(http::field name, std::string value)
   {
     header_.set(name, std::move(value));
     return *this;
@@ -55,7 +55,7 @@ public:
 
   http_response& set_json(const json::value& jv)
   {
-    header_.set(field::content_type, "application/json");
+    header_.set(http::field::content_type, "application/json");
     body_ = json::serialize(jv);
     return *this;
   }
@@ -63,7 +63,7 @@ public:
   template <typename T>
   http_response& set_json(const T& obj)
   {
-    header_.set(field::content_type, "application/json");
+    header_.set(http::field::content_type, "application/json");
     body_ = json::serialize(json::value_from(obj));
     return *this;
   }
@@ -93,7 +93,7 @@ public:
   }
 
 private:
-  status status_;
+  http::status status_;
   http_header header_;
   std::string body_;
 };

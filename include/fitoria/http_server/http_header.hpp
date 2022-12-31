@@ -23,42 +23,42 @@ public:
   using query_map::get;
   using query_map::set;
 
-  void set(field name, std::string value)
+  void set(http::field name, std::string value)
   {
     set(std::string(to_string(name)), std::move(value));
   }
 
-  optional<mapped_type&> get(field name) noexcept
+  optional<mapped_type&> get(http::field name) noexcept
   {
     return get(to_string(name));
   }
 
-  optional<const mapped_type&> get(field name) const noexcept
+  optional<const mapped_type&> get(http::field name) const noexcept
   {
     return get(to_string(name));
   }
 
-  bool erase(field name)
+  bool erase(http::field name)
   {
     return erase(to_string(name));
   }
 
-  mapped_type& at(field name)
+  mapped_type& at(http::field name)
   {
     return at(to_string(name));
   }
 
-  const mapped_type& at(field name) const
+  const mapped_type& at(http::field name) const
   {
     return at(to_string(name));
   }
 
-  mapped_type& operator[](field name) noexcept
+  mapped_type& operator[](http::field name) noexcept
   {
     return static_cast<query_map&>(*this)[to_string(name)];
   }
 
-  bool contains(field name) const
+  bool contains(http::field name) const
   {
     return contains(to_string(name));
   }

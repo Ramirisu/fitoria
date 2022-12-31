@@ -22,14 +22,16 @@ FITORIA_NAMESPACE_BEGIN
 template <typename HandlerTrait>
 class basic_router {
 public:
-  basic_router(verb method, std::string path, handler_t<HandlerTrait> handler)
+  basic_router(http::verb method,
+               std::string path,
+               handler_t<HandlerTrait> handler)
       : method_(method)
       , path_(std::move(path))
       , handler_(std::move(handler))
   {
   }
 
-  basic_router(verb method,
+  basic_router(http::verb method,
                std::string path,
                middlewares_t<HandlerTrait> middlewares,
                handler_t<HandlerTrait> handler)
@@ -40,7 +42,7 @@ public:
   {
   }
 
-  auto method() const noexcept -> verb
+  auto method() const noexcept -> http::verb
   {
     return method_;
   }
@@ -95,7 +97,7 @@ public:
   }
 
 private:
-  verb method_;
+  http::verb method_;
   std::string path_;
   middlewares_t<HandlerTrait> middlewares_;
   handler_t<HandlerTrait> handler_;

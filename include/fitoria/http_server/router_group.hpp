@@ -31,7 +31,7 @@ public:
     return *this;
   }
 
-  auto route(verb method,
+  auto route(http::verb method,
              const std::string& path,
              handler_t<HandlerTrait> handler) -> basic_router_group&
   {

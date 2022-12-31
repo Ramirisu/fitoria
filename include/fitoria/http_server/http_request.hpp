@@ -66,7 +66,7 @@ public:
     return route_;
   }
 
-  verb method() const noexcept
+  http::verb method() const noexcept
   {
     return native_.method();
   }

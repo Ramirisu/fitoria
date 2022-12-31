@@ -39,21 +39,21 @@ TEST_CASE("middlewares invocation order")
             CHECK_EQ(++state, 4);
             co_return resp;
           })
-          .route(verb::get, "/get",
+          .route(http::verb::get, "/get",
                  [&]([[maybe_unused]] http_request& req)
                      -> net::awaitable<expected<http_response, http_error>> {
                    CHECK_EQ(++state, 3);
-                   co_return http_response(status::ok);
+                   co_return http_response(http::status::ok);
                  })));
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
-                  .with(verb::get)
+                  .with(http::verb::get)
                   .with_target("/api/get")
-                  .with_field(field::connection, "close")
+                  .with_field(http::field::connection, "close")
                   .send_request();
-  CHECK_EQ(resp.result(), status::ok);
+  CHECK_EQ(resp.result(), http::status::ok);
 
   CHECK_EQ(++state, 6);
 }

@@ -15,8 +15,4 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http = boost::beast::http;
 
-using verb = http::verb;
-using field = http::field;
-using status = http::status;
-
 FITORIA_NAMESPACE_END
