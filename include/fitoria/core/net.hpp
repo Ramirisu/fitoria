@@ -23,8 +23,6 @@ namespace net {
 
 using namespace boost::asio;
 
-namespace errc = boost::beast::errc;
-
 using boost::beast::error_code;
 using boost::beast::system_error;
 

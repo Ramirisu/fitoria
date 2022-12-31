@@ -31,12 +31,12 @@ public:
   using segments = std::vector<segment>;
 
   static auto to_segments(std::string_view path) noexcept
-      -> expected<segments, router_error>
+      -> expected<segments, error_code>
   {
     segments segs;
     while (!path.empty()) {
       if (!path.starts_with('/')) {
-        return unexpected<router_error>(router_error::parse_path_error);
+        return unexpected { make_error_code(router_error::route_parse_error) };
       }
       path.remove_prefix(1);
 
@@ -57,7 +57,7 @@ public:
             escaped.value(),
         });
       } else {
-        return unexpected<router_error>(router_error::parse_path_error);
+        return unexpected { make_error_code(router_error::route_parse_error) };
       }
     }
 
@@ -65,11 +65,11 @@ public:
   }
 
   static auto escape_segment(std::string_view segment) noexcept
-      -> expected<std::string_view, router_error>
+      -> expected<std::string_view, error_code>
   {
     if (segment.starts_with('{')) {
       if (!segment.ends_with('}')) {
-        return unexpected<router_error>(router_error::parse_path_error);
+        return unexpected { make_error_code(router_error::route_parse_error) };
       }
 
       segment.remove_prefix(1);
@@ -77,7 +77,7 @@ public:
     }
 
     if (segment.find_first_of("{}") != std::string_view::npos) {
-      return unexpected<router_error>(router_error::parse_path_error);
+      return unexpected { make_error_code(router_error::route_parse_error) };
     }
 
     return segment;
@@ -93,13 +93,13 @@ public:
 
   static auto parse_param_map(std::string_view router_path,
                               std::string_view req_path) noexcept
-      -> expected<unordered_string_map<std::string>, router_error>
+      -> expected<unordered_string_map<std::string>, error_code>
   {
     auto router_segs = to_segments(router_path);
     auto req_segs = to_segments(req_path);
 
     if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
-      return unexpected<router_error>(router_error::parse_path_error);
+      return unexpected { make_error_code(router_error::route_parse_error) };
     }
 
     unordered_string_map<std::string> map;

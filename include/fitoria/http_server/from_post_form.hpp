@@ -10,9 +10,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/http.hpp>
-#include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
@@ -20,20 +20,19 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class from_post_form : public expected<query_map, net::error_code> {
+class from_post_form : public expected<query_map, error_code> {
 public:
   from_post_form(const http_request& req)
-      : expected<query_map, net::error_code>(parse(req))
+      : expected<query_map, error_code>(parse(req))
   {
   }
 
 private:
-  static expected<query_map, net::error_code>
-  parse(const http_request& req) noexcept
+  static expected<query_map, error_code> parse(const http_request& req) noexcept
   {
     auto res = urls::parse_query(req.body());
     if (!res) {
-      return unexpected<net::error_code>(res.error());
+      return unexpected<error_code>(res.error());
     }
 
     auto params = static_cast<urls::params_view>(res.value());

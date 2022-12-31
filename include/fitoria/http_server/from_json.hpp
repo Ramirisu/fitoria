@@ -10,30 +10,31 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
-#include <fitoria/core/net.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 template <typename T>
-class from_json : public expected<T, net::error_code> {
+class from_json : public expected<T, error_code> {
 public:
   from_json(const http_request& c)
-      : expected<T, net::error_code>(parse(c.body()))
+      : expected<T, error_code>(parse(c.body()))
   {
   }
 
 private:
-  static expected<T, net::error_code> parse(const std::string& s) noexcept
+  static expected<T, error_code> parse(const std::string& s) noexcept
   {
-    net::error_code ec;
+    json::error_code ec;
     auto jv = json::parse(s, ec);
     if (ec) {
-      return unexpected<net::error_code>(ec);
+      return unexpected<error_code>(ec);
     }
+
     return json::value_to<T>(jv);
   }
 };

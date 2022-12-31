@@ -55,7 +55,7 @@ public:
   http_server_config& route(const router& router)
   {
     if (auto res = router_tree_.try_insert(router); !res) {
-      throw res.error();
+      throw system_error(res.error());
     }
 
     return *this;
@@ -65,7 +65,7 @@ public:
   {
     for (auto&& router : router_group.get_all_routers()) {
       if (auto res = router_tree_.try_insert(router); !res) {
-        throw res.error();
+        throw system_error(res.error());
       }
     }
 

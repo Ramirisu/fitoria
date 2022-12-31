@@ -40,11 +40,12 @@ private:
     auto try_insert(const router_type& r,
                     const route::segments& segments,
                     std::size_t segment_index) noexcept
-        -> expected<void, router_error>
+        -> expected<void, error_code>
     {
       if (segment_index == segments.size()) {
         if (router_) {
-          return unexpected<router_error>(router_error::route_already_exists);
+          return unexpected { make_error_code(
+              router_error::route_already_exists) };
         }
 
         router_.emplace(r);
@@ -65,21 +66,21 @@ private:
 
     auto try_find(const route::segments& segments,
                   std::size_t segment_index) const noexcept
-        -> expected<const router_type&, router_error>
+        -> expected<const router_type&, error_code>
     {
       if (segment_index == segments.size()) {
-        return expected<const router_type&, router_error>(router_.value());
+        return router_.value();
       }
 
       return try_find_path_trees(segments[segment_index].original)
-          .to_expected_or(router_error::route_not_exists)
+          .to_expected_or(make_error_code(router_error::route_not_exists))
           .and_then([&](auto&& node) {
             return node.try_find(segments, segment_index + 1);
           })
           .or_else([&](auto&& error) {
             return param_trees_.to_expected_or(error).and_then(
                 [&](auto&& node_ptr)
-                    -> expected<const router_type&, router_error> {
+                    -> expected<const router_type&, error_code> {
                   return node_ptr->try_find(segments, segment_index + 1);
                 });
           });
@@ -96,10 +97,10 @@ private:
     }
 
     static auto try_parse_path(std::string_view path) noexcept
-        -> expected<route::segments, router_error>
+        -> expected<route::segments, error_code>
     {
       if (path.empty()) {
-        return unexpected<router_error>(router_error::parse_path_error);
+        return unexpected { make_error_code(router_error::route_parse_error) };
       }
 
       return route::to_segments(path);
@@ -111,7 +112,7 @@ private:
   };
 
 public:
-  auto try_insert(const router_type& r) noexcept -> expected<void, router_error>
+  auto try_insert(const router_type& r) noexcept -> expected<void, error_code>
   {
     return node::try_parse_path(r.path()).and_then([&](auto&& segments) {
       return subtrees_[r.method()].try_insert(r, segments, 0);
@@ -119,11 +120,11 @@ public:
   }
 
   auto try_find(http::verb method, std::string_view path) const noexcept
-      -> expected<const router_type&, router_error>
+      -> expected<const router_type&, error_code>
   {
     return node::try_parse_path(path).and_then([&](auto&& segments) {
       return try_find(method)
-          .to_expected_or(router_error::route_not_exists)
+          .to_expected_or(make_error_code(router_error::route_not_exists))
           .and_then([&](auto&& node) { return node.try_find(segments, 0); });
     });
   }
