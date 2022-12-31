@@ -108,6 +108,9 @@ TEST_CASE("request with json")
                  -> net::awaitable<expected<http_response, http_error>> {
                CHECK_EQ(req.method(), http::verb::get);
 
+               CHECK_EQ(req.headers().get(http::field::content_type),
+                        "application/json");
+
                CHECK_EQ(req.body(),
                         json::serialize(json::value {
                             { "name", "Rina Hidaka" },
@@ -134,6 +137,38 @@ TEST_CASE("request with json")
                       { "name", "Rina Hidaka" },
                       { "birth", "1994/06/15" },
                   }))
+                  .send_request();
+  CHECK_EQ(resp.result(), http::status::ok);
+}
+
+TEST_CASE("request with post form")
+{
+  const auto port = generate_port();
+  auto server = http_server(http_server_config().route(
+      router(http::verb::post, "/api",
+             [](http_request& req, from_post_form form)
+                 -> net::awaitable<expected<http_response, http_error>> {
+               CHECK_EQ(req.method(), http::verb::post);
+
+               CHECK_EQ(req.headers().get(http::field::content_type),
+                        "application/x-www-form-urlencoded");
+
+               CHECK_EQ(form->size(), 2);
+               CHECK_EQ(form->get("name"), "Rina Hidaka");
+               CHECK_EQ(form->get("birth"), "1994/06/15");
+
+               co_return http_response(http::status::ok);
+             })));
+  server.bind(server_ip, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto resp = simple_http_client(localhost, port)
+                  .with_target("/api")
+                  .with(http::verb::post)
+                  .with_field(http::field::content_type,
+                              "application/x-www-form-urlencoded")
+                  .with_field(http::field::connection, "close")
+                  .with_body(R"(name=Rina%20Hidaka&birth=1994/06/15)")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
 }

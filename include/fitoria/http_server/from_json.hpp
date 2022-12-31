@@ -12,6 +12,7 @@
 
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
+#include <fitoria/core/net.hpp>
 
 #include <fitoria/http_server/http_request.hpp>
 
@@ -26,7 +27,7 @@ public:
   }
 
 private:
-  static expected<T, net::error_code> parse(const std::string& s)
+  static expected<T, net::error_code> parse(const std::string& s) noexcept
   {
     net::error_code ec;
     auto jv = json::parse(s, ec);
