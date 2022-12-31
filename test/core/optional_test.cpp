@@ -300,6 +300,12 @@ TEST_CASE("perfect forwarding assignment operator")
     CHECK_EQ(o.value(), dc<int>(1));
   }
   {
+    auto o = optional<dc<int>>(1);
+    CHECK(o);
+    o = dc<int>(1);
+    CHECK_EQ(o.value(), dc<int>(1));
+  }
+  {
     auto o = optional<dc<int>&>();
     CHECK(!o);
     auto val = dc<int>(1);
