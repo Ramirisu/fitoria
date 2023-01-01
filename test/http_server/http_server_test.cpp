@@ -27,6 +27,15 @@ TEST_CASE("http_server_config")
           .set_threads(1)
           .set_max_listen_connections(2048)
           .set_client_request_timeout(std::chrono::seconds(1))
+          .set_exception_handler([](std::exception_ptr ptr) {
+            if (!ptr) {
+              return;
+            }
+            try {
+              std::rethrow_exception(ptr);
+            } catch (...) {
+            }
+          })
           .route(router(
               http::verb::get, "/api",
               [&]([[maybe_unused]] http_request& req)

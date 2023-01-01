@@ -52,6 +52,14 @@ public:
     return *this;
   }
 
+  template <typename F>
+  http_server_config& set_exception_handler(F&& f)
+    requires std::invocable<F, std::exception_ptr>
+  {
+    exception_handler_ = std::forward<F>(f);
+    return *this;
+  }
+
   http_server_config& route(const router& router)
   {
     if (auto res = router_tree_.try_insert(router); !res) {
@@ -73,9 +81,23 @@ public:
   }
 
 private:
+  static void default_exception_handler(std::exception_ptr ptr) noexcept
+  {
+    if (!ptr) {
+      return;
+    }
+    try {
+      std::rethrow_exception(ptr);
+    } catch (const std::exception&) {
+      // TODO: log
+    }
+  }
+
   std::uint32_t threads_ = std::thread::hardware_concurrency();
   int max_listen_connections_ = net::socket_base::max_listen_connections;
   std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
+  std::function<void(std::exception_ptr)> exception_handler_
+      = default_exception_handler;
   router_tree router_tree_;
 };
 
@@ -102,7 +124,7 @@ public:
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        net::detached);
+        config_.exception_handler_);
 
     return *this;
   }
@@ -115,7 +137,7 @@ public:
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
                   std::move(ssl_ctx)),
-        net::detached);
+        config_.exception_handler_);
 
     return *this;
   }
