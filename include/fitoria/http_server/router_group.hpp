@@ -61,7 +61,7 @@ public:
     return *this;
   }
 
-  auto get_all_routers() const -> std::vector<router_type>
+  auto routers() const noexcept -> const std::vector<router_type>&
   {
     return routers_;
   }

@@ -23,6 +23,8 @@ enum class router_error {
 
 class router_error_category : public std::error_category {
 public:
+  ~router_error_category() override = default;
+
   const char* name() const noexcept override
   {
     return "fitoria.router_error";

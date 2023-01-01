@@ -39,8 +39,7 @@ private:
   private:
     auto try_insert(const router_type& r,
                     const route::segments& segments,
-                    std::size_t segment_index) noexcept
-        -> expected<void, error_code>
+                    std::size_t segment_index) -> expected<void, error_code>
     {
       if (segment_index == segments.size()) {
         if (router_) {
@@ -96,7 +95,7 @@ private:
       return nullopt;
     }
 
-    static auto try_parse_path(std::string_view path) noexcept
+    static auto try_parse_path(std::string_view path)
         -> expected<route::segments, error_code>
     {
       if (path.empty()) {
@@ -112,14 +111,14 @@ private:
   };
 
 public:
-  auto try_insert(const router_type& r) noexcept -> expected<void, error_code>
+  auto try_insert(const router_type& r) -> expected<void, error_code>
   {
     return node::try_parse_path(r.path()).and_then([&](auto&& segments) {
       return subtrees_[r.method()].try_insert(r, segments, 0);
     });
   }
 
-  auto try_find(http::verb method, std::string_view path) const noexcept
+  auto try_find(http::verb method, std::string_view path) const
       -> expected<const router_type&, error_code>
   {
     return node::try_parse_path(path).and_then([&](auto&& segments) {

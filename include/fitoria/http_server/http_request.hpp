@@ -41,7 +41,7 @@ public:
     }
   }
 
-  net::ip::tcp::endpoint remote_endpoint() const noexcept
+  const net::ip::tcp::endpoint& remote_endpoint() const noexcept
   {
     return remote_endpoint_;
   }

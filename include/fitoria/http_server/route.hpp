@@ -30,7 +30,7 @@ public:
 
   using segments = std::vector<segment>;
 
-  static auto to_segments(std::string_view path) noexcept
+  static auto to_segments(std::string_view path)
       -> expected<segments, error_code>
   {
     segments segs;
@@ -83,7 +83,7 @@ public:
     return segment;
   }
 
-  static auto unescape_segment(std::string_view segment) noexcept -> std::string
+  static auto unescape_segment(std::string_view segment) -> std::string
   {
     std::string s("{");
     s += segment;
@@ -92,7 +92,7 @@ public:
   }
 
   static auto parse_param_map(std::string_view router_path,
-                              std::string_view req_path) noexcept
+                              std::string_view req_path)
       -> expected<query_map, error_code>
   {
     auto router_segs = to_segments(router_path);

@@ -92,7 +92,7 @@ TEST_CASE("basic")
       { l, af },
       { h } },
   };
-  CHECK(range_equal(rg.get_all_routers(), exp));
+  CHECK(range_equal(rg.routers(), exp));
 }
 
 TEST_SUITE_END();

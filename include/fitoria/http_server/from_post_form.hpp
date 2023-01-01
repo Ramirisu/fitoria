@@ -28,7 +28,7 @@ public:
   }
 
 private:
-  static expected<query_map, error_code> parse(const http_request& req) noexcept
+  static expected<query_map, error_code> parse(const http_request& req)
   {
     auto res = urls::parse_query(req.body());
     if (!res) {

@@ -33,20 +33,20 @@ public:
     return *this;
   }
 
-  http_server_config& set_threads(std::uint32_t num)
+  http_server_config& set_threads(std::uint32_t num) noexcept
   {
     threads_ = std::max(num, 1U);
     return *this;
   }
 
-  http_server_config& set_max_listen_connections(int num)
+  http_server_config& set_max_listen_connections(int num) noexcept
   {
     max_listen_connections_ = num;
     return *this;
   }
 
   http_server_config&
-  set_client_request_timeout(std::chrono::milliseconds timeout)
+  set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
   {
     client_request_timeout_ = timeout;
     return *this;
@@ -63,7 +63,7 @@ public:
 
   http_server_config& route(const router_group& router_group)
   {
-    for (auto&& router : router_group.get_all_routers()) {
+    for (auto& router : router_group.routers()) {
       if (auto res = router_tree_.try_insert(router); !res) {
         throw system_error(res.error());
       }
@@ -148,7 +148,8 @@ public:
 private:
   using native_response_t = http::response<http::string_body>;
 
-  net::awaitable<net::accepter> new_acceptor(net::ip::tcp::endpoint endpoint)
+  net::awaitable<net::accepter>
+  new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = net::accepter(co_await net::this_coro::executor);
 
@@ -159,7 +160,7 @@ private:
     co_return acceptor;
   }
 
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint)
+  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -178,7 +179,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
-                                 net::ssl::context ssl_ctx)
+                                 net::ssl::context ssl_ctx) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -196,7 +197,7 @@ private:
   }
 #endif
 
-  net::awaitable<void> do_session(net::tcp_stream stream) const noexcept
+  net::awaitable<void> do_session(net::tcp_stream stream) const
   {
     auto ec = co_await do_session_impl(stream);
     if (ec) {
@@ -208,7 +209,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(net::ssl_stream stream) const noexcept
+  net::awaitable<void> do_session(net::ssl_stream stream) const
   {
     net::get_lowest_layer(stream).expires_after(
         config_.client_request_timeout_);
@@ -231,7 +232,7 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<net::error_code> do_session_impl(Stream& stream) const noexcept
+  net::awaitable<net::error_code> do_session_impl(Stream& stream) const
   {
     net::flat_buffer buffer;
     net::error_code ec;
@@ -275,7 +276,7 @@ private:
 
   net::awaitable<native_response_t>
   do_handler(net::ip::tcp::endpoint remote_endpoint,
-             http::request<http::string_body>& req) const noexcept
+             http::request<http::string_body>& req) const
   {
     auto req_url = urls::parse_origin_form(req.target());
     if (!req_url) {
@@ -304,7 +305,7 @@ private:
         .value_or(http_response(http::status::internal_server_error));
   }
 
-  static auto to_query_map(urls::params_view params) noexcept -> query_map
+  static auto to_query_map(urls::params_view params) -> query_map
   {
     query_map query;
     for (auto param : params) {

@@ -90,7 +90,7 @@ public:
     return map_.at(name);
   }
 
-  mapped_type& operator[](const std::string& name) noexcept
+  mapped_type& operator[](const std::string& name)
   {
     return map_[name];
   }
@@ -100,32 +100,32 @@ public:
     return map_.contains(name);
   }
 
-  auto begin()
+  auto begin() noexcept
   {
     return map_.begin();
   }
 
-  auto begin() const
+  auto begin() const noexcept
   {
     return map_.begin();
   }
 
-  auto cbegin()
+  auto cbegin() const noexcept
   {
     return map_.cbegin();
   }
 
-  auto end()
+  auto end() noexcept
   {
     return map_.end();
   }
 
-  auto end() const
+  auto end() const noexcept
   {
     return map_.end();
   }
 
-  auto cend()
+  auto cend() const noexcept
   {
     return map_.cend();
   }

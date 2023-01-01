@@ -53,7 +53,7 @@ public:
     return at(to_string(name));
   }
 
-  mapped_type& operator[](http::field name) noexcept
+  mapped_type& operator[](http::field name)
   {
     return static_cast<query_map&>(*this)[to_string(name)];
   }

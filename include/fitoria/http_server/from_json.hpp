@@ -27,7 +27,7 @@ public:
   }
 
 private:
-  static expected<T, error_code> parse(const std::string& s) noexcept
+  static expected<T, error_code> parse(const std::string& s)
   {
     json::error_code ec;
     auto jv = json::parse(s, ec);
