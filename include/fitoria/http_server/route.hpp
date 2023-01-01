@@ -9,9 +9,9 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/unordered_string_map.hpp>
 #include <fitoria/core/url.hpp>
 
+#include <fitoria/http_server/query_map.hpp>
 #include <fitoria/http_server/router_error.hpp>
 
 #include <string>
@@ -93,7 +93,7 @@ public:
 
   static auto parse_param_map(std::string_view router_path,
                               std::string_view req_path) noexcept
-      -> expected<unordered_string_map<std::string>, error_code>
+      -> expected<query_map, error_code>
   {
     auto router_segs = to_segments(router_path);
     auto req_segs = to_segments(req_path);
@@ -102,7 +102,7 @@ public:
       return unexpected { make_error_code(router_error::route_parse_error) };
     }
 
-    unordered_string_map<std::string> map;
+    query_map map;
     for (std::size_t i = 0; i < router_segs->size(); ++i) {
       if (router_segs.value()[i].is_param) {
         map[std::string(router_segs.value()[i].escaped)]

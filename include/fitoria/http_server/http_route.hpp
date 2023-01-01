@@ -9,19 +9,19 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/unordered_string_map.hpp>
+#include <fitoria/http_server/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_route : public unordered_string_map<std::string> {
+class http_route : public query_map {
 public:
-  http_route(unordered_string_map<std::string> params, std::string path)
-      : unordered_string_map<std::string>(std::move(params))
+  http_route(query_map params, std::string path)
+      : query_map(std::move(params))
       , path_(std::move(path))
   {
   }
 
-  /// @brief get the routing path that is configured for the handler
+  /// @brief get the route configured for the handler
   /// @return "/api/v1/users/{user}"
   std::string& path() noexcept
   {

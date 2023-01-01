@@ -131,7 +131,7 @@ public:
   }
 
 private:
-  unordered_string_map<std::string> map_;
+  map_type map_;
 };
 
 FITORIA_NAMESPACE_END
