@@ -15,7 +15,7 @@ int main()
 {
   auto server = http_server(http_server_config().route(
       // add a router group
-      router_group("/api")
+      router_group("/api/v1")
           // register a middleware for this group
           .use([](http_context& c)
                    -> net::awaitable<expected<http_response, http_error>> {
@@ -30,10 +30,13 @@ int main()
           // register a route for this group
           // the route is associated with the middleware defined above
           .route(router(
-              http::verb::get, "/api/v1/users/{user}",
+              http::verb::get, "/users/{user}",
               [](http_request& req)
                   -> net::awaitable<expected<http_response, http_error>> {
                 FITORIA_ASSERT(req.method() == http::verb::get);
+
+                std::cout << req.route().at("user") << "\n";
+
                 co_return http_response(http::status::ok);
               }))));
   server //
@@ -41,4 +44,10 @@ int main()
       .run();
 
   server.wait();
+
+  // $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu
+  //
+  // before handler
+  // ramirisu
+  // after handler
 }

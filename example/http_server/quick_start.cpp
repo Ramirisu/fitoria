@@ -7,6 +7,8 @@
 
 #include <fitoria/http_server.hpp>
 
+#include <iostream>
+
 using namespace fitoria;
 
 int main()
@@ -17,19 +19,24 @@ int main()
                  -> net::awaitable<expected<http_response, http_error>> {
                FITORIA_ASSERT(req.route().path() == "/api/v1/{owner}/{repo}");
                FITORIA_ASSERT(req.method() == http::verb::get);
+
+               std::cout << req.route().at("owner") << "\n";
+               std::cout << req.route().at("repo") << "\n";
+
                co_return http_response(http::status::ok);
              })));
   server
       // start to listen to port 8080
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
-      // start to listen to port 443 with SSL enabled
-      .bind_ssl("127.0.0.1", 443,
+      // start to listen to port 8443 with SSL enabled
+      .bind_ssl("127.0.0.1", 8443,
                 []() {
                   using net::ssl::context;
                   auto ctx = context(context::tls_server);
                   ctx.set_options(context::default_workarounds
                                   | context::no_sslv2 | context::no_sslv3);
+                  // setup the private key and certificate here for your server
                   return ctx;
                 }())
 #endif
@@ -43,4 +50,9 @@ int main()
 
   // block current thread, current thread will process the IO loop
   server.wait();
+
+  // $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria
+  //
+  // ramirisu
+  // fitoria
 }
