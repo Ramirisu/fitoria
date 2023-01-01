@@ -15,14 +15,13 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/variant_function.hpp>
 
-#include <fitoria/http_server/http_error.hpp>
 #include <fitoria/http_server/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 struct http_handler_trait {
 private:
-  using result_t = expected<http_response, http_error>;
+  using result_t = http_response;
 
 public:
   using middleware_input_param_t = http_context&;

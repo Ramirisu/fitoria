@@ -51,7 +51,7 @@ TEST_CASE("request with plain text")
   auto server = http_server(http_server_config().route(router(
       http::verb::get, "/api/v1/users/{user}/filmography/years/{year}",
       [](http_request& req, http_route& route, query_map& query)
-          -> net::awaitable<expected<http_response, http_error>> {
+          -> net::awaitable<http_response> {
         CHECK_EQ(req.remote_endpoint().address(),
                  net::ip::make_address(server_ip));
 
@@ -105,7 +105,7 @@ TEST_CASE("request with json")
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api",
              [](http_request& req, from_json<user_t> user)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                CHECK_EQ(req.method(), http::verb::get);
 
                CHECK_EQ(req.headers().get(http::field::content_type),
@@ -147,7 +147,7 @@ TEST_CASE("request with post form")
   auto server = http_server(http_server_config().route(
       router(http::verb::post, "/api",
              [](http_request& req, from_post_form form)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                CHECK_EQ(req.method(), http::verb::post);
 
                CHECK_EQ(req.headers().get(http::field::content_type),

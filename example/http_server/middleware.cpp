@@ -18,7 +18,7 @@ int main()
       router_group("/api/v1")
           // register a middleware for this group
           .use([](http_context& c)
-                   -> net::awaitable<expected<http_response, http_error>> {
+                   -> net::awaitable<http_response> {
             std::cout << "before handler\n";
 
             auto res = co_await c.next();
@@ -32,7 +32,7 @@ int main()
           .route(router(
               http::verb::get, "/users/{user}",
               [](http_request& req)
-                  -> net::awaitable<expected<http_response, http_error>> {
+                  -> net::awaitable<http_response> {
                 FITORIA_ASSERT(req.method() == http::verb::get);
 
                 std::cout << req.route().at("user") << "\n";

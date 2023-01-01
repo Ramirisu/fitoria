@@ -28,7 +28,7 @@ void configure_server(http_server_config& config)
   config.route(router(
       http::verb::get, "/api/repos/{repo}",
       [](http_request& req)
-          -> net::awaitable<expected<http_response, http_error>> {
+          -> net::awaitable<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.route().size(), 1);
         CHECK_EQ(req.route().at("repo"), "fitoria");

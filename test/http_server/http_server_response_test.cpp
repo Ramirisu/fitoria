@@ -51,7 +51,7 @@ TEST_CASE("response status only")
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api",
              []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                co_return http_response(http::status::accepted);
              })));
   server.bind(server_ip, port).run();
@@ -74,7 +74,7 @@ TEST_CASE("response with plain text")
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api",
              []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                co_return http_response(http::status::ok)
                    .set_header(http::field::content_type, "text/plain")
                    .set_body("plain text");
@@ -98,7 +98,7 @@ TEST_CASE("response with json")
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api",
              []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                co_return http_response(http::status::ok)
                    .set_header(http::field::content_type, "application/json")
                    .set_json({
@@ -133,7 +133,7 @@ TEST_CASE("response with struct to json")
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api",
              []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<expected<http_response, http_error>> {
+                 -> net::awaitable<http_response> {
                co_return http_response(http::status::ok)
                    .set_header(http::field::content_type, "application/json")
                    .set_json(user_t {

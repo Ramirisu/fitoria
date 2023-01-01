@@ -323,8 +323,7 @@ private:
     auto context = http_context(handlers_invoker<handler_trait>(
                                     router->middlewares(), router->handler()),
                                 request);
-    co_return (co_await context.next())
-        .value_or(http_response(http::status::internal_server_error));
+    co_return co_await context.next();
   }
 
   static auto to_query_map(urls::params_view params) -> query_map

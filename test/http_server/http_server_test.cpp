@@ -39,7 +39,7 @@ TEST_CASE("http_server_config")
           .route(router(
               http::verb::get, "/api",
               [&]([[maybe_unused]] http_request& req)
-                  -> net::awaitable<expected<http_response, http_error>> {
+                  -> net::awaitable<http_response> {
                 co_return http_response(http::status::ok);
               })));
   server.bind(server_ip, port).run();

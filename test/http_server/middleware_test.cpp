@@ -26,14 +26,14 @@ TEST_CASE("middlewares invocation order")
   auto server = http_server(http_server_config().route(
       router_group("/api")
           .use([&](http_context& c)
-                   -> net::awaitable<expected<http_response, http_error>> {
+                   -> net::awaitable<http_response> {
             CHECK_EQ(++state, 1);
             auto resp = co_await c.next();
             CHECK_EQ(++state, 5);
             co_return resp;
           })
           .use([&](http_context& c)
-                   -> net::awaitable<expected<http_response, http_error>> {
+                   -> net::awaitable<http_response> {
             CHECK_EQ(++state, 2);
             auto resp = co_await c.next();
             CHECK_EQ(++state, 4);
@@ -41,7 +41,7 @@ TEST_CASE("middlewares invocation order")
           })
           .route(http::verb::get, "/get",
                  [&]([[maybe_unused]] http_request& req)
-                     -> net::awaitable<expected<http_response, http_error>> {
+                     -> net::awaitable<http_response> {
                    CHECK_EQ(++state, 3);
                    co_return http_response(http::status::ok);
                  })));
