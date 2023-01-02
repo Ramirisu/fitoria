@@ -12,6 +12,7 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/http.hpp>
 #include <fitoria/core/json.hpp>
+#include <fitoria/core/url.hpp>
 
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
@@ -152,6 +153,31 @@ public:
   {
     return parse_json().transform(
         [](auto&& jv) { return json::value_to<T>(jv); });
+  }
+
+  expected<query_map, error_code> parse_post_form() const
+  {
+    if (headers().get(http::field::content_type)
+        != "application/x-www-form-urlencoded") {
+      return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    auto res = urls::parse_query(body());
+    if (!res) {
+      return unexpected { make_error_code(error::invalid_form_format) };
+    }
+
+    auto params = static_cast<urls::params_view>(res.value());
+
+    query_map map;
+    for (auto it = params.begin(); it != params.end(); ++it) {
+      auto kv = *it;
+      if (kv.has_value) {
+        map.set(kv.key, kv.value);
+      }
+    }
+
+    return map;
   }
 
 private:

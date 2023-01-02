@@ -21,6 +21,7 @@ enum class error {
   route_not_exists,
   unexpected_content_type,
   invalid_json_format,
+  invalid_form_format,
 };
 
 class error_category : public std::error_category {
@@ -45,6 +46,8 @@ public:
       return "unexpected `Content-Type` for the request";
     case error::invalid_json_format:
       return "invalid json format";
+    case error::invalid_form_format:
+      return "invalid form format";
     default:
       break;
     }
