@@ -14,7 +14,6 @@
 #include <fitoria/core/json.hpp>
 #include <fitoria/core/url.hpp>
 
-#include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
 #include <fitoria/http_server/http_route.hpp>
 #include <fitoria/http_server/query_map.hpp>
@@ -22,25 +21,24 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_request {
-  using native_type = http::request<http::string_body>;
-
 public:
   explicit http_request(net::ip::tcp::endpoint remote_endpoint,
-                        http_route& route,
-                        native_type& native,
+                        http_route route,
                         std::string path,
+                        http::verb method,
                         std::string query_string,
-                        query_map query)
+                        query_map query,
+                        http_header header,
+                        std::string body)
       : remote_endpoint_(remote_endpoint)
-      , route_(route)
-      , native_(native)
+      , route_(std::move(route))
       , path_(std::move(path))
+      , method_(method)
       , query_string_(std::move(query_string))
       , query_(std::move(query))
+      , header_(std::move(header))
+      , body_(std::move(body))
   {
-    for (auto it = native.begin(); it != native.end(); ++it) {
-      header_.set(it->name_string(), it->value());
-    }
   }
 
   const net::ip::tcp::endpoint& remote_endpoint() const noexcept
@@ -70,7 +68,7 @@ public:
 
   http::verb method() const noexcept
   {
-    return native_.method();
+    return method_;
   }
 
   std::string& path() noexcept
@@ -125,12 +123,12 @@ public:
 
   std::string& body() noexcept
   {
-    return native_.body();
+    return body_;
   }
 
   const std::string& body() const noexcept
   {
-    return native_.body();
+    return body_;
   }
 
   expected<json::value, error_code> parse_json() const
@@ -182,12 +180,13 @@ public:
 
 private:
   net::ip::tcp::endpoint remote_endpoint_;
-  http_route& route_;
-  native_type& native_;
+  http_route route_;
   std::string path_;
+  http::verb method_;
   std::string query_string_;
   query_map query_;
   http_header header_;
+  std::string body_;
 };
 
 FITORIA_NAMESPACE_END

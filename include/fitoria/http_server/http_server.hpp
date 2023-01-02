@@ -168,6 +168,7 @@ public:
   }
 
 private:
+  using native_request_t = http::request<http::string_body>;
   using native_response_t = http::response<http::string_body>;
 
   net::awaitable<net::accepter>
@@ -263,7 +264,7 @@ private:
       net::get_lowest_layer(stream).expires_after(
           config_.client_request_timeout_);
 
-      http::request<http::string_body> req;
+      native_request_t req;
       std::tie(ec, std::ignore)
           = co_await http::async_read(stream, buffer, req);
       if (ec) {
@@ -298,7 +299,7 @@ private:
 
   net::awaitable<native_response_t>
   do_handler(net::ip::tcp::endpoint remote_endpoint,
-             http::request<http::string_body>& req) const
+             native_request_t& req) const
   {
     auto req_url = urls::parse_origin_form(req.target());
     if (!req_url) {
@@ -316,17 +317,17 @@ private:
       co_return http_response(http::status::bad_request);
     }
 
-    auto route = http_route(*route_params, std::string(router->path()));
-    auto request
-        = http_request(remote_endpoint, route, req, req_url->path(),
-                       req_url->query(), to_query_map(req_url->params()));
+    auto request = http_request(
+        remote_endpoint, http_route(*route_params, std::string(router->path())),
+        req_url->path(), req.method(), req_url->query(),
+        to_query_map(req_url->params()), to_header(req), std::move(req.body()));
     auto context = http_context(handlers_invoker<handler_trait>(
                                     router->middlewares(), router->handler()),
                                 request);
     co_return co_await context.next();
   }
 
-  static auto to_query_map(urls::params_view params) -> query_map
+  static query_map to_query_map(urls::params_view params)
   {
     query_map query;
     for (auto param : params) {
@@ -336,6 +337,15 @@ private:
     }
 
     return query;
+  }
+
+  static http_header to_header(const native_request_t& req)
+  {
+    http_header header;
+    for (auto& kv : req.base()) {
+      header.set(kv.name(), kv.value());
+    }
+    return header;
   }
 
   http_server_config config_;
