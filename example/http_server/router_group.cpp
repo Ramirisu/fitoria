@@ -11,7 +11,9 @@
 
 using namespace fitoria;
 
-auto log_middleware(http_context& c) -> net::awaitable<http_response>
+namespace middleware {
+
+auto log(http_context& c) -> net::awaitable<http_response>
 {
   std::cout << "log middleware: request\n";
   auto res = co_await c.next();
@@ -19,20 +21,25 @@ auto log_middleware(http_context& c) -> net::awaitable<http_response>
   co_return res;
 }
 
-auto auth_v1_middleware(http_context& c) -> net::awaitable<http_response>
-{
-  std::cout << "auth middleware: /api/v1 request\n";
-  auto res = co_await c.next();
-  std::cout << "auth middleware: /api/v1 response\n";
-  co_return res;
+namespace v1 {
+  auto auth(http_context& c) -> net::awaitable<http_response>
+  {
+    std::cout << "auth middleware: /api/v1 request\n";
+    auto res = co_await c.next();
+    std::cout << "auth middleware: /api/v1 response\n";
+    co_return res;
+  }
 }
 
-auto auth_v2_middleware(http_context& c) -> net::awaitable<http_response>
-{
-  std::cout << "auth middleware: /api/v2 request\n";
-  auto res = co_await c.next();
-  std::cout << "auth middleware: /api/v2 response\n";
-  co_return res;
+namespace v2 {
+  auto auth(http_context& c) -> net::awaitable<http_response>
+  {
+    std::cout << "auth middleware: /api/v2 request\n";
+    auto res = co_await c.next();
+    std::cout << "auth middleware: /api/v2 response\n";
+    co_return res;
+  }
+}
 }
 
 void configure_application(http_server_config& config)
@@ -41,12 +48,12 @@ void configure_application(http_server_config& config)
       // global router group
       router_group("")
           // register a global middleware for all handlers
-          .use(log_middleware)
+          .use(middleware::log)
           // create a subgroup "/api/v1" under global router group
           .sub_group(
               router_group("/api/v1")
                   // register a middleware for this group
-                  .use(auth_v1_middleware)
+                  .use(middleware::v1::auth)
                   // register a route for this group
                   .route(router(
                       http::verb::get, "/users/{user}",
@@ -59,7 +66,7 @@ void configure_application(http_server_config& config)
           .sub_group(
               router_group("/api/v2")
                   // register a middleware for this group
-                  .use(auth_v2_middleware)
+                  .use(middleware::v2::auth)
                   // register a route for this group
                   .route(router(
                       http::verb::get, "/users/{user}",
