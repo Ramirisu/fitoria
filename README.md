@@ -15,25 +15,30 @@ Compiler Supported
 
 Dependencies
 
-* `boost::asio` for networking (Required)
-* `boost::beast` for http/websocket (Required)
-* `boost::url` for url parsing (Required)
-* `boost::json` for json serialization/deserialization (Required)
-* `OpenSSL` for secure networking (Optional)
-* `doctest` for unittesting (Optional)
+|    Library     | Usage                              |              Namespace              | required/optional |
+| :------------: | :--------------------------------- | :---------------------------------: | :---------------: |
+| `boost::asio`  | networking                         |           `fitoria::net`            |     required      |
+| `boost::beast` | http                               | `fitoria::net`<br />`fitoria::http` |     required      |
+|  `boost::url`  | internal url parsing               |           `fitoria::urls`           |     required      |
+| `boost::json`  | json serialization/deserialization |           `fitoria::json`           |     required      |
+|   `OpenSSL`    | secure networking                  |                none                 |     optional      |
+|   `doctest`    | unittesting                        |                none                 |     optional      |
 
 CMake
 
-| Option                  | Description        | Value  | Default |
-| :---------------------- | :----------------- | :----: | :-----: |
-| FITORIA_BUILD_EXAMPLES  | Build examples     | ON/OFF |   OFF   |
-| FITORIA_BUILD_TESTS     | Build tests        | ON/OFF |   OFF   |
-| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL | ON/OFF |   OFF   |
+| Option                  | Description                              | Value  | Default |
+| :---------------------- | :--------------------------------------- | :----: | :-----: |
+| FITORIA_BUILD_EXAMPLES  | Build examples                           | ON/OFF |   OFF   |
+| FITORIA_BUILD_TESTS     | Build tests                              | ON/OFF |   OFF   |
+| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL                       | ON/OFF |   OFF   |
+| FITORIA_DISABLE_CPM     | Do not use CPM.cmake to download library | ON/OFF |   OFF   |
+
+* `fitoria` calls `find_package` to search the dependencies first. If not found, will try to use CPM.cmake to download the dependencies.
 
 ```sh
 git clone https://github.com/Ramirisu/fitoria.git
 cd fitoria/
-cmake -B build -DFITORIA_BUILD_EXAMPLES=ON -DFITORIA_BUILD_TESTS=ON -DFITORIA_DISABLE_OPENSSL=OFF
+cmake -B build -DFITORIA_BUILD_EXAMPLES=ON -DFITORIA_BUILD_TESTS=ON
 cmake --build build
 cd build && ctest && cd ..
 ```

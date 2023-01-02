@@ -8,7 +8,7 @@ project(
 option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
 option(FITORIA_DISABLE_OPENSSL "Do not use OpenSSL" OFF)
-option(FITORIA_DISABLE_CPM "Do not use CPM.cmake" OFF)
+option(FITORIA_DISABLE_CPM "Do not use CPM.cmake to download library" OFF)
 
 message(STATUS "[fitoria] FITORIA_BUILD_EXAMPLES = ${FITORIA_BUILD_EXAMPLES}")
 message(STATUS "[fitoria] FITORIA_BUILD_TESTS = ${FITORIA_BUILD_TESTS}")
