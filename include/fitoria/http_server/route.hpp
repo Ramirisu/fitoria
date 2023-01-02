@@ -11,8 +11,8 @@
 
 #include <fitoria/core/url.hpp>
 
+#include <fitoria/http_server/error.hpp>
 #include <fitoria/http_server/query_map.hpp>
-#include <fitoria/http_server/router_error.hpp>
 
 #include <string>
 #include <string_view>
@@ -36,7 +36,7 @@ public:
     segments segs;
     while (!path.empty()) {
       if (!path.starts_with('/')) {
-        return unexpected { make_error_code(router_error::route_parse_error) };
+        return unexpected { make_error_code(error::route_parse_error) };
       }
       path.remove_prefix(1);
 
@@ -57,7 +57,7 @@ public:
             escaped.value(),
         });
       } else {
-        return unexpected { make_error_code(router_error::route_parse_error) };
+        return unexpected { make_error_code(error::route_parse_error) };
       }
     }
 
@@ -69,7 +69,7 @@ public:
   {
     if (segment.starts_with('{')) {
       if (!segment.ends_with('}')) {
-        return unexpected { make_error_code(router_error::route_parse_error) };
+        return unexpected { make_error_code(error::route_parse_error) };
       }
 
       segment.remove_prefix(1);
@@ -77,7 +77,7 @@ public:
     }
 
     if (segment.find_first_of("{}") != std::string_view::npos) {
-      return unexpected { make_error_code(router_error::route_parse_error) };
+      return unexpected { make_error_code(error::route_parse_error) };
     }
 
     return segment;
@@ -99,7 +99,7 @@ public:
     auto req_segs = to_segments(req_path);
 
     if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
-      return unexpected { make_error_code(router_error::route_parse_error) };
+      return unexpected { make_error_code(error::route_parse_error) };
     }
 
     query_map map;

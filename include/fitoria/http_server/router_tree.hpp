@@ -14,10 +14,10 @@
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
+#include <fitoria/http_server/error.hpp>
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/route.hpp>
 #include <fitoria/http_server/router.hpp>
-#include <fitoria/http_server/router_error.hpp>
 
 #include <memory>
 #include <string>
@@ -43,8 +43,7 @@ private:
     {
       if (segment_index == segments.size()) {
         if (router_) {
-          return unexpected { make_error_code(
-              router_error::route_already_exists) };
+          return unexpected { make_error_code(error::route_already_exists) };
         }
 
         router_.emplace(r);
@@ -72,7 +71,7 @@ private:
       }
 
       return try_find_path_trees(segments[segment_index].original)
-          .to_expected_or(make_error_code(router_error::route_not_exists))
+          .to_expected_or(make_error_code(error::route_not_exists))
           .and_then([&](auto&& node) {
             return node.try_find(segments, segment_index + 1);
           })
@@ -99,7 +98,7 @@ private:
         -> expected<route::segments, error_code>
     {
       if (path.empty()) {
-        return unexpected { make_error_code(router_error::route_parse_error) };
+        return unexpected { make_error_code(error::route_parse_error) };
       }
 
       return route::to_segments(path);
@@ -123,7 +122,7 @@ public:
   {
     return node::try_parse_path(path).and_then([&](auto&& segments) {
       return try_find(method)
-          .to_expected_or(make_error_code(router_error::route_not_exists))
+          .to_expected_or(make_error_code(error::route_not_exists))
           .and_then([&](auto&& node) { return node.try_find(segments, 0); });
     });
   }

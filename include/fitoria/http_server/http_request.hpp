@@ -9,8 +9,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
 #include <fitoria/core/http.hpp>
-#include <fitoria/core/url.hpp>
+#include <fitoria/core/json.hpp>
 
 #include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_header.hpp>
@@ -129,6 +130,28 @@ public:
   const std::string& body() const noexcept
   {
     return native_.body();
+  }
+
+  expected<json::value, error_code> parse_json() const
+  {
+    if (headers().get(http::field::content_type) != "application/json") {
+      return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    json::error_code ec;
+    auto jv = json::parse(body(), ec);
+    if (ec) {
+      return unexpected { make_error_code(error::invalid_json_format) };
+    }
+
+    return jv;
+  }
+
+  template <typename T>
+  expected<T, error_code> parse_json_to() const
+  {
+    return parse_json().transform(
+        [](auto&& jv) { return json::value_to<T>(jv); });
   }
 
 private:

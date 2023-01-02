@@ -15,30 +15,36 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-enum class router_error {
+enum class error {
   route_parse_error,
   route_already_exists,
   route_not_exists,
+  unexpected_content_type,
+  invalid_json_format,
 };
 
-class router_error_category : public std::error_category {
+class error_category : public std::error_category {
 public:
-  ~router_error_category() override = default;
+  ~error_category() override = default;
 
   const char* name() const noexcept override
   {
-    return "fitoria.router_error";
+    return "fitoria.error";
   }
 
   std::string message(int condition) const override
   {
-    switch (static_cast<router_error>(condition)) {
-    case router_error::route_parse_error:
+    switch (static_cast<error>(condition)) {
+    case error::route_parse_error:
       return "the route being parsed is invalid";
-    case router_error::route_already_exists:
+    case error::route_already_exists:
       return "the route being registered already exists";
-    case router_error::route_not_exists:
+    case error::route_not_exists:
       return "the route being searched doesn't exist";
+    case error::unexpected_content_type:
+      return "unexpected `Content-Type` for the request";
+    case error::invalid_json_format:
+      return "invalid json format";
     default:
       break;
     }
@@ -47,9 +53,9 @@ public:
   }
 };
 
-error_code make_error_code(router_error e)
+error_code make_error_code(error e)
 {
-  static const router_error_category c;
+  static const error_category c;
   return error_code(static_cast<int>(e), c);
 }
 
@@ -58,5 +64,6 @@ FITORIA_NAMESPACE_END
 namespace std {
 
 template <>
-struct is_error_code_enum<fitoria::router_error> : std::true_type { };
+struct is_error_code_enum<fitoria::error> : std::true_type { };
+
 }

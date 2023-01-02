@@ -38,7 +38,7 @@ struct test_handler_trait {
 TEST_CASE("try_insert")
 {
   using router_tree_type = basic_router_tree<test_handler_trait>;
-  using exp_t = expected<void, router_error>;
+  using exp_t = expected<void, error>;
 
   auto r = [=](http::verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
@@ -47,36 +47,36 @@ TEST_CASE("try_insert")
 
   router_tree_type rt;
   CHECK_EQ(rt.try_insert(r(http::verb::get, "")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/{")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/}")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "//")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/}")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu//")),
-           exp_t(unexpect, router_error::route_parse_error));
+           exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu")), exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu")),
-           exp_t(unexpect, router_error::route_already_exists));
+           exp_t(unexpect, error::route_already_exists));
   CHECK_EQ(rt.try_insert(r(http::verb::put, "/ramirisu")), exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::put, "/ramirisu")),
-           exp_t(unexpect, router_error::route_already_exists));
+           exp_t(unexpect, error::route_already_exists));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{repo}")), exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{r}")),
-           exp_t(unexpect, router_error::route_already_exists));
+           exp_t(unexpect, error::route_already_exists));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{repo}/{branch}")),
            exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{r}/{b}")),
-           exp_t(unexpect, router_error::route_already_exists));
+           exp_t(unexpect, error::route_already_exists));
 }
 
 TEST_CASE("try_find")
