@@ -25,6 +25,11 @@ public:
   {
   }
 
+  http::status status() const noexcept
+  {
+    return status_;
+  }
+
   http_header& headers() noexcept
   {
     return header_;
