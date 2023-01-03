@@ -55,6 +55,15 @@ namespace detail {
     std::cout << msg;
   }
 
+  std::string_view get_file_name(std::string_view file_path)
+  {
+    if (auto pos = file_path.rfind('/'); pos != std::string_view::npos) {
+      return file_path.substr(pos + 1);
+    }
+
+    return file_path;
+  }
+
   template <typename Format, typename... Args>
   void log(const std::source_location& loc,
            level lv,
@@ -68,8 +77,8 @@ namespace detail {
                      to_string(lv), caller));
     sink(fmt::vformat(std::forward<Format>(fmt),
                       fmt::make_format_args(std::forward<Args>(args)...)));
-    sink(fmt::format(" [{}:{}:{}]\n", loc.file_name(), loc.line(),
-                     loc.column()));
+    sink(fmt::format(" [{}:{}:{}]\n", get_file_name(loc.file_name()),
+                     loc.line(), loc.column()));
   }
 
 }
