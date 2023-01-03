@@ -88,7 +88,7 @@ private:
       try {
         std::rethrow_exception(ptr);
       } catch (const std::exception& ex) {
-        log::warning(name(), "exception: {}", ex.what());
+        log::debug(name(), "exception: {}", ex.what());
       }
     }
   }
@@ -197,7 +197,7 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
-        log::warning(name(), "async_accept failed: {}", ec.message());
+        log::debug(name(), "async_accept failed: {}", ec.message());
         continue;
       }
 
@@ -216,7 +216,7 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
-        log::warning(name(), "async_accept failed: {}", ec.message());
+        log::debug(name(), "async_accept failed: {}", ec.message());
         continue;
       }
 
@@ -245,7 +245,7 @@ private:
 
     auto [ec] = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
-      log::warning(name(), "async_handshake failed: {}", ec.message());
+      log::debug(name(), "async_handshake failed: {}", ec.message());
       co_return;
     }
 
@@ -255,7 +255,7 @@ private:
 
     std::tie(ec) = co_await stream.async_shutdown();
     if (ec) {
-      log::warning(name(), "async_shutdown failed: {}", ec.message());
+      log::debug(name(), "async_shutdown failed: {}", ec.message());
     }
   }
 #endif
@@ -274,7 +274,9 @@ private:
       std::tie(ec, std::ignore)
           = co_await http::async_read(stream, buffer, req);
       if (ec) {
-        log::warning(name(), "async_read failed: {}", ec.message());
+        if (ec != http::error::end_of_stream) {
+          log::debug(name(), "async_read failed: {}", ec.message());
+        }
         co_return ec;
       }
 
@@ -291,7 +293,7 @@ private:
       std::tie(ec, std::ignore) = co_await net::async_write(
           stream, http::message_generator(std::move(res)));
       if (ec) {
-        log::warning(name(), "async_write failed: {}", ec.message());
+        log::debug(name(), "async_write failed: {}", ec.message());
         co_return ec;
       }
 
