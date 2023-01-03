@@ -20,7 +20,7 @@ inline const char* server_ip = "127.0.0.1";
 inline const char* localhost = "localhost";
 inline std::uint16_t generate_port()
 {
-  static std::uint16_t port = 50000;
+  static std::uint16_t port = 43210;
   return ++port;
 }
 
