@@ -7,6 +7,8 @@
 
 #include <fitoria/http_server.hpp>
 
+#include <iostream>
+
 using namespace fitoria;
 
 int main()
@@ -15,26 +17,28 @@ int main()
       http_server_config()
           .route(router(http::verb::put, "/api/v1/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
-                          FITORIA_ASSERT(req.method() == http::verb::put);
+                          std::cout << req.route().path() << "\n";
+
                           co_return http_response(http::status::ok);
                         }))
           .route(router(http::verb::post, "/api/v1/services/{service}",
                         [](http_route& r) -> net::awaitable<http_response> {
-                          FITORIA_ASSERT(r.path()
-                                         == "/api/v1/services/{service}");
+                          std::cout << r.path() << "\n";
+
                           co_return http_response(http::status::ok);
                         }))
           .route(router(http::verb::get, "/api/v1/games/{game}",
                         [](query_map& query) -> net::awaitable<http_response> {
-                          FITORIA_ASSERT(query.get("name") == "Mario Bros.");
+                          std::cout << query.get("name").value() << "\n";
+
                           co_return http_response(http::status::ok);
                         }))
           .route(router(http::verb::patch, "/api/v1/languages/{language}",
                         [](http_route& r,
                            http_request& req) -> net::awaitable<http_response> {
-                          FITORIA_ASSERT(r.path()
-                                         == "/api/v1/languages/{language}");
-                          FITORIA_ASSERT(req.method() == http::verb::patch);
+                          std::cout << r.path() << "\n";
+                          std::cout << req.route().path() << "\n";
+
                           co_return http_response(http::status::ok);
                         })));
   server //

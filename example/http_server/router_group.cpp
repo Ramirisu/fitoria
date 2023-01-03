@@ -55,26 +55,30 @@ void configure_application(http_server_config& config)
                   // register a middleware for this group
                   .use(middleware::v1::auth)
                   // register a route for this group
-                  .route(router(
-                      http::verb::get, "/users/{user}",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        FITORIA_ASSERT(req.route().path()
-                                       == "/api/v1/users/{user}");
-                        co_return http_response(http::status::ok);
-                      })))
+                  .route(router(http::verb::get, "/users/{user}",
+                                []([[maybe_unused]] http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  FITORIA_ASSERT(req.route().path()
+                                                 == "/api/v1/users/{user}");
+                                  std::cout << req.route().path() << "\n";
+
+                                  co_return http_response(http::status::ok);
+                                })))
           // create a subgroup "/api/v2" under global router group
           .sub_group(
               router_group("/api/v2")
                   // register a middleware for this group
                   .use(middleware::v2::auth)
                   // register a route for this group
-                  .route(router(
-                      http::verb::get, "/users/{user}",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        FITORIA_ASSERT(req.route().path()
-                                       == "/api/v2/users/{user}");
-                        co_return http_response(http::status::ok);
-                      }))));
+                  .route(router(http::verb::get, "/users/{user}",
+                                []([[maybe_unused]] http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  FITORIA_ASSERT(req.route().path()
+                                                 == "/api/v2/users/{user}");
+                                  std::cout << req.route().path() << "\n";
+
+                                  co_return http_response(http::status::ok);
+                                }))));
 }
 
 int main()

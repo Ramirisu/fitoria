@@ -11,7 +11,7 @@ jobs:
         os: [windows-2022, ubuntu-22.04]
         cxx: [g++-12, cl]
         std: [20]
-        build_type: [Debug]
+        build_type: [Debug, Release]
         generator: [Ninja]
         disable_openssl: [ON, OFF]
         exclude:
