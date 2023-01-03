@@ -113,13 +113,13 @@ TEST_CASE("request with json")
                             { "birth", "1994/06/15" },
                         }));
 
-               CHECK_EQ(req.parse_json(),
+               CHECK_EQ(req.body_as_json(),
                         json::value {
                             { "name", "Rina Hidaka" },
                             { "birth", "1994/06/15" },
                         });
 
-               CHECK_EQ(req.parse_json_to<user_t>(),
+               CHECK_EQ(req.body_as_json<user_t>(),
                         user_t {
                             .name = "Rina Hidaka",
                             .birth = "1994/06/15",
@@ -151,7 +151,7 @@ TEST_CASE("request with post form")
              [](http_request& req) -> net::awaitable<http_response> {
                CHECK_EQ(req.method(), http::verb::post);
 
-               auto form = req.parse_post_form();
+               auto form = req.body_as_post_form();
                CHECK_EQ(form->size(), 2);
                CHECK_EQ(form->get("name"), "Rina Hidaka");
                CHECK_EQ(form->get("birth"), "1994/06/15");

@@ -131,7 +131,8 @@ public:
     return body_;
   }
 
-  expected<json::value, error_code> parse_json() const
+  template <typename T = json::value>
+  expected<T, error_code> body_as_json() const
   {
     if (headers().get(http::field::content_type) != "application/json") {
       return unexpected { make_error_code(error::unexpected_content_type) };
@@ -143,17 +144,14 @@ public:
       return unexpected { make_error_code(error::invalid_json_format) };
     }
 
-    return jv;
+    if constexpr (std::is_same_v<T, json::value>) {
+      return jv;
+    } else {
+      return json::value_to<T>(jv);
+    }
   }
 
-  template <typename T>
-  expected<T, error_code> parse_json_to() const
-  {
-    return parse_json().transform(
-        [](auto&& jv) { return json::value_to<T>(jv); });
-  }
-
-  expected<query_map, error_code> parse_post_form() const
+  expected<query_map, error_code> body_as_post_form() const
   {
     if (headers().get(http::field::content_type)
         != "application/x-www-form-urlencoded") {
