@@ -15,14 +15,15 @@ Compiler Supported
 
 Dependencies
 
-|    Library     | Usage                              |              Namespace              | required/optional |
-| :------------: | :--------------------------------- | :---------------------------------: | :---------------: |
-| `boost::asio`  | networking                         |           `fitoria::net`            |     required      |
-| `boost::beast` | http                               | `fitoria::net`<br />`fitoria::http` |     required      |
-|  `boost::url`  | internal url parsing               |           `fitoria::urls`           |     required      |
-| `boost::json`  | json serialization/deserialization |           `fitoria::json`           |     required      |
-|   `OpenSSL`    | secure networking                  |                none                 |     optional      |
-|   `doctest`    | unittesting                        |                none                 |     optional      |
+|    Library     | Usage                              |              Namespace              |              required/optional              |
+| :------------: | :--------------------------------- | :---------------------------------: | :-----------------------------------------: |
+| `boost::asio`  | networking                         |           `fitoria::net`            |                  required                   |
+| `boost::beast` | http                               | `fitoria::net`<br />`fitoria::http` |                  required                   |
+|  `boost::url`  | internal url parsing               |           `fitoria::urls`           |                  required                   |
+| `boost::json`  | json serialization/deserialization |           `fitoria::json`           |                  required                   |
+|     `fmt`      | formatting                         |           `fitoria::fmt`            | required (if `std.format` is not available) |
+|   `OpenSSL`    | secure networking                  |                none                 |                  optional                   |
+|   `doctest`    | unittesting                        |                none                 |                  optional                   |
 
 CMake
 
