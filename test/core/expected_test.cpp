@@ -2195,4 +2195,10 @@ TEST_CASE("compare")
   CHECK(!(expected<int, int>(unexpect) != fitoria::unexpected<int>(0)));
 }
 
+TEST_CASE("format")
+{
+  CHECK_EQ(fmt::format("{}", expected<int, int>()), "0");
+  CHECK_EQ(fmt::format("{}", expected<int, int>(unexpect)), "{unexpected}");
+}
+
 TEST_SUITE_END();

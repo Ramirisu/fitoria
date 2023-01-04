@@ -2552,4 +2552,22 @@ private:
 
 FITORIA_NAMESPACE_END
 
+#include <fitoria/core/format.hpp>
+
+template <typename T, typename E, typename CharT>
+struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::expected<T, E>,
+                                         CharT>
+    : FITORIA_NAMESPACE::fmt::formatter<T, CharT> {
+  template <typename FormatContext>
+  auto format(FITORIA_NAMESPACE::expected<T, E> t, FormatContext& ctx) const
+  {
+    if (t) {
+      return FITORIA_NAMESPACE::fmt::formatter<T, CharT>::format(t.value(),
+                                                                 ctx);
+    } else {
+      return format_to(ctx.out(), "{{unexpected}}");
+    }
+  }
+};
+
 #include <fitoria/core/optional.hpp>
