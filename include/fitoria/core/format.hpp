@@ -9,20 +9,21 @@
 
 #include <fitoria/core/config.hpp>
 
-#if defined(__cpp_lib_format) && __has_include(<format>)
+#if defined(FITORIA_HAS_STD_FORMAT)
 #include <format>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace fmt {
 using std::format;
+using std::formatter;
 using std::make_format_args;
 using std::vformat;
 }
 
 FITORIA_NAMESPACE_END
 
-#elif __has_include(<fmt/core.h>)
+#elif defined(FITORIA_HAS_FMT)
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 
@@ -32,6 +33,4 @@ namespace fmt = fmt;
 
 FITORIA_NAMESPACE_END
 
-#else
-#error "requires formatting library"
 #endif

@@ -16,6 +16,8 @@
   }                                                                            \
   }
 
+#define FITORIA_NAMESPACE fitoria::v0
+
 #define FITORIA_ASSERT(expr) assert(expr)
 
 // clang-format off
@@ -34,4 +36,12 @@
 
 #if defined(_MSC_VER) && !defined(__clang__)
 #define FITORIA_CXX_COMPILER_MSVC
+#endif
+
+#if defined(__cpp_lib_format) && __has_include(<format>)
+#define FITORIA_HAS_STD_FORMAT
+#elif __has_include(<fmt/core.h>)
+#define FITORIA_HAS_FMT
+#else
+#error "requires formatting library"
 #endif

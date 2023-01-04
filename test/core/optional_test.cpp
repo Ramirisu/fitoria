@@ -1584,4 +1584,10 @@ TEST_CASE("make_optional")
   CHECK_EQ(vec.value(), dc<int> { 0, 1, 2 });
 }
 
+TEST_CASE("format")
+{
+  CHECK_EQ(fmt::format("{}", optional<int>(1)), "1");
+  CHECK_EQ(fmt::format("{}", optional<int>()), "{nullopt}");
+}
+
 TEST_SUITE_END();

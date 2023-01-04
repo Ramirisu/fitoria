@@ -1240,3 +1240,20 @@ constexpr void swap(optional<T>& lhs,
 }
 
 FITORIA_NAMESPACE_END
+
+#include <fitoria/core/format.hpp>
+
+template <typename T, typename CharT>
+struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>
+    : FITORIA_NAMESPACE::fmt::formatter<T, CharT> {
+  template <typename FormatContext>
+  auto format(FITORIA_NAMESPACE::optional<T> t, FormatContext& ctx) const
+  {
+    if (t) {
+      return FITORIA_NAMESPACE::fmt::formatter<T, CharT>::format(t.value(),
+                                                                 ctx);
+    } else {
+      return format_to(ctx.out(), "{{nullopt}}");
+    }
+  }
+};
