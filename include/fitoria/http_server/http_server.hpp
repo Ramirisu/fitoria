@@ -9,9 +9,10 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/log.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
+
+#include <fitoria/log/logger.hpp>
 
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>
@@ -88,7 +89,7 @@ private:
       try {
         std::rethrow_exception(ptr);
       } catch (const std::exception& ex) {
-        log::debug(name(), "exception: {}", ex.what());
+        log::debug("[{}] exception: {}", name(), ex.what());
       }
     }
   }
@@ -150,7 +151,7 @@ public:
 
   http_server& run()
   {
-    log::info(name(), "starting with {} workers", config_.threads_);
+    log::info("[{}] starting with {} workers", name(), config_.threads_);
     for (auto i = 0U; i < config_.threads_; ++i) {
       net::post(thread_pool_, [&]() { ioc_.run(); });
     }
@@ -165,7 +166,7 @@ public:
 
   void stop()
   {
-    log::info(name(), "stopping workers");
+    log::info("[{}] stopping workers", name());
     ioc_.stop();
   }
 
@@ -197,7 +198,7 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
-        log::debug(name(), "async_accept failed: {}", ec.message());
+        log::debug("[{}] async_accept failed: {}", name(), ec.message());
         continue;
       }
 
@@ -216,7 +217,7 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
-        log::debug(name(), "async_accept failed: {}", ec.message());
+        log::debug("[{}] async_accept failed: {}", name(), ec.message());
         continue;
       }
 
@@ -245,7 +246,7 @@ private:
 
     auto [ec] = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
-      log::debug(name(), "async_handshake failed: {}", ec.message());
+      log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       co_return;
     }
 
@@ -255,7 +256,7 @@ private:
 
     std::tie(ec) = co_await stream.async_shutdown();
     if (ec) {
-      log::debug(name(), "async_shutdown failed: {}", ec.message());
+      log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
     }
   }
 #endif
@@ -275,7 +276,7 @@ private:
           = co_await http::async_read(stream, buffer, req);
       if (ec) {
         if (ec != http::error::end_of_stream) {
-          log::debug(name(), "async_read failed: {}", ec.message());
+          log::debug("[{}] async_read failed: {}", name(), ec.message());
         }
         co_return ec;
       }
@@ -293,7 +294,7 @@ private:
       std::tie(ec, std::ignore) = co_await net::async_write(
           stream, http::message_generator(std::move(res)));
       if (ec) {
-        log::debug(name(), "async_write failed: {}", ec.message());
+        log::debug("[{}] async_write failed: {}", name(), ec.message());
         co_return ec;
       }
 
