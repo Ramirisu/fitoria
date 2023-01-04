@@ -11,64 +11,15 @@
 
 #include <fitoria/core/format.hpp>
 
+#include <fitoria/log/level.hpp>
+#include <fitoria/log/writer.hpp>
+
 #include <chrono>
-#include <iostream>
-#include <mutex>
 #include <source_location>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
-
-enum class level {
-  debug,
-  info,
-  warning,
-  error,
-  fatal,
-  off,
-};
-
-std::string_view to_string(level lv)
-{
-  switch (lv) {
-  case level::debug:
-    return "DEBUG";
-  case level::info:
-    return "INFO";
-  case level::warning:
-    return "WARNING";
-  case level::error:
-    return "ERROR";
-  case level::fatal:
-    return "FATAL";
-  default:
-    break;
-  }
-
-  return "UNKNOWN";
-}
-
-class writer {
-public:
-  virtual ~writer() = default;
-
-  virtual void write(std::string msg) = 0;
-};
-
-class stdout_writer : public writer {
-public:
-  ~stdout_writer() override = default;
-
-  void write(std::string msg) override
-  {
-    [[maybe_unused]] auto lock = std::scoped_lock(mutex_);
-    std::cout << msg;
-  }
-
-private:
-  std::mutex mutex_;
-};
 
 class logger {
 public:

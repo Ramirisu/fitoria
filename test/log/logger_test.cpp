@@ -7,7 +7,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/log/logger.hpp>
+#include <fitoria/log.hpp>
 
 using namespace fitoria::log;
 
