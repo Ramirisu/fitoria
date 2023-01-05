@@ -1,6 +1,7 @@
 # Fitoria
 
 [![build](https://github.com/Ramirisu/fitoria/actions/workflows/build_matrix.yml/badge.svg)](https://github.com/Ramirisu/fitoria/actions/workflows/build_matrix.yml)
+[![codecov](https://codecov.io/gh/Ramirisu/fitoria/branch/main/graph/badge.svg?token=YDZ6KGEV0A)](https://codecov.io/gh/Ramirisu/fitoria)
 ![std](https://img.shields.io/badge/std-20-blue.svg)
 ![license](https://img.shields.io/badge/license-BSL--1.0-blue)
 
