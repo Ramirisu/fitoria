@@ -26,6 +26,9 @@ public:
   logger(std::shared_ptr<writer> writer)
       : writer_(std::move(writer))
   {
+    if (auto lv_str = std::getenv("CPP_LOG"); lv_str != nullptr) {
+      lv_ = to_level(lv_str);
+    }
   }
 
   template <typename Format, typename... Args>

@@ -9,6 +9,10 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <algorithm>
+#include <cctype>
+#include <string_view>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
@@ -40,6 +44,30 @@ std::string_view to_string(level lv)
   }
 
   return "UNKNOWN";
+}
+
+level to_level(std::string_view sv)
+{
+  std::string lower(sv.size(), '\0');
+  std::transform(sv.begin(), sv.end(), lower.begin(),
+                 [](char c) { return static_cast<char>(std::tolower(c)); });
+  if (lower == "debug") {
+    return level::debug;
+  }
+  if (lower == "info") {
+    return level::info;
+  }
+  if (lower == "warning") {
+    return level::warning;
+  }
+  if (lower == "error") {
+    return level::error;
+  }
+  if (lower == "fatal") {
+    return level::fatal;
+  }
+
+  return level::off;
 }
 
 }

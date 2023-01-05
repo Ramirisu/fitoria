@@ -9,11 +9,25 @@
 
 #include <fitoria/log.hpp>
 
+#include <cstdlib> // _putenv, setenv
+
 using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("log.logger");
 
 namespace {
+
+void setenv(const char* name, const char* value)
+{
+#if defined(_WIN32)
+  std::string str = name;
+  str += "=";
+  str += value;
+  _putenv(str.c_str());
+#else
+  ::setenv(name, value, 1);
+#endif
+}
 
 class test_writer : public writer {
 public:
@@ -48,7 +62,7 @@ private:
 
 }
 
-TEST_CASE("log level test")
+TEST_CASE("default log level")
 {
   const char* msg = "hello world";
 
@@ -56,20 +70,59 @@ TEST_CASE("log level test")
   global_logger() = std::make_shared<logger>(writer);
   debug("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
   info("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
   warning("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
   error("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
   fatal("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
+}
 
+TEST_CASE("set_log_level")
+{
+  const char* msg = "hello world";
+
+  auto writer = std::make_shared<test_writer>();
+  global_logger() = std::make_shared<logger>(writer);
   global_logger()->set_log_level(level::warning);
   debug("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
   info("{}", msg);
   CHECK(!writer->is_called());
+  writer->reset();
+  warning("{}", msg);
+  CHECK(writer->contains(msg));
+  writer->reset();
+  error("{}", msg);
+  CHECK(writer->contains(msg));
+  writer->reset();
+  fatal("{}", msg);
+  CHECK(writer->contains(msg));
+  writer->reset();
+}
+
+TEST_CASE("log level from env")
+{
+  const char* msg = "hello world";
+
+  setenv("CPP_LOG", "info");
+
+  auto writer = std::make_shared<test_writer>();
+  global_logger() = std::make_shared<logger>(writer);
+  debug("{}", msg);
+  CHECK(!writer->is_called());
+  writer->reset();
+  info("{}", msg);
+  CHECK(writer->contains(msg));
+  writer->reset();
   warning("{}", msg);
   CHECK(writer->contains(msg));
   writer->reset();
