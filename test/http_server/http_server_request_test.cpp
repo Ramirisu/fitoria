@@ -45,6 +45,33 @@ void tag_invoke(const json::value_from_tag&,
 
 }
 
+TEST_CASE("request with invalid target")
+{
+  const auto port = generate_port();
+  auto server = http_server(http_server_config().route(router(
+      http::verb::get, "/api/v1/users/{user}",
+      []([[maybe_unused]] http_request& req) -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      })));
+  server.bind(server_ip, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  const auto test_cases = std::vector {
+    "/", "/a", "/api", "/api/", "/api/v1", "/api/v1/x", "/api/v1/users/x/y",
+  };
+
+  for (auto& test_case : test_cases) {
+    auto resp = simple_http_client(localhost, port)
+                    .with_target(test_case)
+                    .with(http::verb::get)
+                    .with_field(http::field::connection, "close")
+                    .send_request();
+    CHECK_EQ(resp.result(), http::status::not_found);
+    CHECK_EQ(resp.at(http::field::content_type), "text/plain");
+    CHECK_EQ(resp.body(), "request path is not found");
+  }
+}
+
 TEST_CASE("request with plain text")
 {
   const auto port = generate_port();

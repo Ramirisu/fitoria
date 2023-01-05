@@ -91,8 +91,6 @@ TEST_CASE("try_find")
   };
 
   router_tree_type rt;
-  rt.try_insert(r(http::verb::get, "/api/v1", 0));
-  rt.try_insert(r(http::verb::put, "/api/v1", 1));
   rt.try_insert(r(http::verb::get, "/api/v1/x", 10));
   rt.try_insert(r(http::verb::put, "/api/v1/x", 11));
   rt.try_insert(r(http::verb::get, "/api/v1/{x}", 12));
@@ -112,8 +110,10 @@ TEST_CASE("try_find")
            exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/api/"),
            exp_t(unexpect, error::route_not_exists));
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1")->handler()(), 0);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1")->handler()(), 1);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xxx/yyy/z"),
+           exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(), 10);
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(), 11);
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->handler()(), 12);

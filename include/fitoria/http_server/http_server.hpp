@@ -312,19 +312,21 @@ private:
   {
     auto req_url = urls::parse_origin_form(req.target());
     if (!req_url) {
-      co_return http_response(http::status::bad_request);
+      co_return http_response(http::status::bad_request)
+          .set_header(http::field::content_type, "text/plain")
+          .set_body("request target is invalid");
     }
 
     auto router
         = config_.router_tree_.try_find(req.method(), req_url.value().path());
     if (!router) {
-      co_return http_response(http::status::not_found);
+      co_return http_response(http::status::not_found)
+          .set_header(http::field::content_type, "text/plain")
+          .set_body("request path is not found");
     }
 
     auto route_params = route::parse_param_map(router->path(), req_url->path());
-    if (!route_params) {
-      co_return http_response(http::status::bad_request);
-    }
+    FITORIA_ASSERT(route_params);
 
     auto request = http_request(
         remote_endpoint, http_route(*route_params, std::string(router->path())),
