@@ -84,7 +84,7 @@ static std::shared_ptr<logger>& global_logger()
 }
 
 template <typename... Args>
-struct debug {
+struct [[maybe_unused]] debug {
   debug(Args&&... args,
         const std::source_location& loc = std::source_location::current())
   {
@@ -96,7 +96,7 @@ template <typename... Args>
 debug(Args&&...) -> debug<Args...>;
 
 template <typename... Args>
-struct info {
+struct [[maybe_unused]] info {
   info(Args&&... args,
        const std::source_location& loc = std::source_location::current())
   {
@@ -108,7 +108,7 @@ template <typename... Args>
 info(Args&&...) -> info<Args...>;
 
 template <typename... Args>
-struct warning {
+struct [[maybe_unused]] warning {
   warning(Args&&... args,
           const std::source_location& loc = std::source_location::current())
   {
@@ -120,7 +120,7 @@ template <typename... Args>
 warning(Args&&...) -> warning<Args...>;
 
 template <typename... Args>
-struct error {
+struct [[maybe_unused]] error {
   error(Args&&... args,
         const std::source_location& loc = std::source_location::current())
   {
@@ -132,7 +132,7 @@ template <typename... Args>
 error(Args&&...) -> error<Args...>;
 
 template <typename... Args>
-struct fatal {
+struct [[maybe_unused]] fatal {
   fatal(Args&&... args,
         const std::source_location& loc = std::source_location::current())
   {
