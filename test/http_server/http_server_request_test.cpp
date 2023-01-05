@@ -82,7 +82,7 @@ TEST_CASE("request with plain text")
         CHECK_EQ(req.remote_endpoint().address(),
                  net::ip::make_address(server_ip));
 
-        auto test_route = [](http_route& route) {
+        auto test_route = [](auto& route) {
           CHECK_EQ(route.path(),
                    "/api/v1/users/{user}/filmography/years/{year}");
 
@@ -90,6 +90,7 @@ TEST_CASE("request with plain text")
           CHECK_EQ(route.at("year"), "2022");
         };
         test_route(req.route());
+        test_route(static_cast<const http_request&>(req).route());
         test_route(route);
 
         CHECK_EQ(req.method(), http::verb::get);
@@ -98,16 +99,22 @@ TEST_CASE("request with plain text")
 
         CHECK_EQ(req.query_string(), "name=Rina Hidaka&birth=1994/06/15");
 
-        auto test_query = [](query_map& query) {
+        auto test_query = [](auto& query) {
           CHECK_EQ(query.size(), 2);
           CHECK_EQ(query.at("name"), "Rina Hidaka");
           CHECK_EQ(query.at("birth"), "1994/06/15");
         };
         test_query(req.query());
+        test_query(static_cast<const http_request&>(req).query());
         test_query(query);
 
         CHECK_EQ(req.headers().at(http::field::content_type), "text/plain");
+        CHECK_EQ(static_cast<const http_request&>(req).headers().at(
+                     http::field::content_type),
+                 "text/plain");
         CHECK_EQ(req.body(), "happy birthday");
+        CHECK_EQ(static_cast<const http_request&>(req).body(),
+                 "happy birthday");
 
         co_return http_response(http::status::ok);
       })));

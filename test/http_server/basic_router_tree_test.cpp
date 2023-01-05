@@ -102,6 +102,8 @@ TEST_CASE("try_find")
 
   CHECK_EQ(rt.try_find(http::verb::get, ""),
            exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "a"),
+           exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/"),
            exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/a"),
@@ -113,6 +115,8 @@ TEST_CASE("try_find")
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1"),
            exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xxx/yyy/z"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/x"),
            exp_t(unexpect, error::route_not_exists));
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(), 10);
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(), 11);
