@@ -82,6 +82,7 @@ TEST_CASE("try_insert")
 TEST_CASE("try_find")
 {
   using router_tree_type = basic_router_tree<test_handler_trait>;
+  using exp_t = expected<const router_tree_type::router_type&, error>;
 
   auto r = [=](http::verb method, std::string path, int exp) {
     return router_tree_type::router_type(
@@ -90,29 +91,39 @@ TEST_CASE("try_find")
   };
 
   router_tree_type rt;
-  rt.try_insert(r(http::verb::get, "/r", 0));
-  rt.try_insert(r(http::verb::put, "/r", 1));
-  rt.try_insert(r(http::verb::get, "/r/x", 10));
-  rt.try_insert(r(http::verb::put, "/r/x", 11));
-  rt.try_insert(r(http::verb::get, "/r/{x}", 12));
-  rt.try_insert(r(http::verb::put, "/r/{x}", 13));
-  rt.try_insert(r(http::verb::get, "/r/x/y", 20));
-  rt.try_insert(r(http::verb::put, "/r/x/y", 21));
-  rt.try_insert(r(http::verb::get, "/r/{x}/{y}", 22));
-  rt.try_insert(r(http::verb::put, "/r/{x}/{y}", 23));
+  rt.try_insert(r(http::verb::get, "/api/v1", 0));
+  rt.try_insert(r(http::verb::put, "/api/v1", 1));
+  rt.try_insert(r(http::verb::get, "/api/v1/x", 10));
+  rt.try_insert(r(http::verb::put, "/api/v1/x", 11));
+  rt.try_insert(r(http::verb::get, "/api/v1/{x}", 12));
+  rt.try_insert(r(http::verb::put, "/api/v1/{x}", 13));
+  rt.try_insert(r(http::verb::get, "/api/v1/x/y", 20));
+  rt.try_insert(r(http::verb::put, "/api/v1/x/y", 21));
+  rt.try_insert(r(http::verb::get, "/api/v1/{x}/{y}", 22));
+  rt.try_insert(r(http::verb::put, "/api/v1/{x}/{y}", 23));
 
-  CHECK_EQ(rt.try_find(http::verb::get, "/r")->handler()(), 0);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r")->handler()(), 1);
-  CHECK_EQ(rt.try_find(http::verb::get, "/r/x")->handler()(), 10);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r/x")->handler()(), 11);
-  CHECK_EQ(rt.try_find(http::verb::get, "/r/xx")->handler()(), 12);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r/xx")->handler()(), 13);
-  CHECK_EQ(rt.try_find(http::verb::get, "/r/x/y")->handler()(), 20);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r/x/y")->handler()(), 21);
-  CHECK_EQ(rt.try_find(http::verb::get, "/r/xx/y")->handler()(), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r/xx/y")->handler()(), 23);
-  CHECK_EQ(rt.try_find(http::verb::get, "/r/x/yy")->handler()(), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/r/x/yy")->handler()(), 23);
+  CHECK_EQ(rt.try_find(http::verb::get, ""),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/a"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/api"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/"),
+           exp_t(unexpect, error::route_not_exists));
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1")->handler()(), 0);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1")->handler()(), 1);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(), 10);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(), 11);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->handler()(), 12);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx")->handler()(), 13);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y")->handler()(), 20);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y")->handler()(), 21);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/y")->handler()(), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->handler()(), 23);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->handler()(), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->handler()(), 23);
 }
 
 TEST_SUITE_END();

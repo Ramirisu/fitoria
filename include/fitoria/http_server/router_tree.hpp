@@ -67,7 +67,8 @@ private:
         -> expected<const router_type&, error_code>
     {
       if (segment_index == segments.size()) {
-        return router_.value();
+        return optional<const router_type&>(router_).to_expected_or(
+            make_error_code(error::route_not_exists));
       }
 
       return try_find_path_trees(segments[segment_index].original)
@@ -120,11 +121,15 @@ public:
   auto try_find(http::verb method, std::string_view path) const
       -> expected<const router_type&, error_code>
   {
-    return node::try_parse_path(path).and_then([&](auto&& segments) {
-      return try_find(method)
-          .to_expected_or(make_error_code(error::route_not_exists))
-          .and_then([&](auto&& node) { return node.try_find(segments, 0); });
-    });
+    return node::try_parse_path(path)
+        .transform_error(
+            [](auto&&) { return make_error_code(error::route_not_exists); })
+        .and_then([&](auto&& segments) {
+          return try_find(method)
+              .to_expected_or(make_error_code(error::route_not_exists))
+              .and_then(
+                  [&](auto&& node) { return node.try_find(segments, 0); });
+        });
   }
 
 private:
