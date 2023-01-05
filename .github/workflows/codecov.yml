@@ -1,0 +1,56 @@
+name: codecov
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        cxx: [g++-12]
+        std: [20]
+        build_type: [Debug]
+        generator: [Ninja]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies on ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build cmake
+          ninja --version
+          cmake --version
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake \
+            -B build \
+            -G "${{ matrix.generator }}" \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
+            -DFITORIA_BUILD_TESTS=ON \
+            -DFITORIA_ENABLE_CODECOV=ON
+
+      - name: Build
+        shell: bash
+        run: cmake --build build
+
+      - name: Test
+        shell: bash
+        working-directory:  ${{ github.workspace }}/build
+        run: ctest --output-on-failure .
+
+      - name: Upload code coverage report
+        shell: bash
+        run: |
+          sudo apt install lcov
+          lcov --gcov-tool=gcov-12 --capture --directory $(pwd)'/build' --output-file coverage.info
+          lcov --gcov-tool=gcov-12 --extract coverage.info $(pwd)'/include/fitoria/*' --output-file coverage.info
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN}
