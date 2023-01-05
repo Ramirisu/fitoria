@@ -47,7 +47,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake
+          sudo apt-get install ninja-build cmake libssl-dev
           ${{ matrix.install }}
           ninja --version
           cmake --version
