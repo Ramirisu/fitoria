@@ -113,17 +113,15 @@ public:
     return *this;
   }
 
-  http_message& set_json(const json::value& jv)
-  {
-    header_.set(http::field::content_type, "application/json");
-    body_ = json::serialize(jv);
-    return *this;
-  }
-
-  template <typename T>
+  template <typename T = json::value>
   http_message& set_json(const T& obj)
   {
-    set_json(json::value_from(obj));
+    if constexpr (std::is_same_v<T, json::value>) {
+      header_.set(http::field::content_type, "application/json");
+      body_ = json::serialize(obj);
+    } else {
+      set_json(json::value_from(obj));
+    }
     return *this;
   }
 

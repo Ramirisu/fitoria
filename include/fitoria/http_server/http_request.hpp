@@ -128,13 +128,7 @@ public:
     return *this;
   }
 
-  http_request& set_json(const json::value& jv)
-  {
-    base().set_json(jv);
-    return *this;
-  }
-
-  template <typename T>
+  template <typename T = json::value>
   http_request& set_json(const T& obj)
   {
     base().set_json(obj);
