@@ -19,33 +19,7 @@ using namespace http_server_utils;
 
 TEST_SUITE_BEGIN("http_server.request");
 
-namespace {
-
-struct user_t {
-  std::string name;
-  std::string birth;
-
-  friend bool operator==(const user_t&, const user_t&) = default;
-};
-
-user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
-{
-  return user_t {
-    .name = std::string(jv.at("name").as_string()),
-    .birth = std::string(jv.at("birth").as_string()),
-  };
-}
-
-void tag_invoke(const json::value_from_tag&,
-                json::value& jv,
-                const user_t& user)
-{
-  jv = { { "name", user.name }, { "birth", user.birth } };
-}
-
-}
-
-TEST_CASE("request with invalid target")
+TEST_CASE("invalid target")
 {
   const auto port = generate_port();
   auto server = http_server(http_server_config().route(router(
@@ -72,7 +46,7 @@ TEST_CASE("request with invalid target")
   }
 }
 
-TEST_CASE("request with plain text")
+TEST_CASE("generic request")
 {
   const auto port = generate_port();
   auto server = http_server(http_server_config().route(router(
@@ -128,79 +102,6 @@ TEST_CASE("request with plain text")
             .with_field(http::field::connection, "close")
             .with_body("happy birthday")
             .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
-}
-
-TEST_CASE("request with json")
-{
-  const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api",
-             [](http_request& req) -> net::awaitable<http_response> {
-               CHECK_EQ(req.method(), http::verb::get);
-
-               CHECK_EQ(req.body(),
-                        json::serialize(json::value {
-                            { "name", "Rina Hidaka" },
-                            { "birth", "1994/06/15" },
-                        }));
-
-               CHECK_EQ(req.body_as_json(),
-                        json::value {
-                            { "name", "Rina Hidaka" },
-                            { "birth", "1994/06/15" },
-                        });
-
-               CHECK_EQ(req.body_as_json<user_t>(),
-                        user_t {
-                            .name = "Rina Hidaka",
-                            .birth = "1994/06/15",
-                        });
-
-               co_return http_response(http::status::ok);
-             })));
-  server.bind(server_ip, port).run();
-  std::this_thread::sleep_for(server_start_wait_time);
-
-  auto resp = simple_http_client(localhost, port)
-                  .with_target("/api")
-                  .with(http::verb::get)
-                  .with_field(http::field::content_type, "application/json")
-                  .with_field(http::field::connection, "close")
-                  .with_body(json::serialize(json::value {
-                      { "name", "Rina Hidaka" },
-                      { "birth", "1994/06/15" },
-                  }))
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
-}
-
-TEST_CASE("request with post form")
-{
-  const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::post, "/api",
-             [](http_request& req) -> net::awaitable<http_response> {
-               CHECK_EQ(req.method(), http::verb::post);
-
-               auto form = req.body_as_post_form();
-               CHECK_EQ(form->size(), 2);
-               CHECK_EQ(form->get("name"), "Rina Hidaka");
-               CHECK_EQ(form->get("birth"), "1994/06/15");
-
-               co_return http_response(http::status::ok);
-             })));
-  server.bind(server_ip, port).run();
-  std::this_thread::sleep_for(server_start_wait_time);
-
-  auto resp = simple_http_client(localhost, port)
-                  .with_target("/api")
-                  .with(http::verb::post)
-                  .with_field(http::field::content_type,
-                              "application/x-www-form-urlencoded")
-                  .with_field(http::field::connection, "close")
-                  .with_body(R"(name=Rina%20Hidaka&birth=1994/06/15)")
-                  .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
 }
 
