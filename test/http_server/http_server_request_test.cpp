@@ -97,8 +97,6 @@ TEST_CASE("request with plain text")
         CHECK_EQ(req.path(),
                  "/api/v1/users/Rina Hidaka/filmography/years/2022");
 
-        CHECK_EQ(req.query_string(), "name=Rina Hidaka&birth=1994/06/15");
-
         auto test_query = [](auto& query) {
           CHECK_EQ(query.size(), 2);
           CHECK_EQ(query.at("name"), "Rina Hidaka");

@@ -330,8 +330,8 @@ private:
 
     auto request = http_request(
         remote_endpoint, http_route(*route_params, std::string(router->path())),
-        req_url->path(), req.method(), req_url->query(),
-        to_query_map(req_url->params()), to_header(req), std::move(req.body()));
+        req_url->path(), req.method(), to_query_map(req_url->params()),
+        to_header(req), std::move(req.body()));
     auto context = http_context(handlers_invoker<handler_trait>(
                                     router->middlewares(), router->handler()),
                                 request);

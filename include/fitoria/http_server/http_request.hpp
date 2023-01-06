@@ -9,35 +9,38 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/expected.hpp>
-#include <fitoria/core/http.hpp>
-#include <fitoria/core/json.hpp>
-#include <fitoria/core/url.hpp>
-
-#include <fitoria/http_server/http_header.hpp>
+#include <fitoria/http_server/http_message.hpp>
 #include <fitoria/http_server/http_route.hpp>
-#include <fitoria/http_server/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_request {
+class http_request : public http_message {
+  using base_type = http_message;
+
+  base_type& base() noexcept
+  {
+    return static_cast<base_type&>(*this);
+  }
+
+  const base_type& base() const noexcept
+  {
+    return static_cast<const base_type&>(*this);
+  }
+
 public:
   explicit http_request(net::ip::tcp::endpoint remote_endpoint,
                         http_route route,
                         std::string path,
                         http::verb method,
-                        std::string query_string,
                         query_map query,
                         http_header header,
                         std::string body)
-      : remote_endpoint_(remote_endpoint)
+      : http_message(std::move(header), std::move(body))
+      , remote_endpoint_(remote_endpoint)
       , route_(std::move(route))
       , path_(std::move(path))
       , method_(method)
-      , query_string_(std::move(query_string))
       , query_(std::move(query))
-      , header_(std::move(header))
-      , body_(std::move(body))
   {
   }
 
@@ -81,14 +84,10 @@ public:
     return path_;
   }
 
-  std::string& query_string() noexcept
+  http_request& set_path(std::string path) noexcept
   {
-    return query_string_;
-  }
-
-  const std::string& query_string() const noexcept
-  {
-    return query_string_;
+    path_ = std::move(path);
+    return *this;
   }
 
   query_map& query() noexcept
@@ -111,69 +110,35 @@ public:
     return query_;
   }
 
-  http_header& headers() noexcept
+  http_request& set_header(std::string name, std::string value)
   {
-    return header_;
+    headers().set(std::move(name), std::move(value));
+    return *this;
   }
 
-  const http_header& headers() const noexcept
+  http_request& set_header(http::field name, std::string value)
   {
-    return header_;
+    headers().set(name, std::move(value));
+    return *this;
   }
 
-  std::string& body() noexcept
+  http_request& set_body(std::string body)
   {
-    return body_;
+    base().set_body(std::move(body));
+    return *this;
   }
 
-  const std::string& body() const noexcept
+  http_request& set_json(const json::value& jv)
   {
-    return body_;
+    base().set_json(jv);
+    return *this;
   }
 
-  template <typename T = json::value>
-  expected<T, error_code> body_as_json() const
+  template <typename T>
+  http_request& set_json(const T& obj)
   {
-    if (headers().get(http::field::content_type) != "application/json") {
-      return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    json::error_code ec;
-    auto jv = json::parse(body(), ec);
-    if (ec) {
-      return unexpected { make_error_code(error::invalid_json_format) };
-    }
-
-    if constexpr (std::is_same_v<T, json::value>) {
-      return jv;
-    } else {
-      return json::value_to<T>(jv);
-    }
-  }
-
-  expected<query_map, error_code> body_as_post_form() const
-  {
-    if (headers().get(http::field::content_type)
-        != "application/x-www-form-urlencoded") {
-      return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    auto res = urls::parse_query(body());
-    if (!res) {
-      return unexpected { make_error_code(error::invalid_form_format) };
-    }
-
-    auto params = static_cast<urls::params_view>(res.value());
-
-    query_map map;
-    for (auto it = params.begin(); it != params.end(); ++it) {
-      auto kv = *it;
-      if (kv.has_value) {
-        map.set(kv.key, kv.value);
-      }
-    }
-
-    return map;
+    base().set_json(obj);
+    return *this;
   }
 
 private:
@@ -181,10 +146,7 @@ private:
   http_route route_;
   std::string path_;
   http::verb method_;
-  std::string query_string_;
   query_map query_;
-  http_header header_;
-  std::string body_;
 };
 
 FITORIA_NAMESPACE_END
