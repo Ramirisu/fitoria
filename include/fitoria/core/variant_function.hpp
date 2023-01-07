@@ -35,10 +35,10 @@ template <typename R,
           typename T,
           std::size_t N,
           typename = std::make_index_sequence<N>>
-struct variant_function;
+struct variant_function_impl;
 
 template <typename R, typename T, std::size_t N, std::size_t... Ints>
-struct variant_function<R, T, N, std::index_sequence<Ints...>> {
+struct variant_function_impl<R, T, N, std::index_sequence<Ints...>> {
 private:
   template <std::size_t N2>
   using rebind = typename repeated_input_function<R, T, N2>::type;
@@ -48,6 +48,18 @@ public:
 };
 
 template <typename R, typename T, std::size_t N>
-using variant_function_t = typename variant_function<R, T, N>::type;
+using variant_function_impl_t = typename variant_function_impl<R, T, N>::type;
+
+template <typename R, typename T, std::size_t N>
+class variant_function : public variant_function_impl_t<R, T, N> {
+public:
+  using result_type = R;
+
+  using variant_function_impl_t<R, T, N>::variant_function_impl_t;
+};
 
 FITORIA_NAMESPACE_END
+
+template <typename R, typename T, std::size_t N>
+struct std::variant_size<FITORIA_NAMESPACE::variant_function<R, T, N>>
+    : std::integral_constant<std::size_t, N> { };

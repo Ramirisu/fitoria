@@ -9,29 +9,19 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <concepts>
-#include <utility>
+#include <fitoria/core/detail/coroutine_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename Awaitable>
-concept member_co_awaitable
-    = requires { std::declval<Awaitable>().operator co_await(); };
+template <typename T>
+concept awaitable = detail::member_co_awaitable<T>
+    || detail::free_co_awaitable<T> || detail::awaiter<T>;
 
-template <typename Awaitable>
-concept free_co_awaitable
-    = requires { operator co_await(std::declval<Awaitable>()); };
+template <typename T>
+using awaiter_type_t = decltype(detail::get_awaiter(std::declval<T>()));
 
-template <typename Awaiter>
-concept awaiter = requires(Awaiter awaiter) {
-                    // clang-format off
-                    { awaiter.await_ready() } -> std::same_as<bool>;
-                    awaiter.await_resume();
-                    // clang-format on
-                  };
-
-template <typename Awaitable>
-concept awaitable = member_co_awaitable<Awaitable>
-    || free_co_awaitable<Awaitable> || awaiter<Awaitable>;
+template <typename T>
+using await_result_t
+    = decltype(std::declval<awaiter_type_t<T>&>().await_resume());
 
 FITORIA_NAMESPACE_END

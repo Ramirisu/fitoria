@@ -21,7 +21,11 @@ template <typename HandlerTrait>
 using middleware_t = typename HandlerTrait::middleware_t;
 
 template <typename HandlerTrait>
-using middleware_result_t = typename HandlerTrait::middleware_result_t;
+inline constexpr bool middleware_result_awaitable
+    = awaitable<typename middleware_t<HandlerTrait>::result_type>;
+
+template <typename HandlerTrait>
+using middleware_result_t = typename middleware_t<HandlerTrait>::result_type;
 
 template <typename HandlerTrait>
 using middlewares_t = typename HandlerTrait::middlewares_t;
@@ -36,11 +40,11 @@ template <typename HandlerTrait>
 using handler_t = typename HandlerTrait::handler_t;
 
 template <typename HandlerTrait>
-using handler_result_t = typename HandlerTrait::handler_result_t;
+inline constexpr bool handler_result_awaitable
+    = awaitable<typename handler_t<HandlerTrait>::result_type>;
 
 template <typename HandlerTrait>
-inline constexpr bool handler_result_awaitable
-    = awaitable<handler_result_t<HandlerTrait>>;
+using handler_result_t = typename handler_t<HandlerTrait>::result_type;
 
 template <typename HandlerTrait>
 using handler_compare_t = typename HandlerTrait::handler_compare_t;

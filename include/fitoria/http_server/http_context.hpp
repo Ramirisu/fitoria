@@ -10,6 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/http_server/handlers_invoker.hpp>
+#include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN

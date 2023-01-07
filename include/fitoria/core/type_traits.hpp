@@ -9,8 +9,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/detail/type_traits.hpp>
+
 #include <tuple>
-#include <type_traits>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -23,6 +24,17 @@ struct is_specialization_of<U<Args...>, U> : std::true_type { };
 template <typename T, template <typename...> class U>
 inline constexpr bool is_specialization_of_v
     = is_specialization_of<T, U>::value;
+
+template <typename T, typename = void>
+struct is_variant : std::false_type { };
+
+template <typename T>
+struct is_variant<T,
+                  std::void_t<decltype(detail::as_variant(std::declval<T>()))>>
+    : std::true_type { };
+
+template <typename T>
+inline constexpr bool is_variant_v = is_variant<T>::value;
 
 template <typename F>
 struct function_traits_helper;

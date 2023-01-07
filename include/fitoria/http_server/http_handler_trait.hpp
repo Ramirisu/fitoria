@@ -27,14 +27,12 @@ public:
   using middleware_input_param_t = http_context&;
   using middleware_t
       = std::function<net::awaitable<result_t>(middleware_input_param_t)>;
-  using middleware_result_t = net::awaitable<result_t>;
 
   using middlewares_t = std::vector<middleware_t>;
 
   using handler_input_param_t = http_request&;
   using handler_t
-      = variant_function_t<net::awaitable<result_t>, handler_input_param_t, 5>;
-  using handler_result_t = net::awaitable<result_t>;
+      = variant_function<net::awaitable<result_t>, handler_input_param_t, 5>;
   struct handler_compare_t;
 };
 
