@@ -30,6 +30,16 @@ public:
   using iterator = typename map_type::iterator;
   using const_iterator = typename map_type::const_iterator;
 
+  query_map() = default;
+
+  query_map(const query_map&) = default;
+
+  query_map(query_map&&) = default;
+
+  query_map& operator=(const query_map&) = default;
+
+  query_map& operator=(query_map&&) = default;
+
   bool empty() const noexcept
   {
     return map_.empty();

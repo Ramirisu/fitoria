@@ -283,8 +283,9 @@ private:
 
       bool keep_alive = req.keep_alive();
 
-      auto res = co_await do_handler(
-          net::get_lowest_layer(stream).socket().remote_endpoint(), req);
+      auto res = static_cast<native_response_t>(co_await do_handler(
+          net::get_lowest_layer(stream).socket().remote_endpoint(),
+          req.method(), req.target(), to_header(req), std::move(req.body())));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
@@ -306,19 +307,21 @@ private:
     co_return ec;
   }
 
-  net::awaitable<native_response_t>
+  net::awaitable<http_response>
   do_handler(net::ip::tcp::endpoint remote_endpoint,
-             native_request_t& req) const
+             http::verb method,
+             std::string_view target,
+             query_map header,
+             std::string body) const
   {
-    auto req_url = urls::parse_origin_form(req.target());
+    auto req_url = urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
           .set_header(http::field::content_type, "text/plain")
           .set_body("request target is invalid");
     }
 
-    auto router
-        = config_.router_tree_.try_find(req.method(), req_url.value().path());
+    auto router = config_.router_tree_.try_find(method, req_url.value().path());
     if (!router) {
       co_return http_response(http::status::not_found)
           .set_header(http::field::content_type, "text/plain")
@@ -330,8 +333,8 @@ private:
 
     auto request = http_request(
         remote_endpoint, http_route(*route_params, std::string(router->path())),
-        req_url->path(), req.method(), to_query_map(req_url->params()),
-        to_header(req), std::move(req.body()));
+        req_url->path(), method, to_query_map(req_url->params()),
+        http_header(std::move(header)), std::move(body));
     auto context = http_context(handlers_invoker<handler_trait>(
                                     router->middlewares(), router->handler()),
                                 request);

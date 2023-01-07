@@ -23,6 +23,21 @@ public:
   using query_map::get;
   using query_map::set;
 
+  http_header() = default;
+
+  http_header(query_map query)
+      : query_map(std::move(query))
+  {
+  }
+
+  http_header(const http_header&) = default;
+
+  http_header(http_header&&) = default;
+
+  http_header& operator=(const http_header&) = default;
+
+  http_header& operator=(http_header&&) = default;
+
   void set(http::field name, std::string value)
   {
     set(std::string(to_string(name)), std::move(value));
