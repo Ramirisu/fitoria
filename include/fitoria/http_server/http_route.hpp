@@ -15,6 +15,8 @@ FITORIA_NAMESPACE_BEGIN
 
 class http_route : public query_map {
 public:
+  http_route() = default;
+
   http_route(query_map params, std::string path)
       : query_map(std::move(params))
       , path_(std::move(path))

@@ -21,12 +21,13 @@ int main()
 
                           co_return http_response(http::status::ok);
                         }))
-          .route(router(http::verb::post, "/api/v1/services/{service}",
-                        [](http_route& r) -> net::awaitable<http_response> {
-                          std::cout << r.path() << "\n";
+          .route(
+              router(http::verb::post, "/api/v1/services/{service}",
+                     [](const http_route& r) -> net::awaitable<http_response> {
+                       std::cout << r.path() << "\n";
 
-                          co_return http_response(http::status::ok);
-                        }))
+                       co_return http_response(http::status::ok);
+                     }))
           .route(router(http::verb::get, "/api/v1/games/{game}",
                         [](query_map& query) -> net::awaitable<http_response> {
                           std::cout << query.get("name").value() << "\n";
@@ -34,7 +35,7 @@ int main()
                           co_return http_response(http::status::ok);
                         }))
           .route(router(http::verb::patch, "/api/v1/languages/{language}",
-                        [](http_route& r,
+                        [](const http_route& r,
                            http_request& req) -> net::awaitable<http_response> {
                           std::cout << r.path() << "\n";
                           std::cout << req.route().path() << "\n";

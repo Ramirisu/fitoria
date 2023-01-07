@@ -159,6 +159,31 @@ public:
     return *this;
   }
 
+  http_response serve_http_request(http::verb method,
+                                   std::string_view target,
+                                   http_request request)
+  {
+    auto encode_target = [](std::string_view target) -> std::string {
+      urls::url url;
+      auto pos = target.find('?');
+      if (pos != std::string::npos) {
+        url.set_query(target.substr(pos + 1));
+      }
+      url.set_path(target.substr(0, pos));
+      return std::string(url.encoded_target());
+    };
+
+    execution_context ioc;
+    auto response = net::co_spawn(
+        ioc,
+        do_handler(
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
+            method, encode_target(target), request.headers(), request.body()),
+        net::use_future);
+    ioc.run();
+    return response.get();
+  }
+
   void wait()
   {
     ioc_.run();
@@ -310,7 +335,7 @@ private:
   net::awaitable<http_response>
   do_handler(net::ip::tcp::endpoint remote_endpoint,
              http::verb method,
-             std::string_view target,
+             std::string target,
              query_map header,
              std::string body) const
   {

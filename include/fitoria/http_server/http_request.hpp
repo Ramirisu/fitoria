@@ -28,13 +28,15 @@ class http_request : public http_message {
   }
 
 public:
-  explicit http_request(net::ip::tcp::endpoint remote_endpoint,
-                        http_route route,
-                        std::string path,
-                        http::verb method,
-                        query_map query,
-                        http_header header,
-                        std::string body)
+  http_request() = default;
+
+  http_request(net::ip::tcp::endpoint remote_endpoint,
+               http_route route,
+               std::string path,
+               http::verb method,
+               query_map query,
+               http_header header,
+               std::string body)
       : http_message(std::move(header), std::move(body))
       , remote_endpoint_(remote_endpoint)
       , route_(std::move(route))
@@ -49,17 +51,7 @@ public:
     return remote_endpoint_;
   }
 
-  http_route& route() noexcept
-  {
-    return route_;
-  }
-
   const http_route& route() const noexcept
-  {
-    return route_;
-  }
-
-  operator http_route&() noexcept
   {
     return route_;
   }
@@ -74,20 +66,9 @@ public:
     return method_;
   }
 
-  std::string& path() noexcept
-  {
-    return path_;
-  }
-
   const std::string& path() const noexcept
   {
     return path_;
-  }
-
-  http_request& set_path(std::string path) noexcept
-  {
-    path_ = std::move(path);
-    return *this;
   }
 
   query_map& query() noexcept

@@ -51,7 +51,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto server = http_server(http_server_config().route(router(
       http::verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-      [](http_request& req, http_route& route,
+      [](http_request& req, const http_route& route,
          query_map& query) -> net::awaitable<http_response> {
         CHECK_EQ(req.remote_endpoint().address(),
                  net::ip::make_address(server_ip));

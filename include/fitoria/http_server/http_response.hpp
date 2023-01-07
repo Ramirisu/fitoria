@@ -28,7 +28,9 @@ class http_response : public http_message {
   }
 
 public:
-  http_response(http::status status)
+  http_response() = default;
+
+  explicit http_response(http::status status)
       : status_(status)
   {
   }
@@ -62,13 +64,7 @@ public:
     return *this;
   }
 
-  http_response& set_json(const json::value& jv)
-  {
-    base().set_json(jv);
-    return *this;
-  }
-
-  template <typename T>
+  template <typename T = json::value>
   http_response& set_json(const T& obj)
   {
     base().set_json(obj);
