@@ -39,6 +39,18 @@ void tag_invoke(const json::value_from_tag&,
 
 }
 
+TEST_CASE("basic")
+{
+  http_message msg;
+  const auto& cmsg = msg;
+  msg.set_header(http::field::content_type, "text/plain");
+  CHECK_EQ(msg.headers().at(http::field::content_type), "text/plain");
+  CHECK_EQ(cmsg.headers().at(http::field::content_type), "text/plain");
+  msg.set_header("Connection", "Close");
+  CHECK_EQ(msg.headers().at(http::field::connection), "Close");
+  CHECK_EQ(cmsg.headers().at(http::field::connection), "Close");
+}
+
 TEST_CASE("body_as_json")
 {
   const json::value jv = {
@@ -47,27 +59,27 @@ TEST_CASE("body_as_json")
   };
   {
     http_message msg;
-    msg.headers().set(http::field::content_type, "text/plain");
+    msg.set_header(http::field::content_type, "text/plain");
     msg.set_body(json::serialize(jv));
     CHECK_EQ(msg.body_as_json().error(),
              make_error_code(error::unexpected_content_type));
   }
   {
     http_message msg;
-    msg.headers().set(http::field::content_type, "application/json");
+    msg.set_header(http::field::content_type, "application/json");
     msg.set_body("{");
     CHECK_EQ(msg.body_as_json().error(),
              make_error_code(error::invalid_json_format));
   }
   {
     http_message msg;
-    msg.headers().set(http::field::content_type, "application/json");
+    msg.set_header(http::field::content_type, "application/json");
     msg.set_body(json::serialize(jv));
     CHECK_EQ(msg.body_as_json(), jv);
   }
   {
     http_message msg;
-    msg.headers().set(http::field::content_type, "application/json");
+    msg.set_header(http::field::content_type, "application/json");
     msg.set_body(json::serialize(jv));
     CHECK_EQ(msg.body_as_json<user_t>(),
              user_t {
@@ -81,23 +93,23 @@ TEST_CASE("body_as_post_form")
 {
   {
     http_message msg;
-    msg.headers().set(http::field::content_type, "text/plain");
+    msg.set_header(http::field::content_type, "text/plain");
     msg.set_body(R"(name=Rina%20Hidaka&birth=1994%2F06%2F15)");
     CHECK_EQ(msg.body_as_post_form().error(),
              make_error_code(error::unexpected_content_type));
   }
   {
     http_message msg;
-    msg.headers().set(http::field::content_type,
-                      "application/x-www-form-urlencoded");
+    msg.set_header(http::field::content_type,
+                   "application/x-www-form-urlencoded");
     msg.set_body("%%");
     CHECK_EQ(msg.body_as_post_form().error(),
              make_error_code(error::invalid_form_format));
   }
   {
     http_message msg;
-    msg.headers().set(http::field::content_type,
-                      "application/x-www-form-urlencoded");
+    msg.set_header(http::field::content_type,
+                   "application/x-www-form-urlencoded");
     msg.set_body(R"(name=Rina%20Hidaka&birth=1994%2F06%2F15)");
     auto form = msg.body_as_post_form();
     CHECK_EQ(form->get("name"), "Rina Hidaka");

@@ -25,11 +25,6 @@ public:
 
   /// @brief get the route configured for the handler
   /// @return "/api/v1/users/{user}"
-  std::string& path() noexcept
-  {
-    return path_;
-  }
-
   const std::string& path() const noexcept
   {
     return path_;
