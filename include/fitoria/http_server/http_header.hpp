@@ -25,11 +25,6 @@ public:
 
   http_header() = default;
 
-  http_header(query_map query)
-      : query_map(std::move(query))
-  {
-  }
-
   http_header(const http_header&) = default;
 
   http_header(http_header&&) = default;

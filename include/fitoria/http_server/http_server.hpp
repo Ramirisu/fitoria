@@ -336,7 +336,7 @@ private:
   do_handler(net::ip::tcp::endpoint remote_endpoint,
              http::verb method,
              std::string target,
-             query_map header,
+             http_header header,
              std::string body) const
   {
     auto req_url = urls::parse_origin_form(target);
@@ -359,7 +359,7 @@ private:
     auto request = http_request(
         remote_endpoint, http_route(*route_params, std::string(router->path())),
         req_url->path(), method, to_query_map(req_url->params()),
-        http_header(std::move(header)), std::move(body));
+        std::move(header), std::move(body));
     auto context = http_context(handlers_invoker<handler_trait>(
                                     router->middlewares(), router->handler()),
                                 request);
