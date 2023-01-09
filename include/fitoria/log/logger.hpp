@@ -14,6 +14,7 @@
 #include <fitoria/log/level.hpp>
 #include <fitoria/log/writer.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <source_location>
 
@@ -35,7 +36,7 @@ public:
   void
   log(const std::source_location& loc, level lv, Format&& fmt, Args&&... args)
   {
-    if (lv < lv_) {
+    if (lv < log_level()) {
       return;
     }
 
@@ -54,12 +55,12 @@ public:
 
   level log_level() const noexcept
   {
-    return lv_;
+    return lv_.load(std::memory_order_relaxed); // don't care
   }
 
   void set_log_level(level lv) noexcept
   {
-    lv_ = lv;
+    lv_.store(lv, std::memory_order_relaxed); // don't care
   }
 
 private:
@@ -73,7 +74,7 @@ private:
     return file_path;
   }
 
-  level lv_ = level::off;
+  std::atomic<level> lv_ = level::off;
   std::shared_ptr<writer> writer_;
 };
 
