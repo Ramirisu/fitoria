@@ -15,6 +15,7 @@ using namespace fitoria;
 // $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria --verbose
 //
 // clang-format off
+// server output:
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
 // > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
 // clang-format on
@@ -23,6 +24,7 @@ using namespace fitoria;
 // --insecure
 //
 // clang-format off
+// server output:
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
 // > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
 // clang-format on
