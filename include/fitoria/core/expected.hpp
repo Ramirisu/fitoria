@@ -2557,15 +2557,15 @@ FITORIA_NAMESPACE_END
 template <typename T, typename E, typename CharT>
 struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::expected<T, E>,
                                          CharT>
-    : FITORIA_NAMESPACE::fmt::formatter<T, CharT> {
+    : FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>, CharT> {
   template <typename FormatContext>
-  auto format(FITORIA_NAMESPACE::expected<T, E> t, FormatContext& ctx) const
+  auto format(FITORIA_NAMESPACE::expected<T, E> exp, FormatContext& ctx) const
   {
-    if (t) {
-      return FITORIA_NAMESPACE::fmt::formatter<T, CharT>::format(t.value(),
-                                                                 ctx);
+    if (exp) {
+      return FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>,
+                                               CharT>::format(exp.value(), ctx);
     } else {
-      return format_to(ctx.out(), "{{unexpected}}");
+      return FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{{unexpected}}");
     }
   }
 };

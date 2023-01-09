@@ -16,6 +16,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace fmt {
 using std::format;
+using std::format_to;
 using std::formatter;
 using std::make_format_args;
 using std::vformat;

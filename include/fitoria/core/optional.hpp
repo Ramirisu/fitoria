@@ -1245,15 +1245,15 @@ FITORIA_NAMESPACE_END
 
 template <typename T, typename CharT>
 struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>
-    : FITORIA_NAMESPACE::fmt::formatter<T, CharT> {
+    : FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>, CharT> {
   template <typename FormatContext>
-  auto format(FITORIA_NAMESPACE::optional<T> t, FormatContext& ctx) const
+  auto format(FITORIA_NAMESPACE::optional<T> opt, FormatContext& ctx) const
   {
-    if (t) {
-      return FITORIA_NAMESPACE::fmt::formatter<T, CharT>::format(t.value(),
-                                                                 ctx);
+    if (opt) {
+      return FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>,
+                                               CharT>::format(opt.value(), ctx);
     } else {
-      return format_to(ctx.out(), "{{nullopt}}");
+      return FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{{nullopt}}");
     }
   }
 };

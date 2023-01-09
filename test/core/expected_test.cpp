@@ -2197,8 +2197,16 @@ TEST_CASE("compare")
 
 TEST_CASE("format")
 {
-  CHECK_EQ(fmt::format("{}", expected<int, int>()), "0");
-  CHECK_EQ(fmt::format("{}", expected<int, int>(unexpect)), "{unexpected}");
+  {
+    CHECK_EQ(fmt::format("{}", expected<int, int>()), "0");
+    CHECK_EQ(fmt::format("{}", expected<int, int>(unexpect)), "{unexpected}");
+  }
+  {
+    int val = 0;
+    CHECK_EQ(fmt::format("{}", expected<const int&, int>(val)), "0");
+    CHECK_EQ(fmt::format("{}", expected<const int&, int>(unexpect)),
+             "{unexpected}");
+  }
 }
 
 TEST_SUITE_END();

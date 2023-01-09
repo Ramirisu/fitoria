@@ -1586,8 +1586,15 @@ TEST_CASE("make_optional")
 
 TEST_CASE("format")
 {
-  CHECK_EQ(fmt::format("{}", optional<int>(1)), "1");
-  CHECK_EQ(fmt::format("{}", optional<int>()), "{nullopt}");
+  {
+    CHECK_EQ(fmt::format("{}", optional<int>(1)), "1");
+    CHECK_EQ(fmt::format("{}", optional<int>()), "{nullopt}");
+  }
+  {
+    int val = 1;
+    CHECK_EQ(fmt::format("{}", optional<const int&>(val)), "1");
+    CHECK_EQ(fmt::format("{}", optional<const int&>()), "{nullopt}");
+  }
 }
 
 TEST_SUITE_END();
