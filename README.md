@@ -5,7 +5,58 @@
 ![std](https://img.shields.io/badge/std-20-blue.svg)
 ![license](https://img.shields.io/badge/license-BSL--1.0-blue)
 
-`fitoria` is an HTTP web framework built on top of C++20 coroutines.
+**fitoria** is an HTTP web framework built on top of C++20 coroutine.
+
+## Quick Start
+
+[More example](https://github.com/Ramirisu/fitoria/tree/main/example)
+
+```cpp
+
+#include <fitoria/http_server.hpp>
+
+#include <fitoria_certificate.h>
+
+using namespace fitoria;
+
+int main()
+{
+  log::global_logger()->set_log_level(log::level::debug);
+
+  auto server = http_server(http_server_config().route(
+      router(http::verb::get, "/api/v1/{owner}/{repo}",
+             [](http_request& req) -> net::awaitable<http_response> {
+               log::debug("route: {}", req.route().path());
+               log::debug("owner: {}, repo: {}", req.route().get("owner"),
+                          req.route().get("repo"));
+
+               co_return http_response(http::status::ok)
+                   .set_header(http::field::content_type, "text/plain")
+                   .set_body("quick start");
+             })));
+  server
+      // Start to listen to port 8080
+      .bind("127.0.0.1", 8080)
+#if defined(FITORIA_HAS_OPENSSL)
+      // Start to listen to port 8443 with SSL enabled
+      .bind_ssl("127.0.0.1", 8443,
+                cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
+#endif
+      // Notify workers to start the IO loop
+      // Notice that `run()` will not block current thread
+      .run();
+
+  // Register signals to terminate the server
+  net::signal_set signal(server.get_execution_context(), SIGINT, SIGTERM);
+  signal.async_wait([&](auto, auto) { server.stop(); });
+
+  // Block current thread, current thread will process the IO loop
+  server.wait();
+
+  return 0;
+}
+
+```
 
 ## Building
 

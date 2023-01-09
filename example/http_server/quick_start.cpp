@@ -19,7 +19,8 @@ using namespace fitoria;
 // > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
 // clang-format on
 //
-// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria --verbose --insecure
+// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria --verbose
+// --insecure
 //
 // clang-format off
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
@@ -37,7 +38,9 @@ int main()
                log::debug("owner: {}, repo: {}", req.route().get("owner"),
                           req.route().get("repo"));
 
-               co_return http_response(http::status::ok);
+               co_return http_response(http::status::ok)
+                   .set_header(http::field::content_type, "text/plain")
+                   .set_body("quick start");
              })));
   server
       // Start to listen to port 8080
