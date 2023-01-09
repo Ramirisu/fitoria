@@ -5,7 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria/http_server.hpp>
+#include <fitoria/fitoria.hpp>
 
 using namespace fitoria;
 
@@ -98,6 +98,7 @@ void configure_application(http_server_config& config)
 
 int main()
 {
+  log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
   auto server = http_server(

@@ -9,7 +9,5 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log/level.hpp>
-#include <fitoria/log/logger.hpp>
-#include <fitoria/log/stdout_writer.hpp>
-#include <fitoria/log/writer.hpp>
+#include <fitoria/http_server.hpp>
+#include <fitoria/log.hpp>

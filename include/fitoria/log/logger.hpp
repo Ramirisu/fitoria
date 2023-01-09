@@ -12,7 +12,6 @@
 #include <fitoria/core/format.hpp>
 
 #include <fitoria/log/level.hpp>
-#include <fitoria/log/stdout_writer.hpp>
 #include <fitoria/log/writer.hpp>
 
 #include <atomic>
@@ -37,7 +36,7 @@ public:
   void
   log(const std::source_location& loc, level lv, Format&& fmt, Args&&... args)
   {
-    if (lv < log_level()) {
+    if (!writer_ || lv < log_level()) {
       return;
     }
 
@@ -50,7 +49,6 @@ public:
     msg += fmt::format(" [{}:{}:{}]\n", get_file_name(loc.file_name()),
                        loc.line(), loc.column());
 
-    FITORIA_ASSERT(writer_);
     writer_->write(std::move(msg));
   }
 
@@ -81,8 +79,7 @@ private:
 
 static std::shared_ptr<logger>& global_logger()
 {
-  static auto instance
-      = std::make_shared<logger>(std::make_shared<stdout_writer>());
+  static auto instance = std::make_shared<logger>(std::shared_ptr<writer>());
   return instance;
 }
 

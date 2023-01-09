@@ -9,6 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/log/logger.hpp>
 #include <fitoria/log/writer.hpp>
 
 #include <iostream>
@@ -31,6 +32,11 @@ public:
 private:
   std::mutex mutex_;
 };
+
+std::shared_ptr<logger> stdout_logger()
+{
+  return std::make_shared<logger>(std::make_shared<stdout_writer>());
+}
 
 }
 
