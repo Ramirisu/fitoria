@@ -89,13 +89,13 @@ TEST_CASE("body_as_json")
   }
 }
 
-TEST_CASE("body_as_post_form")
+TEST_CASE("body_as_form")
 {
   {
     http_message msg;
     msg.set_header(http::field::content_type, "text/plain");
     msg.set_body(R"(name=Rina%20Hidaka&birth=1994%2F06%2F15)");
-    CHECK_EQ(msg.body_as_post_form().error(),
+    CHECK_EQ(msg.body_as_form().error(),
              make_error_code(error::unexpected_content_type));
   }
   {
@@ -103,7 +103,7 @@ TEST_CASE("body_as_post_form")
     msg.set_header(http::field::content_type,
                    "application/x-www-form-urlencoded");
     msg.set_body("%%");
-    CHECK_EQ(msg.body_as_post_form().error(),
+    CHECK_EQ(msg.body_as_form().error(),
              make_error_code(error::invalid_form_format));
   }
   {
@@ -111,7 +111,7 @@ TEST_CASE("body_as_post_form")
     msg.set_header(http::field::content_type,
                    "application/x-www-form-urlencoded");
     msg.set_body(R"(name=Rina%20Hidaka&birth=1994%2F06%2F15)");
-    auto form = msg.body_as_post_form();
+    auto form = msg.body_as_form();
     CHECK_EQ(form->get("name"), "Rina Hidaka");
     CHECK_EQ(form->get("birth"), "1994/06/15");
   }

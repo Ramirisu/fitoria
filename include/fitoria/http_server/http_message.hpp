@@ -82,7 +82,7 @@ public:
     }
   }
 
-  expected<query_map, error_code> body_as_post_form() const
+  expected<query_map, error_code> body_as_form() const
   {
     if (headers().get(http::field::content_type)
         != "application/x-www-form-urlencoded") {
