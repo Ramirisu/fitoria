@@ -28,11 +28,13 @@ public:
 
     auto res = co_await c.next();
 
-    log::info("[{}] {} {} {} {} {}", name(),
-              req.remote_endpoint().address().to_string(),
-              std::string_view(to_string(req.method())), req.path(),
-              to_underlying(res.status()),
-              req.headers().get(http::field::user_agent).value_or(""));
+    log::info(
+        "[{}] {} {} {} {} {} {:%T}", name(),
+        req.remote_endpoint().address().to_string(),
+        std::string_view(to_string(req.method())), req.path(),
+        to_underlying(res.status()),
+        req.headers().get(http::field::user_agent).value_or(""),
+        std::chrono::floor<std::chrono::microseconds>(req.time_since_start()));
 
     co_return res;
   }

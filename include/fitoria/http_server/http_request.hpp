@@ -12,10 +12,14 @@
 #include <fitoria/http_server/http_message.hpp>
 #include <fitoria/http_server/http_route.hpp>
 
+#include <chrono>
+
 FITORIA_NAMESPACE_BEGIN
 
 class http_request : public http_message {
   using base_type = http_message;
+
+  using clock_t = std::chrono::system_clock;
 
   base_type& base() noexcept
   {
@@ -116,12 +120,23 @@ public:
     return *this;
   }
 
+  clock_t::time_point start_time() const noexcept
+  {
+    return start_time_;
+  }
+
+  clock_t::duration time_since_start() const noexcept
+  {
+    return clock_t::now() - start_time();
+  }
+
 private:
   net::ip::tcp::endpoint remote_endpoint_;
   http_route route_;
   std::string path_;
   http::verb method_;
   query_map query_;
+  clock_t::time_point start_time_ = clock_t::now();
 };
 
 FITORIA_NAMESPACE_END
