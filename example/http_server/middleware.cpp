@@ -12,15 +12,18 @@
 
 using namespace fitoria;
 
+// clang-format off
+// 
 // $ ./middleware
 // $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
 //
-// clang-format off
 // server output:
 // > 2023-01-01T00:00:00Z DEBUG before handler [middleware.cpp:36:23]
 // > 2023-01-01T00:00:00Z DEBUG user: ramirisu [middleware.cpp:47:37]
 // > 2023-01-01T00:00:00Z DEBUG after handler [middleware.cpp:38:23]
 // > 2023-01-01T00:00:00Z INFO [fitoria.middleware.logger] 127.0.0.1 GET /api/v1/users/ramirisu 200 curl/7.83.1 [logger.hpp:31:14]
+//
+//
 // clang-format on
 
 int main()
