@@ -65,7 +65,8 @@ public:
 private:
   static std::string_view get_file_name(std::string_view file_path) noexcept
   {
-    if (auto pos = file_path.rfind('/'); pos != std::string_view::npos) {
+    if (auto pos = file_path.find_last_of("\\/");
+        pos != std::string_view::npos) {
       return file_path.substr(pos + 1);
     }
 
