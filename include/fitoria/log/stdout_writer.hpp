@@ -9,17 +9,27 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <string>
+#include <fitoria/log/writer.hpp>
+
+#include <iostream>
+#include <mutex>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
-class writer {
+class stdout_writer : public writer {
 public:
-  virtual ~writer() = default;
+  ~stdout_writer() override = default;
 
-  virtual void write(std::string msg) = 0;
+  void write(std::string msg) override
+  {
+    [[maybe_unused]] auto lock = std::scoped_lock(mutex_);
+    std::cout << msg;
+  }
+
+private:
+  std::mutex mutex_;
 };
 
 }

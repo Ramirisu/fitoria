@@ -12,6 +12,7 @@
 #include <fitoria/core/format.hpp>
 
 #include <fitoria/log/level.hpp>
+#include <fitoria/log/stdout_writer.hpp>
 #include <fitoria/log/writer.hpp>
 
 #include <atomic>
