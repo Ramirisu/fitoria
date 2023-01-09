@@ -7,52 +7,56 @@
 
 #include <fitoria/http_server.hpp>
 
-#include <iostream>
+#include <fitoria_certificate.h>
 
 using namespace fitoria;
 
+// $ ./quick_start
+// $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria
+//
+// clang-format off
+// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
+// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
+// clang-format on
+//
+// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria
+//
+// clang-format off
+// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
+// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
+// clang-format on
+
 int main()
 {
+  log::global_logger()->set_log_level(log::level::debug);
+
   auto server = http_server(http_server_config().route(
       router(http::verb::get, "/api/v1/{owner}/{repo}",
-             [](http_request& req)
-                 -> net::awaitable<http_response> {
-               FITORIA_ASSERT(req.route().path() == "/api/v1/{owner}/{repo}");
-               FITORIA_ASSERT(req.method() == http::verb::get);
-
-               std::cout << req.route().at("owner") << "\n";
-               std::cout << req.route().at("repo") << "\n";
+             [](http_request& req) -> net::awaitable<http_response> {
+               log::debug("route: {}", req.route().path());
+               log::debug("owner: {}, repo: {}", req.route().get("owner"),
+                          req.route().get("repo"));
 
                co_return http_response(http::status::ok);
              })));
   server
-      // start to listen to port 8080
+      // Start to listen to port 8080
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
-      // start to listen to port 8443 with SSL enabled
+      // Start to listen to port 8443 with SSL enabled
       .bind_ssl("127.0.0.1", 8443,
-                []() {
-                  using net::ssl::context;
-                  auto ctx = context(context::tls_server);
-                  ctx.set_options(context::default_workarounds
-                                  | context::no_sslv2 | context::no_sslv3);
-                  // setup the private key and certificate here for your server
-                  return ctx;
-                }())
+                cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
 #endif
-      // notify workers to start the IO loop
-      // notice that `run()` will not block current thread
+      // Notify workers to start the IO loop
+      // Notice that `run()` will not block current thread
       .run();
 
-  // register signals to terminate the server
+  // Register signals to terminate the server
   net::signal_set signal(server.get_execution_context(), SIGINT, SIGTERM);
   signal.async_wait([&](auto, auto) { server.stop(); });
 
-  // block current thread, current thread will process the IO loop
+  // Block current thread, current thread will process the IO loop
   server.wait();
 
-  // $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria
-  //
-  // ramirisu
-  // fitoria
+  return 0;
 }

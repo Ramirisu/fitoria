@@ -12,30 +12,39 @@
 
 using namespace fitoria;
 
+// $ ./middleware
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu
+//
+// clang-format off
+// > 2023-01-09T06:45:17Z DEBUG before handler [middleware.cpp:36:23]
+// > 2023-01-09T06:45:17Z DEBUG user: ramirisu [middleware.cpp:47:37]
+// > 2023-01-09T06:45:17Z DEBUG after handler [middleware.cpp:38:23]
+// > 2023-01-09T06:45:17Z INFO [fitoria.middleware.logger] 127.0.0.1 GET /api/v1/users/ramirisu 200 curl/7.83.1 [logger.hpp:31:14]
+// clang-format on
+
 int main()
 {
+  log::global_logger()->set_log_level(log::level::debug);
+
   auto server = http_server(http_server_config().route(
-      // add a router group
+      // Add a router group
       router_group("/api/v1")
-          // register built-in logger middleware fot this group
+          // Register built-in logger middleware fot this group
           .use(middleware::logger())
-          // register a custom middleware for this group
+          // Register a custom middleware for this group
           .use([](http_context& c) -> net::awaitable<http_response> {
-            std::cout << "before handler\n";
-
+            log::debug("before handler");
             auto res = co_await c.next();
-
-            std::cout << "after handler\n";
-
+            log::debug("after handler");
             co_return res;
           })
-          // register a route for this group
-          // the route is associated with the middleware defined above
+          // Register a route for this group
+          // The route is associated with the middleware defined above
           .route(router(http::verb::get, "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           FITORIA_ASSERT(req.method() == http::verb::get);
 
-                          std::cout << req.route().at("user") << "\n";
+                          log::debug("user: {}", req.route().get("user"));
 
                           co_return http_response(http::status::ok);
                         }))));
@@ -44,13 +53,4 @@ int main()
       .run();
 
   server.wait();
-
-  // $ export CPP_LOG=debug && ./middleware_example
-  // $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu
-  //
-  // before handler
-  // ramirisu
-  // after handler
-  // 2023-01-01T00:00:00Z INFO [fitoria.middleware.logger] 127.0.0.1 GET
-  // /api/v1/users/ramirisu 200 curl/7.81.0 [logger.hpp:35:70]
 }
