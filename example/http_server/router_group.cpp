@@ -76,7 +76,7 @@ void configure_application(http_server_config& config)
 }
 
 // $ ./router_group
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
 //
 // clang-format off
 // > 2023-01-01T00:00:00Z DEBUG log middleware (in) [router_group.cpp:16:13]
@@ -86,7 +86,7 @@ void configure_application(http_server_config& config)
 // > 2023-01-01T00:00:00Z DEBUG log middleware (out) [router_group.cpp:18:13]
 // clang-format on
 //
-// $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu
+// $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu --verbose
 //
 // clang-format off
 // > 2023-01-01T00:00:00Z DEBUG log middleware (in) [router_group.cpp:16:13]

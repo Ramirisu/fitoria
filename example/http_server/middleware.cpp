@@ -13,7 +13,7 @@
 using namespace fitoria;
 
 // $ ./middleware
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
 //
 // clang-format off
 // > 2023-01-09T06:45:17Z DEBUG before handler [middleware.cpp:36:23]
