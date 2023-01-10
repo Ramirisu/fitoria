@@ -96,7 +96,7 @@ public:
   }
 
 private:
-  http::status status_;
+  http::status status_ = http::status::ok;
 };
 
 FITORIA_NAMESPACE_END
