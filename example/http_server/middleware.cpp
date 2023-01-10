@@ -33,7 +33,7 @@ int main()
   auto server = http_server(http_server_config().route(
       // Add a router group
       router_group("/api/v1")
-          // Register built-in logger middleware fot this group
+          // Register built-in logger middleware for this group
           .use(middleware::logger())
           // Register a custom middleware for this group
           .use([](http_context& c) -> net::awaitable<http_response> {

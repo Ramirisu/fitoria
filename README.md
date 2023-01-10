@@ -21,7 +21,7 @@ using namespace fitoria;
 
 int main()
 {
-  log::global_logger() = stdout_logger();
+  log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
   auto server = http_server(http_server_config().route(
