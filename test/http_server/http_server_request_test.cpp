@@ -22,11 +22,13 @@ TEST_SUITE_BEGIN("http_server.request");
 TEST_CASE("invalid target")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      http::verb::get, "/api/v1/users/{user}",
-      []([[maybe_unused]] http_request& req) -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      })));
+  auto server = http_server::builder()
+                    .route(router(http::verb::get, "/api/v1/users/{user}",
+                                  []([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    co_return http_response(http::status::ok);
+                                  }))
+                    .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -49,47 +51,52 @@ TEST_CASE("invalid target")
 TEST_CASE("generic request")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(router(
-      http::verb::get, "/api/v1/users/{user}/filmography/years/{year}",
-      [](http_request& req, const http_route& route,
-         query_map& query) -> net::awaitable<http_response> {
-        CHECK_EQ(req.remote_endpoint().address(),
-                 net::ip::make_address(server_ip));
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::get,
+                "/api/v1/users/{user}/filmography/years/{year}",
+                [](http_request& req, const http_route& route,
+                   query_map& query) -> net::awaitable<http_response> {
+                  CHECK_EQ(req.remote_endpoint().address(),
+                           net::ip::make_address(server_ip));
 
-        auto test_route = [](auto& route) {
-          CHECK_EQ(route.path(),
-                   "/api/v1/users/{user}/filmography/years/{year}");
+                  auto test_route = [](auto& route) {
+                    CHECK_EQ(route.path(),
+                             "/api/v1/users/{user}/filmography/years/{year}");
 
-          CHECK_EQ(route.at("user"), "Rina Hidaka");
-          CHECK_EQ(route.at("year"), "2022");
-        };
-        test_route(req.route());
-        test_route(static_cast<const http_request&>(req).route());
-        test_route(route);
+                    CHECK_EQ(route.at("user"), "Rina Hidaka");
+                    CHECK_EQ(route.at("year"), "2022");
+                  };
+                  test_route(req.route());
+                  test_route(static_cast<const http_request&>(req).route());
+                  test_route(route);
 
-        CHECK_EQ(req.method(), http::verb::get);
-        CHECK_EQ(req.path(),
-                 "/api/v1/users/Rina Hidaka/filmography/years/2022");
+                  CHECK_EQ(req.method(), http::verb::get);
+                  CHECK_EQ(req.path(),
+                           "/api/v1/users/Rina Hidaka/filmography/years/2022");
 
-        auto test_query = [](auto& query) {
-          CHECK_EQ(query.size(), 2);
-          CHECK_EQ(query.at("name"), "Rina Hidaka");
-          CHECK_EQ(query.at("birth"), "1994/06/15");
-        };
-        test_query(req.query());
-        test_query(static_cast<const http_request&>(req).query());
-        test_query(query);
+                  auto test_query = [](auto& query) {
+                    CHECK_EQ(query.size(), 2);
+                    CHECK_EQ(query.at("name"), "Rina Hidaka");
+                    CHECK_EQ(query.at("birth"), "1994/06/15");
+                  };
+                  test_query(req.query());
+                  test_query(static_cast<const http_request&>(req).query());
+                  test_query(query);
 
-        CHECK_EQ(req.headers().at(http::field::content_type), "text/plain");
-        CHECK_EQ(static_cast<const http_request&>(req).headers().at(
-                     http::field::content_type),
-                 "text/plain");
-        CHECK_EQ(req.body(), "happy birthday");
-        CHECK_EQ(static_cast<const http_request&>(req).body(),
-                 "happy birthday");
+                  CHECK_EQ(req.headers().at(http::field::content_type),
+                           "text/plain");
+                  CHECK_EQ(static_cast<const http_request&>(req).headers().at(
+                               http::field::content_type),
+                           "text/plain");
+                  CHECK_EQ(req.body(), "happy birthday");
+                  CHECK_EQ(static_cast<const http_request&>(req).body(),
+                           "happy birthday");
 
-        co_return http_response(http::status::ok);
-      })));
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

@@ -51,21 +51,25 @@ void tag_invoke(const json::value_from_tag&,
 
 int main()
 {
-  auto server = http_server(http_server_config().route(router(
-      http::verb::post, "/api/v1/login",
-      [](const http_request& req) -> net::awaitable<http_response> {
-        auto user = req.body_as_json<user_t>();
-        if (!user) {
-          co_return http_response(http::status::bad_request)
-              .set_json({ { "msg", user.error().message() } });
-        }
-        if (user->name != "ramirisu" || user->password != "123456") {
-          co_return http_response(http::status::unauthorized)
-              .set_json({ { "msg", "user name or password is incorrect" } });
-        }
-        co_return http_response(http::status::ok)
-            .set_json({ { "msg", "login succeeded" } });
-      })));
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::post, "/api/v1/login",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.body_as_json<user_t>();
+                  if (!user) {
+                    co_return http_response(http::status::bad_request)
+                        .set_json({ { "msg", user.error().message() } });
+                  }
+                  if (user->name != "ramirisu" || user->password != "123456") {
+                    co_return http_response(http::status::unauthorized)
+                        .set_json({ { "msg",
+                                      "user name or password is incorrect" } });
+                  }
+                  co_return http_response(http::status::ok)
+                      .set_json({ { "msg", "login succeeded" } });
+                }))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();

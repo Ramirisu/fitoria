@@ -21,18 +21,21 @@ using namespace fitoria;
 
 int main()
 {
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api/v1/users",
-             [](const http_request& req) -> net::awaitable<http_response> {
-               auto user = req.query().get("user");
-               if (!user) {
-                 co_return http_response(http::status::bad_request);
-               }
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::get, "/api/v1/users",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.query().get("user");
+                  if (!user) {
+                    co_return http_response(http::status::bad_request);
+                  }
 
-               co_return http_response(http::status::ok)
-                   .set_header(http::field::content_type, "text/plain")
-                   .set_body(fmt::format("user: {}", user.value()));
-             })));
+                  co_return http_response(http::status::ok)
+                      .set_header(http::field::content_type, "text/plain")
+                      .set_body(fmt::format("user: {}", user.value()));
+                }))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();

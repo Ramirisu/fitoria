@@ -30,28 +30,32 @@ int main()
   log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
-  auto server = http_server(http_server_config().route(
-      // Add a router group
-      router_group("/api/v1")
-          // Register built-in logger middleware for this group
-          .use(middleware::logger())
-          // Register a custom middleware for this group
-          .use([](http_context& c) -> net::awaitable<http_response> {
-            log::debug("before handler");
-            auto res = co_await c.next();
-            log::debug("after handler");
-            co_return res;
-          })
-          // Register a route for this group
-          // The route is associated with the middleware defined above
-          .route(router(http::verb::get, "/users/{user}",
+  auto server
+      = http_server::builder()
+            .route(
+                // Add a router group
+                router_group("/api/v1")
+                    // Register built-in logger middleware for this group
+                    .use(middleware::logger())
+                    // Register a custom middleware for this group
+                    .use([](http_context& c) -> net::awaitable<http_response> {
+                      log::debug("before handler");
+                      auto res = co_await c.next();
+                      log::debug("after handler");
+                      co_return res;
+                    })
+                    // Register a route for this group
+                    // The route is associated with the middleware defined above
+                    .route(router(
+                        http::verb::get, "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           FITORIA_ASSERT(req.method() == http::verb::get);
 
                           log::debug("user: {}", req.route().get("user"));
 
                           co_return http_response(http::status::ok);
-                        }))));
+                        })))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();

@@ -48,12 +48,14 @@ void tag_invoke(const json::value_from_tag&,
 TEST_CASE("response status only")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api",
-             []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<http_response> {
-               co_return http_response(http::status::accepted);
-             })));
+  auto server
+      = http_server::builder()
+            .route(router(http::verb::get, "/api",
+                          []([[maybe_unused]] http_request& req)
+                              -> net::awaitable<http_response> {
+                            co_return http_response(http::status::accepted);
+                          }))
+            .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -71,14 +73,16 @@ TEST_CASE("response status only")
 TEST_CASE("response with plain text")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api",
-             []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<http_response> {
-               co_return http_response(http::status::ok)
-                   .set_header(http::field::content_type, "text/plain")
-                   .set_body("plain text");
-             })));
+  auto server = http_server::builder()
+                    .route(router(http::verb::get, "/api",
+                                  []([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    co_return http_response(http::status::ok)
+                                        .set_header(http::field::content_type,
+                                                    "text/plain")
+                                        .set_body("plain text");
+                                  }))
+                    .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -95,19 +99,23 @@ TEST_CASE("response with plain text")
 TEST_CASE("response with json")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api",
-             []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<http_response> {
-               co_return http_response(http::status::ok)
-                   .set_header(http::field::content_type, "application/json")
-                   .set_json({
-                       { "obj_boolean", true },
-                       { "obj_number", 1234567 },
-                       { "obj_string", "str" },
-                       { "obj_array", json::array { false, 7654321, "rts" } },
-                   });
-             })));
+  auto server
+      = http_server::builder()
+            .route(router(http::verb::get, "/api",
+                          []([[maybe_unused]] http_request& req)
+                              -> net::awaitable<http_response> {
+                            co_return http_response(http::status::ok)
+                                .set_header(http::field::content_type,
+                                            "application/json")
+                                .set_json({
+                                    { "obj_boolean", true },
+                                    { "obj_number", 1234567 },
+                                    { "obj_string", "str" },
+                                    { "obj_array",
+                                      json::array { false, 7654321, "rts" } },
+                                });
+                          }))
+            .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 
@@ -130,17 +138,19 @@ TEST_CASE("response with json")
 TEST_CASE("response with struct to json")
 {
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router(http::verb::get, "/api",
-             []([[maybe_unused]] http_request& req)
-                 -> net::awaitable<http_response> {
-               co_return http_response(http::status::ok)
-                   .set_header(http::field::content_type, "application/json")
-                   .set_json(user_t {
-                       .name = "Rina Hidaka",
-                       .birth = "1994/06/15",
-                   });
-             })));
+  auto server = http_server::builder()
+                    .route(router(http::verb::get, "/api",
+                                  []([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    co_return http_response(http::status::ok)
+                                        .set_header(http::field::content_type,
+                                                    "application/json")
+                                        .set_json(user_t {
+                                            .name = "Rina Hidaka",
+                                            .birth = "1994/06/15",
+                                        });
+                                  }))
+                    .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

@@ -22,25 +22,25 @@ TEST_SUITE_BEGIN("http_server");
 TEST_CASE("http_server_config")
 {
   const auto port = generate_port();
-  auto server = http_server(
-      http_server_config()
-          .set_threads(1)
-          .set_max_listen_connections(2048)
-          .set_client_request_timeout(std::chrono::seconds(1))
-          .set_exception_handler([](std::exception_ptr ptr) {
-            if (!ptr) {
-              return;
-            }
-            try {
-              std::rethrow_exception(ptr);
-            } catch (...) {
-            }
-          })
-          .route(router(http::verb::get, "/api",
-                        [&]([[maybe_unused]] http_request& req)
-                            -> net::awaitable<http_response> {
-                          co_return http_response(http::status::ok);
-                        })));
+  auto server = http_server::builder()
+                    .set_threads(1)
+                    .set_max_listen_connections(2048)
+                    .set_client_request_timeout(std::chrono::seconds(1))
+                    .set_exception_handler([](std::exception_ptr ptr) {
+                      if (!ptr) {
+                        return;
+                      }
+                      try {
+                        std::rethrow_exception(ptr);
+                      } catch (...) {
+                      }
+                    })
+                    .route(router(http::verb::get, "/api",
+                                  [&]([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    co_return http_response(http::status::ok);
+                                  }))
+                    .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

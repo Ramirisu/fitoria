@@ -50,53 +50,57 @@ void tag_invoke(const json::value_from_tag&,
 
 TEST_CASE("unittest")
 {
-  auto server = http_server(http_server_config().route(router(
-      http::verb::get, "/api/v1/users/{user}",
-      [](http_request& req) -> net::awaitable<http_response> {
-        user_t user;
-        user.name = req.route().get("user").value();
-        if (auto gender = req.query().get("gender"); gender) {
-          user.gender = gender.value();
-        } else {
-          co_return http_response(http::status::bad_request)
-              .set_json({ { "error", "gender is not provided" } });
-        }
-        if (auto birth = req.query().get("birth"); birth) {
-          user.birth = birth.value();
-        } else {
-          co_return http_response(http::status::bad_request)
-              .set_json({ { "error", "birth is not provided" } });
-        }
-        if (auto msg = req.body_as_json()
-                           .value_to_optional()
-                           .and_then([](auto&& jv) -> optional<json::object> {
-                             if (jv.is_object()) {
-                               return jv.as_object();
-                             }
-                             return nullopt;
-                           })
-                           .and_then([](auto&& jo) -> optional<json::value> {
-                             if (auto* jv = jo.if_contains("message");
-                                 jv != nullptr) {
-                               return *jv;
-                             }
-                             return nullopt;
-                           })
-                           .and_then([](auto&& jv) -> optional<std::string> {
-                             if (jv.is_string()) {
-                               return std::string(jv.as_string());
-                             }
-                             return nullopt;
-                           });
-            msg) {
-          user.message = msg.value();
-        } else {
-          co_return http_response(http::status::bad_request)
-              .set_json({ { "error", "message is not provided" } });
-        }
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::get, "/api/v1/users/{user}",
+                [](http_request& req) -> net::awaitable<http_response> {
+                  user_t user;
+                  user.name = req.route().get("user").value();
+                  if (auto gender = req.query().get("gender"); gender) {
+                    user.gender = gender.value();
+                  } else {
+                    co_return http_response(http::status::bad_request)
+                        .set_json({ { "error", "gender is not provided" } });
+                  }
+                  if (auto birth = req.query().get("birth"); birth) {
+                    user.birth = birth.value();
+                  } else {
+                    co_return http_response(http::status::bad_request)
+                        .set_json({ { "error", "birth is not provided" } });
+                  }
+                  if (auto msg
+                      = req.body_as_json()
+                            .value_to_optional()
+                            .and_then([](auto&& jv) -> optional<json::object> {
+                              if (jv.is_object()) {
+                                return jv.as_object();
+                              }
+                              return nullopt;
+                            })
+                            .and_then([](auto&& jo) -> optional<json::value> {
+                              if (auto* jv = jo.if_contains("message");
+                                  jv != nullptr) {
+                                return *jv;
+                              }
+                              return nullopt;
+                            })
+                            .and_then([](auto&& jv) -> optional<std::string> {
+                              if (jv.is_string()) {
+                                return std::string(jv.as_string());
+                              }
+                              return nullopt;
+                            });
+                      msg) {
+                    user.message = msg.value();
+                  } else {
+                    co_return http_response(http::status::bad_request)
+                        .set_json({ { "error", "message is not provided" } });
+                  }
 
-        co_return http_response(http::status::ok).set_json(user);
-      })));
+                  co_return http_response(http::status::ok).set_json(user);
+                }))
+            .build();
   {
     auto resp = server.serve_http_request(
         http::verb::get,

@@ -24,14 +24,16 @@ TEST_CASE("logger middleware")
   // TODO: verify logging content
 
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router_group("/api")
-          .use(middleware::logger())
-          .route(http::verb::get, "/get",
-                 [&]([[maybe_unused]] http_request& req)
-                     -> net::awaitable<http_response> {
-                   co_return http_response(http::status::ok);
-                 })));
+  auto server
+      = http_server::builder()
+            .route(router_group("/api")
+                       .use(middleware::logger())
+                       .route(http::verb::get, "/get",
+                              [&]([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                co_return http_response(http::status::ok);
+                              }))
+            .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

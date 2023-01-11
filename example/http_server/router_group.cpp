@@ -40,9 +40,9 @@ namespace v2 {
 }
 }
 
-void configure_application(http_server_config& config)
+void configure_application(http_server::builder& builder)
 {
-  config.route(
+  builder.route(
       // Global router group
       router_group("")
           // Register a global middleware for all handlers
@@ -75,25 +75,26 @@ void configure_application(http_server_config& config)
                                 }))));
 }
 
+// clang-format off
+// 
 // $ ./router_group
 // $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
 //
-// clang-format off
 // > 2023-01-01T00:00:00Z DEBUG log middleware (in) [router_group.cpp:16:13]
 // > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (in) [router_group.cpp:25:15]
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/users/{user} [router_group.cpp:59:45]
 // > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (out) [router_group.cpp:27:15]
 // > 2023-01-01T00:00:00Z DEBUG log middleware (out) [router_group.cpp:18:13]
-// clang-format on
 //
 // $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu --verbose
 //
-// clang-format off
 // > 2023-01-01T00:00:00Z DEBUG log middleware (in) [router_group.cpp:16:13]
 // > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (in) [router_group.cpp:25:15]
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v2/users/{user} [router_group.cpp:59:45]
 // > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (out) [router_group.cpp:27:15]
 // > 2023-01-01T00:00:00Z DEBUG log middleware (out) [router_group.cpp:18:13]
+// 
+//
 // clang-format on
 
 int main()
@@ -101,10 +102,10 @@ int main()
   log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
-  auto server = http_server(
-      http_server_config()
-          // Use a configure function to setup server configuration
-          .configure(configure_application));
+  auto server = http_server::builder()
+                    // Use a configure function to setup server configuration
+                    .configure(configure_application)
+                    .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();

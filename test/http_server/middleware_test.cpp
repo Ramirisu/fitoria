@@ -23,28 +23,29 @@ TEST_CASE("middlewares invocation order")
 {
   int state = 0;
   const auto port = generate_port();
-  auto server = http_server(http_server_config().route(
-      router_group("/api")
-          .use([&](http_context& c)
-                   -> net::awaitable<http_response> {
-            CHECK_EQ(++state, 1);
-            auto resp = co_await c.next();
-            CHECK_EQ(++state, 5);
-            co_return resp;
-          })
-          .use([&](http_context& c)
-                   -> net::awaitable<http_response> {
-            CHECK_EQ(++state, 2);
-            auto resp = co_await c.next();
-            CHECK_EQ(++state, 4);
-            co_return resp;
-          })
-          .route(http::verb::get, "/get",
-                 [&]([[maybe_unused]] http_request& req)
-                     -> net::awaitable<http_response> {
-                   CHECK_EQ(++state, 3);
-                   co_return http_response(http::status::ok);
-                 })));
+  auto server
+      = http_server::builder()
+            .route(
+                router_group("/api")
+                    .use([&](http_context& c) -> net::awaitable<http_response> {
+                      CHECK_EQ(++state, 1);
+                      auto resp = co_await c.next();
+                      CHECK_EQ(++state, 5);
+                      co_return resp;
+                    })
+                    .use([&](http_context& c) -> net::awaitable<http_response> {
+                      CHECK_EQ(++state, 2);
+                      auto resp = co_await c.next();
+                      CHECK_EQ(++state, 4);
+                      co_return resp;
+                    })
+                    .route(http::verb::get, "/get",
+                           [&]([[maybe_unused]] http_request& req)
+                               -> net::awaitable<http_response> {
+                             CHECK_EQ(++state, 3);
+                             co_return http_response(http::status::ok);
+                           }))
+            .build();
   server.bind(server_ip, port).run();
   std::this_thread::sleep_for(server_start_wait_time);
 

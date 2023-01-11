@@ -23,97 +23,102 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_server_config {
-  friend class http_server;
-
+class http_server {
 public:
-  template <typename F>
-  http_server_config& configure(F&& f)
-    requires std::invocable<F, http_server_config&>
-  {
-    std::invoke(std::forward<F>(f), *this);
-    return *this;
-  }
+  class builder {
+    friend class http_server;
 
-  http_server_config& set_threads(std::uint32_t num) noexcept
-  {
-    threads_ = std::max(num, 1U);
-    return *this;
-  }
-
-  http_server_config& set_max_listen_connections(int num) noexcept
-  {
-    max_listen_connections_ = num;
-    return *this;
-  }
-
-  http_server_config&
-  set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
-  {
-    client_request_timeout_ = timeout;
-    return *this;
-  }
-
-  template <typename F>
-  http_server_config& set_exception_handler(F&& f)
-    requires std::invocable<F, std::exception_ptr>
-  {
-    exception_handler_ = std::forward<F>(f);
-    return *this;
-  }
-
-  http_server_config& route(const router& router)
-  {
-    if (auto res = router_tree_.try_insert(router); !res) {
-      throw system_error(res.error());
+  public:
+    http_server build()
+    {
+      return http_server(*this);
     }
 
-    return *this;
-  }
+    template <typename F>
+    builder& configure(F&& f)
+      requires std::invocable<F, builder&>
+    {
+      std::invoke(std::forward<F>(f), *this);
+      return *this;
+    }
 
-  http_server_config& route(const router_group& router_group)
-  {
-    for (auto& router : router_group.routers()) {
+    builder& set_threads(std::uint32_t num) noexcept
+    {
+      threads_ = std::max(num, 1U);
+      return *this;
+    }
+
+    builder& set_max_listen_connections(int num) noexcept
+    {
+      max_listen_connections_ = num;
+      return *this;
+    }
+
+    builder&
+    set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
+    {
+      client_request_timeout_ = timeout;
+      return *this;
+    }
+
+    template <typename F>
+    builder& set_exception_handler(F&& f)
+      requires std::invocable<F, std::exception_ptr>
+    {
+      exception_handler_ = std::forward<F>(f);
+      return *this;
+    }
+
+    builder& route(const router& router)
+    {
       if (auto res = router_tree_.try_insert(router); !res) {
         throw system_error(res.error());
       }
+
+      return *this;
     }
 
-    return *this;
-  }
+    builder& route(const router_group& router_group)
+    {
+      for (auto& router : router_group.routers()) {
+        if (auto res = router_tree_.try_insert(router); !res) {
+          throw system_error(res.error());
+        }
+      }
 
-private:
-  static void default_exception_handler(std::exception_ptr ptr)
-  {
-    if (ptr) {
-      try {
-        std::rethrow_exception(ptr);
-      } catch (const std::exception& ex) {
-        log::debug("[{}] exception: {}", name(), ex.what());
+      return *this;
+    }
+
+  private:
+    static void default_exception_handler(std::exception_ptr ptr)
+    {
+      if (ptr) {
+        try {
+          std::rethrow_exception(ptr);
+        } catch (const std::exception& ex) {
+          log::debug("[{}] exception: {}", name(), ex.what());
+        }
       }
     }
-  }
 
-  static const char* name() noexcept
-  {
-    return "fitoria.http_server_config";
-  }
+    static const char* name() noexcept
+    {
+      return "fitoria.builder";
+    }
 
-  std::uint32_t threads_ = std::thread::hardware_concurrency();
-  int max_listen_connections_ = net::socket_base::max_listen_connections;
-  std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
-  std::function<void(std::exception_ptr)> exception_handler_
-      = default_exception_handler;
-  router_tree router_tree_;
-};
+    std::uint32_t threads_ = std::thread::hardware_concurrency();
+    int max_listen_connections_ = net::socket_base::max_listen_connections;
+    std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
+    std::function<void(std::exception_ptr)> exception_handler_
+        = default_exception_handler;
+    router_tree router_tree_;
+  };
 
-class http_server {
-public:
   using handler_trait = http_handler_trait;
   using handlers_invoker_type = handlers_invoker<handler_trait>;
   using execution_context = net::io_context;
 
-  http_server(http_server_config config)
+  http_server(builder config)
       : config_(std::move(config))
       , ioc_(static_cast<int>(config_.threads_))
       , thread_pool_(config_.threads_)
@@ -392,7 +397,7 @@ private:
     return "fitoria.http_server";
   }
 
-  http_server_config config_;
+  builder config_;
   execution_context ioc_;
   net::thread_pool thread_pool_;
 };
