@@ -19,8 +19,6 @@ FITORIA_NAMESPACE_BEGIN
 class http_request : public http_message {
   using base_type = http_message;
 
-  using clock_t = std::chrono::system_clock;
-
   base_type& base() noexcept
   {
     return static_cast<base_type&>(*this);
@@ -32,6 +30,8 @@ class http_request : public http_message {
   }
 
 public:
+  using clock_t = std::chrono::system_clock;
+
   http_request() = default;
 
   http_request(net::ip::tcp::endpoint remote_endpoint,
