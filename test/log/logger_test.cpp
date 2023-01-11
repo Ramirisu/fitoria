@@ -7,7 +7,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/log.hpp>
+#include <fitoria/log/logger.hpp>
 
 #include <cstdlib> // _putenv, setenv
 
