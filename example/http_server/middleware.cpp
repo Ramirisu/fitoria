@@ -7,6 +7,7 @@
 
 #include <fitoria/fitoria.hpp>
 
+#include <fitoria/http_server/middleware/exception_handler.hpp>
 #include <fitoria/http_server/middleware/logger.hpp>
 
 using namespace fitoria;
@@ -35,8 +36,10 @@ int main()
             .route(
                 // Add a router group
                 router_group("/api/v1")
-                    // Register built-in logger middleware for this group
+                    // Register built-in logger middleware
                     .use(middleware::logger())
+                    // Register built-in exception_handler middleware
+                    .use(middleware::exception_handler())
                     // Register a custom middleware for this group
                     .use([](http_context& c) -> net::awaitable<http_response> {
                       log::debug("before handler");
@@ -44,7 +47,7 @@ int main()
                       log::debug("after handler");
                       co_return res;
                     })
-                    // Register a route for this group
+                    // Register a route
                     // The route is associated with the middleware defined above
                     .route(router(
                         http::verb::get, "/users/{user}",
