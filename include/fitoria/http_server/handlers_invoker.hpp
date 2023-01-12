@@ -10,7 +10,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/handler_concept.hpp>
-#include <fitoria/core/type_traits.hpp>
 
 #include <functional>
 
@@ -53,67 +52,16 @@ public:
 private:
   handler_result_t<HandlerTrait>
   invoke_awaitable_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(handler_result_awaitable<HandlerTrait>
-             && !is_variant_v<handler_t<HandlerTrait>>)
+    requires(handler_result_awaitable<HandlerTrait>)
   {
     co_return co_await std::invoke(handler_, ctx);
   }
 
   handler_result_t<HandlerTrait>
   invoke_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(!handler_result_awaitable<HandlerTrait>
-             && !is_variant_v<handler_t<HandlerTrait>>)
+    requires(!handler_result_awaitable<HandlerTrait>)
   {
     std::invoke(handler_, ctx);
-  }
-
-  handler_result_t<HandlerTrait>
-  invoke_awaitable_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(handler_result_awaitable<HandlerTrait>
-             && is_variant_v<handler_t<HandlerTrait>>)
-  {
-    static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
-    switch (handler_.index()) {
-    case 0:
-      co_return co_await std::invoke(std::get<0>(handler_));
-    case 1:
-      co_return co_await std::invoke(std::get<1>(handler_), ctx);
-    case 2:
-      co_return co_await std::invoke(std::get<2>(handler_), ctx, ctx);
-    case 3:
-      co_return co_await std::invoke(std::get<3>(handler_), ctx, ctx, ctx);
-    case 4:
-      co_return co_await std::invoke(std::get<4>(handler_), ctx, ctx, ctx, ctx);
-    default:
-      break;
-    }
-  }
-
-  handler_result_t<HandlerTrait>
-  invoke_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(!handler_result_awaitable<HandlerTrait>
-             && is_variant_v<handler_t<HandlerTrait>>)
-  {
-    static_assert(std::variant_size_v<handler_t<HandlerTrait>> <= 5);
-    switch (handler_.index()) {
-    case 0:
-      std::invoke(std::get<0>(handler_));
-      return;
-    case 1:
-      std::invoke(std::get<1>(handler_), ctx);
-      return;
-    case 2:
-      std::invoke(std::get<2>(handler_), ctx, ctx);
-      return;
-    case 3:
-      std::invoke(std::get<3>(handler_), ctx, ctx, ctx);
-      return;
-    case 4:
-      std::invoke(std::get<4>(handler_), ctx, ctx, ctx, ctx);
-      return;
-    default:
-      break;
-    }
   }
 
   const middlewares_t<HandlerTrait>& middlewares_;

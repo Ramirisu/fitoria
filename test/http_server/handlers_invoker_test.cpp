@@ -7,6 +7,8 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/core/type_traits.hpp>
+
 #include <fitoria/http_server/handlers_invoker.hpp>
 
 using namespace fitoria;
