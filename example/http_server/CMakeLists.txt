@@ -1,4 +1,3 @@
-fitoria_add_example(NAME extractor SRCS extractor.cpp)
 fitoria_add_example(NAME form SRCS form.cpp)
 fitoria_add_example(NAME json SRCS json.cpp)
 fitoria_add_example(NAME middleware SRCS middleware.cpp)

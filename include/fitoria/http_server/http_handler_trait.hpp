@@ -13,7 +13,6 @@
 
 #include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/net.hpp>
-#include <fitoria/core/variant_function.hpp>
 
 #include <fitoria/http_server/http_response.hpp>
 
@@ -32,7 +31,7 @@ public:
 
   using handler_input_param_t = http_request&;
   using handler_t
-      = variant_function<net::awaitable<result_t>, handler_input_param_t, 5>;
+      = std::function<net::awaitable<result_t>(handler_input_param_t)>;
   struct handler_compare_t;
 };
 

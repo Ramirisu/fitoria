@@ -56,8 +56,7 @@ TEST_CASE("generic request")
             .route(router(
                 http::verb::get,
                 "/api/v1/users/{user}/filmography/years/{year}",
-                [](http_request& req, const http_route& route,
-                   query_map& query) -> net::awaitable<http_response> {
+                [](http_request& req) -> net::awaitable<http_response> {
                   CHECK_EQ(req.remote_endpoint().address(),
                            net::ip::make_address(server_ip));
 
@@ -70,7 +69,6 @@ TEST_CASE("generic request")
                   };
                   test_route(req.route());
                   test_route(static_cast<const http_request&>(req).route());
-                  test_route(route);
 
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),
@@ -83,7 +81,6 @@ TEST_CASE("generic request")
                   };
                   test_query(req.query());
                   test_query(static_cast<const http_request&>(req).query());
-                  test_query(query);
 
                   CHECK_EQ(req.headers().at(http::field::content_type),
                            "text/plain");
