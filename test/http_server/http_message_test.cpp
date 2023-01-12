@@ -79,6 +79,12 @@ TEST_CASE("body_as_json")
   }
   {
     http_message msg;
+    msg.set_header(http::field::content_type, "application/json; charset=utf8");
+    msg.set_body(json::serialize(jv));
+    CHECK_EQ(msg.body_as_json(), jv);
+  }
+  {
+    http_message msg;
     msg.set_header(http::field::content_type, "application/json");
     msg.set_body(json::serialize(jv));
     CHECK_EQ(msg.body_as_json<user_t>(),

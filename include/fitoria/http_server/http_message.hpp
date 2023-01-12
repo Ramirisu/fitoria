@@ -65,7 +65,10 @@ public:
   template <typename T = json::value>
   expected<T, error_code> body_as_json() const
   {
-    if (headers().get(http::field::content_type) != "application/json") {
+    if (!headers()
+             .get(http::field::content_type)
+             .value_or("")
+             .starts_with("application/json")) {
       return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
@@ -84,8 +87,10 @@ public:
 
   expected<query_map, error_code> body_as_form() const
   {
-    if (headers().get(http::field::content_type)
-        != "application/x-www-form-urlencoded") {
+    if (!headers()
+             .get(http::field::content_type)
+             .value_or("")
+             .starts_with("application/x-www-form-urlencoded")) {
       return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
