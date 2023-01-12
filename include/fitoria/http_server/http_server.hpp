@@ -12,7 +12,7 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
-#include <fitoria/log/logger.hpp>
+#include <fitoria/log.hpp>
 
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>

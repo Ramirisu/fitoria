@@ -7,13 +7,13 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/log/logger.hpp>
+#include <fitoria/log/log.hpp>
 
 #include <cstdlib> // _putenv, setenv
 
 using namespace fitoria::log;
 
-TEST_SUITE_BEGIN("log.logger");
+TEST_SUITE_BEGIN("log.log");
 
 namespace {
 

@@ -10,6 +10,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/log/level.hpp>
+#include <fitoria/log/log.hpp>
 #include <fitoria/log/logger.hpp>
 #include <fitoria/log/stdout_writer.hpp>
 #include <fitoria/log/writer.hpp>
