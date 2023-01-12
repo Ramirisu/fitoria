@@ -26,7 +26,7 @@ enum class level {
   off,
 };
 
-std::string_view to_string(level lv)
+inline std::string_view to_string(level lv)
 {
   switch (lv) {
   case level::debug:
@@ -46,7 +46,7 @@ std::string_view to_string(level lv)
   return "UNKNOWN";
 }
 
-level to_level(std::string_view sv)
+inline level to_level(std::string_view sv)
 {
   std::string lower(sv.size(), '\0');
   std::transform(sv.begin(), sv.end(), lower.begin(),

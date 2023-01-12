@@ -65,7 +65,7 @@ private:
   }
 
   const middlewares_t<HandlerTrait>& middlewares_;
-  middlewares_t<HandlerTrait>::const_iterator curr_;
+  typename middlewares_t<HandlerTrait>::const_iterator curr_;
   const handler_t<HandlerTrait>& handler_;
 };
 
