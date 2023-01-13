@@ -40,6 +40,16 @@ public:
     return header_;
   }
 
+  operator http_header&() noexcept
+  {
+    return header_;
+  }
+
+  operator const http_header&() const noexcept
+  {
+    return header_;
+  }
+
   http_message& set_header(std::string name, std::string value)
   {
     header_.set(std::move(name), std::move(value));
@@ -58,6 +68,16 @@ public:
   }
 
   const std::string& body() const noexcept
+  {
+    return body_;
+  }
+
+  operator std::string&() noexcept
+  {
+    return body_;
+  }
+
+  operator const std::string&() const noexcept
   {
     return body_;
   }
