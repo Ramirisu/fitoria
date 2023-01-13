@@ -9,69 +9,18 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/http_server/http_handler_trait.hpp>
+#include <fitoria/core/net.hpp>
 
-#include <fitoria/http_server/router.hpp>
+#include <fitoria/http_server/basic_router_group.hpp>
+#include <fitoria/http_server/handler.hpp>
+#include <fitoria/http_server/http_context.hpp>
+#include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename HandlerTrait>
-class basic_router_group {
-public:
-  using router_type = basic_router<HandlerTrait>;
-
-  basic_router_group(std::string path)
-      : path_(std::move(path))
-  {
-  }
-
-  auto use(middleware_t<HandlerTrait> middleware) -> basic_router_group&
-  {
-    middlewares_.push_back(std::move(middleware));
-    return *this;
-  }
-
-  auto route(const router_type& router) -> basic_router_group&
-  {
-    std::string path = path_;
-    path += router.path();
-    auto middlewares = middlewares_;
-    middlewares.insert(middlewares.end(), router.middlewares().begin(),
-                       router.middlewares().end());
-    routers_.push_back(router_type(router.method(), std::move(path),
-                                   std::move(middlewares), router.handler()));
-    return *this;
-  }
-
-  auto route(http::verb method,
-             const std::string& path,
-             handler_t<HandlerTrait> handler) -> basic_router_group&
-  {
-    routers_.push_back(
-        router_type(method, path_ + path, middlewares_, std::move(handler)));
-    return *this;
-  }
-
-  auto sub_group(basic_router_group rg) -> basic_router_group&
-  {
-    for (auto& routers : rg.routers_) {
-      routers_.push_back(routers.rebind_parent(path_, middlewares_));
-    }
-
-    return *this;
-  }
-
-  auto routers() const noexcept -> const std::vector<router_type>&
-  {
-    return routers_;
-  }
-
-private:
-  std::string path_;
-  std::vector<middleware_t<HandlerTrait>> middlewares_;
-  std::vector<router_type> routers_;
-};
-
-using router_group = basic_router_group<http_handler_trait>;
+using router_group
+    = basic_router_group<handler<http_context&, net::awaitable<http_response>>,
+                         handler<http_request&, net::awaitable<http_response>>>;
 
 FITORIA_NAMESPACE_END

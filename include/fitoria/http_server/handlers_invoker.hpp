@@ -9,65 +9,63 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/handler_concept.hpp>
+#include <fitoria/core/coroutine_concept.hpp>
 
 #include <functional>
 #include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename HandlerTrait>
+template <typename Middleware, typename Handler>
 class handlers_invoker {
 
 public:
-  handlers_invoker(const std::vector<middleware_t<HandlerTrait>>& middlewares,
-                   const handler_t<HandlerTrait>& handler)
+  handlers_invoker(const std::vector<Middleware>& middlewares,
+                   const Handler& handler)
       : middlewares_(middlewares)
       , curr_(middlewares_.begin())
       , handler_(handler)
   {
   }
 
-  middleware_result_t<HandlerTrait>
-  next(middleware_input_param_t<HandlerTrait>& ctx)
-    requires(handler_result_awaitable<HandlerTrait>)
+  typename Middleware::response_type next(typename Middleware::request_type ctx)
+    requires(awaitable<typename Middleware::response_type>)
   {
     if (curr_ != middlewares_.end()) {
       co_return co_await (*curr_++)(ctx);
     } else {
-      co_return co_await invoke_awaitable_handler(ctx);
+      co_return co_await invoke_handler(ctx);
     }
   }
 
-  middleware_result_t<HandlerTrait>
-  next(middleware_input_param_t<HandlerTrait>& ctx)
-    requires(!handler_result_awaitable<HandlerTrait>)
+  typename Middleware::response_type next(typename Middleware::request_type ctx)
+    requires(!awaitable<typename Middleware::response_type>)
   {
     if (curr_ != middlewares_.end()) {
-      (*curr_++)(ctx);
+      return (*curr_++)(ctx);
     } else {
-      invoke_handler(ctx);
+      return invoke_handler(ctx);
     }
   }
 
 private:
-  handler_result_t<HandlerTrait>
-  invoke_awaitable_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(handler_result_awaitable<HandlerTrait>)
+  typename Handler::response_type
+  invoke_handler(typename Handler::request_type request)
+    requires(awaitable<typename Handler::response_type>)
   {
-    co_return co_await std::invoke(handler_, ctx);
+    co_return co_await std::invoke(handler_, request);
   }
 
-  handler_result_t<HandlerTrait>
-  invoke_handler(handler_input_param_t<HandlerTrait>& ctx)
-    requires(!handler_result_awaitable<HandlerTrait>)
+  typename Handler::response_type
+  invoke_handler(typename Handler::request_type request)
+    requires(!awaitable<typename Handler::response_type>)
   {
-    std::invoke(handler_, ctx);
+    return std::invoke(handler_, request);
   }
 
-  const std::vector<middleware_t<HandlerTrait>>& middlewares_;
-  typename std::vector<middleware_t<HandlerTrait>>::const_iterator curr_;
-  const handler_t<HandlerTrait>& handler_;
+  const std::vector<Middleware>& middlewares_;
+  typename std::vector<Middleware>::const_iterator curr_;
+  const Handler& handler_;
 };
 
 FITORIA_NAMESPACE_END

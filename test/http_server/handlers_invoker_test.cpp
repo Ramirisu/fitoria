@@ -7,9 +7,9 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/type_traits.hpp>
 
+#include <fitoria/http_server/handler.hpp>
 #include <fitoria/http_server/handlers_invoker.hpp>
 
 using namespace fitoria;
@@ -21,29 +21,23 @@ namespace {
 class context;
 class request;
 
-struct test_handler_trait {
-  using middleware_input_param_t = context&;
-  using middleware_t = std::function<void(context&)>;
-  using middleware_result_t =
-      typename function_traits<middleware_t>::result_type;
-
-  using handler_input_param_t = request&;
-  using handler_t = std::function<void(request&)>;
-  using handler_result_t = typename function_traits<handler_t>::result_type;
-};
+using middleware_type = handler<context&, void>;
+using handler_type = handler<request&, void>;
 
 class request { };
 
 class context {
 public:
-  context(handlers_invoker<test_handler_trait> chain)
-      : chain_(std::move(chain))
+  using invoker_type = handlers_invoker<middleware_type, handler_type>;
+
+  context(invoker_type invoker)
+      : invoker_(std::move(invoker))
   {
   }
 
   void next()
   {
-    chain_.next(*this);
+    invoker_.next(*this);
   }
 
   operator request&() noexcept
@@ -52,7 +46,7 @@ public:
   }
 
 private:
-  handlers_invoker<test_handler_trait> chain_;
+  invoker_type invoker_;
   request req_;
 };
 }
@@ -60,7 +54,7 @@ private:
 TEST_CASE("handlers invocation order")
 {
   int state = 0;
-  std::vector<middleware_t<test_handler_trait>> middlewares {
+  std::vector<middleware_type> middlewares {
     [&](context& ctx) {
       CHECK_EQ(++state, 1);
       ctx.next();
@@ -73,11 +67,11 @@ TEST_CASE("handlers invocation order")
     },
   };
 
-  handler_t<test_handler_trait> handlers {
+  handler_type handlers {
     [&](request&) { CHECK_EQ(++state, 3); },
   };
 
-  context ctx(handlers_invoker<test_handler_trait>(middlewares, handlers));
+  context ctx(context::invoker_type(middlewares, handlers));
   ctx.next();
   CHECK_EQ(++state, 6);
 }

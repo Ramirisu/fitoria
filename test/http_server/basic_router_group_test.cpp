@@ -7,39 +7,22 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/http_server/router_group.hpp>
-
-#include <functional>
+#include <fitoria/http_server/basic_router_group.hpp>
+#include <fitoria/http_server/handler.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("router_group");
+TEST_SUITE_BEGIN("basic_router_group");
 
 TEST_CASE("basic")
 {
-  struct test_handler_trait {
-    using middleware_t = std::function<int()>;
-    struct middleware_compare_t {
-      bool operator()(const middleware_t& lhs, const middleware_t& rhs) const
-      {
-        return lhs() == rhs();
-      }
-    };
-    using handler_t = std::function<int()>;
-    struct handler_compare_t {
-      bool operator()(const handler_t& lhs, const handler_t& rhs) const
-      {
-        return lhs() == rhs();
-      }
-    };
-  };
+  using router_group_type
+      = basic_router_group<handler<int, int>, handler<int, int>>;
 
-  using router_group_type = basic_router_group<test_handler_trait>;
-
-  auto h = []() -> int { return 0; };
-  auto l = []() -> int { return 1; };
-  auto ag = []() -> int { return 2; };
-  auto af = []() -> int { return 3; };
+  auto h = [](int) -> int { return 0; };
+  auto l = [](int) -> int { return 1; };
+  auto ag = [](int) -> int { return 2; };
+  auto af = [](int) -> int { return 3; };
 
   auto rg
       = router_group_type("/ramirisu")
@@ -93,7 +76,18 @@ TEST_CASE("basic")
       { l, af },
       { h } },
   };
-  CHECK(range_equal(rg.routers(), exp));
+  CHECK(range_equal(rg.routers(), exp, [](auto& lhs, auto& rhs) {
+    if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
+        && lhs.handler()(0) == rhs.handler()(0)) {
+      for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
+        if (lhs.middlewares()[i](0) != rhs.middlewares()[i](0)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }));
 }
 
 TEST_SUITE_END();

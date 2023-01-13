@@ -9,101 +9,18 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/handler_concept.hpp>
-#include <fitoria/core/http.hpp>
+#include <fitoria/core/net.hpp>
 
-#include <fitoria/http_server/http_handler_trait.hpp>
-
-#include <string>
-#include <vector>
+#include <fitoria/http_server/basic_router.hpp>
+#include <fitoria/http_server/handler.hpp>
+#include <fitoria/http_server/http_context.hpp>
+#include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename HandlerTrait>
-class basic_router {
-public:
-  basic_router(http::verb method,
-               std::string path,
-               handler_t<HandlerTrait> handler)
-      : method_(method)
-      , path_(std::move(path))
-      , handler_(std::move(handler))
-  {
-  }
-
-  basic_router(http::verb method,
-               std::string path,
-               std::vector<middleware_t<HandlerTrait>> middlewares,
-               handler_t<HandlerTrait> handler)
-      : method_(method)
-      , path_(std::move(path))
-      , middlewares_(std::move(middlewares))
-      , handler_(std::move(handler))
-  {
-  }
-
-  auto method() const noexcept -> http::verb
-  {
-    return method_;
-  }
-
-  auto path() const noexcept -> const std::string&
-  {
-    return path_;
-  }
-
-  auto middlewares() const noexcept
-      -> const std::vector<middleware_t<HandlerTrait>>&
-  {
-    return middlewares_;
-  }
-
-  auto handler() const noexcept -> const handler_t<HandlerTrait>&
-  {
-    return handler_;
-  }
-
-  auto rebind_parent(
-      const std::string& parent_path,
-      const std::vector<middleware_t<HandlerTrait>>& parent_middlewares) const
-      -> basic_router
-  {
-    auto middlewares = parent_middlewares;
-    middlewares.insert(middlewares.end(), middlewares_.begin(),
-                       middlewares_.end());
-    return basic_router(method_, parent_path + path_, std::move(middlewares),
-                        handler_);
-  }
-
-  friend auto operator==(const basic_router& lhs, const basic_router& rhs)
-      -> bool
-  {
-    if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
-        && lhs.middlewares().size() == rhs.middlewares().size()) {
-      for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
-        if (!middleware_compare_t<HandlerTrait>()(lhs.middlewares()[i],
-                                                  rhs.middlewares()[i])) {
-          return false;
-        }
-      }
-
-      if (!handler_compare_t<HandlerTrait>()(lhs.handler(), rhs.handler())) {
-        return false;
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-
-private:
-  http::verb method_;
-  std::string path_;
-  std::vector<middleware_t<HandlerTrait>> middlewares_;
-  handler_t<HandlerTrait> handler_;
-};
-
-using router = basic_router<http_handler_trait>;
+using router
+    = basic_router<handler<http_context&, net::awaitable<http_response>>,
+                   handler<http_request&, net::awaitable<http_response>>>;
 
 FITORIA_NAMESPACE_END

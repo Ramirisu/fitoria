@@ -9,23 +9,28 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/net.hpp>
+
+#include <fitoria/http_server/handler.hpp>
 #include <fitoria/http_server/handlers_invoker.hpp>
-#include <fitoria/http_server/http_handler_trait.hpp>
 #include <fitoria/http_server/http_request.hpp>
+#include <fitoria/http_server/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
-  using handler_trait = http_handler_trait;
-
 public:
-  http_context(handlers_invoker<handler_trait> invoker, http_request& request)
+  using invoker_type
+      = handlers_invoker<handler<http_context&, net::awaitable<http_response>>,
+                         handler<http_request&, net::awaitable<http_response>>>;
+
+  http_context(invoker_type invoker, http_request& request)
       : invoker_(invoker)
       , request_(request)
   {
   }
 
-  [[nodiscard]] handler_result_t<handler_trait> next()
+  [[nodiscard]] net::awaitable<http_response> next()
   {
     co_return co_await invoker_.next(*this);
   }
@@ -51,7 +56,7 @@ public:
   }
 
 private:
-  handlers_invoker<handler_trait> invoker_;
+  invoker_type invoker_;
   http_request& request_;
 };
 

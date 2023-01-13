@@ -7,6 +7,7 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/http_server/handler.hpp>
 #include <fitoria/http_server/router_tree.hpp>
 
 using namespace fitoria;
@@ -15,33 +16,18 @@ TEST_SUITE_BEGIN("router_tree");
 
 namespace {
 
-struct test_handler_trait {
-  using middleware_t = std::function<int()>;
-  struct middleware_compare_t {
-    bool operator()(const middleware_t& lhs, const middleware_t& rhs) const
-    {
-      return lhs() == rhs();
-    }
-  };
-  using handler_t = std::function<int()>;
-  struct handler_compare_t {
-    bool operator()(const handler_t& lhs, const handler_t& rhs) const
-    {
-      return lhs() == rhs();
-    }
-  };
-};
-
+using handler_t = handler<int, int>;
+using router_tree_type
+    = basic_router_tree<basic_router<handler<int, int>, handler_t>>;
 }
 
 TEST_CASE("try_insert")
 {
-  using router_tree_type = basic_router_tree<test_handler_trait>;
   using exp_t = expected<void, error>;
 
   auto r = [=](http::verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
-                                         handler_t<test_handler_trait> {});
+                                         handler_t([](int) { return 0; }));
   };
 
   router_tree_type rt;
@@ -80,13 +66,9 @@ TEST_CASE("try_insert")
 
 TEST_CASE("try_find")
 {
-  using router_tree_type = basic_router_tree<test_handler_trait>;
-  using exp_t = expected<const router_tree_type::router_type&, error>;
-
   auto r = [=](http::verb method, std::string path, int exp) {
     return router_tree_type::router_type(
-        method, std::move(path),
-        handler_t<test_handler_trait> { [=]() { return exp; } });
+        method, std::move(path), handler_t([=](int) -> int { return exp; }));
   };
 
   router_tree_type rt;
@@ -100,33 +82,33 @@ TEST_CASE("try_find")
   rt.try_insert(r(http::verb::put, "/api/v1/{x}/{y}", 23));
 
   CHECK_EQ(rt.try_find(http::verb::get, ""),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "a"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/a"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api/"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xxx/yyy/z"),
-           exp_t(unexpect, error::route_not_exists));
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/x"),
-           exp_t(unexpect, error::route_not_exists));
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(), 10);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(), 11);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->handler()(), 12);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx")->handler()(), 13);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y")->handler()(), 20);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y")->handler()(), 21);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/y")->handler()(), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->handler()(), 23);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->handler()(), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->handler()(), 23);
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(0), 10);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(0), 11);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->handler()(0), 12);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx")->handler()(0), 13);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y")->handler()(0), 20);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y")->handler()(0), 21);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/y")->handler()(0), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->handler()(0), 23);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->handler()(0), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->handler()(0), 23);
 }
 
 TEST_SUITE_END();

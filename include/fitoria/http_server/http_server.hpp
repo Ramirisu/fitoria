@@ -114,8 +114,6 @@ public:
     router_tree router_tree_;
   };
 
-  using handler_trait = http_handler_trait;
-  using handlers_invoker_type = handlers_invoker<handler_trait>;
   using execution_context = net::io_context;
 
   http_server(builder config)
@@ -365,9 +363,9 @@ private:
         remote_endpoint, http_route(*route_params, std::string(router->path())),
         req_url->path(), method, to_query_map(req_url->params()),
         std::move(header), std::move(body));
-    auto context = http_context(handlers_invoker<handler_trait>(
-                                    router->middlewares(), router->handler()),
-                                request);
+    auto context = http_context(
+        http_context::invoker_type(router->middlewares(), router->handler()),
+        request);
     co_return co_await context.next();
   }
 
