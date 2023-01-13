@@ -28,9 +28,6 @@ template <typename HandlerTrait>
 using middleware_result_t = typename middleware_t<HandlerTrait>::result_type;
 
 template <typename HandlerTrait>
-using middlewares_t = typename HandlerTrait::middlewares_t;
-
-template <typename HandlerTrait>
 using middleware_compare_t = typename HandlerTrait::middleware_compare_t;
 
 template <typename HandlerTrait>

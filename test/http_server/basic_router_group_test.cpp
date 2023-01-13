@@ -19,7 +19,6 @@ TEST_CASE("basic")
 {
   struct test_handler_trait {
     using middleware_t = std::function<int()>;
-    using middlewares_t = std::vector<middleware_t>;
     struct middleware_compare_t {
       bool operator()(const middleware_t& lhs, const middleware_t& rhs) const
       {

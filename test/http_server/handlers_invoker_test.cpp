@@ -7,6 +7,7 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/core/handler_concept.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/http_server/handlers_invoker.hpp>
@@ -25,7 +26,6 @@ struct test_handler_trait {
   using middleware_t = std::function<void(context&)>;
   using middleware_result_t =
       typename function_traits<middleware_t>::result_type;
-  using middlewares_t = std::vector<middleware_t>;
 
   using handler_input_param_t = request&;
   using handler_t = std::function<void(request&)>;
@@ -60,7 +60,7 @@ private:
 TEST_CASE("handlers invocation order")
 {
   int state = 0;
-  typename test_handler_trait::middlewares_t middlewares {
+  std::vector<middleware_t<test_handler_trait>> middlewares {
     [&](context& ctx) {
       CHECK_EQ(++state, 1);
       ctx.next();
@@ -73,7 +73,7 @@ TEST_CASE("handlers invocation order")
     },
   };
 
-  typename test_handler_trait::handler_t handlers {
+  handler_t<test_handler_trait> handlers {
     [&](request&) { CHECK_EQ(++state, 3); },
   };
 

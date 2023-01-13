@@ -68,7 +68,7 @@ public:
 
 private:
   std::string path_;
-  middlewares_t<HandlerTrait> middlewares_;
+  std::vector<middleware_t<HandlerTrait>> middlewares_;
   std::vector<router_type> routers_;
 };
 

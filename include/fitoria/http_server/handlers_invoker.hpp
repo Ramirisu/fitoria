@@ -12,6 +12,7 @@
 #include <fitoria/core/handler_concept.hpp>
 
 #include <functional>
+#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ template <typename HandlerTrait>
 class handlers_invoker {
 
 public:
-  handlers_invoker(const middlewares_t<HandlerTrait>& middlewares,
+  handlers_invoker(const std::vector<middleware_t<HandlerTrait>>& middlewares,
                    const handler_t<HandlerTrait>& handler)
       : middlewares_(middlewares)
       , curr_(middlewares_.begin())
@@ -64,8 +65,8 @@ private:
     std::invoke(handler_, ctx);
   }
 
-  const middlewares_t<HandlerTrait>& middlewares_;
-  typename middlewares_t<HandlerTrait>::const_iterator curr_;
+  const std::vector<middleware_t<HandlerTrait>>& middlewares_;
+  typename std::vector<middleware_t<HandlerTrait>>::const_iterator curr_;
   const handler_t<HandlerTrait>& handler_;
 };
 

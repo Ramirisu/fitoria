@@ -33,7 +33,7 @@ public:
 
   basic_router(http::verb method,
                std::string path,
-               middlewares_t<HandlerTrait> middlewares,
+               std::vector<middleware_t<HandlerTrait>> middlewares,
                handler_t<HandlerTrait> handler)
       : method_(method)
       , path_(std::move(path))
@@ -52,7 +52,8 @@ public:
     return path_;
   }
 
-  auto middlewares() const noexcept -> const middlewares_t<HandlerTrait>&
+  auto middlewares() const noexcept
+      -> const std::vector<middleware_t<HandlerTrait>>&
   {
     return middlewares_;
   }
@@ -62,9 +63,9 @@ public:
     return handler_;
   }
 
-  auto
-  rebind_parent(const std::string& parent_path,
-                const middlewares_t<HandlerTrait>& parent_middlewares) const
+  auto rebind_parent(
+      const std::string& parent_path,
+      const std::vector<middleware_t<HandlerTrait>>& parent_middlewares) const
       -> basic_router
   {
     auto middlewares = parent_middlewares;
@@ -99,7 +100,7 @@ public:
 private:
   http::verb method_;
   std::string path_;
-  middlewares_t<HandlerTrait> middlewares_;
+  std::vector<middleware_t<HandlerTrait>> middlewares_;
   handler_t<HandlerTrait> handler_;
 };
 

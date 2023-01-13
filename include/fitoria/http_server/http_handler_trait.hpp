@@ -27,8 +27,6 @@ public:
   using middleware_t
       = std::function<net::awaitable<result_t>(middleware_input_param_t)>;
 
-  using middlewares_t = std::vector<middleware_t>;
-
   using handler_input_param_t = http_request&;
   using handler_t
       = std::function<net::awaitable<result_t>(handler_input_param_t)>;
