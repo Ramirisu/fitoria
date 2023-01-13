@@ -17,14 +17,14 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename Request, typename Response>
-class handler {
+class basic_handler {
 public:
   using request_type = Request;
   using response_type = Response;
 
   template <typename F>
-  handler(F&& f)
-    requires(!std::is_same_v<std::remove_cvref_t<F>, handler>
+  basic_handler(F&& f)
+    requires(!std::is_same_v<std::remove_cvref_t<F>, basic_handler>
              && std::is_invocable_r_v<Response, F, Request>)
       : handler_(std::forward<F>(f))
   {

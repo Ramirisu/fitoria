@@ -7,7 +7,8 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/http_server/handler.hpp>
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/router_tree.hpp>
 
 using namespace fitoria;
@@ -16,9 +17,10 @@ TEST_SUITE_BEGIN("router_tree");
 
 namespace {
 
-using handler_t = handler<int, int>;
+using middleware_t = basic_middleware<int, int>;
+using handler_t = basic_handler<int, int>;
 using router_tree_type
-    = basic_router_tree<basic_router<handler<int, int>, handler_t>>;
+    = basic_router_tree<basic_router<middleware_t, handler_t>>;
 }
 
 TEST_CASE("try_insert")

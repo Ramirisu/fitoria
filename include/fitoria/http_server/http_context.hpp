@@ -11,18 +11,20 @@
 
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/http_server/handler.hpp>
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/handlers_invoker.hpp>
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/http_response.hpp>
+
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
 public:
-  using invoker_type
-      = handlers_invoker<handler<http_context&, net::awaitable<http_response>>,
-                         handler<http_request&, net::awaitable<http_response>>>;
+  using invoker_type = handlers_invoker<
+      basic_middleware<http_context&, net::awaitable<http_response>>,
+      basic_handler<http_request&, net::awaitable<http_response>>>;
 
   http_context(invoker_type invoker, http_request& request)
       : invoker_(invoker)

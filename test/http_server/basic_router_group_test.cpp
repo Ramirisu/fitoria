@@ -7,8 +7,9 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/basic_router_group.hpp>
-#include <fitoria/http_server/handler.hpp>
 
 using namespace fitoria;
 
@@ -17,7 +18,7 @@ TEST_SUITE_BEGIN("basic_router_group");
 TEST_CASE("basic")
 {
   using router_group_type
-      = basic_router_group<handler<int, int>, handler<int, int>>;
+      = basic_router_group<basic_middleware<int, int>, basic_handler<int, int>>;
 
   auto h = [](int) -> int { return 0; };
   auto l = [](int) -> int { return 1; };

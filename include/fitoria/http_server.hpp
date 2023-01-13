@@ -9,11 +9,12 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/basic_router.hpp>
 #include <fitoria/http_server/basic_router_group.hpp>
 #include <fitoria/http_server/basic_router_tree.hpp>
 #include <fitoria/http_server/error.hpp>
-#include <fitoria/http_server/handler.hpp>
 #include <fitoria/http_server/handlers_invoker.hpp>
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_header.hpp>

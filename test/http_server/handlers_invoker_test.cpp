@@ -9,7 +9,8 @@
 
 #include <fitoria/core/type_traits.hpp>
 
-#include <fitoria/http_server/handler.hpp>
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/handlers_invoker.hpp>
 
 using namespace fitoria;
@@ -21,8 +22,8 @@ namespace {
 class context;
 class request;
 
-using middleware_type = handler<context&, void>;
-using handler_type = handler<request&, void>;
+using middleware_type = basic_middleware<context&, void>;
+using handler_type = basic_handler<request&, void>;
 
 class request { };
 

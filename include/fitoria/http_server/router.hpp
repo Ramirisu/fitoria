@@ -11,16 +11,17 @@
 
 #include <fitoria/core/net.hpp>
 
+#include <fitoria/http_server/basic_handler.hpp>
+#include <fitoria/http_server/basic_middleware.hpp>
 #include <fitoria/http_server/basic_router.hpp>
-#include <fitoria/http_server/handler.hpp>
 #include <fitoria/http_server/http_context.hpp>
 #include <fitoria/http_server/http_request.hpp>
 #include <fitoria/http_server/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-using router
-    = basic_router<handler<http_context&, net::awaitable<http_response>>,
-                   handler<http_request&, net::awaitable<http_response>>>;
+using router = basic_router<
+    basic_middleware<http_context&, net::awaitable<http_response>>,
+    basic_handler<http_request&, net::awaitable<http_response>>>;
 
 FITORIA_NAMESPACE_END
