@@ -65,13 +65,13 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
 
 #if OPENSSL_VERSION_MAJOR < 3
 
-TEST_CASE("tls/tlsv12")
+TEST_CASE("tls/tlsv1")
 {
   using net::ssl::context;
   test_with_tls(context::method::tls_server, context::method::tlsv1_client);
 }
 
-TEST_CASE("tls/tlsv12")
+TEST_CASE("tls/tlsv11")
 {
   using net::ssl::context;
   test_with_tls(context::method::tls_server, context::method::tlsv11_client);

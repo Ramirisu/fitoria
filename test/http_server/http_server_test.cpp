@@ -19,7 +19,7 @@ using namespace http_server_utils;
 
 TEST_SUITE_BEGIN("http_server");
 
-TEST_CASE("http_server_config")
+TEST_CASE("builder")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
