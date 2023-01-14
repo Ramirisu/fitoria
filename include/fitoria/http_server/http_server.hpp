@@ -179,6 +179,7 @@ public:
         ioc,
         do_handler(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             method, encode_target(target), request.headers(), request.body()),
         net::use_future);
     ioc.run();
@@ -308,6 +309,7 @@ private:
 
       auto res
           = static_cast<http::response<http::string_body>>(co_await do_handler(
+              net::get_lowest_layer(stream).socket().local_endpoint(),
               net::get_lowest_layer(stream).socket().remote_endpoint(),
               req.method(), req.target(), to_header(req),
               std::move(req.body())));
@@ -333,7 +335,8 @@ private:
   }
 
   net::awaitable<http_response>
-  do_handler(net::ip::tcp::endpoint remote_endpoint,
+  do_handler(net::ip::tcp::endpoint local_endpoint,
+             net::ip::tcp::endpoint remote_endpoint,
              http::verb method,
              std::string target,
              http_header header,
@@ -357,10 +360,11 @@ private:
     auto route_params = route::parse_param_map(router->path(), req_url->path());
     FITORIA_ASSERT(route_params);
 
-    auto request = http_request(
-        remote_endpoint, http_route(*route_params, std::string(router->path())),
-        req_url->path(), method, to_query_map(req_url->params()),
-        std::move(header), std::move(body));
+    auto request
+        = http_request(local_endpoint, remote_endpoint,
+                       http_route(*route_params, std::string(router->path())),
+                       req_url->path(), method, to_query_map(req_url->params()),
+                       std::move(header), std::move(body));
     auto context = http_context(
         http_context::invoker_type(router->middlewares(), router->handler()),
         request);

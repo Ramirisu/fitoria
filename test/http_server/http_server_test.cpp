@@ -89,6 +89,8 @@ TEST_CASE("generic request")
                 http::verb::get,
                 "/api/v1/users/{user}/filmography/years/{year}",
                 [](http_request& req) -> net::awaitable<http_response> {
+                  CHECK_EQ(req.local_endpoint().address(),
+                           net::ip::make_address(server_ip));
                   CHECK_EQ(req.remote_endpoint().address(),
                            net::ip::make_address(server_ip));
 

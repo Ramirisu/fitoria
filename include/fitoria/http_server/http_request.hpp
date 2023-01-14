@@ -34,7 +34,8 @@ public:
 
   http_request() = default;
 
-  http_request(net::ip::tcp::endpoint remote_endpoint,
+  http_request(net::ip::tcp::endpoint local_endpoint,
+               net::ip::tcp::endpoint remote_endpoint,
                http_route route,
                std::string path,
                http::verb method,
@@ -42,12 +43,18 @@ public:
                http_header header,
                std::string body)
       : http_message(std::move(header), std::move(body))
+      , local_endpoint_(local_endpoint)
       , remote_endpoint_(remote_endpoint)
       , route_(std::move(route))
       , path_(std::move(path))
       , method_(method)
       , query_(std::move(query))
   {
+  }
+
+  const net::ip::tcp::endpoint& local_endpoint() const noexcept
+  {
+    return local_endpoint_;
   }
 
   const net::ip::tcp::endpoint& remote_endpoint() const noexcept
@@ -131,6 +138,7 @@ public:
   }
 
 private:
+  net::ip::tcp::endpoint local_endpoint_;
   net::ip::tcp::endpoint remote_endpoint_;
   http_route route_;
   std::string path_;
