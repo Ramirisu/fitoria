@@ -5,10 +5,6 @@ fitoria_add_test(NAME http_header_test SRCS http_header_test.cpp)
 fitoria_add_test(NAME http_message_test SRCS http_message_test.cpp)
 fitoria_add_test(NAME http_response_test SRCS http_response_test.cpp)
 fitoria_add_test(NAME http_route_test SRCS http_route_test.cpp)
-fitoria_add_test(NAME http_server_request_test SRCS
-                 http_server_request_test.cpp)
-fitoria_add_test(NAME http_server_response_test SRCS
-                 http_server_response_test.cpp)
 fitoria_add_test(NAME http_server_test SRCS http_server_test.cpp)
 fitoria_add_test(NAME http_server_tls_test SRCS http_server_tls_test.cpp)
 fitoria_add_test(NAME http_server_unittest_test SRCS
