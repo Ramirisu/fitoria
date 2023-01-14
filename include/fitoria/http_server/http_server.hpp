@@ -19,8 +19,6 @@
 #include <fitoria/http_server/router_group.hpp>
 #include <fitoria/http_server/router_tree.hpp>
 
-#include <thread>
-
 FITORIA_NAMESPACE_BEGIN
 
 class http_server {
@@ -116,10 +114,10 @@ public:
 
   using execution_context = net::io_context;
 
-  http_server(builder config)
-      : config_(std::move(config))
-      , ioc_(static_cast<int>(config_.threads_))
-      , thread_pool_(config_.threads_)
+  http_server(builder builder)
+      : builder_(std::move(builder))
+      , ioc_(static_cast<int>(builder_.threads_))
+      , thread_pool_(builder_.threads_)
   {
   }
 
@@ -133,7 +131,7 @@ public:
     net::co_spawn(
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        config_.exception_handler_);
+        builder_.exception_handler_);
 
     return *this;
   }
@@ -146,7 +144,7 @@ public:
         ioc_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
                   std::move(ssl_ctx)),
-        config_.exception_handler_);
+        builder_.exception_handler_);
 
     return *this;
   }
@@ -154,8 +152,8 @@ public:
 
   http_server& run()
   {
-    log::info("[{}] starting with {} workers", name(), config_.threads_);
-    for (auto i = 0U; i < config_.threads_; ++i) {
+    log::info("[{}] starting with {} workers", name(), builder_.threads_);
+    for (auto i = 0U; i < builder_.threads_; ++i) {
       net::post(thread_pool_, [&]() { ioc_.run(); });
     }
 
@@ -204,9 +202,6 @@ public:
   }
 
 private:
-  using native_request_t = http::request<http::string_body>;
-  using native_response_t = http::response<http::string_body>;
-
   net::awaitable<net::accepter>
   new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
@@ -215,7 +210,7 @@ private:
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));
     acceptor.bind(endpoint);
-    acceptor.listen(config_.max_listen_connections_);
+    acceptor.listen(builder_.max_listen_connections_);
     co_return acceptor;
   }
 
@@ -270,7 +265,7 @@ private:
   net::awaitable<void> do_session(net::ssl_stream stream) const
   {
     net::get_lowest_layer(stream).expires_after(
-        config_.client_request_timeout_);
+        builder_.client_request_timeout_);
 
     auto [ec] = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
@@ -297,9 +292,9 @@ private:
 
     for (;;) {
       net::get_lowest_layer(stream).expires_after(
-          config_.client_request_timeout_);
+          builder_.client_request_timeout_);
 
-      native_request_t req;
+      http::request<http::string_body> req;
       std::tie(ec, std::ignore)
           = co_await http::async_read(stream, buffer, req);
       if (ec) {
@@ -311,14 +306,16 @@ private:
 
       bool keep_alive = req.keep_alive();
 
-      auto res = static_cast<native_response_t>(co_await do_handler(
-          net::get_lowest_layer(stream).socket().remote_endpoint(),
-          req.method(), req.target(), to_header(req), std::move(req.body())));
+      auto res
+          = static_cast<http::response<http::string_body>>(co_await do_handler(
+              net::get_lowest_layer(stream).socket().remote_endpoint(),
+              req.method(), req.target(), to_header(req),
+              std::move(req.body())));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
       net::get_lowest_layer(stream).expires_after(
-          config_.client_request_timeout_);
+          builder_.client_request_timeout_);
 
       std::tie(ec, std::ignore) = co_await net::async_write(
           stream, http::message_generator(std::move(res)));
@@ -349,7 +346,8 @@ private:
           .set_body("request target is invalid");
     }
 
-    auto router = config_.router_tree_.try_find(method, req_url.value().path());
+    auto router
+        = builder_.router_tree_.try_find(method, req_url.value().path());
     if (!router) {
       co_return http_response(http::status::not_found)
           .set_header(http::field::content_type, "text/plain")
@@ -381,7 +379,7 @@ private:
     return query;
   }
 
-  static http_header to_header(const native_request_t& req)
+  static http_header to_header(const http::request<http::string_body>& req)
   {
     http_header header;
     for (auto& kv : req.base()) {
@@ -395,7 +393,7 @@ private:
     return "fitoria.http_server";
   }
 
-  builder config_;
+  builder builder_;
   execution_context ioc_;
   net::thread_pool thread_pool_;
 };
