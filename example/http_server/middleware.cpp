@@ -56,7 +56,8 @@ int main()
 
                           log::debug("user: {}", req.route().get("user"));
 
-                          co_return http_response(http::status::ok);
+                          co_return http_response(http::status::ok)
+                              .set_body("abcde");
                         })))
             .build();
   server //

@@ -22,22 +22,21 @@ namespace middleware {
 
 class logger {
 public:
+  using clock_t = std::chrono::system_clock;
+
   net::awaitable<http_response> operator()(http_context& c) const
   {
-    // request may be modified in later middlewares or handler, make a copy here
-    auto addr = c.request().remote_endpoint().address().to_string();
-    auto method = std::string(to_string(c.request().method()));
-    auto path = c.request().path();
-    auto user_agent
-        = c.request().headers().get(http::field::user_agent).value_or("");
-    auto start_time = c.request().start_time();
+    auto start_time = clock_t::now();
 
     auto res = co_await c.next();
 
-    log::info("[{}] {} {} {} {} {} {:%T}", name(), addr, method, path,
-              to_underlying(res.status()), user_agent,
-              std::chrono::floor<std::chrono::microseconds>(
-                  http_request::clock_t::now() - start_time));
+    log::info("[{}] {} {} {} {} {}B {} {:%T}s", name(),
+              c.request().remote_endpoint().address().to_string(),
+              std::string(to_string(c.request().method())), c.request().path(),
+              to_underlying(res.status()), res.body().size(),
+              c.request().headers().get(http::field::user_agent).value_or(""),
+              std::chrono::floor<std::chrono::microseconds>(clock_t::now()
+                                                            - start_time));
 
     co_return res;
   }

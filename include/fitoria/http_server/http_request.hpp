@@ -30,8 +30,6 @@ class http_request : public http_message {
   }
 
 public:
-  using clock_t = std::chrono::system_clock;
-
   http_request() = default;
 
   http_request(net::ip::tcp::endpoint local_endpoint,
@@ -127,16 +125,6 @@ public:
     return *this;
   }
 
-  clock_t::time_point start_time() const noexcept
-  {
-    return start_time_;
-  }
-
-  clock_t::duration time_since_start() const noexcept
-  {
-    return clock_t::now() - start_time();
-  }
-
 private:
   net::ip::tcp::endpoint local_endpoint_;
   net::ip::tcp::endpoint remote_endpoint_;
@@ -144,7 +132,6 @@ private:
   std::string path_;
   http::verb method_;
   query_map query_;
-  clock_t::time_point start_time_ = clock_t::now();
 };
 
 FITORIA_NAMESPACE_END
