@@ -69,7 +69,7 @@ public:
   optional<mapped_type&> get(Key&& key) noexcept
   {
     if (auto it = map_.find(std::forward<Key>(key)); it != map_.end()) {
-      return optional<mapped_type&>(it->second);
+      return it->second;
     }
 
     return nullopt;
@@ -79,7 +79,7 @@ public:
   optional<const mapped_type&> get(Key&& key) const noexcept
   {
     if (auto it = map_.find(std::forward<Key>(key)); it != map_.end()) {
-      return optional<const mapped_type&>(it->second);
+      return it->second;
     }
 
     return nullopt;

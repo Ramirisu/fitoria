@@ -10,25 +10,28 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/http.hpp>
-
-#include <fitoria/http_server/query_map.hpp>
+#include <fitoria/core/optional.hpp>
+#include <fitoria/core/unordered_string_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_header : public query_map {
-  using base_type = query_map;
-
-  base_type& base() noexcept
-  {
-    return static_cast<base_type&>(*this);
-  }
-
-  const base_type& base() const noexcept
-  {
-    return static_cast<const base_type&>(*this);
-  }
+class http_header {
+public:
+  using map_type = unordered_string_map<std::string>;
 
 public:
+  using key_type = typename map_type::key_type;
+  using mapped_type = typename map_type::mapped_type;
+  using value_type = typename map_type::value_type;
+  using size_type = typename map_type::size_type;
+  using difference_type = typename map_type::difference_type;
+  using reference = typename map_type::reference;
+  using const_reference = typename map_type::const_reference;
+  using pointer = typename map_type::pointer;
+  using const_pointer = typename map_type::const_pointer;
+  using iterator = typename map_type::iterator;
+  using const_iterator = typename map_type::const_iterator;
+
   http_header() = default;
 
   http_header(const http_header&) = default;
@@ -39,92 +42,150 @@ public:
 
   http_header& operator=(http_header&&) = default;
 
+  bool empty() const noexcept
+  {
+    return map_.empty();
+  }
+
+  size_type size() const noexcept
+  {
+    return map_.size();
+  }
+
+  size_type max_size() const noexcept
+  {
+    return map_.max_size();
+  }
+
+  void clear() noexcept
+  {
+    map_.clear();
+  }
+
   void set(std::string name, std::string value)
   {
     normalize_field(name);
-    base().set(std::move(name), std::move(value));
+    map_.insert({ std::move(name), std::move(value) });
   }
 
   void set(http::field name, std::string value)
   {
-    base().set(std::string(to_string(name)), std::move(value));
+    set(std::string(to_string(name)), std::move(value));
   }
 
   optional<mapped_type&> get(std::string name) noexcept
   {
     normalize_field(name);
-    return base().get(std::move(name));
+    if (auto it = map_.find(name); it != map_.end()) {
+      return it->second;
+    }
+
+    return nullopt;
   }
 
   optional<mapped_type&> get(http::field name) noexcept
   {
-    return base().get(to_string(name));
+    return get(to_string(name));
   }
 
   optional<const mapped_type&> get(std::string name) const noexcept
   {
     normalize_field(name);
-    return base().get(std::move(name));
+    if (auto it = map_.find(name); it != map_.end()) {
+      return it->second;
+    }
+
+    return nullopt;
   }
 
   optional<const mapped_type&> get(http::field name) const noexcept
   {
-    return base().get(to_string(name));
+    return get(to_string(name));
   }
 
   bool erase(std::string name)
   {
     normalize_field(name);
-    return base().erase(std::move(name));
+    return map_.erase(std::move(name));
   }
 
   bool erase(http::field name)
   {
-    return base().erase(to_string(name));
+    return map_.erase(to_string(name));
   }
 
   mapped_type& at(std::string name)
   {
     normalize_field(name);
-    return base().at(std::move(name));
+    return map_.at(std::move(name));
   }
 
   mapped_type& at(http::field name)
   {
-    return base().at(to_string(name));
+    return map_.at(to_string(name));
   }
 
   const mapped_type& at(std::string name) const
   {
     normalize_field(name);
-    return base().at(std::move(name));
+    return map_.at(std::move(name));
   }
 
   const mapped_type& at(http::field name) const
   {
-    return base().at(to_string(name));
+    return map_.at(to_string(name));
   }
 
   mapped_type& operator[](std::string name)
   {
     normalize_field(name);
-    return base().operator[](std::move(name));
+    return map_.operator[](std::move(name));
   }
 
   mapped_type& operator[](http::field name)
   {
-    return base().operator[](to_string(name));
+    return map_.operator[](to_string(name));
   }
 
   bool contains(std::string name) const
   {
     normalize_field(name);
-    return base().contains(std::move(name));
+    return map_.contains(std::move(name));
   }
 
   bool contains(http::field name) const
   {
-    return base().contains(to_string(name));
+    return map_.contains(to_string(name));
+  }
+
+  auto begin() noexcept
+  {
+    return map_.begin();
+  }
+
+  auto begin() const noexcept
+  {
+    return map_.begin();
+  }
+
+  auto cbegin() const noexcept
+  {
+    return map_.cbegin();
+  }
+
+  auto end() noexcept
+  {
+    return map_.end();
+  }
+
+  auto end() const noexcept
+  {
+    return map_.end();
+  }
+
+  auto cend() const noexcept
+  {
+    return map_.cend();
   }
 
 private:
@@ -142,6 +203,9 @@ private:
       }
     }
   }
+
+private:
+  map_type map_;
 };
 
 FITORIA_NAMESPACE_END
