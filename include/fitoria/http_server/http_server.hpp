@@ -180,7 +180,8 @@ public:
         do_handler(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            method, encode_target(target), request.headers(), request.body()),
+            method, encode_target(target), request.headers(),
+            std::move(request.body())),
         net::use_future);
     ioc.run();
     return response.get();
@@ -292,20 +293,50 @@ private:
     net::error_code ec;
 
     for (;;) {
+      http::request_parser<http::string_body> req_parser;
+
+      // In order to handle "Expect: 100-continue", read request header here
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-
-      http::request<http::string_body> req;
       std::tie(ec, std::ignore)
-          = co_await http::async_read(stream, buffer, req);
+          = co_await http::async_read_header(stream, buffer, req_parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
-          log::debug("[{}] async_read failed: {}", name(), ec.message());
+          log::debug("[{}] async_read_header failed: {}", name(), ec.message());
         }
         co_return ec;
       }
 
+      auto& req = req_parser.get();
       bool keep_alive = req.keep_alive();
+
+      if (auto it = req.find(http::field::expect);
+          it != req.end() && it->value() == "100-continue") {
+        // If "Expect: 100-continue" is presented,
+        // directly reply status code 100 continue
+        net::get_lowest_layer(stream).expires_after(
+            builder_.client_request_timeout_);
+        std::tie(ec, std::ignore) = co_await net::async_write(
+            stream,
+            http::message_generator(
+                static_cast<http::response<http::string_body>>(
+                    http_response(http::status::continue_))));
+        if (ec) {
+          log::debug("[{}] async_write 100-continue failed: {}", name(),
+                     ec.message());
+          co_return ec;
+        }
+      }
+
+      // Read the body part of the request
+      net::get_lowest_layer(stream).expires_after(
+          builder_.client_request_timeout_);
+      std::tie(ec, std::ignore)
+          = co_await http::async_read(stream, buffer, req_parser);
+      if (ec) {
+        log::debug("[{}] async_read failed: {}", name(), ec.message());
+        co_return ec;
+      }
 
       auto res
           = static_cast<http::response<http::string_body>>(co_await do_handler(
@@ -318,7 +349,6 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-
       std::tie(ec, std::ignore) = co_await net::async_write(
           stream, http::message_generator(std::move(res)));
       if (ec) {

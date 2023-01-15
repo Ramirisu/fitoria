@@ -80,6 +80,30 @@ TEST_CASE("invalid target")
   }
 }
 
+TEST_CASE("expect: 100-continue")
+{
+  const auto port = generate_port();
+  auto server = http_server::builder()
+                    .route(router(http::verb::post, "/api/v1/post",
+                                  []([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    CHECK_EQ(req.body(), "text");
+                                    co_return http_response(http::status::ok);
+                                  }))
+                    .build();
+  server.bind(server_ip, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto resp = simple_http_client(localhost, port)
+                  .with_target("/api/v1/post")
+                  .with(http::verb::post)
+                  .with_field(http::field::expect, "100-continue")
+                  .with_field(http::field::connection, "close")
+                  .with_body("text")
+                  .send_request();
+  CHECK_EQ(resp.result(), http::status::ok);
+}
+
 TEST_CASE("generic request")
 {
   const auto port = generate_port();

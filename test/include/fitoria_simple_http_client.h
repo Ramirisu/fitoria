@@ -158,16 +158,37 @@ private:
     req.body() = body_;
     req.prepare_payload();
 
-    net::get_lowest_layer(stream).expires_after(request_timeout_);
-
-    co_await http::async_write(stream, req);
-
     net::flat_buffer buffer;
+
+    if (auto it = req.find(http::field::expect);
+        it != req.end() && it->value() == "100-continue") {
+      http::request_serializer<http::string_body> serializer(req);
+      net::get_lowest_layer(stream).expires_after(request_timeout_);
+      co_await http::async_write_header(stream, serializer);
+
+      try {
+        http::response<http::string_body> res;
+        net::get_lowest_layer(stream).expires_after(request_timeout_);
+        co_await http::async_read(stream, buffer, res);
+        if (res.result() != http::status::continue_) {
+          co_return res;
+        }
+      } catch (const net::system_error& ex) {
+        if (ex.code() != boost::beast::error::timeout) {
+          throw;
+        }
+      }
+
+      net::get_lowest_layer(stream).expires_after(request_timeout_);
+      co_await http::async_write(stream, serializer);
+    } else {
+      net::get_lowest_layer(stream).expires_after(request_timeout_);
+      co_await http::async_write(stream, req);
+    }
 
     http::response<http::string_body> res;
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-
     co_await http::async_read(stream, buffer, res);
 
     co_return res;
