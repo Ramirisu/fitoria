@@ -12,7 +12,6 @@
 #include <fitoria_simple_http_client.h>
 
 #include <fitoria/http_server.hpp>
-#include <system_error>
 
 using namespace fitoria;
 
@@ -120,6 +119,38 @@ TEST_CASE("expect: 100-continue")
                   .with_body("text")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
+}
+
+TEST_CASE("unhandled exception from handler")
+{
+  bool got_exception = false;
+  const auto port = generate_port();
+  auto server = http_server::builder()
+                    .set_exception_handler([&](std::exception_ptr ptr) {
+                      if (ptr) {
+                        try {
+                          std::rethrow_exception(ptr);
+                        } catch (const std::exception&) {
+                          got_exception = true;
+                        }
+                      }
+                    })
+                    .route(router(http::verb::get, "/api/v1/get",
+                                  []([[maybe_unused]] http_request& req)
+                                      -> net::awaitable<http_response> {
+                                    throw std::exception();
+                                    co_return http_response(http::status::ok);
+                                  }))
+                    .build();
+  server.bind(server_ip, port).run();
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  CHECK_THROWS(simple_http_client(localhost, port)
+                   .with_target("/api/v1/get")
+                   .with(http::verb::get)
+                   .with_field(http::field::connection, "close")
+                   .send_request());
+  CHECK(got_exception);
 }
 
 TEST_CASE("generic request")

@@ -227,7 +227,7 @@ private:
 
       net::co_spawn(acceptor.get_executor(),
                     do_session(net::tcp_stream(std::move(socket))),
-                    net::detached);
+                    builder_.exception_handler_);
     }
   }
 
@@ -246,7 +246,7 @@ private:
 
       net::co_spawn(acceptor.get_executor(),
                     do_session(net::ssl_stream(std::move(socket), ssl_ctx)),
-                    net::detached);
+                    builder_.exception_handler_);
     }
   }
 #endif
