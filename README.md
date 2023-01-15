@@ -7,9 +7,12 @@
 
 **fitoria** is an HTTP web framework built on top of C++20 coroutine.
 
-## Quick Start
+## Examples
 
-[More example](https://github.com/Ramirisu/fitoria/tree/main/example)
+### Quick Start
+#### Server
+
+[Qick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/quick_start.cpp)
 
 ```cpp
 
@@ -58,6 +61,268 @@ int main()
 
 
 ```
+
+#### Client
+
+TODO:
+
+
+### Server
+
+#### Methods
+
+Register `GET`, `POST`, `PUT`, `PATCH`, `DELETE` by using `http::verb::*`.
+
+```cpp
+
+int main() {
+  auto server = http_server::builder()
+      .route(router(http::verb::get, "/get", [](http_request& req)
+        -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      }))
+      .route(router(http::verb::post, "/post", [](http_request& req)
+        -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      }))
+      .route(router(http::verb::put, "/put", [](http_request& req)
+        -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      }))
+      .route(router(http::verb::path, "/path", [](http_request& req)
+        -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      }))
+      .route(router(http::verb::delete_, "/delete", [](http_request& req)
+        -> net::awaitable<http_response> {
+        co_return http_response(http::status::ok);
+      }))
+    .build();
+}
+
+```
+
+#### Route Parameters
+
+[Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/route_parameter.cpp)
+
+```cpp
+
+int main()
+{
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::get, "/api/v1/users/{user}",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.route().get("user");
+                  if (!user) {
+                    co_return http_response(http::status::bad_request);
+                  }
+
+                  co_return http_response(http::status::ok)
+                      .set_header(http::field::content_type, "text/plain")
+                      .set_body(fmt::format("user: {}", user.value()));
+                }))
+            .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+
+  server.wait();
+}
+
+```
+
+#### Query String
+
+[Query String Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/query_string.cpp)
+
+```cpp
+
+int main()
+{
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::get, "/api/v1/users",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.query().get("user");
+                  if (!user) {
+                    co_return http_response(http::status::bad_request);
+                  }
+
+                  co_return http_response(http::status::ok)
+                      .set_header(http::field::content_type, "text/plain")
+                      .set_body(fmt::format("user: {}", user.value()));
+                }))
+            .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+
+  server.wait();
+}
+
+```
+
+#### Urlencoded Post Form
+
+[Form Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/form.cpp)
+
+```cpp
+
+int main()
+{
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::post, "/api/v1/login",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.body_as_form();
+                  if (!user || user->get("name") != "ramirisu"
+                      || user->get("password") != "123456") {
+                    co_return http_response(http::status::bad_request);
+                  }
+
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+
+  server.wait();
+}
+
+```
+
+#### Multipart
+
+TODO:
+
+
+#### Json
+
+fitoria integrates `boost::json` as the built-in json serializer/deserializer.
+
+[Json Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/json.cpp)
+
+```cpp
+
+struct user_t {
+  std::string name;
+  std::string password;
+
+  friend bool operator==(const user_t&, const user_t&) = default;
+};
+
+user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
+{
+  return user_t {
+    .name = std::string(jv.at("name").as_string()),
+    .password = std::string(jv.at("password").as_string()),
+  };
+}
+
+void tag_invoke(const json::value_from_tag&,
+                json::value& jv,
+                const user_t& user)
+{
+  jv = {
+    { "name", user.name },
+    { "password", user.password },
+  };
+}
+
+int main()
+{
+  auto server
+      = http_server::builder()
+            .route(router(
+                http::verb::post, "/api/v1/login",
+                [](const http_request& req) -> net::awaitable<http_response> {
+                  auto user = req.body_as_json<user_t>();
+                  if (!user) {
+                    co_return http_response(http::status::bad_request)
+                        .set_json({ { "msg", user.error().message() } });
+                  }
+                  if (user->name != "ramirisu" || user->password != "123456") {
+                    co_return http_response(http::status::unauthorized)
+                        .set_json({ { "msg",
+                                      "user name or password is incorrect" } });
+                  }
+                  co_return http_response(http::status::ok)
+                      .set_json({ { "msg", "login succeeded" } });
+                }))
+            .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+
+  server.wait();
+}
+
+```
+
+#### Router Group
+
+Configure nested routers by using `router_group`.
+
+[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/router_group.cpp)
+
+
+#### Middleware
+
+`router_group` supports `use` to configure middlewares for its `router`s.
+
+[Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/middleware.cpp)
+
+```cpp
+
+int main()
+{
+  log::global_logger() = log::stdout_logger();
+  log::global_logger()->set_log_level(log::level::debug);
+
+  auto server
+      = http_server::builder()
+            .route(
+                // Add a router group
+                router_group("/api/v1")
+                    // Register built-in logger middleware
+                    .use(middleware::logger())
+                    // Register built-in exception_handler middleware
+                    .use(middleware::exception_handler())
+                    // Register a custom middleware for this group
+                    .use([](http_context& c) -> net::awaitable<http_response> {
+                      log::debug("before handler");
+                      auto res = co_await c.next();
+                      log::debug("after handler");
+                      co_return res;
+                    })
+                    // Register a route
+                    // The route is associated with the middleware defined above
+                    .route(router(
+                        http::verb::get, "/users/{user}",
+                        [](http_request& req) -> net::awaitable<http_response> {
+                          FITORIA_ASSERT(req.method() == http::verb::get);
+
+                          log::debug("user: {}", req.route().get("user"));
+
+                          co_return http_response(http::status::ok)
+                              .set_body("abcde");
+                        })))
+            .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+
+  server.wait();
+}
+
+```
+
 
 ## Building
 
