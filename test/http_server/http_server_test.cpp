@@ -12,6 +12,7 @@
 #include <fitoria_simple_http_client.h>
 
 #include <fitoria/http_server.hpp>
+#include <system_error>
 
 using namespace fitoria;
 
@@ -49,6 +50,23 @@ TEST_CASE("builder")
                   .with_target("/api")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
+}
+
+TEST_CASE("duplicate route")
+{
+  CHECK_THROWS_AS(http_server::builder().route(
+                      router_group("/api/v1")
+                          .route(http::verb::get, "/xxx",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok);
+                                 })
+                          .route(http::verb::get, "/xxx",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok);
+                                 })),
+                  std::system_error);
 }
 
 TEST_CASE("invalid target")

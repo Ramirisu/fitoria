@@ -79,9 +79,7 @@ public:
     builder& route(const router_group& router_group)
     {
       for (auto& router : router_group.routers()) {
-        if (auto res = router_tree_.try_insert(router); !res) {
-          throw system_error(res.error());
-        }
+        route(router);
       }
 
       return *this;
