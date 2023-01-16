@@ -15,7 +15,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http_server_utils {
 
-inline const auto server_start_wait_time = std::chrono::milliseconds(500);
+inline const auto server_start_wait_time = std::chrono::milliseconds(200);
 inline const char* server_ip = "127.0.0.1";
 inline const char* localhost = "localhost";
 inline std::uint16_t generate_port()
