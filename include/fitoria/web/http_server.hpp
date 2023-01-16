@@ -202,10 +202,10 @@ public:
   }
 
 private:
-  net::awaitable<net::accepter>
+  net::awaitable<net::acceptor>
   new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
-    auto acceptor = net::accepter(co_await net::this_coro::executor);
+    auto acceptor = net::acceptor(co_await net::this_coro::executor);
 
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));

@@ -42,7 +42,7 @@ using boost::beast::flat_buffer;
 using boost::beast::async_write;
 using boost::beast::get_lowest_layer;
 
-using accepter = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
+using acceptor = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
     net::ip::tcp::acceptor>;
 
 using tcp_stream = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
