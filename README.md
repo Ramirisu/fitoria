@@ -12,7 +12,7 @@
 ### Quick Start
 #### HTTP Server
 
-[Qick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/quick_start.cpp)
+[Quick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/quick_start.cpp)
 
 ```cpp
 
