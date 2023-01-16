@@ -269,7 +269,7 @@ int main()
 
 Configure nested routers by using `scope`.
 
-[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
+[Scope Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
 
 
 #### Middleware
