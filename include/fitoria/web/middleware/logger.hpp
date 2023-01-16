@@ -33,7 +33,7 @@ public:
     log::info("[{}] {} {} {} {} {}B {} {:%T}s", name(),
               c.request().remote_endpoint().address().to_string(),
               std::string(to_string(c.request().method())), c.request().path(),
-              to_underlying(res.status()), res.body().size(),
+              res.status_code(), res.body().size(),
               c.request().headers().get(http::field::user_agent).value_or(""),
               std::chrono::floor<std::chrono::microseconds>(clock_t::now()
                                                             - start_time));

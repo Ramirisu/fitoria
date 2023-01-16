@@ -13,17 +13,17 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("http_response");
 
-TEST_CASE("status")
+TEST_CASE("status_code")
 {
   {
     http_response res;
-    CHECK_EQ(res.status(), http::status::ok);
-    res.set_status(http::status::not_found);
-    CHECK_EQ(res.status(), http::status::not_found);
+    CHECK_EQ(res.status_code(), http::status::ok);
+    res.set_status_code(http::status::not_found);
+    CHECK_EQ(res.status_code(), http::status::not_found);
   }
   {
     http_response res(http::status::not_found);
-    CHECK_EQ(res.status(), http::status::not_found);
+    CHECK_EQ(res.status_code(), http::status::not_found);
   }
 }
 

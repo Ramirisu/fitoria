@@ -31,12 +31,12 @@ TEST_CASE("exception_handler middleware")
   {
     auto res = server.serve_http_request(
         http::verb::get, "/api/get", http_request().set_body("throw: false"));
-    CHECK_EQ(res.status(), http::status::ok);
+    CHECK_EQ(res.status_code(), http::status::ok);
   }
   {
     auto res = server.serve_http_request(
         http::verb::get, "/api/get", http_request().set_body("throw: true"));
-    CHECK_EQ(res.status(), http::status::internal_server_error);
+    CHECK_EQ(res.status_code(), http::status::internal_server_error);
   }
 }
 

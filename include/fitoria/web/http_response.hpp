@@ -30,19 +30,19 @@ class http_response : public http_message {
 public:
   http_response() = default;
 
-  explicit http_response(http::status status)
-      : status_(status)
+  explicit http_response(http::status_code status_code)
+      : status_code_(status_code)
   {
   }
 
-  http::status status() const noexcept
+  http::status_code status_code() const noexcept
   {
-    return status_;
+    return status_code_;
   }
 
-  http_response& set_status(http::status status) noexcept
+  http_response& set_status_code(http::status_code status_code) noexcept
   {
-    status_ = status;
+    status_code_ = status_code;
     return *this;
   }
 
@@ -74,7 +74,7 @@ public:
   operator native_response_t() const&
   {
     native_response_t res;
-    res.result(status_);
+    res.result(status_code_.value());
     for (auto&& header : headers()) {
       res.insert(header.first, header.second);
     }
@@ -86,7 +86,7 @@ public:
   operator native_response_t() &&
   {
     native_response_t res;
-    res.result(status_);
+    res.result(status_code_.value());
     for (auto&& header : headers()) {
       res.insert(header.first, header.second);
     }
@@ -96,7 +96,7 @@ public:
   }
 
 private:
-  http::status status_ = http::status::ok;
+  http::status_code status_code_ = http::status_code(http::status::ok);
 };
 
 FITORIA_NAMESPACE_END

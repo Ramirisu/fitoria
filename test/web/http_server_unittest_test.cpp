@@ -102,12 +102,12 @@ TEST_CASE("unittest")
                 }))
             .build();
   {
-    auto resp = server.serve_http_request(
+    auto res = server.serve_http_request(
         http::verb::get,
         "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
         http_request().set_json({ { "message", "happy birthday" } }));
-    CHECK_EQ(resp.status(), http::status::ok);
-    CHECK_EQ(resp.body_as_json<user_t>(),
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body_as_json<user_t>(),
              user_t {
                  .name = "Rina Hidaka",
                  .gender = "female",
@@ -116,32 +116,32 @@ TEST_CASE("unittest")
              });
   }
   {
-    auto resp = server.serve_http_request(http::verb::get, "/api/v1/users",
-                                          http_request());
-    CHECK_EQ(resp.status(), http::status::not_found);
+    auto res = server.serve_http_request(http::verb::get, "/api/v1/users",
+                                         http_request());
+    CHECK_EQ(res.status_code(), http::status::not_found);
   }
   {
-    auto resp = server.serve_http_request(
+    auto res = server.serve_http_request(
         http::verb::get, "/api/v1/users/Rina Hidaka", http_request());
-    CHECK_EQ(resp.status(), http::status::bad_request);
-    CHECK_EQ(resp.body_as_json(),
+    CHECK_EQ(res.status_code(), http::status::bad_request);
+    CHECK_EQ(res.body_as_json(),
              json::value { { "error", "gender is not provided" } });
   }
   {
-    auto resp = server.serve_http_request(
+    auto res = server.serve_http_request(
         http::verb::get, "/api/v1/users/Rina Hidaka?gender=female",
         http_request());
-    CHECK_EQ(resp.status(), http::status::bad_request);
-    CHECK_EQ(resp.body_as_json(),
+    CHECK_EQ(res.status_code(), http::status::bad_request);
+    CHECK_EQ(res.body_as_json(),
              json::value { { "error", "birth is not provided" } });
   }
   {
-    auto resp = server.serve_http_request(
+    auto res = server.serve_http_request(
         http::verb::get,
         "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
         http_request());
-    CHECK_EQ(resp.status(), http::status::bad_request);
-    CHECK_EQ(resp.body_as_json(),
+    CHECK_EQ(res.status_code(), http::status::bad_request);
+    CHECK_EQ(res.body_as_json(),
              json::value { { "error", "message is not provided" } });
   }
 }
