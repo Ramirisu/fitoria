@@ -32,7 +32,7 @@ int main()
       = http_server::builder()
             .route(
                 // Add a router group
-                router_group("/api/v1")
+                scope("/api/v1")
                     // Register built-in logger middleware
                     .use(middleware::logger())
                     // Register built-in exception_handler middleware

@@ -14,7 +14,7 @@ int main()
   auto server
       = http_server::builder()
             .route(
-                router_group("/api/v1")
+                scope("/api/v1")
                     // Extract `http_request`
                     .route(
                         http::verb::get, "/1",

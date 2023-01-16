@@ -17,7 +17,7 @@ TEST_CASE("exception_handler middleware")
 {
   auto server
       = http_server::builder()
-            .route(router_group("/api")
+            .route(scope("/api")
                        .use(middleware::exception_handler())
                        .route(http::verb::get, "/get",
                               [&](http_request& req)

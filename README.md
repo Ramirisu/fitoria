@@ -265,16 +265,16 @@ int main()
 
 ```
 
-#### Router Group
+#### Scope
 
-Configure nested routers by using `router_group`.
+Configure nested routers by using `scope`.
 
-[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/router_group.cpp)
+[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
 
 
 #### Middleware
 
-`router_group` supports `use` to configure middlewares for its `router`s.
+`scope` supports `use` to configure middlewares for its `router`s.
 
 [Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp)
 
@@ -289,7 +289,7 @@ int main()
       = http_server::builder()
             .route(
                 // Add a router group
-                router_group("/api/v1")
+                scope("/api/v1")
                     // Register built-in logger middleware
                     .use(middleware::logger())
                     // Register built-in exception_handler middleware

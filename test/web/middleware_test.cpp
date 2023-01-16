@@ -26,7 +26,7 @@ TEST_CASE("middlewares invocation order")
   auto server
       = http_server::builder()
             .route(
-                router_group("/api")
+                scope("/api")
                     .use([&](http_context& c) -> net::awaitable<http_response> {
                       CHECK_EQ(++state, 1);
                       auto resp = co_await c.next();

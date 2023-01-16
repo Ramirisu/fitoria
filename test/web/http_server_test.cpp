@@ -54,7 +54,7 @@ TEST_CASE("builder")
 TEST_CASE("duplicate route")
 {
   CHECK_THROWS_AS(http_server::builder().route(
-                      router_group("/api/v1")
+                      scope("/api/v1")
                           .route(http::verb::get, "/xxx",
                                  []([[maybe_unused]] http_request& req)
                                      -> net::awaitable<http_response> {

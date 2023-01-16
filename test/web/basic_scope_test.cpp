@@ -9,16 +9,16 @@
 
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/basic_router_group.hpp>
+#include <fitoria/web/basic_scope.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("basic_router_group");
+TEST_SUITE_BEGIN("basic_scope");
 
 TEST_CASE("basic")
 {
-  using router_group_type
-      = basic_router_group<basic_middleware<int, int>, basic_handler<int, int>>;
+  using scope_type
+      = basic_scope<basic_middleware<int, int>, basic_handler<int, int>>;
 
   auto h = [](int) -> int { return 0; };
   auto l = [](int) -> int { return 1; };
@@ -26,36 +26,34 @@ TEST_CASE("basic")
   auto af = [](int) -> int { return 3; };
 
   auto rg
-      = router_group_type("/ramirisu")
+      = scope_type("/ramirisu")
             .use(l)
             .route(http::verb::get, "/libraries", h)
             .route(http::verb::put, "/libraries", h)
             .sub_group(
-                router_group_type("/gul")
+                scope_type("/gul")
                     .use(ag)
                     .route(http::verb::get, "/tags", h)
-                    .route(router_group_type::router_type(http::verb::put,
-                                                          "/tags", h))
-                    .sub_group(router_group_type("/tags")
+                    .route(scope_type::router_type(http::verb::put, "/tags", h))
+                    .sub_group(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
-                    .sub_group(router_group_type("/branches")
+                    .sub_group(scope_type("/branches")
                                    .route(http::verb::get, "/{branch}", h)
                                    .route(http::verb::put, "/{branch}", h)))
             .sub_group(
-                router_group_type("/fitoria")
+                scope_type("/fitoria")
                     .use(af)
                     .route(http::verb::get, "/tags", h)
-                    .route(router_group_type::router_type(http::verb::put,
-                                                          "/tags", h))
-                    .sub_group(router_group_type("/tags")
+                    .route(scope_type::router_type(http::verb::put, "/tags", h))
+                    .sub_group(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
-                    .sub_group(router_group_type("/branches")
+                    .sub_group(scope_type("/branches")
                                    .route(http::verb::get, "/{branch}", h)
                                    .route(http::verb::put, "/{branch}", h)));
 
-  const auto exp = std::vector<router_group_type::router_type> {
+  const auto exp = std::vector<scope_type::router_type> {
     { http::verb::get, "/ramirisu/libraries", { l }, { h } },
     { http::verb::put, "/ramirisu/libraries", { l }, { h } },
     { http::verb::get, "/ramirisu/gul/tags", { l, ag }, { h } },

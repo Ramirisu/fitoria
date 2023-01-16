@@ -16,8 +16,8 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
-#include <fitoria/web/router_group.hpp>
 #include <fitoria/web/router_tree.hpp>
+#include <fitoria/web/scope.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -76,9 +76,9 @@ public:
       return *this;
     }
 
-    builder& route(const router_group& router_group)
+    builder& route(const scope& scope)
     {
-      for (auto& router : router_group.routers()) {
+      for (auto& router : scope.routers()) {
         route(router);
       }
 

@@ -25,7 +25,7 @@ TEST_CASE("logger middleware")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(router_group("/api")
+            .route(scope("/api")
                        .use(middleware::logger())
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)

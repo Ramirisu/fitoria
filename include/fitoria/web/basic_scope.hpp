@@ -14,22 +14,22 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename Middleware, typename Handler>
-class basic_router_group {
+class basic_scope {
 public:
   using router_type = basic_router<Middleware, Handler>;
 
-  basic_router_group(std::string path)
+  basic_scope(std::string path)
       : path_(std::move(path))
   {
   }
 
-  auto use(Middleware middleware) -> basic_router_group&
+  auto use(Middleware middleware) -> basic_scope&
   {
     middlewares_.push_back(std::move(middleware));
     return *this;
   }
 
-  auto route(const router_type& router) -> basic_router_group&
+  auto route(const router_type& router) -> basic_scope&
   {
     std::string path = path_;
     path += router.path();
@@ -42,14 +42,14 @@ public:
   }
 
   auto route(http::verb method, const std::string& path, Handler handler)
-      -> basic_router_group&
+      -> basic_scope&
   {
     routers_.push_back(
         router_type(method, path_ + path, middlewares_, std::move(handler)));
     return *this;
   }
 
-  auto sub_group(basic_router_group rg) -> basic_router_group&
+  auto sub_group(basic_scope rg) -> basic_scope&
   {
     for (auto& routers : rg.routers_) {
       routers_.push_back(routers.rebind_parent(path_, middlewares_));

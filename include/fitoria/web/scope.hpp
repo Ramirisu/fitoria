@@ -13,14 +13,14 @@
 
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/basic_router_group.hpp>
+#include <fitoria/web/basic_scope.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-using router_group = basic_router_group<
+using scope = basic_scope<
     basic_middleware<http_context&, net::awaitable<http_response>>,
     basic_handler<http_request&, net::awaitable<http_response>>>;
 

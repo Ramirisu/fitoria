@@ -12,8 +12,8 @@
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
 #include <fitoria/web/basic_router.hpp>
-#include <fitoria/web/basic_router_group.hpp>
 #include <fitoria/web/basic_router_tree.hpp>
+#include <fitoria/web/basic_scope.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/handlers_invoker.hpp>
 #include <fitoria/web/http_context.hpp>
@@ -27,6 +27,6 @@
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/router.hpp>
-#include <fitoria/web/router_group.hpp>
 #include <fitoria/web/router_tree.hpp>
+#include <fitoria/web/scope.hpp>
 
