@@ -7,6 +7,8 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/core/format.hpp>
+
 #include <fitoria/web/http/status_code.hpp>
 
 using namespace fitoria::http;
@@ -51,6 +53,11 @@ TEST_CASE("match")
   CHECK_EQ(
       status_code(status::bad_request).match({ status::ok, status::accepted }),
       nullopt);
+}
+
+TEST_CASE("format")
+{
+  CHECK_EQ(fmt::format("{}", status_code(status::ok)), "200");
 }
 
 TEST_SUITE_END();
