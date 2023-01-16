@@ -9,12 +9,12 @@
 #include <Windows.h>
 #endif
 
-#include <fitoria/http_server.hpp>
+#include <fitoria/fitoria.hpp>
 
 using namespace fitoria;
 
 int main()
 {
-  auto server = http_server(http_server_config());
+  auto server = http_server::builder().build();
   server.run();
 }
