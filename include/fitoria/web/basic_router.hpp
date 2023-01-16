@@ -9,7 +9,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/http.hpp>
+#include <fitoria/web/http.hpp>
 
 #include <string>
 #include <vector>

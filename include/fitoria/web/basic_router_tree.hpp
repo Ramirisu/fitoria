@@ -9,14 +9,13 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/http.hpp>
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
 #include <fitoria/web/basic_router.hpp>
 #include <fitoria/web/error.hpp>
+#include <fitoria/web/http.hpp>
 #include <fitoria/web/route.hpp>
-
 
 #include <memory>
 #include <string>

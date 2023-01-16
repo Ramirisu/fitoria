@@ -9,8 +9,9 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/http.hpp>
 #include <fitoria/core/net.hpp>
+
+#include <fitoria/web/http.hpp>
 
 #include <string>
 #include <string_view>

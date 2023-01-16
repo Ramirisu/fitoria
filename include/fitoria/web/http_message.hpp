@@ -10,11 +10,11 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
-#include <fitoria/core/http.hpp>
 #include <fitoria/core/json.hpp>
 #include <fitoria/core/url.hpp>
 
 #include <fitoria/web/error.hpp>
+#include <fitoria/web/http.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/query_map.hpp>
 
