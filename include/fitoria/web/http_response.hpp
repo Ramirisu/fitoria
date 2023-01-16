@@ -35,6 +35,15 @@ public:
   {
   }
 
+  explicit http_response(native_response_t native)
+      : status_code_(native.result())
+  {
+    for (auto& field : native) {
+      set_header(field.name(), field.value());
+    }
+    set_body(std::move(native.body()));
+  }
+
   http::status_code status_code() const noexcept
   {
     return status_code_;
@@ -96,7 +105,7 @@ public:
   }
 
 private:
-  http::status_code status_code_ = http::status_code(http::status::ok);
+  http::status_code status_code_ = http::status::ok;
 };
 
 FITORIA_NAMESPACE_END
