@@ -10,9 +10,9 @@
 ## Examples
 
 ### Quick Start
-#### Server
+#### HTTP Server
 
-[Qick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/quick_start.cpp)
+[Qick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/quick_start.cpp)
 
 ```cpp
 
@@ -62,12 +62,12 @@ int main()
 
 ```
 
-#### Client
+#### HTTP Client
 
 TODO:
 
 
-### Server
+### HTTP Server
 
 #### Methods
 
@@ -104,7 +104,7 @@ int main() {
 
 #### Route Parameters
 
-[Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/route_parameter.cpp)
+[Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp)
 
 ```cpp
 
@@ -136,7 +136,7 @@ int main()
 
 #### Query String
 
-[Query String Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/query_string.cpp)
+[Query String Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp)
 
 ```cpp
 
@@ -168,7 +168,7 @@ int main()
 
 #### Urlencoded Post Form
 
-[Form Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/form.cpp)
+[Form Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/form.cpp)
 
 ```cpp
 
@@ -206,7 +206,7 @@ TODO:
 
 fitoria integrates `boost::json` as the built-in json serializer/deserializer.
 
-[Json Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/json.cpp)
+[Json Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/json.cpp)
 
 ```cpp
 
@@ -269,14 +269,14 @@ int main()
 
 Configure nested routers by using `router_group`.
 
-[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/router_group.cpp)
+[Router Group Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/router_group.cpp)
 
 
 #### Middleware
 
 `router_group` supports `use` to configure middlewares for its `router`s.
 
-[Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/http_server/middleware.cpp)
+[Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp)
 
 ```cpp
 
@@ -323,6 +323,9 @@ int main()
 
 ```
 
+### HTTP Client
+
+TODO:
 
 ## Building
 

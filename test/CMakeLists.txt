@@ -14,5 +14,5 @@ function(fitoria_add_test)
 endfunction()
 
 add_subdirectory(core)
-add_subdirectory(http_server)
+add_subdirectory(web)
 add_subdirectory(log)

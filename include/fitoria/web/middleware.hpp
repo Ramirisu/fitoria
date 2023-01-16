@@ -9,6 +9,5 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log.hpp>
-#include <fitoria/web.hpp>
-
+#include <fitoria/web/middleware/exception_handler.hpp>
+#include <fitoria/web/middleware/logger.hpp>

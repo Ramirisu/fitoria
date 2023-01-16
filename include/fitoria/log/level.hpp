@@ -11,7 +11,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <string>
 #include <string_view>
+
 
 FITORIA_NAMESPACE_BEGIN
 

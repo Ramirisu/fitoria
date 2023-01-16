@@ -9,6 +9,11 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log.hpp>
-#include <fitoria/web.hpp>
+#include <fitoria/web/basic_router_tree.hpp>
+#include <fitoria/web/router.hpp>
 
+FITORIA_NAMESPACE_BEGIN
+
+using router_tree = basic_router_tree<router>;
+
+FITORIA_NAMESPACE_END
