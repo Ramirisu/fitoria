@@ -18,6 +18,7 @@
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/router_tree.hpp>
 #include <fitoria/web/scope.hpp>
+#include <system_error>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -255,7 +256,7 @@ private:
   {
     auto ec = co_await do_session_impl(stream);
     if (ec) {
-      co_return;
+      throw std::system_error(ec);
     }
 
     stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
@@ -273,7 +274,7 @@ private:
     tie(ec) = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
-      co_return;
+      throw std::system_error(ec);
     }
 
     if (ec = co_await do_session_impl(stream); ec) {
@@ -283,6 +284,7 @@ private:
     tie(ec) = co_await stream.async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
+      throw std::system_error(ec);
     }
   }
 #endif
