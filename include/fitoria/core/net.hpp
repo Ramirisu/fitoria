@@ -51,6 +51,8 @@ using tcp_stream = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
 using resolver = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
     net::ip::tcp::resolver>;
 
+using resolver_results = net::ip::basic_resolver_results<net::ip::tcp>;
+
 #if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 #endif

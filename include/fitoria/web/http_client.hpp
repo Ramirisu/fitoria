@@ -132,7 +132,7 @@ public:
     return *this;
   }
 
-  expected<http_response, error_code> send() const
+  auto send() const -> expected<http_response, error_code>
   {
     net::io_context ioc;
     auto fut = net::co_spawn(ioc, do_session(), net::use_future);
@@ -141,7 +141,8 @@ public:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  expected<http_response, error_code> send(net::ssl::context ssl_ctx) const
+  auto send(net::ssl::context ssl_ctx) const
+      -> expected<http_response, error_code>
   {
     net::io_context ioc;
     auto fut
@@ -151,14 +152,14 @@ public:
   }
 #endif
 
-  net::awaitable<expected<http_response, error_code>> async_send() const
+  auto async_send() const -> net::awaitable<expected<http_response, error_code>>
   {
     co_return co_await do_session();
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<expected<http_response, error_code>>
-  async_send(net::ssl::context ssl_ctx) const
+  auto async_send(net::ssl::context ssl_ctx) const
+      -> net::awaitable<expected<http_response, error_code>>
   {
     co_return co_await do_session(std::move(ssl_ctx));
   }
@@ -194,9 +195,8 @@ private:
                       std::string(res->encoded_target()) };
   }
 
-  net::awaitable<
-      expected<net::ip::basic_resolver_results<net::ip::tcp>, error_code>>
-  do_resolve() const
+  auto do_resolve() const
+      -> net::awaitable<expected<net::resolver_results, error_code>>
   {
     auto resolver = net::resolver(co_await net::this_coro::executor);
     auto [ec, results]
@@ -209,7 +209,7 @@ private:
     co_return results;
   }
 
-  net::awaitable<expected<http_response, error_code>> do_session() const
+  auto do_session() const -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -240,8 +240,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<expected<http_response, error_code>>
-  do_session(net::ssl::context ssl_ctx) const
+  auto do_session(net::ssl::context ssl_ctx) const
+      -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -286,8 +286,8 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<expected<http::response<http::string_body>, error_code>>
-  do_session_impl(Stream& stream) const
+  auto do_session_impl(Stream& stream) const
+      -> net::awaitable<expected<http::response<http::string_body>, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
