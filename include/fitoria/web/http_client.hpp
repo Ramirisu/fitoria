@@ -279,9 +279,14 @@ private:
     using std::tie;
     auto _ = std::ignore;
 
+    bool use_expect_100_cont
+        = header_.get(http::field::expect) == "100-continue" && !body_.empty();
+
     http::request<http::string_body> req { method_, target_, 11 };
     for (auto& [name, value] : header_) {
-      req.set(name, value);
+      if (name != to_string(http::field::expect) || use_expect_100_cont) {
+        req.set(name, value);
+      }
     }
     req.set(http::field::host, host_);
     req.body() = body_;
@@ -290,10 +295,10 @@ private:
     net::error_code ec;
     net::flat_buffer buffer;
 
-    if (header_.get(http::field::expect) == "100-continue") {
-      http::request_serializer<http::string_body> serializer(req);
+    http::request_serializer<http::string_body> req_serializer(req);
+    if (use_expect_100_cont) {
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await http::async_write_header(stream, serializer);
+      tie(ec, _) = co_await http::async_write_header(stream, req_serializer);
       if (ec) {
         log::debug("[{}] async_write_header failed: {}", name(), ec.message());
         co_return unexpected { ec };
@@ -309,20 +314,13 @@ private:
       if (res.result() != http::status::continue_) {
         co_return res;
       }
+    }
 
-      net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await http::async_write(stream, serializer);
-      if (ec) {
-        log::debug("[{}] async_write body failed: {}", name(), ec.message());
-        co_return unexpected { ec };
-      }
-    } else {
-      net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await http::async_write(stream, req);
-      if (ec) {
-        log::debug("[{}] async_write failed: {}", name(), ec.message());
-        co_return unexpected { ec };
-      }
+    net::get_lowest_layer(stream).expires_after(request_timeout_);
+    tie(ec, _) = co_await http::async_write(stream, req_serializer);
+    if (ec) {
+      log::debug("[{}] async_write failed: {}", name(), ec.message());
+      co_return unexpected { ec };
     }
 
     http::response<http::string_body> res;
