@@ -181,17 +181,11 @@ public:
   }
 
 private:
-  net::awaitable<net::resolver> new_resolver() const
+  net::awaitable<
+      expected<net::ip::basic_resolver_results<net::ip::tcp>, error_code>>
+  do_resolve() const
   {
-    co_return net::resolver(co_await net::this_coro::executor);
-  }
-
-  net::awaitable<expected<http_response, error_code>> do_session() const
-  {
-    auto resolver = co_await new_resolver();
-    auto stream = net::tcp_stream(co_await net::this_coro::executor);
-
-    stream.expires_after(request_timeout_);
+    auto resolver = net::resolver(co_await net::this_coro::executor);
     auto [ec, results]
         = co_await resolver.async_resolve(host_, std::to_string(port_));
     if (ec) {
@@ -199,8 +193,24 @@ private:
       co_return unexpected { ec };
     }
 
+    co_return results;
+  }
+
+  net::awaitable<expected<http_response, error_code>> do_session() const
+  {
+    using std::tie;
+    auto _ = std::ignore;
+
+    auto results = co_await do_resolve();
+    if (!results) {
+      co_return unexpected { results.error() };
+    }
+
+    net::error_code ec;
+    auto stream = net::tcp_stream(co_await net::this_coro::executor);
+
     stream.expires_after(request_timeout_);
-    std::tie(ec, std::ignore) = co_await stream.async_connect(results);
+    tie(ec, _) = co_await stream.async_connect(*results);
     if (ec) {
       log::debug("[{}] async_connect failed: {}", name(), ec.message());
       co_return unexpected { ec };
@@ -220,28 +230,26 @@ private:
   net::awaitable<expected<http_response, error_code>>
   do_session(net::ssl::context ssl_ctx) const
   {
-    auto resolver = co_await new_resolver();
+    using std::tie;
+    auto _ = std::ignore;
+
+    auto results = co_await do_resolve();
+    if (!results) {
+      co_return unexpected { results.error() };
+    }
+
+    net::error_code ec;
     auto stream = net::ssl_stream(co_await net::this_coro::executor, ssl_ctx);
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    auto [ec, results]
-        = co_await resolver.async_resolve(host_, std::to_string(port_));
-    if (ec) {
-      log::debug("[{}] async_resolve failed: {}", name(), ec.message());
-      co_return unexpected { ec };
-    }
-
-    net::get_lowest_layer(stream).expires_after(request_timeout_);
-    std::tie(ec, std::ignore)
-        = co_await net::get_lowest_layer(stream).async_connect(results);
+    tie(ec, _) = co_await net::get_lowest_layer(stream).async_connect(*results);
     if (ec) {
       log::debug("[{}] async_connect failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    std::tie(ec)
-        = co_await stream.async_handshake(net::ssl::stream_base::client);
+    tie(ec) = co_await stream.async_handshake(net::ssl::stream_base::client);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       co_return unexpected { ec };
@@ -268,6 +276,9 @@ private:
   net::awaitable<expected<http::response<http::string_body>, error_code>>
   do_session_impl(Stream& stream) const
   {
+    using std::tie;
+    auto _ = std::ignore;
+
     http::request<http::string_body> req { method_, target_, 11 };
     for (auto& [name, value] : header_) {
       req.set(name, value);
@@ -282,8 +293,7 @@ private:
     if (header_.get(http::field::expect) == "100-continue") {
       http::request_serializer<http::string_body> serializer(req);
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      std::tie(ec, std::ignore)
-          = co_await http::async_write_header(stream, serializer);
+      tie(ec, _) = co_await http::async_write_header(stream, serializer);
       if (ec) {
         log::debug("[{}] async_write_header failed: {}", name(), ec.message());
         co_return unexpected { ec };
@@ -291,8 +301,7 @@ private:
 
       http::response<http::string_body> res;
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      std::tie(ec, std::ignore)
-          = co_await http::async_read(stream, buffer, res);
+      tie(ec, _) = co_await http::async_read(stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
         co_return unexpected { ec };
@@ -302,15 +311,14 @@ private:
       }
 
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      std::tie(ec, std::ignore)
-          = co_await http::async_write(stream, serializer);
+      tie(ec, _) = co_await http::async_write(stream, serializer);
       if (ec) {
         log::debug("[{}] async_write body failed: {}", name(), ec.message());
         co_return unexpected { ec };
       }
     } else {
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      std::tie(ec, std::ignore) = co_await http::async_write(stream, req);
+      tie(ec, _) = co_await http::async_write(stream, req);
       if (ec) {
         log::debug("[{}] async_write failed: {}", name(), ec.message());
         co_return unexpected { ec };
@@ -320,7 +328,7 @@ private:
     http::response<http::string_body> res;
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    std::tie(ec, std::ignore) = co_await http::async_read(stream, buffer, res);
+    tie(ec, _) = co_await http::async_read(stream, buffer, res);
     if (ec) {
       log::debug("[{}] async_read failed: {}", name(), ec.message());
       co_return unexpected { ec };

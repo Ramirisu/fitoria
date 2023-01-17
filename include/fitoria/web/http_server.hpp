@@ -264,10 +264,13 @@ private:
 #if defined(FITORIA_HAS_OPENSSL)
   net::awaitable<void> do_session(net::ssl_stream stream) const
   {
+    using std::tie;
+
+    net::error_code ec;
+
     net::get_lowest_layer(stream).expires_after(
         builder_.client_request_timeout_);
-
-    auto [ec] = co_await stream.async_handshake(net::ssl::stream_base::server);
+    tie(ec) = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       co_return;
@@ -277,7 +280,7 @@ private:
       co_return;
     }
 
-    std::tie(ec) = co_await stream.async_shutdown();
+    tie(ec) = co_await stream.async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
     }
@@ -287,6 +290,9 @@ private:
   template <typename Stream>
   net::awaitable<net::error_code> do_session_impl(Stream& stream) const
   {
+    using std::tie;
+    auto _ = std::ignore;
+
     net::flat_buffer buffer;
     net::error_code ec;
 
@@ -296,8 +302,7 @@ private:
       // In order to handle "Expect: 100-continue", read request header here
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      std::tie(ec, std::ignore)
-          = co_await http::async_read_header(stream, buffer, req_parser);
+      tie(ec, _) = co_await http::async_read_header(stream, buffer, req_parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -314,7 +319,7 @@ private:
         // directly reply status code 100 continue
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        std::tie(ec, std::ignore) = co_await net::async_write(
+        tie(ec, _) = co_await net::async_write(
             stream,
             http::message_generator(
                 static_cast<http::response<http::string_body>>(
@@ -329,8 +334,7 @@ private:
       // Read the body part of the request
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      std::tie(ec, std::ignore)
-          = co_await http::async_read(stream, buffer, req_parser);
+      tie(ec, _) = co_await http::async_read(stream, buffer, req_parser);
       if (ec) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
         co_return ec;
@@ -347,7 +351,7 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      std::tie(ec, std::ignore) = co_await net::async_write(
+      tie(ec, _) = co_await net::async_write(
           stream, http::message_generator(std::move(res)));
       if (ec) {
         log::debug("[{}] async_write failed: {}", name(), ec.message());
