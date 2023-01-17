@@ -5,11 +5,9 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "fitoria/core/optional.hpp"
 #include <fitoria_test.h>
 
-#include <fitoria_certificate.h>
-
+#include <fitoria/web/cacert.hpp>
 #include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
@@ -70,9 +68,11 @@ TEST_CASE("send")
     auto c = http_client::from_url("https://httpbin.org/get")
                  .value()
                  .set_method(http::verb::get);
-    auto res
-        = c.send(cacert::get_client_ssl_ctx(net::ssl::context::method::tls))
-              .value();
+
+    auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
+    ssl_ctx.set_verify_mode(net::ssl::verify_peer);
+    cacert::add_builtin_cacerts(ssl_ctx);
+    auto res = c.send(std::move(ssl_ctx)).value();
     CHECK_EQ(res.status_code(), http::status::ok);
   }
 #endif
@@ -110,9 +110,10 @@ TEST_CASE("async_send")
     auto c = http_client::from_url("https://httpbin.org/get")
                  .value()
                  .set_method(http::verb::get);
-    auto res
-        = send(c, cacert::get_client_ssl_ctx(net::ssl::context::method::tls))
-              .value();
+    auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
+    ssl_ctx.set_verify_mode(net::ssl::verify_peer);
+    cacert::add_builtin_cacerts(ssl_ctx);
+    auto res = send(c, std::move(ssl_ctx)).value();
     CHECK_EQ(res.status_code(), http::status::ok);
   }
 #endif

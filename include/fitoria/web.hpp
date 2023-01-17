@@ -14,8 +14,11 @@
 #include <fitoria/web/basic_router.hpp>
 #include <fitoria/web/basic_router_tree.hpp>
 #include <fitoria/web/basic_scope.hpp>
+#include <fitoria/web/cacert.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/handlers_invoker.hpp>
+#include <fitoria/web/http.hpp>
+#include <fitoria/web/http_client.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/http_message.hpp>
@@ -29,4 +32,3 @@
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/router_tree.hpp>
 #include <fitoria/web/scope.hpp>
-
