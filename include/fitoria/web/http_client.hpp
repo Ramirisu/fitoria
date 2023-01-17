@@ -162,6 +162,19 @@ public:
   }
 #endif
 
+  net::awaitable<expected<http_response, error_code>> async_send()
+  {
+    co_return co_await do_session();
+  }
+
+#if defined(FITORIA_HAS_OPENSSL)
+  net::awaitable<expected<http_response, error_code>>
+  async_send(net::ssl::context ssl_ctx)
+  {
+    co_return co_await do_session(std::move(ssl_ctx));
+  }
+#endif
+
   const char* name() const noexcept
   {
     return "fitoria.http_client";

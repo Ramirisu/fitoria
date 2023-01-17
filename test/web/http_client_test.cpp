@@ -78,4 +78,43 @@ TEST_CASE("send")
 #endif
 }
 
+TEST_CASE("async_send")
+{
+  {
+    auto send = [](http_client& c) -> expected<http_response, error_code> {
+      net::io_context ioc;
+      auto res = net::co_spawn(ioc, c.async_send(), net::use_future);
+      ioc.run();
+      return res.get();
+    };
+
+    auto c = http_client::from_url("http://httpbin.org/get")
+                 .value()
+                 .set_method(http::verb::get);
+    auto res = send(c).value();
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+#if defined(FITORIA_HAS_OPENSSL)
+  {
+    auto send
+        = [](http_client& c,
+             net::ssl::context ssl_ctx) -> expected<http_response, error_code> {
+      net::io_context ioc;
+      auto res = net::co_spawn(ioc, c.async_send(std::move(ssl_ctx)),
+                               net::use_future);
+      ioc.run();
+      return res.get();
+    };
+
+    auto c = http_client::from_url("https://httpbin.org/get")
+                 .value()
+                 .set_method(http::verb::get);
+    auto res
+        = send(c, cacert::get_client_ssl_ctx(net::ssl::context::method::tls))
+              .value();
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+#endif
+}
+
 TEST_SUITE_END();
