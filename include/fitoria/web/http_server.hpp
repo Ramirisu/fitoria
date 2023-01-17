@@ -301,7 +301,6 @@ private:
     for (;;) {
       http::request_parser<http::string_body> req_parser;
 
-      // In order to handle "Expect: 100-continue", read request header here
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
       tie(ec, _) = co_await http::async_read_header(stream, buffer, req_parser);
@@ -317,15 +316,12 @@ private:
 
       if (auto it = req.find(http::field::expect);
           it != req.end() && it->value() == "100-continue") {
-        // If "Expect: 100-continue" is presented,
-        // directly reply status code 100 continue
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await net::async_write(
+        tie(ec, _) = co_await http::async_write(
             stream,
-            http::message_generator(
-                static_cast<http::response<http::string_body>>(
-                    http_response(http::status::continue_))));
+            static_cast<http::response<http::string_body>>(
+                http_response(http::status::continue_)));
         if (ec) {
           log::debug("[{}] async_write 100-continue failed: {}", name(),
                      ec.message());
@@ -333,7 +329,6 @@ private:
         }
       }
 
-      // Read the body part of the request
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
       tie(ec, _) = co_await http::async_read(stream, buffer, req_parser);
@@ -353,8 +348,7 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await net::async_write(
-          stream, http::message_generator(std::move(res)));
+      tie(ec, _) = co_await http::async_write(stream, std::move(res));
       if (ec) {
         log::debug("[{}] async_write failed: {}", name(), ec.message());
         co_return ec;
