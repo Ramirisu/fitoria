@@ -81,7 +81,8 @@ TEST_CASE("send")
 TEST_CASE("async_send")
 {
   {
-    auto send = [](http_client& c) -> expected<http_response, error_code> {
+    auto send
+        = [](const http_client& c) -> expected<http_response, error_code> {
       net::io_context ioc;
       auto res = net::co_spawn(ioc, c.async_send(), net::use_future);
       ioc.run();
@@ -97,7 +98,7 @@ TEST_CASE("async_send")
 #if defined(FITORIA_HAS_OPENSSL)
   {
     auto send
-        = [](http_client& c,
+        = [](const http_client& c,
              net::ssl::context ssl_ctx) -> expected<http_response, error_code> {
       net::io_context ioc;
       auto res = net::co_spawn(ioc, c.async_send(std::move(ssl_ctx)),

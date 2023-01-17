@@ -143,7 +143,7 @@ public:
     return *this;
   }
 
-  expected<http_response, error_code> send()
+  expected<http_response, error_code> send() const
   {
     net::io_context ioc;
     auto fut = net::co_spawn(ioc, do_session(), net::use_future);
@@ -152,7 +152,7 @@ public:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  expected<http_response, error_code> send(net::ssl::context ssl_ctx)
+  expected<http_response, error_code> send(net::ssl::context ssl_ctx) const
   {
     net::io_context ioc;
     auto fut
@@ -162,14 +162,14 @@ public:
   }
 #endif
 
-  net::awaitable<expected<http_response, error_code>> async_send()
+  net::awaitable<expected<http_response, error_code>> async_send() const
   {
     co_return co_await do_session();
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
   net::awaitable<expected<http_response, error_code>>
-  async_send(net::ssl::context ssl_ctx)
+  async_send(net::ssl::context ssl_ctx) const
   {
     co_return co_await do_session(std::move(ssl_ctx));
   }
@@ -181,12 +181,12 @@ public:
   }
 
 private:
-  net::awaitable<net::resolver> new_resolver()
+  net::awaitable<net::resolver> new_resolver() const
   {
     co_return net::resolver(co_await net::this_coro::executor);
   }
 
-  net::awaitable<expected<http_response, error_code>> do_session()
+  net::awaitable<expected<http_response, error_code>> do_session() const
   {
     auto resolver = co_await new_resolver();
     auto stream = net::tcp_stream(co_await net::this_coro::executor);
@@ -218,7 +218,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   net::awaitable<expected<http_response, error_code>>
-  do_session(net::ssl::context ssl_ctx)
+  do_session(net::ssl::context ssl_ctx) const
   {
     auto resolver = co_await new_resolver();
     auto stream = net::ssl_stream(co_await net::this_coro::executor, ssl_ctx);
@@ -266,7 +266,7 @@ private:
 
   template <typename Stream>
   net::awaitable<expected<http::response<http::string_body>, error_code>>
-  do_session_impl(Stream& stream)
+  do_session_impl(Stream& stream) const
   {
     http::request<http::string_body> req { method_, target_, 11 };
     for (auto& [name, value] : header_) {
