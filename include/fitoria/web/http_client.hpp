@@ -23,6 +23,12 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_client {
+  struct location {
+    std::string host;
+    std::uint16_t port;
+    std::string target;
+  };
+
 public:
   http_client(std::string host, std::uint16_t port, std::string target)
       : host_(std::move(host))
@@ -33,26 +39,9 @@ public:
 
   static expected<http_client, error_code> from_url(std::string url)
   {
-    auto res = urls::parse_uri(url);
-    if (!res) {
-      return unexpected { res.error() };
-    }
-
-    auto port_number = res->port_number();
-    if (port_number == 0) {
-      switch (res->scheme_id()) {
-      case urls::scheme::https:
-        port_number = 443;
-        break;
-      case urls::scheme::http:
-      default:
-        port_number = 80;
-        break;
-      }
-    }
-
-    return http_client(std::string(res->encoded_host()), port_number,
-                       std::string(res->encoded_target()));
+    return parse_uri(std::move(url)).transform([](auto&& loc) {
+      return http_client(std::move(loc.host), loc.port, std::move(loc.target));
+    });
   }
 
   const std::string& host() const noexcept
@@ -181,6 +170,30 @@ public:
   }
 
 private:
+  static expected<location, error_code> parse_uri(std::string url)
+  {
+    auto res = urls::parse_uri(url);
+    if (!res) {
+      return unexpected { res.error() };
+    }
+
+    auto port_number = res->port_number();
+    if (port_number == 0) {
+      switch (res->scheme_id()) {
+      case urls::scheme::https:
+        port_number = 443;
+        break;
+      case urls::scheme::http:
+      default:
+        port_number = 80;
+        break;
+      }
+    }
+
+    return location { std::string(res->encoded_host()), port_number,
+                      std::string(res->encoded_target()) };
+  }
+
   net::awaitable<
       expected<net::ip::basic_resolver_results<net::ip::tcp>, error_code>>
   do_resolve() const
