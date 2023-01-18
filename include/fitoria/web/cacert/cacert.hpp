@@ -16,10 +16,9 @@ FITORIA_NAMESPACE_BEGIN
 namespace cacert {
 
 #if defined(FITORIA_HAS_OPENSSL)
-void add_builtin_cacerts(net::ssl::context& ssl_ctx)
+inline void add_builtin_cacerts(net::ssl::context& ssl_ctx)
 {
   // clang-format off
-  std::string cacerts = 
   // https://curl.se/docs/caextract.html
   // 2023-01-10 
   
@@ -41,6 +40,7 @@ void add_builtin_cacerts(net::ssl::context& ssl_ctx)
   // ## Conversion done with mk-ca-bundle.pl version 1.29.
   // ## SHA256: 90c470e705b4b5f36f09684dc50e2b79c8b86989a848b62cd1a7bd6460ee65f6
   // ##
+  std::string_view cacerts_p1 = 
   // GlobalSign Root CA
   // ==================
   "-----BEGIN CERTIFICATE-----\n"
@@ -798,7 +798,9 @@ void add_builtin_cacerts(net::ssl::context& ssl_ctx)
   "N8Gb5DKj7Tjo2GTzLH4U/ALqn83/B2gX2yKQOC16jdFU8WnjXzPKej17CuPKf1855eJ1usV2GDPO\n"
   "LPAvTK33sefOT6jEm0pUBsV/fdUID+Ic/n4XuKxe9tQWskMJDE32p2u0mYRlynqI4uJEvlz36hz1\n"
   "-----END CERTIFICATE-----\n"
-  "\n"
+  "\n";
+
+  std::string_view cacerts_p2 = 
   // Starfield Root Certificate Authority - G2
   // =========================================
   "-----BEGIN CERTIFICATE-----\n"
@@ -1621,7 +1623,9 @@ void add_builtin_cacerts(net::ssl::context& ssl_ctx)
   "sAvgnEzDHNb842m1R0aBL6KCq9NjRHDEjf8tM7qtj3u1cIiuPhnPQCjY/MiQu12ZIvVS5ljFH4gx\n"
   "Q+6IHdfGjjxDah2nGN59PRbxYvnKkKj9\n"
   "-----END CERTIFICATE-----\n"
-  "\n"
+  "\n";
+
+  std::string_view cacerts_p3 = 
   // USERTrust ECC Certification Authority
   // =====================================
   "-----BEGIN CERTIFICATE-----\n"
@@ -2400,7 +2404,9 @@ void add_builtin_cacerts(net::ssl::context& ssl_ctx)
   "wC68AivTxEDkigcxHpvOJpkT+xHqmiIMERnHXhuBUDDIlhJu58tBf5E7oke3VIAb3ADMmpDqw8NQ\n"
   "BmIMMMAVSKeoWXzhriKi4gp6D/piq1JM4fHfyr6DDUI=\n"
   "-----END CERTIFICATE-----\n"
-  "\n"
+  "\n";
+
+  std::string_view cacerts_p4 =
   // emSign ECC Root CA - C3
   // =======================
   "-----BEGIN CERTIFICATE-----\n"
@@ -3396,7 +3402,13 @@ void add_builtin_cacerts(net::ssl::context& ssl_ctx)
   // clang-format on
 
   ssl_ctx.add_certificate_authority(
-      net::buffer(cacerts.data(), cacerts.size()));
+      net::buffer(cacerts_p1.data(), cacerts_p1.size()));
+  ssl_ctx.add_certificate_authority(
+      net::buffer(cacerts_p2.data(), cacerts_p2.size()));
+  ssl_ctx.add_certificate_authority(
+      net::buffer(cacerts_p3.data(), cacerts_p3.size()));
+  ssl_ctx.add_certificate_authority(
+      net::buffer(cacerts_p4.data(), cacerts_p4.size()));
 }
 
 #endif
