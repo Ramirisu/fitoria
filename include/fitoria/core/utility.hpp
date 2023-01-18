@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_UTILITY_HPP
+#define FITORIA_CORE_UTILITY_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -20,3 +21,5 @@ auto to_underlying(E e) noexcept
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

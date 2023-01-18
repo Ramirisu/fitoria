@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_HPP
+#define FITORIA_WEB_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -16,8 +17,6 @@
 #include <fitoria/web/basic_scope.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/handlers_invoker.hpp>
-#include <fitoria/web/http.hpp>
-#include <fitoria/web/http_client.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/http_message.hpp>
@@ -31,3 +30,5 @@
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/router_tree.hpp>
 #include <fitoria/web/scope.hpp>
+
+#endif

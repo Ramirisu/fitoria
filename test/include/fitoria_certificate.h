@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_FITORIA_CERTIFICATE_HPP
+#define FITORIA_FITORIA_CERTIFICATE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -204,3 +205,5 @@ inline void add_builtin_cacerts(net::ssl::context& ssl_ctx)
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_HTTP_ROUTE_HPP
+#define FITORIA_WEB_HTTP_ROUTE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -35,3 +36,5 @@ private:
 };
 
 FITORIA_NAMESPACE_END
+
+#endif

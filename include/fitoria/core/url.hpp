@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_URL_HPP
+#define FITORIA_CORE_URL_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -16,3 +17,5 @@ FITORIA_NAMESPACE_BEGIN
 namespace urls = boost::urls;
 
 FITORIA_NAMESPACE_END
+
+#endif

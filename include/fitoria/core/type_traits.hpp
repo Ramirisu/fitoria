@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_TYPE_TRAITS_HPP
+#define FITORIA_CORE_TYPE_TRAITS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -94,3 +95,5 @@ struct function_traits<R (C::*)(Args...) const && noexcept>
     : function_traits_helper<R(Args...)> { };
 
 FITORIA_NAMESPACE_END
+
+#endif

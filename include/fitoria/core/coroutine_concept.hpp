@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_COROUTINE_CONCEPT_HPP
+#define FITORIA_CORE_COROUTINE_CONCEPT_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -25,3 +26,5 @@ using await_result_t
     = decltype(std::declval<awaiter_type_t<T>&>().await_resume());
 
 FITORIA_NAMESPACE_END
+
+#endif

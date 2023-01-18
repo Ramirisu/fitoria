@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_FWD_HPP
+#define FITORIA_CORE_FWD_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -16,3 +17,5 @@ class http_response;
 class http_context;
 
 FITORIA_NAMESPACE_END
+
+#endif

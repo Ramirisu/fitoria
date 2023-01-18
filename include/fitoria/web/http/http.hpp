@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_HTTP_HTTP_HPP
+#define FITORIA_WEB_HTTP_HTTP_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -39,3 +40,5 @@ using boost::beast::http::to_status_class;
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

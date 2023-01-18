@@ -5,9 +5,12 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_MIDDLEWARE_HPP
+#define FITORIA_WEB_MIDDLEWARE_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/middleware/exception_handler.hpp>
 #include <fitoria/web/middleware/logger.hpp>
+
+#endif

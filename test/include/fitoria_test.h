@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_FITORIA_TEST_HPP
+#define FITORIA_FITORIA_TEST_HPP
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
@@ -21,3 +22,5 @@ bool range_equal(const L& lhs,
   return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
                     std::move(comparator));
 }
+
+#endif

@@ -5,14 +5,14 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_DETAIL_COROUTINE_CONCEPT_HPP
+#define FITORIA_CORE_DETAIL_COROUTINE_CONCEPT_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <concepts>
 #include <coroutine>
 #include <utility>
-
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -61,3 +61,5 @@ decltype(auto) get_awaiter(Awaiter&& awaiter) noexcept(
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

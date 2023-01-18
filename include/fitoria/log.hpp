@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_LOG_HPP
+#define FITORIA_LOG_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -14,3 +15,5 @@
 #include <fitoria/log/logger.hpp>
 #include <fitoria/log/stdout_writer.hpp>
 #include <fitoria/log/writer.hpp>
+
+#endif

@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_LOG_LOG_HPP
+#define FITORIA_LOG_LOG_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -78,3 +79,5 @@ fatal(Args&&...) -> fatal<Args...>;
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

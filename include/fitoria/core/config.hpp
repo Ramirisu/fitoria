@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_CONFIG_HPP
+#define FITORIA_CORE_CONFIG_HPP
 
 #include <cassert>
 
@@ -44,4 +45,6 @@
 #define FITORIA_HAS_FMT
 #else
 #error "requires formatting library"
+#endif
+
 #endif

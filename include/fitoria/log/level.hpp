@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_LOG_LEVEL_HPP
+#define FITORIA_LOG_LEVEL_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -13,7 +14,6 @@
 #include <cctype>
 #include <string>
 #include <string_view>
-
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -75,3 +75,5 @@ inline level to_level(std::string_view sv)
 }
 
 FITORIA_NAMESPACE_END
+
+#endif

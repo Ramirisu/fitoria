@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_HTTP_STATUS_CODE_HPP
+#define FITORIA_WEB_HTTP_STATUS_CODE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -76,3 +77,5 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::status_code>
         format(FITORIA_NAMESPACE::to_underlying(status_code.value()), ctx);
   }
 };
+
+#endif

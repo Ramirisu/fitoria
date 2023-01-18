@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_FORMAT_HPP
+#define FITORIA_CORE_FORMAT_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -33,5 +34,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace fmt = fmt;
 
 FITORIA_NAMESPACE_END
+
+#endif
 
 #endif

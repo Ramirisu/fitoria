@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_WEB_SCOPE_HPP
+#define FITORIA_WEB_SCOPE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -25,3 +26,5 @@ using scope = basic_scope<
     basic_handler<http_request&, net::awaitable<http_response>>>;
 
 FITORIA_NAMESPACE_END
+
+#endif

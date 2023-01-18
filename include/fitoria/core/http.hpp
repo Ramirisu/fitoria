@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_HTTP_HPP
+#define FITORIA_CORE_HTTP_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -20,4 +21,6 @@
 #if defined(FITORIA_CXX_COMPILER_MSVC)
 // boost/asio/buffer.hpp(247): warning C4702: unreachable code
 #pragma warning(pop)
+#endif
+
 #endif

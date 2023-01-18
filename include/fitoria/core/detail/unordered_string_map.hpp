@@ -5,7 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#pragma once
+#ifndef FITORIA_CORE_DETAIL_UNORDERED_STRING_MAP_HPP
+#define FITORIA_CORE_DETAIL_UNORDERED_STRING_MAP_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -46,3 +47,5 @@ struct string_hash {
 }
 
 FITORIA_NAMESPACE_END
+
+#endif
