@@ -11,6 +11,7 @@ jobs:
         cxx: [g++-12]
         std: [20]
         build_type: [Debug]
+        generator: [Ninja]
 
     steps:
       - uses: actions/checkout@v3
@@ -38,6 +39,7 @@ jobs:
         run: |
           cmake \
             -B build \
+            -G "${{ matrix.generator }}" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
