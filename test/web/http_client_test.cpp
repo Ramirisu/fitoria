@@ -7,7 +7,8 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/web/cacert.hpp>
+#include <fitoria_certificate.h>
+
 #include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
