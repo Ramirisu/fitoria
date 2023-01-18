@@ -9,6 +9,28 @@
 
 using namespace fitoria;
 
+// clang-format off
+// 
+// $ ./scope
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
+//
+// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
+// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (in) [scope.cpp:25:15]
+// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/users/{user} [scope.cpp:59:45]
+// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (out) [scope.cpp:27:15]
+// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
+//
+// $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu --verbose
+//
+// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
+// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (in) [scope.cpp:25:15]
+// > 2023-01-01T00:00:00Z DEBUG route: /api/v2/users/{user} [scope.cpp:59:45]
+// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (out) [scope.cpp:27:15]
+// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
+// 
+//
+// clang-format on
+
 namespace my_middleware {
 
 auto log(http_context& c) -> net::awaitable<http_response>
@@ -74,28 +96,6 @@ void configure_application(http_server::builder& builder)
                                   co_return http_response(http::status::ok);
                                 }))));
 }
-
-// clang-format off
-// 
-// $ ./scope
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
-//
-// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
-// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (in) [scope.cpp:25:15]
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/users/{user} [scope.cpp:59:45]
-// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (out) [scope.cpp:27:15]
-// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
-//
-// $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu --verbose
-//
-// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
-// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (in) [scope.cpp:25:15]
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v2/users/{user} [scope.cpp:59:45]
-// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (out) [scope.cpp:27:15]
-// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
-// 
-//
-// clang-format on
 
 int main()
 {
