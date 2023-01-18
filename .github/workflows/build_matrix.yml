@@ -37,13 +37,14 @@ jobs:
 
       - name: Install dependencies on windows
         if: startsWith(matrix.os, 'windows')
+        shell: bash
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
+          mkdir -p ${{ github.workspace }}/vcpkg_cache
           choco install ninja cmake
           ninja --version
           cmake --version
-          mkdir ${{ github.workspace }}/vcpkg_cache
           vcpkg install boost-asio:x64-windows
           vcpkg install boost-beast:x64-windows
           vcpkg install boost-json:x64-windows
@@ -54,14 +55,15 @@ jobs:
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu')
+        shell: bash
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           sudo apt-get update
+          mkdir -p ${{ github.workspace }}/vcpkg_cache
           sudo apt-get install ninja-build cmake
           ninja --version
           cmake --version
-          mkdir ${{ github.workspace }}/vcpkg_cache
           vcpkg install boost-asio:x64-linux
           vcpkg install boost-beast:x64-linux
           vcpkg install boost-json:x64-linux
@@ -72,13 +74,14 @@ jobs:
 
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
+        shell: bash
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
+          mkdir -p ${{ github.workspace }}/vcpkg_cache
           brew install cmake ninja
           ninja --version
           cmake --version
-          mkdir ${{ github.workspace }}/vcpkg_cache
           vcpkg install boost-asio:x64-osx
           vcpkg install boost-beast:x64-osx
           vcpkg install boost-json:x64-osx
@@ -99,7 +102,8 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
-            -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }}
+            -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }} \
+            -DFITORIA_DISABLE_ZLIB=ON
 
       - name: Build
         shell: bash

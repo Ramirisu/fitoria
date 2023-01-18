@@ -67,7 +67,7 @@ public:
   void set(std::string name, std::string value)
   {
     normalize_field(name);
-    map_.insert({ std::move(name), std::move(value) });
+    map_.insert_or_assign(std::move(name), std::move(value));
   }
 
   void set(http::field name, std::string value)

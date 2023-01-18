@@ -29,11 +29,11 @@ jobs:
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
+          mkdir -p ${{ github.workspace }}/vcpkg_cache
           sudo apt-get update
           sudo apt-get install ninja-build cmake
           ninja --version
           cmake --version
-          mkdir ${{ github.workspace }}/vcpkg_cache
           vcpkg install boost-asio:x64-linux
           vcpkg install boost-beast:x64-linux
           vcpkg install boost-json:x64-linux
@@ -54,6 +54,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
+            -DFITORIA_DISABLE_ZLIB=ON \
             -DFITORIA_ENABLE_CODECOV=ON
 
       - name: Build

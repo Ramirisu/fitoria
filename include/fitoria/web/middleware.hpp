@@ -11,6 +11,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/middleware/exception_handler.hpp>
+#include <fitoria/web/middleware/gzip.hpp>
 #include <fitoria/web/middleware/logger.hpp>
 
 #endif

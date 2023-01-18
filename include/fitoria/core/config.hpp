@@ -39,6 +39,10 @@
 #define FITORIA_CXX_COMPILER_MSVC
 #endif
 
+#if defined(__GNUC__)
+#define FITORIA_CXX_COMPILER_GCC
+#endif
+
 #if defined(__cpp_lib_format) && __has_include(<format>)
 #define FITORIA_HAS_STD_FORMAT
 #elif __has_include(<fmt/core.h>)
