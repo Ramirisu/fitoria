@@ -13,8 +13,6 @@
 #include <fitoria/web/http_message.hpp>
 #include <fitoria/web/http_route.hpp>
 
-#include <chrono>
-
 FITORIA_NAMESPACE_BEGIN
 
 class http_request : public http_message {
@@ -123,6 +121,16 @@ public:
   http_request& set_json(const T& obj)
   {
     base().set_json(obj);
+    return *this;
+  }
+
+  http_request& prepare_payload()
+  {
+    if (!base().body().empty() || method_ == http::verb::options
+        || method_ == http::verb::post || method_ == http::verb::put) {
+      set_header(http::field::content_length,
+                 std::to_string(base().body().size()));
+    }
     return *this;
   }
 

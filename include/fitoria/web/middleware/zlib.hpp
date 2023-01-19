@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_MIDDLEWARE_GZIP_HPP
-#define FITORIA_WEB_MIDDLEWARE_GZIP_HPP
+#ifndef FITORIA_WEB_MIDDLEWARE_ZLIB_HPP
+#define FITORIA_WEB_MIDDLEWARE_ZLIB_HPP
 
 #if defined(FITORIA_HAS_ZLIB)
 
@@ -21,11 +21,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace middleware {
 
-class gzip {
+class zlib {
 public:
   net::awaitable<http_response> operator()(http_context& c) const
   {
-    if (c.request().headers().get(http::field::content_encoding) == "gzip") {
+    if (c.request().headers().get(http::field::content_encoding) == "deflate") {
       auto dec = decompress<std::string>(net::const_buffer(
           c.request().body().data(), c.request().body().size()));
       c.request().headers().erase(http::field::content_encoding);
@@ -38,10 +38,10 @@ public:
 
     if (auto ac = c.request().headers().get(http::field::accept_encoding);
         !res.headers().get(http::field::content_encoding) && ac
-        && ac->find("gzip") != std::string::npos) {
+        && ac->find("deflate") != std::string::npos) {
       res.set_body(compress<std::string>(
           net::const_buffer(res.body().data(), res.body().size())));
-      res.headers().set(http::field::content_encoding, "gzip");
+      res.headers().set(http::field::content_encoding, "deflate");
     }
 
     co_return res;
@@ -54,7 +54,7 @@ public:
 
     R out;
     bio::filtering_ostream stream;
-    stream.push(bio::gzip_decompressor());
+    stream.push(bio::zlib_decompressor());
     stream.push(detail::sink(out));
     bio::copy(bio::basic_array_source<char>(static_cast<const char*>(in.data()),
                                             in.size()),
@@ -70,7 +70,7 @@ public:
     R out;
     bio::filtering_ostream stream;
     stream.push(
-        bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
+        bio::zlib_compressor(bio::zlib_params(bio::zlib::best_compression)));
     stream.push(detail::sink(out));
     bio::copy(bio::basic_array_source<char>(static_cast<const char*>(in.data()),
                                             in.size()),

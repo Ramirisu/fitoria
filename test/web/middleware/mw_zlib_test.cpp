@@ -7,27 +7,31 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria_http_server_utils.h>
+#include <fitoria_simple_http_client.h>
+
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.middleware.gzip");
+using namespace fitoria::http_server_utils;
+
+TEST_SUITE_BEGIN("web.middleware.zlib");
 
 #if defined(FITORIA_HAS_ZLIB)
 
-TEST_CASE("gzip decompress")
+TEST_CASE("zlib decompress")
 {
   const auto in = std::vector<std::uint8_t> {
-    0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x4B, 0x4C,
-    0x4A, 0x4E, 0x49, 0x4D, 0x4B, 0xCF, 0xC8, 0xCC, 0xCA, 0xCE, 0xC9, 0xCD,
-    0xCB, 0x2F, 0x28, 0x2C, 0x2A, 0x2E, 0x29, 0x2D, 0x2B, 0xAF, 0xA8, 0xAC,
-    0x32, 0x30, 0x34, 0x32, 0x36, 0x31, 0x35, 0x33, 0xB7, 0xB0, 0x74, 0x74,
-    0x72, 0x76, 0x71, 0x75, 0x73, 0xF7, 0xF0, 0xF4, 0xF2, 0xF6, 0xF1, 0xF5,
-    0xF3, 0x0F, 0x08, 0x0C, 0x0A, 0x0E, 0x09, 0x0D, 0x0B, 0x8F, 0x88, 0x8C,
-    0x02, 0x00, 0x32, 0xFA, 0xF8, 0x21, 0x3E, 0x00, 0x00, 0x00
+    0x78, 0xda, 0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b, 0xcf, 0xc8, 0xcc,
+    0xca, 0xce, 0xc9, 0xcd, 0xcb, 0x2f, 0x28, 0x2c, 0x2a, 0x2e, 0x29, 0x2d,
+    0x2b, 0xaf, 0xa8, 0xac, 0x32, 0x30, 0x34, 0x32, 0x36, 0x31, 0x35, 0x33,
+    0xb7, 0xb0, 0x74, 0x74, 0x72, 0x76, 0x71, 0x75, 0x73, 0xf7, 0xf0, 0xf4,
+    0xf2, 0xf6, 0xf1, 0xf5, 0xf3, 0x0f, 0x08, 0x0c, 0x0a, 0x0e, 0x09, 0x0d,
+    0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00, 0xc5, 0xf7, 0x15, 0x0c
   };
 
-  auto out = middleware::gzip::decompress<std::string>(
+  auto out = middleware::zlib::decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -35,21 +39,21 @@ TEST_CASE("gzip decompress")
   CHECK_EQ(out, exp);
 }
 
-TEST_CASE("gzip compress")
+TEST_CASE("zlib compress")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto intermediate = middleware::gzip::compress<std::vector<std::uint8_t>>(
+  auto intermediate = middleware::zlib::compress<std::vector<std::uint8_t>>(
       net::const_buffer(in.data(), in.size()));
 
-  auto out = middleware::gzip::decompress<std::string>(
+  auto out = middleware::zlib::decompress<std::string>(
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
 }
 
-TEST_CASE("gzip middleware")
+TEST_CASE("zlib middleware")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -57,7 +61,7 @@ TEST_CASE("gzip middleware")
   auto server
       = http_server::builder()
             .route(scope("/api")
-                       .use(middleware::gzip())
+                       .use(middleware::zlib())
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
@@ -74,15 +78,15 @@ TEST_CASE("gzip middleware")
   auto res = server.serve_http_request(
       http::verb::get, "/api/get",
       http_request()
-          .set_header(http::field::content_encoding, "gzip")
-          .set_header(http::field::accept_encoding, "gzip")
-          .set_body(middleware::gzip::compress<std::string>(
+          .set_header(http::field::content_encoding, "deflate")
+          .set_header(http::field::accept_encoding, "deflate")
+          .set_body(middleware::zlib::compress<std::string>(
               net::const_buffer(in.data(), in.size())))
           .prepare_payload());
   CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.headers().get(http::field::content_encoding), "gzip");
+  CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
   CHECK_EQ(res.body(),
-           middleware::gzip::compress<std::string>(
+           middleware::zlib::compress<std::string>(
                net::const_buffer(in.data(), in.size())));
 }
 
