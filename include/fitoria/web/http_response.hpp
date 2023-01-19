@@ -10,24 +10,21 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
+#include <fitoria/core/json.hpp>
+#include <fitoria/core/url.hpp>
+
+#include <fitoria/web/as_form.hpp>
+#include <fitoria/web/as_json.hpp>
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/http_message.hpp>
+#include <fitoria/web/http_header.hpp>
+#include <fitoria/web/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_response : public http_message {
-  using base_type = http_message;
+class http_response {
   using native_response_t = http::response<http::string_body>;
-
-  base_type& base() noexcept
-  {
-    return static_cast<base_type&>(*this);
-  }
-
-  const base_type& base() const noexcept
-  {
-    return static_cast<const base_type&>(*this);
-  }
 
 public:
   http_response() = default;
@@ -57,28 +54,78 @@ public:
     return *this;
   }
 
+  http_header& headers() noexcept
+  {
+    return header_;
+  }
+
+  const http_header& headers() const noexcept
+  {
+    return header_;
+  }
+
   http_response& set_header(std::string name, std::string value)
   {
-    headers().set(std::move(name), std::move(value));
+    header_.set(std::move(name), std::move(value));
     return *this;
   }
 
   http_response& set_header(http::field name, std::string value)
   {
-    headers().set(name, std::move(value));
+    header_.set(name, std::move(value));
     return *this;
+  }
+
+  std::string& body() noexcept
+  {
+    return body_;
+  }
+
+  const std::string& body() const noexcept
+  {
+    return body_;
+  }
+
+  template <typename T = json::value>
+  expected<T, error_code> body_as_json() const
+  {
+    if (!headers()
+             .get(http::field::content_type)
+             .value_or("")
+             .starts_with("application/json")) {
+      return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    return as_json<T>(body());
+  }
+
+  expected<query_map, error_code> body_as_form() const
+  {
+    if (!headers()
+             .get(http::field::content_type)
+             .value_or("")
+             .starts_with("application/x-www-form-urlencoded")) {
+      return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    return as_form(body());
   }
 
   http_response& set_body(std::string body)
   {
-    base().set_body(std::move(body));
+    body_ = std::move(body);
     return *this;
   }
 
   template <typename T = json::value>
   http_response& set_json(const T& obj)
   {
-    base().set_json(obj);
+    if constexpr (std::is_same_v<T, json::value>) {
+      header_.set(http::field::content_type, "application/json");
+      body_ = json::serialize(obj);
+    } else {
+      set_json(json::value_from(obj));
+    }
     return *this;
   }
 
@@ -86,7 +133,7 @@ public:
   {
     native_response_t res;
     res.result(status_code_.value());
-    for (auto&& header : headers()) {
+    for (auto&& header : header_) {
       res.insert(header.first, header.second);
     }
     res.body() = body();
@@ -98,7 +145,7 @@ public:
   {
     native_response_t res;
     res.result(status_code_.value());
-    for (auto&& header : headers()) {
+    for (auto&& header : header_) {
       res.insert(header.first, header.second);
     }
     res.body() = std::move(body());
@@ -108,6 +155,8 @@ public:
 
 private:
   http::status_code status_code_ = http::status::ok;
+  http_header header_;
+  std::string body_;
 };
 
 FITORIA_NAMESPACE_END

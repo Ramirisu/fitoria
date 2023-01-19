@@ -10,10 +10,11 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/web/as_form.hpp>
+#include <fitoria/web/as_json.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_header.hpp>
-#include <fitoria/web/http_message.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_route.hpp>
@@ -27,6 +28,5 @@
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/router_tree.hpp>
 #include <fitoria/web/scope.hpp>
-
 
 #endif
