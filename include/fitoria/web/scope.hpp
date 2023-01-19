@@ -10,20 +10,13 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/net.hpp>
-
-#include <fitoria/web/basic_handler.hpp>
-#include <fitoria/web/basic_middleware.hpp>
 #include <fitoria/web/basic_scope.hpp>
-#include <fitoria/web/http_context.hpp>
-#include <fitoria/web/http_request.hpp>
-#include <fitoria/web/http_response.hpp>
+#include <fitoria/web/handler_t.hpp>
+#include <fitoria/web/middleware_t.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-using scope = basic_scope<
-    basic_middleware<http_context&, net::awaitable<http_response>>,
-    basic_handler<http_request&, net::awaitable<http_response>>>;
+using scope = basic_scope<middleware_t, handler_t>;
 
 FITORIA_NAMESPACE_END
 

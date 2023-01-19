@@ -5,21 +5,23 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_ROUTER_HPP
-#define FITORIA_WEB_ROUTER_HPP
+#ifndef FITORIA_WEB_HTTP_HANDLER_T_HPP
+#define FITORIA_WEB_HTTP_HANDLER_T_HPP
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/fwd.hpp>
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/web/basic_router.hpp>
-#include <fitoria/web/handler_t.hpp>
-#include <fitoria/web/middleware_t.hpp>
+#include <fitoria/web/basic_handler.hpp>
+#include <fitoria/web/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-using router = basic_router<middleware_t, handler_t>;
+using handler_t = basic_handler<http_request&, net::awaitable<http_response>>;
 
 FITORIA_NAMESPACE_END
+
+#include <fitoria/web/http_request.hpp>
 
 #endif

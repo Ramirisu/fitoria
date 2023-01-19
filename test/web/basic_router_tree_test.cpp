@@ -17,10 +17,10 @@ TEST_SUITE_BEGIN("router_tree");
 
 namespace {
 
-using middleware_t = basic_middleware<int, int>;
-using handler_t = basic_handler<int, int>;
+using middleware_type = basic_middleware<int, int>;
+using handler_type = basic_handler<int, int>;
 using router_tree_type
-    = basic_router_tree<basic_router<middleware_t, handler_t>>;
+    = basic_router_tree<basic_router<middleware_type, handler_type>>;
 }
 
 TEST_CASE("try_insert")
@@ -29,7 +29,7 @@ TEST_CASE("try_insert")
 
   auto r = [=](http::verb method, std::string path) {
     return router_tree_type::router_type(method, std::move(path),
-                                         handler_t([](int) { return 0; }));
+                                         handler_type([](int) { return 0; }));
   };
 
   router_tree_type rt;
@@ -70,7 +70,7 @@ TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
     return router_tree_type::router_type(
-        method, std::move(path), handler_t([=](int) -> int { return exp; }));
+        method, std::move(path), handler_type([=](int) -> int { return exp; }));
   };
 
   router_tree_type rt;
