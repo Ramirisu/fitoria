@@ -359,9 +359,14 @@ int main()
 
 #### Middleware
 
-`scope` supports `use` to configure middlewares for its `router`s.
+`scope` supports `use` to configure middlewares for its `router`s. ([Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
-[Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp)
+fitoria provides following build-in middlewares
+
+* `middleware::logger`
+* `middleware::exception_handler`
+* `middleware::zlib`
+* `middleware::gzip`
 
 ```cpp
 
@@ -380,6 +385,8 @@ int main()
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
 #if defined(FITORIA_HAS_ZLIB)
+                    // Register built-in zlib middleware
+                    .use(middleware::zlib())
                     // Register built-in gzip middleware
                     .use(middleware::gzip())
 #endif
