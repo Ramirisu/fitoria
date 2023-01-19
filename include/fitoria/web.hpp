@@ -10,13 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/basic_handler.hpp>
-#include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/basic_router.hpp>
-#include <fitoria/web/basic_router_tree.hpp>
-#include <fitoria/web/basic_scope.hpp>
 #include <fitoria/web/error.hpp>
-#include <fitoria/web/handlers_invoker.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/http_message.hpp>
@@ -24,7 +18,9 @@
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_route.hpp>
 #include <fitoria/web/http_server.hpp>
-#include <fitoria/web/middleware.hpp>
+#include <fitoria/web/middleware/exception_handler.hpp>
+#include <fitoria/web/middleware/gzip.hpp>
+#include <fitoria/web/middleware/logger.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/router.hpp>

@@ -12,17 +12,18 @@
 
 #include <fitoria/core/net.hpp>
 
+#include <fitoria/web/basic_chain_invoker.hpp>
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/handlers_invoker.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
+
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_context {
 public:
-  using invoker_type = handlers_invoker<
+  using invoker_type = basic_chain_invoker<
       basic_middleware<http_context&, net::awaitable<http_response>>,
       basic_handler<http_request&, net::awaitable<http_response>>>;
 

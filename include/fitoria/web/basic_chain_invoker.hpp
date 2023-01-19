@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_HANDLERS_INVOKER_HPP
-#define FITORIA_WEB_HANDLERS_INVOKER_HPP
+#ifndef FITORIA_WEB_BASIC_CHAIN_INVOKER_HPP
+#define FITORIA_WEB_BASIC_CHAIN_INVOKER_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -18,11 +18,11 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename Middleware, typename Handler>
-class handlers_invoker {
+class basic_chain_invoker {
 
 public:
-  handlers_invoker(const std::vector<Middleware>& middlewares,
-                   const Handler& handler)
+  basic_chain_invoker(const std::vector<Middleware>& middlewares,
+                      const Handler& handler)
       : middlewares_(middlewares)
       , curr_(middlewares_.begin())
       , handler_(handler)

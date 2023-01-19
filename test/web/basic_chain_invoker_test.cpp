@@ -9,13 +9,13 @@
 
 #include <fitoria/core/type_traits.hpp>
 
+#include <fitoria/web/basic_chain_invoker.hpp>
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/handlers_invoker.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("handlers_invoker");
+TEST_SUITE_BEGIN("basic_chain_invoker");
 
 namespace {
 
@@ -29,7 +29,7 @@ class request { };
 
 class context {
 public:
-  using invoker_type = handlers_invoker<middleware_type, handler_type>;
+  using invoker_type = basic_chain_invoker<middleware_type, handler_type>;
 
   context(invoker_type invoker)
       : invoker_(std::move(invoker))
@@ -52,7 +52,7 @@ private:
 };
 }
 
-TEST_CASE("handlers invocation order")
+TEST_CASE("invocation order")
 {
   int state = 0;
   std::vector<middleware_type> middlewares {
