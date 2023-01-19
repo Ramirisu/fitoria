@@ -62,7 +62,7 @@ TEST_CASE("send")
                  .value()
                  .set_method(http::verb::get);
     auto res = c.send().value();
-    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.status_code().value(), http::status::ok);
   }
 #if defined(FITORIA_HAS_OPENSSL)
   {
@@ -74,7 +74,7 @@ TEST_CASE("send")
     ssl_ctx.set_verify_mode(net::ssl::verify_peer);
     cacert::add_builtin_cacerts(ssl_ctx);
     auto res = c.send(std::move(ssl_ctx)).value();
-    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.status_code().value(), http::status::ok);
   }
 #endif
 }
@@ -94,7 +94,7 @@ TEST_CASE("async_send")
                  .value()
                  .set_method(http::verb::get);
     auto res = send(c).value();
-    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.status_code().value(), http::status::ok);
   }
 #if defined(FITORIA_HAS_OPENSSL)
   {
@@ -115,7 +115,7 @@ TEST_CASE("async_send")
     ssl_ctx.set_verify_mode(net::ssl::verify_peer);
     cacert::add_builtin_cacerts(ssl_ctx);
     auto res = send(c, std::move(ssl_ctx)).value();
-    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.status_code().value(), http::status::ok);
   }
 #endif
 }
