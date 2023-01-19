@@ -1,10 +1,11 @@
 # Configure
-cmake -B build \
-    -DCMAKE_CXX_COMPILER=/usr/bin/g++-12 \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DFITORIA_BUILD_TESTS=ON \
-    -DFITORIA_ENABLE_CODECOV=ON \
-    -DCPM_SOURCE_CACHE=~/cpm-cache
+cmake \
+  -B build \
+  -DCMAKE_CXX_COMPILER=/usr/bin/g++-12 \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DFITORIA_BUILD_TESTS=ON \
+  -DFITORIA_ENABLE_CODECOV=ON \
+  -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 # Build
 cmake --build build
