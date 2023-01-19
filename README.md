@@ -379,6 +379,10 @@ int main()
                     .use(middleware::logger())
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
+#if defined(FITORIA_HAS_ZLIB)
+                    // Register built-in gzip middleware
+                    .use(middleware::gzip())
+#endif
                     // Register a custom middleware for this group
                     .use([](http_context& c) -> net::awaitable<http_response> {
                       log::debug("before handler");
