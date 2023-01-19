@@ -7,14 +7,9 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria_http_server_utils.h>
-#include <fitoria_simple_http_client.h>
-
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
-
-using namespace fitoria::http_server_utils;
 
 TEST_SUITE_BEGIN("web.middleware.zlib");
 

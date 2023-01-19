@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_route");
+TEST_SUITE_BEGIN("web.http_route");
 
 TEST_CASE("basic")
 {

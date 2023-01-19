@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_server.middleware.exception_handler");
+TEST_SUITE_BEGIN("web.middleware.exception_handler");
 
 TEST_CASE("exception_handler middleware")
 {

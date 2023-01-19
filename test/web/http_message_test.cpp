@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_message");
+TEST_SUITE_BEGIN("web.http_message");
 
 namespace {
 

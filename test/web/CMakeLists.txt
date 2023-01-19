@@ -11,7 +11,6 @@ fitoria_add_test(NAME http_server_test SRCS http_server_test.cpp)
 fitoria_add_test(NAME http_server_tls_test SRCS http_server_tls_test.cpp)
 fitoria_add_test(NAME http_server_unittest_test SRCS
                  http_server_unittest_test.cpp)
-fitoria_add_test(NAME middleware_test SRCS middleware_test.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)

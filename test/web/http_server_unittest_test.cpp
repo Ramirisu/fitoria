@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_server.unittest");
+TEST_SUITE_BEGIN("web.http_server.unittest");
 
 namespace {
 

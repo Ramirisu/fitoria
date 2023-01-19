@@ -17,7 +17,7 @@ using namespace fitoria;
 
 using namespace http_server_utils;
 
-TEST_SUITE_BEGIN("http_server");
+TEST_SUITE_BEGIN("web.http_server");
 
 TEST_CASE("builder")
 {
@@ -151,6 +151,39 @@ TEST_CASE("unhandled exception from handler")
                    .with_field(http::field::connection, "close")
                    .send_request());
   CHECK(got_exception);
+}
+
+TEST_CASE("middlewares invocation order")
+{
+  int state = 0;
+  auto server
+      = http_server::builder()
+            .route(
+                scope("/api")
+                    .use([&](http_context& c) -> net::awaitable<http_response> {
+                      CHECK_EQ(++state, 1);
+                      auto resp = co_await c.next();
+                      CHECK_EQ(++state, 5);
+                      co_return resp;
+                    })
+                    .use([&](http_context& c) -> net::awaitable<http_response> {
+                      CHECK_EQ(++state, 2);
+                      auto resp = co_await c.next();
+                      CHECK_EQ(++state, 4);
+                      co_return resp;
+                    })
+                    .route(http::verb::get, "/get",
+                           [&]([[maybe_unused]] http_request& req)
+                               -> net::awaitable<http_response> {
+                             CHECK_EQ(++state, 3);
+                             co_return http_response(http::status::ok);
+                           }))
+            .build();
+
+  auto res
+      = server.serve_http_request(http::verb::get, "/api/get", http_request());
+  CHECK_EQ(res.status_code(), http::status::ok);
+  CHECK_EQ(++state, 6);
 }
 
 TEST_CASE("generic request")

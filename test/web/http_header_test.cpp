@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_header");
+TEST_SUITE_BEGIN("web.http_header");
 
 TEST_CASE("basic")
 {

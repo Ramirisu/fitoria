@@ -13,7 +13,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("http_client");
+TEST_SUITE_BEGIN("web.http_client");
 
 TEST_CASE("basic")
 {
