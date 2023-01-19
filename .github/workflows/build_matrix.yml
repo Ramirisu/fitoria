@@ -22,15 +22,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        
-      - name: Cache CPM.cmake packages
-        id: cache-cpm
+      
+      - name: Cache vcpkg
+        id: cache-vcpkg
         uses: actions/cache@v3
         with:
-          path: ~/cpm-cache
-          key: ${{ runner.os }}-cpm-${{ hashFiles('**/') }}
-          restore-keys: |
-            ${{ runner.os }}-cpm-
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/') }}
+          restore-keys: ${{ runner.os }}-vcpkg-
 
       - name: Add msbuild to PATH env
         if: matrix.cxx == 'cl'
@@ -38,26 +37,55 @@ jobs:
 
       - name: Install dependencies on windows
         if: startsWith(matrix.os, 'windows')
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
-          choco install ninja cmake openssl
+          choco install ninja cmake
           ninja --version
           cmake --version
+          mkdir ${{ github.workspace }}/vcpkg_cache
+          vcpkg install boost-asio:x64-windows
+          vcpkg install boost-beast:x64-windows
+          vcpkg install boost-json:x64-windows
+          vcpkg install boost-url:x64-windows
+          vcpkg install openssl:x64-windows
+          vcpkg install fmt:x64-windows
+          vcpkg install doctest:x64-windows
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu')
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake libssl-dev
-          ${{ matrix.install }}
+          sudo apt-get install ninja-build cmake
           ninja --version
           cmake --version
+          mkdir ${{ github.workspace }}/vcpkg_cache
+          vcpkg install boost-asio:x64-linux
+          vcpkg install boost-beast:x64-linux
+          vcpkg install boost-json:x64-linux
+          vcpkg install boost-url:x64-linux
+          vcpkg install openssl:x64-linux
+          vcpkg install fmt:x64-linux
+          vcpkg install doctest:x64-linux
 
       - name: Install dependencies on macos
         if: startsWith(matrix.os, 'macos')
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           brew install cmake ninja
           ninja --version
           cmake --version
+          mkdir ${{ github.workspace }}/vcpkg_cache
+          vcpkg install boost-asio:x64-osx
+          vcpkg install boost-beast:x64-osx
+          vcpkg install boost-json:x64-osx
+          vcpkg install boost-url:x64-osx
+          vcpkg install openssl:x64-osx
+          vcpkg install fmt:x64-osx
+          vcpkg install doctest:x64-osx
 
       - name: Configure
         shell: bash
@@ -68,7 +96,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
-            -DCPM_SOURCE_CACHE=~/cpm-cache \
+            -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
             -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }}

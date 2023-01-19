@@ -15,24 +15,32 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        
-      - name: Cache CPM.cmake packages
-        id: cache-cpm
+      
+      - name: Cache vcpkg
+        id: cache-vcpkg
         uses: actions/cache@v3
         with:
-          path: ~/cpm-cache
-          key: ${{ runner.os }}-cpm-${{ hashFiles('**/') }}
-          restore-keys: |
-            ${{ runner.os }}-cpm-
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/') }}
+          restore-keys: ${{ runner.os }}-vcpkg-
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os, 'ubuntu')
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake libssl-dev
-          ${{ matrix.install }}
+          sudo apt-get install ninja-build cmake
           ninja --version
           cmake --version
+          mkdir ${{ github.workspace }}/vcpkg_cache
+          vcpkg install boost-asio:x64-linux
+          vcpkg install boost-beast:x64-linux
+          vcpkg install boost-json:x64-linux
+          vcpkg install boost-url:x64-linux
+          vcpkg install openssl:x64-linux
+          vcpkg install fmt:x64-linux
+          vcpkg install doctest:x64-linux
 
       - name: Configure
         shell: bash
@@ -43,14 +51,14 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
-            -DCPM_SOURCE_CACHE=~/cpm-cache \
+            -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
             -DFITORIA_ENABLE_CODECOV=ON
 
       - name: Build
         shell: bash
-        run: cmake --build build
+        run: cmake --build build --config ${{ matrix.build_type }}
 
       - name: Test
         shell: bash

@@ -433,14 +433,11 @@ Dependencies
 
 CMake
 
-| Option                  | Description                              | Value  | Default |
-| :---------------------- | :--------------------------------------- | :----: | :-----: |
-| FITORIA_BUILD_EXAMPLES  | Build examples                           | ON/OFF |   OFF   |
-| FITORIA_BUILD_TESTS     | Build tests                              | ON/OFF |   OFF   |
-| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL                       | ON/OFF |   OFF   |
-| FITORIA_DISABLE_CPM     | Do not use CPM.cmake to download library | ON/OFF |   OFF   |
-
-* `fitoria` calls `find_package` to search the dependencies first. If not found, will try to use CPM.cmake to download the dependencies.
+| Option                  | Description        | Value  | Default |
+| :---------------------- | :----------------- | :----: | :-----: |
+| FITORIA_BUILD_EXAMPLES  | Build examples     | ON/OFF |   OFF   |
+| FITORIA_BUILD_TESTS     | Build tests        | ON/OFF |   OFF   |
+| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL | ON/OFF |   OFF   |
 
 ```sh
 git clone https://github.com/Ramirisu/fitoria.git
