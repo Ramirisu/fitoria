@@ -56,16 +56,6 @@ int main()
       .bind_ssl("127.0.0.1", 8443,
                 cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
 #endif
-      // Notify workers to start the IO loop
-      // Notice that `run()` will not block current thread
+      // Start the server, `run()` will block current thread.
       .run();
-
-  // Register signals to terminate the server
-  net::signal_set signal(server.get_execution_context(), SIGINT, SIGTERM);
-  signal.async_wait([&](auto, auto) { server.stop(); });
-
-  // Block current thread, current thread will process the IO loop
-  server.wait();
-
-  return 0;
 }

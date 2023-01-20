@@ -19,7 +19,6 @@
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/router_tree.hpp>
 #include <fitoria/web/scope.hpp>
-#include <system_error>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -39,12 +38,6 @@ public:
       requires std::invocable<F, builder&>
     {
       std::invoke(std::forward<F>(f), *this);
-      return *this;
-    }
-
-    builder& set_threads(std::uint32_t num) noexcept
-    {
-      threads_ = std::max(num, 1U);
       return *this;
     }
 
@@ -104,7 +97,6 @@ public:
       return "fitoria.builder";
     }
 
-    std::uint32_t threads_ = std::thread::hardware_concurrency();
     int max_listen_connections_ = net::socket_base::max_listen_connections;
     std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
     std::function<void(std::exception_ptr)> exception_handler_
@@ -112,26 +104,15 @@ public:
     router_tree router_tree_;
   };
 
-  using execution_context = net::io_context;
-
   http_server(builder builder)
       : builder_(std::move(builder))
-      , ioc_(static_cast<int>(builder_.threads_))
-      , thread_pool_(builder_.threads_)
   {
-  }
-
-  ~http_server()
-  {
-    stop();
   }
 
   http_server& bind(std::string_view addr, std::uint16_t port)
   {
-    net::co_spawn(
-        ioc_,
-        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        builder_.exception_handler_);
+    tasks_.push_back(
+        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)));
 
     return *this;
   }
@@ -140,24 +121,31 @@ public:
   http_server&
   bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
   {
-    net::co_spawn(
-        ioc_,
+    tasks_.push_back(
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
-                  std::move(ssl_ctx)),
-        builder_.exception_handler_);
+                  std::move(ssl_ctx)));
 
     return *this;
   }
 #endif
 
-  http_server& run()
+  void run(std::uint32_t threads = std::thread::hardware_concurrency())
   {
-    log::info("[{}] starting with {} workers", name(), builder_.threads_);
-    for (auto i = 0U; i < builder_.threads_; ++i) {
-      net::post(thread_pool_, [&]() { ioc_.run(); });
+    log::info("[{}] starting server with {} workers", name(), threads);
+    net::io_context ioc(threads);
+    run_impl(ioc);
+    net::thread_pool tp(threads);
+    for (auto i = std::uint32_t(1); i < threads; ++i) {
+      net::post(tp, [&]() { ioc.run(); });
     }
+    ioc.run();
+  }
 
-    return *this;
+  net::awaitable<void> async_run()
+  {
+    log::info("[{}] starting server", name());
+    run_impl(co_await net::this_coro::executor);
+    co_return;
   }
 
   http_response serve_http_request(http::verb method,
@@ -174,7 +162,7 @@ public:
       return std::string(url.encoded_target());
     };
 
-    execution_context ioc;
+    net::io_context ioc;
     auto response = net::co_spawn(
         ioc,
         do_handler(
@@ -187,23 +175,16 @@ public:
     return response.get();
   }
 
-  void wait()
-  {
-    ioc_.run();
-  }
-
-  void stop()
-  {
-    log::info("[{}] stopping workers", name());
-    ioc_.stop();
-  }
-
-  execution_context& get_execution_context()
-  {
-    return ioc_;
-  }
-
 private:
+  template <typename Executor>
+  void run_impl(Executor&& executor)
+  {
+    for (auto& task : tasks_) {
+      net::co_spawn(executor, std::move(task), builder_.exception_handler_);
+    }
+    tasks_.clear();
+  }
+
   net::awaitable<net::acceptor>
   new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
@@ -427,8 +408,7 @@ private:
   }
 
   builder builder_;
-  execution_context ioc_;
-  net::thread_pool thread_pool_;
+  std::vector<net::awaitable<void>> tasks_;
 };
 
 FITORIA_NAMESPACE_END

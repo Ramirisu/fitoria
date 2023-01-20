@@ -9,12 +9,24 @@
 #include <Windows.h>
 #endif
 
+#include <fitoria_http_server_utils.h>
+
 #include <fitoria/fitoria.hpp>
 
+#include <thread>
+
 using namespace fitoria;
+
+using namespace fitoria::http_server_utils;
 
 int main()
 {
   auto server = http_server::builder().build();
-  server.run();
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+  ioc.stop();
 }

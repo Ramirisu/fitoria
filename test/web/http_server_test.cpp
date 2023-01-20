@@ -5,6 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include <boost/asio/detached.hpp>
 #include <fitoria_test.h>
 
 #include <fitoria_certificate.h>
@@ -12,6 +13,8 @@
 #include <fitoria_simple_http_client.h>
 
 #include <fitoria/web.hpp>
+
+#include <thread>
 
 using namespace fitoria;
 
@@ -23,7 +26,6 @@ TEST_CASE("builder")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .set_threads(1)
                     .set_max_listen_connections(2048)
                     .set_client_request_timeout(std::chrono::seconds(1))
                     .set_exception_handler([](std::exception_ptr ptr) {
@@ -41,7 +43,12 @@ TEST_CASE("builder")
                                     co_return http_response(http::status::ok);
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -49,6 +56,7 @@ TEST_CASE("builder")
                   .with_target("/api")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
+  ioc.stop();
 }
 
 TEST_CASE("duplicate route")
@@ -78,7 +86,12 @@ TEST_CASE("invalid target")
                                     co_return http_response(http::status::ok);
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   const auto test_cases = std::vector {
@@ -95,6 +108,7 @@ TEST_CASE("invalid target")
     CHECK_EQ(resp.at(http::field::content_type), "text/plain");
     CHECK_EQ(resp.body(), "request path is not found");
   }
+  ioc.stop();
 }
 
 TEST_CASE("expect: 100-continue")
@@ -108,7 +122,12 @@ TEST_CASE("expect: 100-continue")
                                     co_return http_response(http::status::ok);
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -119,6 +138,7 @@ TEST_CASE("expect: 100-continue")
                   .with_body("text")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
+  ioc.stop();
 }
 
 TEST_CASE("unhandled exception from handler")
@@ -142,7 +162,12 @@ TEST_CASE("unhandled exception from handler")
                                     co_return http_response(http::status::ok);
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   CHECK_THROWS(simple_http_client(localhost, port)
@@ -151,6 +176,7 @@ TEST_CASE("unhandled exception from handler")
                    .with_field(http::field::connection, "close")
                    .send_request());
   CHECK(got_exception);
+  ioc.stop();
 }
 
 TEST_CASE("middlewares invocation order")
@@ -234,7 +260,12 @@ TEST_CASE("generic request")
                   co_return http_response(http::status::ok);
                 }))
             .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp
@@ -247,6 +278,7 @@ TEST_CASE("generic request")
             .with_body("happy birthday")
             .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
+  ioc.stop();
 }
 
 namespace {
@@ -286,7 +318,12 @@ TEST_CASE("response status only")
                             co_return http_response(http::status::accepted);
                           }))
             .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -298,6 +335,7 @@ TEST_CASE("response status only")
   CHECK_EQ(resp.at(http::field::connection), "close");
   CHECK_EQ(resp.at(http::field::content_length), "0");
   CHECK_EQ(resp.body(), "");
+  ioc.stop();
 }
 
 TEST_CASE("response with plain text")
@@ -313,7 +351,12 @@ TEST_CASE("response with plain text")
                                         .set_body("plain text");
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -324,6 +367,7 @@ TEST_CASE("response with plain text")
   CHECK_EQ(resp.result(), http::status::ok);
   CHECK_EQ(resp.at(http::field::content_type), "text/plain");
   CHECK_EQ(resp.body(), "plain text");
+  ioc.stop();
 }
 
 TEST_CASE("response with json")
@@ -346,7 +390,12 @@ TEST_CASE("response with json")
                                 });
                           }))
             .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -363,6 +412,7 @@ TEST_CASE("response with json")
                { "obj_string", "str" },
                { "obj_array", json::array { false, 7654321, "rts" } },
            })));
+  ioc.stop();
 }
 
 TEST_CASE("response with struct to json")
@@ -381,7 +431,12 @@ TEST_CASE("response with struct to json")
                                         });
                                   }))
                     .build();
-  server.bind(server_ip, port).run();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -396,6 +451,7 @@ TEST_CASE("response with struct to json")
                .name = "Rina Hidaka",
                .birth = "1994/06/15",
            });
+  ioc.stop();
 }
 
 TEST_SUITE_END();

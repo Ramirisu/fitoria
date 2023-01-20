@@ -13,6 +13,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <thread>
+
 using namespace fitoria;
 
 using namespace http_server_utils;
@@ -53,14 +55,19 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
 {
   const auto port = generate_port();
   auto server = http_server::builder().configure(configure_server).build();
-  server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver))
-      .run();
+  server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
+  std::jthread thread([&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = simple_http_client(localhost, port);
   configure_client(client);
   auto resp = client.send_request(cert::get_client_ssl_ctx(client_ssl_ver));
   CHECK_EQ(resp.result(), http::status::ok);
+  ioc.stop();
 }
 
 #if OPENSSL_VERSION_MAJOR < 3
