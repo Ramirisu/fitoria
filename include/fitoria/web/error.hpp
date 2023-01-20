@@ -20,7 +20,6 @@ enum class error {
   route_parse_error,
   route_already_exists,
   route_not_exists,
-  unexpected_content_type,
   invalid_json_format,
   invalid_form_format,
 };
@@ -43,8 +42,6 @@ public:
       return "the route being registered already exists";
     case error::route_not_exists:
       return "the route being searched doesn't exist";
-    case error::unexpected_content_type:
-      return "unexpected `Content-Type` for the request";
     case error::invalid_json_format:
       return "invalid json format";
     case error::invalid_form_format:

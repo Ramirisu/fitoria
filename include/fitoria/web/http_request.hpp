@@ -12,11 +12,7 @@
 
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
-#include <fitoria/core/url.hpp>
 
-#include <fitoria/web/as_form.hpp>
-#include <fitoria/web/as_json.hpp>
-#include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/http_route.hpp>
@@ -147,31 +143,6 @@ public:
   operator const std::string&() const noexcept
   {
     return body_;
-  }
-
-  template <typename T = json::value>
-  expected<T, error_code> body_as_json() const
-  {
-    if (!headers()
-             .get(http::field::content_type)
-             .value_or("")
-             .starts_with("application/json")) {
-      return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    return as_json<T>(body());
-  }
-
-  expected<query_map, error_code> body_as_form() const
-  {
-    if (!headers()
-             .get(http::field::content_type)
-             .value_or("")
-             .starts_with("application/x-www-form-urlencoded")) {
-      return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    return as_form(body());
   }
 
   http_request& set_body(std::string body)

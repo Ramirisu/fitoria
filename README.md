@@ -164,10 +164,14 @@ int main()
             .route(router(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  auto user = req.body_as_form();
+                  if (req.headers().get(http::field::content_type)
+                      != "application/x-www-form-urlencoded") {
+                    co_return http_response(http::status::bad_request);
+                  }
+                  auto user = as_form(req.body());
                   if (!user || user->get("name") != "ramirisu"
                       || user->get("password") != "123456") {
-                    co_return http_response(http::status::bad_request);
+                    co_return http_response(http::status::unauthorized);
                   }
 
                   co_return http_response(http::status::ok);
@@ -225,7 +229,11 @@ int main()
             .route(router(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  auto user = req.body_as_json<user_t>();
+                  if (req.headers().get(http::field::content_type)
+                      != "application/json") {
+                    co_return http_response(http::status::bad_request);
+                  }
+                  auto user = as_json<user_t>(req.body());
                   if (!user) {
                     co_return http_response(http::status::bad_request)
                         .set_json({ { "msg", user.error().message() } });

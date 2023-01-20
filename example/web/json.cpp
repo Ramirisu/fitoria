@@ -56,7 +56,11 @@ int main()
             .route(router(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  auto user = req.body_as_json<user_t>();
+                  if (req.headers().get(http::field::content_type)
+                      != "application/json") {
+                    co_return http_response(http::status::bad_request);
+                  }
+                  auto user = as_json<user_t>(req.body());
                   if (!user) {
                     co_return http_response(http::status::bad_request)
                         .set_json({ { "msg", user.error().message() } });
