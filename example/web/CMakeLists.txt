@@ -1,5 +1,6 @@
-fitoria_add_example(NAME form SRCS form.cpp)
 fitoria_add_example(NAME extractor SRCS extractor.cpp)
+fitoria_add_example(NAME form SRCS form.cpp)
+fitoria_add_example(NAME graceful_shutdown SRCS graceful_shutdown.cpp)
 fitoria_add_example(NAME json SRCS json.cpp)
 fitoria_add_example(NAME middleware SRCS middleware.cpp)
 fitoria_add_example(NAME query_string SRCS query_string.cpp)
