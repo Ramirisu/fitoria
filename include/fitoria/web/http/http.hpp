@@ -37,6 +37,60 @@ using boost::beast::http::request_serializer;
 using boost::beast::http::response;
 using boost::beast::http::string_body;
 using boost::beast::http::to_status_class;
+
+namespace content_type {
+
+  inline std::string_view plaintext() noexcept
+  {
+    return "text/plain; charset=utf-8";
+  }
+
+  inline std::string_view html() noexcept
+  {
+    return "text/html";
+  }
+
+  inline std::string_view xml() noexcept
+  {
+    return "text/xml";
+  }
+
+  inline std::string_view form_urlencoded() noexcept
+  {
+    return "application/x-www-form-urlencoded";
+  }
+
+  inline std::string_view json() noexcept
+  {
+    return "application/json";
+  }
+
+  inline std::string_view octet_stream() noexcept
+  {
+    return "application/octet-stream";
+  }
+
+  inline std::string_view jpeg() noexcept
+  {
+    return "image/jpeg";
+  }
+
+  inline std::string_view png() noexcept
+  {
+    return "image/png";
+  }
+
+  inline std::string_view gif() noexcept
+  {
+    return "image/gif";
+  }
+
+  inline std::string_view svg() noexcept
+  {
+    return "image/svg+xml";
+  }
+}
+
 }
 
 FITORIA_NAMESPACE_END

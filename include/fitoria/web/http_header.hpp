@@ -64,15 +64,15 @@ public:
     map_.clear();
   }
 
-  void set(std::string name, std::string value)
+  void set(std::string name, std::string_view value)
   {
     normalize_field(name);
-    map_.insert_or_assign(std::move(name), std::move(value));
+    map_.insert_or_assign(std::move(name), std::string(value));
   }
 
-  void set(http::field name, std::string value)
+  void set(http::field name, std::string_view value)
   {
-    set(std::string(to_string(name)), std::move(value));
+    set(std::string(to_string(name)), value);
   }
 
   optional<mapped_type&> get(std::string name) noexcept

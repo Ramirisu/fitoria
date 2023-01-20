@@ -60,15 +60,15 @@ public:
     return header_;
   }
 
-  http_response& set_header(std::string name, std::string value)
+  http_response& set_header(std::string name, std::string_view value)
   {
-    header_.set(std::move(name), std::move(value));
+    header_.set(std::move(name), value);
     return *this;
   }
 
-  http_response& set_header(http::field name, std::string value)
+  http_response& set_header(http::field name, std::string_view value)
   {
-    header_.set(name, std::move(value));
+    header_.set(name, value);
     return *this;
   }
 
@@ -92,7 +92,7 @@ public:
   http_response& set_json(const T& obj)
   {
     if constexpr (std::is_same_v<T, json::value>) {
-      header_.set(http::field::content_type, "application/json");
+      header_.set(http::field::content_type, http::content_type::json());
       body_ = json::serialize(obj);
     } else {
       set_json(json::value_from(obj));

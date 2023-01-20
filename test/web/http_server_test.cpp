@@ -380,7 +380,7 @@ TEST_CASE("response with json")
                               -> net::awaitable<http_response> {
                             co_return http_response(http::status::ok)
                                 .set_header(http::field::content_type,
-                                            "application/json")
+                                            http::content_type::json())
                                 .set_json({
                                     { "obj_boolean", true },
                                     { "obj_number", 1234567 },
@@ -404,7 +404,7 @@ TEST_CASE("response with json")
                   .with_field(http::field::connection, "close")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type), "application/json");
+  CHECK_EQ(resp.at(http::field::content_type), http::content_type::json());
   CHECK_EQ(resp.body(),
            json::serialize(json::value({
                { "obj_boolean", true },
@@ -424,7 +424,7 @@ TEST_CASE("response with struct to json")
                                       -> net::awaitable<http_response> {
                                     co_return http_response(http::status::ok)
                                         .set_header(http::field::content_type,
-                                                    "application/json")
+                                                    http::content_type::json())
                                         .set_json(user_t {
                                             .name = "Rina Hidaka",
                                             .birth = "1994/06/15",
@@ -445,7 +445,7 @@ TEST_CASE("response with struct to json")
                   .with_field(http::field::connection, "close")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type), "application/json");
+  CHECK_EQ(resp.at(http::field::content_type), http::content_type::json());
   CHECK_EQ(json::value_to<user_t>(json::parse(resp.body())),
            user_t {
                .name = "Rina Hidaka",
