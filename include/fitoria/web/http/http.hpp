@@ -10,10 +10,10 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
 #include <fitoria/core/http.hpp>
+#include <fitoria/core/optional.hpp>
 #include <fitoria/core/utility.hpp>
-
-#include <type_traits>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -88,6 +88,24 @@ namespace content_type {
   inline std::string_view svg() noexcept
   {
     return "image/svg+xml";
+  }
+}
+
+namespace authorization {
+
+  inline std::string barear(std::string_view token)
+  {
+    return fmt::format("Bearer: {}", token);
+  }
+
+  inline optional<std::string_view> parse_barear(std::string_view str)
+  {
+    const auto prefix = std::string_view("Bearer: ");
+    if (str.starts_with(prefix)) {
+      return str.substr(prefix.size());
+    }
+
+    return nullopt;
   }
 }
 
