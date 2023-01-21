@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("optional");
+TEST_SUITE_BEGIN("core.optional");
 
 namespace {
 template <typename T>

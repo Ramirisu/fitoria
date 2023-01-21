@@ -13,7 +13,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("basic_scope");
+TEST_SUITE_BEGIN("web.basic_scope");
 
 TEST_CASE("basic")
 {

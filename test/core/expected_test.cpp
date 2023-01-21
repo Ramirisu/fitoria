@@ -13,7 +13,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("expected");
+TEST_SUITE_BEGIN("core.expected");
 
 namespace {
 template <typename T>

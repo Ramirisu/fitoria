@@ -15,7 +15,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("basic_chain_invoker");
+TEST_SUITE_BEGIN("web.basic_chain_invoker");
 
 namespace {
 

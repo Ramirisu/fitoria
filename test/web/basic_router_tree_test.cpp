@@ -13,7 +13,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("router_tree");
+TEST_SUITE_BEGIN("web.basic_router_tree");
 
 namespace {
 
