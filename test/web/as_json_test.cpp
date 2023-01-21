@@ -47,11 +47,11 @@ TEST_CASE("body_as_json")
   };
   {
     CHECK_EQ(as_json<user_t>("").error(),
-             make_error_code(error::invalid_json_format));
+             make_error_code(json::error::incomplete));
   }
   {
     CHECK_EQ(as_json<user_t>("{").error(),
-             make_error_code(error::invalid_json_format));
+             make_error_code(json::error::incomplete));
   }
   {
     auto text = json::serialize(jv);

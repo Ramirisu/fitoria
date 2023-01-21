@@ -22,7 +22,7 @@ inline expected<query_map, error_code> as_form(std::string_view text)
 {
   auto res = urls::parse_query(text);
   if (!res) {
-    return unexpected { make_error_code(error::invalid_form_format) };
+    return unexpected { res.error() };
   }
 
   auto params = static_cast<urls::params_view>(res.value());

@@ -17,7 +17,7 @@ TEST_CASE("as_form")
 {
   {
     CHECK_EQ(as_form("%%").error(),
-             make_error_code(error::invalid_form_format));
+             make_error_code(urls::error::missing_pct_hexdig));
   }
   {
     auto form = as_form(R"(name=Rina%20Hidaka&birth=1994%2F06%2F15)");

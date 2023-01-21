@@ -23,7 +23,7 @@ expected<T, error_code> as_json(std::string_view text)
   json::error_code ec;
   auto jv = json::parse(text, ec);
   if (ec) {
-    return unexpected { make_error_code(error::invalid_json_format) };
+    return unexpected { ec };
   }
 
   if constexpr (std::is_same_v<T, json::value>) {
