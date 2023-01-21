@@ -27,8 +27,10 @@ TEST_CASE("logger middleware")
             .build();
 
   auto res = server.serve_http_request(
-      http::verb::get, "/api/get",
-      http_request().set_header(http::field::user_agent, "fitoria"));
+      "/api/get",
+      http_request()
+          .set_method(http::verb::get)
+          .set_header(http::field::user_agent, "fitoria"));
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 

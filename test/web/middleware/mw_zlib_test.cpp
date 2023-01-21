@@ -71,8 +71,9 @@ TEST_CASE("zlib middleware")
                               }))
             .build();
   auto res = server.serve_http_request(
-      http::verb::get, "/api/get",
+      "/api/get",
       http_request()
+          .set_method(http::verb::get)
           .set_header(http::field::content_encoding, "deflate")
           .set_header(http::field::accept_encoding, "deflate")
           .set_body(middleware::zlib::compress<std::string>(

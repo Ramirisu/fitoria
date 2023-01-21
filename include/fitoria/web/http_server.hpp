@@ -148,8 +148,7 @@ public:
     co_return;
   }
 
-  http_response serve_http_request(http::verb method,
-                                   std::string_view target,
+  http_response serve_http_request(std::string_view target,
                                    http_request request)
   {
     auto encode_target = [](std::string_view target) -> std::string {
@@ -168,7 +167,7 @@ public:
         do_handler(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            method, encode_target(target), request.headers(),
+            request.method(), encode_target(target), request.headers(),
             std::move(request.body())),
         net::use_future);
     ioc.run();

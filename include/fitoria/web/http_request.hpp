@@ -68,6 +68,12 @@ public:
     return method_;
   }
 
+  http_request& set_method(http::verb method) noexcept
+  {
+    method_ = method;
+    return *this;
+  }
+
   const std::string& path() const noexcept
   {
     return path_;

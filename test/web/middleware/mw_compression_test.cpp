@@ -40,8 +40,9 @@ TEST_CASE("compression priority: gzip > zlib")
             .build();
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get",
+        "/api/get",
         http_request()
+            .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "gzip")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::gzip::compress<std::string>(
@@ -55,8 +56,9 @@ TEST_CASE("compression priority: gzip > zlib")
   }
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get",
+        "/api/get",
         http_request()
+            .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::zlib::compress<std::string>(
@@ -95,8 +97,9 @@ TEST_CASE("compression priority: zlib > gzip")
             .build();
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get",
+        "/api/get",
         http_request()
+            .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "gzip")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::gzip::compress<std::string>(
@@ -110,8 +113,9 @@ TEST_CASE("compression priority: zlib > gzip")
   }
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get",
+        "/api/get",
         http_request()
+            .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::zlib::compress<std::string>(

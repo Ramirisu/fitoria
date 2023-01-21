@@ -30,12 +30,14 @@ TEST_CASE("exception_handler middleware")
             .build();
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get", http_request().set_body("throw: false"));
+        "/api/get",
+        http_request().set_method(http::verb::get).set_body("throw: false"));
     CHECK_EQ(res.status_code(), http::status::ok);
   }
   {
     auto res = server.serve_http_request(
-        http::verb::get, "/api/get", http_request().set_body("throw: true"));
+        "/api/get",
+        http_request().set_method(http::verb::get).set_body("throw: true"));
     CHECK_EQ(res.status_code(), http::status::internal_server_error);
   }
 }

@@ -72,8 +72,9 @@ TEST_CASE("gzip middleware")
                               }))
             .build();
   auto res = server.serve_http_request(
-      http::verb::get, "/api/get",
+      "/api/get",
       http_request()
+          .set_method(http::verb::get)
           .set_header(http::field::content_encoding, "gzip")
           .set_header(http::field::accept_encoding, "gzip")
           .set_body(middleware::gzip::compress<std::string>(
