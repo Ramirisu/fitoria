@@ -287,8 +287,8 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_session_impl(Stream& stream) const
-      -> net::awaitable<expected<http::response<http::string_body>, error_code>>
+  auto do_session_impl(Stream& stream) const -> net::awaitable<
+      expected<http::detail::response<http::detail::string_body>, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -296,7 +296,8 @@ private:
     bool use_expect_100_cont
         = header_.get(http::field::expect) == "100-continue" && !body_.empty();
 
-    http::request<http::string_body> req { method_, target_, 11 };
+    http::detail::request<http::detail::string_body> req { method_, target_,
+                                                           11 };
     for (auto& [name, value] : header_) {
       if (name != to_string(http::field::expect) || use_expect_100_cont) {
         req.set(name, value);
@@ -309,18 +310,20 @@ private:
     net::error_code ec;
     net::flat_buffer buffer;
 
-    http::request_serializer<http::string_body> req_serializer(req);
+    http::detail::request_serializer<http::detail::string_body> req_serializer(
+        req);
     if (use_expect_100_cont) {
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await http::async_write_header(stream, req_serializer);
+      tie(ec, _)
+          = co_await http::detail::async_write_header(stream, req_serializer);
       if (ec) {
         log::debug("[{}] async_write_header failed: {}", name(), ec.message());
         co_return unexpected { ec };
       }
 
-      http::response<http::string_body> res;
+      http::detail::response<http::detail::string_body> res;
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await http::async_read(stream, buffer, res);
+      tie(ec, _) = co_await http::detail::async_read(stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
         co_return unexpected { ec };
@@ -331,16 +334,16 @@ private:
     }
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    tie(ec, _) = co_await http::async_write(stream, req_serializer);
+    tie(ec, _) = co_await http::detail::async_write(stream, req_serializer);
     if (ec) {
       log::debug("[{}] async_write failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    http::response<http::string_body> res;
+    http::detail::response<http::detail::string_body> res;
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    tie(ec, _) = co_await http::async_read(stream, buffer, res);
+    tie(ec, _) = co_await http::detail::async_read(stream, buffer, res);
     if (ec) {
       log::debug("[{}] async_read failed: {}", name(), ec.message());
       co_return unexpected { ec };

@@ -20,7 +20,7 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_response {
-  using native_response_t = http::response<http::string_body>;
+  using native_response_t = http::detail::response<http::detail::string_body>;
 
 public:
   http_response() = default;

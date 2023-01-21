@@ -280,13 +280,14 @@ private:
     net::error_code ec;
 
     for (;;) {
-      http::request_parser<http::string_body> req_parser;
+      http::detail::request_parser<http::detail::string_body> req_parser;
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await http::async_read_header(stream, buffer, req_parser);
+      tie(ec, _) = co_await http::detail::async_read_header(stream, buffer,
+                                                            req_parser);
       if (ec) {
-        if (ec != http::error::end_of_stream) {
+        if (ec != http::detail::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
         }
         co_return ec;
@@ -299,9 +300,9 @@ private:
           it != req.end() && it->value() == "100-continue") {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await http::async_write(
+        tie(ec, _) = co_await http::detail::async_write(
             stream,
-            static_cast<http::response<http::string_body>>(
+            static_cast<http::detail::response<http::detail::string_body>>(
                 http_response(http::status::continue_)));
         if (ec) {
           log::debug("[{}] async_write 100-continue failed: {}", name(),
@@ -312,14 +313,15 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await http::async_read(stream, buffer, req_parser);
+      tie(ec, _)
+          = co_await http::detail::async_read(stream, buffer, req_parser);
       if (ec) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
         co_return ec;
       }
 
-      auto res
-          = static_cast<http::response<http::string_body>>(co_await do_handler(
+      auto res = static_cast<http::detail::response<http::detail::string_body>>(
+          co_await do_handler(
               net::get_lowest_layer(stream).socket().local_endpoint(),
               net::get_lowest_layer(stream).socket().remote_endpoint(),
               req.method(), req.target(), to_header(req),
@@ -329,7 +331,7 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await http::async_write(stream, std::move(res));
+      tie(ec, _) = co_await http::detail::async_write(stream, std::move(res));
       if (ec) {
         log::debug("[{}] async_write failed: {}", name(), ec.message());
         co_return ec;
@@ -392,7 +394,8 @@ private:
     return query;
   }
 
-  static http_header to_header(const http::request<http::string_body>& req)
+  static http_header
+  to_header(const http::detail::request<http::detail::string_body>& req)
   {
     http_header header;
     for (auto& kv : req.base()) {

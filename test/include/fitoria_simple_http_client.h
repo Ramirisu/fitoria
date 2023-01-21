@@ -92,7 +92,7 @@ private:
     co_return resolver(co_await net::this_coro::executor);
   }
 
-  net::awaitable<http::response<http::string_body>> do_session()
+  net::awaitable<http::detail::response<http::detail::string_body>> do_session()
   {
     auto resolver = co_await new_resolver();
     auto stream = tcp_stream(co_await net::this_coro::executor);
@@ -113,7 +113,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<http::response<http::string_body>>
+  net::awaitable<http::detail::response<http::detail::string_body>>
   do_session(net::ssl::context ssl_ctx)
   {
     auto resolver = co_await new_resolver();
@@ -149,10 +149,11 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<http::response<http::string_body>>
+  net::awaitable<http::detail::response<http::detail::string_body>>
   do_session_impl(Stream& stream)
   {
-    http::request<http::string_body> req { method_, target_, 11 };
+    http::detail::request<http::detail::string_body> req { method_, target_,
+                                                           11 };
     for (const auto& f : fields_) {
       req.set(f.name(), f.value());
     }
@@ -164,14 +165,15 @@ private:
 
     if (auto it = req.find(http::field::expect);
         it != req.end() && it->value() == "100-continue") {
-      http::request_serializer<http::string_body> serializer(req);
+      http::detail::request_serializer<http::detail::string_body> serializer(
+          req);
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      co_await http::async_write_header(stream, serializer);
+      co_await http::detail::async_write_header(stream, serializer);
 
       try {
-        http::response<http::string_body> res;
+        http::detail::response<http::detail::string_body> res;
         net::get_lowest_layer(stream).expires_after(request_timeout_);
-        co_await http::async_read(stream, buffer, res);
+        co_await http::detail::async_read(stream, buffer, res);
         if (res.result() != http::status::continue_) {
           co_return res;
         }
@@ -182,16 +184,16 @@ private:
       }
 
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      co_await http::async_write(stream, serializer);
+      co_await http::detail::async_write(stream, serializer);
     } else {
       net::get_lowest_layer(stream).expires_after(request_timeout_);
-      co_await http::async_write(stream, req);
+      co_await http::detail::async_write(stream, req);
     }
 
-    http::response<http::string_body> res;
+    http::detail::response<http::detail::string_body> res;
 
     net::get_lowest_layer(stream).expires_after(request_timeout_);
-    co_await http::async_read(stream, buffer, res);
+    co_await http::detail::async_read(stream, buffer, res);
 
     co_return res;
   }
@@ -200,7 +202,7 @@ private:
   std::uint16_t port_;
   http::verb method_ = http::verb::unknown;
   std::string target_;
-  http::fields fields_;
+  http::detail::fields fields_;
   std::string body_;
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
