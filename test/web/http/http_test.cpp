@@ -10,7 +10,7 @@
 #include <fitoria/web/http/http.hpp>
 
 using namespace fitoria;
-using namespace fitoria::http;
+using namespace fitoria::http::fields;
 
 TEST_SUITE_BEGIN("web.http");
 

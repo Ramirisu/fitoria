@@ -161,7 +161,8 @@ public:
   http_request& set_json(const T& obj)
   {
     if constexpr (std::is_same_v<T, json::value>) {
-      header_.set(http::field::content_type, http::content_type::json());
+      header_.set(http::field::content_type,
+                  http::fields::content_type::json());
       body_ = json::serialize(obj);
     } else {
       set_json(json::value_from(obj));

@@ -70,7 +70,7 @@ TEST_CASE("unittest")
                         .set_json({ { "error", "birth is not provided" } });
                   }
                   if (auto ct = req.headers().get(http::field::content_type);
-                      ct != http::content_type::json()) {
+                      ct != http::fields::content_type::json()) {
                     co_return http_response(http::status::bad_request)
                         .set_json({ { "error",
                                       fmt::format("expected Content-Type: "
@@ -118,7 +118,7 @@ TEST_CASE("unittest")
             .set_json({ { "message", "happy birthday" } }));
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.headers().get(http::field::content_type),
-             http::content_type::json());
+             http::fields::content_type::json());
     CHECK_EQ(as_json<user_t>(res.body()),
              user_t {
                  .name = "Rina Hidaka",
@@ -138,7 +138,7 @@ TEST_CASE("unittest")
                                     http_request().set_method(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.headers().get(http::field::content_type),
-             http::content_type::json());
+             http::fields::content_type::json());
     CHECK_EQ(as_json(res.body()),
              json::value { { "error", "gender is not provided" } });
   }
@@ -148,7 +148,7 @@ TEST_CASE("unittest")
                                     http_request().set_method(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.headers().get(http::field::content_type),
-             http::content_type::json());
+             http::fields::content_type::json());
     CHECK_EQ(as_json(res.body()),
              json::value { { "error", "birth is not provided" } });
   }
@@ -158,7 +158,7 @@ TEST_CASE("unittest")
         http_request().set_method(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.headers().get(http::field::content_type),
-             http::content_type::json());
+             http::fields::content_type::json());
     CHECK_EQ(
         as_json(res.body()),
         json::value {
@@ -170,10 +170,11 @@ TEST_CASE("unittest")
         "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::content_type, http::content_type::json()));
+            .set_header(http::field::content_type,
+                        http::fields::content_type::json()));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.headers().get(http::field::content_type),
-             http::content_type::json());
+             http::fields::content_type::json());
     CHECK_EQ(as_json(res.body()),
              json::value { { "error", "message is not provided" } });
   }
