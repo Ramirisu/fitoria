@@ -7,9 +7,33 @@
 
 **fitoria** is an HTTP web framework built on top of C++20 coroutine.
 
+## Table of Contents
+
+- [Fitoria](#fitoria)
+  - [Table of Contents](#table-of-contents)
+  - [Examples](#examples)
+    - [Quick Start](#quick-start)
+      - [HTTP Server](#http-server)
+      - [HTTP Client](#http-client)
+    - [HTTP Server](#http-server-1)
+      - [Methods](#methods)
+      - [Route Parameters](#route-parameters)
+      - [Query String Parameters](#query-string-parameters)
+      - [Urlencoded Post Form](#urlencoded-post-form)
+      - [Multipart](#multipart)
+      - [JSON](#json)
+      - [Scope](#scope)
+      - [Middleware](#middleware)
+      - [Graceful Shutdown](#graceful-shutdown)
+      - [Unit Testing](#unit-testing)
+    - [HTTP Client](#http-client-1)
+  - [Building](#building)
+  - [License](#license)
+
 ## Examples
 
 ### Quick Start
+
 #### HTTP Server
 
 [Quick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/quick_start.cpp)
@@ -93,6 +117,8 @@ int main() {
 
 #### Route Parameters
 
+Use `http_request::route()` to access the route parameters.
+
 [Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp)
 
 ```cpp
@@ -121,7 +147,9 @@ int main()
 
 ```
 
-#### Query String
+#### Query String Parameters
+
+Use `http_request::query()` to access the qeury string parameters.
 
 [Query String Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp)
 
@@ -152,6 +180,8 @@ int main()
 ```
 
 #### Urlencoded Post Form
+
+Use `as_form()` to parse the url-encoded form body.
 
 [Form Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/form.cpp)
 
@@ -189,11 +219,11 @@ int main()
 TODO:
 
 
-#### Json
+#### JSON
 
-fitoria integrates `boost::json` as the built-in json serializer/deserializer.
+fitoria integrates `boost::json` as the built-in json serializer/deserializer. Use `as_json` to parse the body.
 
-[Json Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/json.cpp)
+[JSON Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/json.cpp)
 
 ```cpp
 
@@ -350,7 +380,9 @@ int main()
 
 #### Middleware
 
-`scope` supports `use` to configure middlewares for its `router`s. ([Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
+`scope` supports `use` to configure middlewares for its `router`s.
+
+([Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
 fitoria provides following build-in middlewares
 
@@ -409,7 +441,9 @@ int main()
 ```
 #### Graceful Shutdown
 
-Use `net::signal_set` to handle signals to shutdown the server gracefully. ([Graceful Shutdown Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp))
+Use `net::signal_set` to handle signals to shutdown the server gracefully.
+
+([Graceful Shutdown Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp))
 
 ```cpp
 
@@ -439,7 +473,9 @@ int main()
 
 #### Unit Testing
 
-`http::serve_http_request()` can consume the mock `http_request` directly without creating TCP connections. ([Unit Testing Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
+`http::serve_http_request()` can consume the mock `http_request` directly without creating TCP connections. 
+
+([Unit Testing Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
 
 ```cpp
 
@@ -539,11 +575,13 @@ Dependencies
 
 CMake
 
-| Option                  | Description        | Value  | Default |
-| :---------------------- | :----------------- | :----: | :-----: |
-| FITORIA_BUILD_EXAMPLES  | Build examples     | ON/OFF |   OFF   |
-| FITORIA_BUILD_TESTS     | Build tests        | ON/OFF |   OFF   |
-| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL | ON/OFF |   OFF   |
+| Option                  | Description                | Value  | Default |
+| :---------------------- | :------------------------- | :----: | :-----: |
+| FITORIA_BUILD_EXAMPLES  | Build examples             | ON/OFF |   OFF   |
+| FITORIA_BUILD_TESTS     | Build tests                | ON/OFF |   OFF   |
+| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL         | ON/OFF |   OFF   |
+| FITORIA_DISABLE_ZLIB    | Do not use ZLIB            | ON/OFF |   OFF   |
+| FITORIA_ENABLE_CODECOV  | Enable code coverage build | ON/OFF |   OFF   |
 
 ```sh
 git clone https://github.com/Ramirisu/fitoria.git
