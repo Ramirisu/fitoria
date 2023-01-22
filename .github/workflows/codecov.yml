@@ -38,8 +38,10 @@ jobs:
           vcpkg install boost-beast:x64-linux
           vcpkg install boost-json:x64-linux
           vcpkg install boost-url:x64-linux
+          vcpkg install boost-iostreams:x64-linux
           vcpkg install openssl:x64-linux
           vcpkg install fmt:x64-linux
+          vcpkg install zlib:x64-linux
           vcpkg install doctest:x64-linux
 
       - name: Configure
@@ -54,7 +56,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
-            -DFITORIA_DISABLE_ZLIB=ON \
+            -DFITORIA_DISABLE_ZLIB=OFF \
             -DFITORIA_ENABLE_CODECOV=ON
 
       - name: Build
