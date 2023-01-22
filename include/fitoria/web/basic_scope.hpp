@@ -10,14 +10,14 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/basic_router.hpp>
+#include <fitoria/web/basic_route.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 template <typename Middleware, typename Handler>
 class basic_scope {
 public:
-  using router_type = basic_router<Middleware, Handler>;
+  using route_type = basic_route<Middleware, Handler>;
 
   basic_scope(std::string path)
       : path_(std::move(path))
@@ -30,44 +30,44 @@ public:
     return *this;
   }
 
-  auto route(const router_type& router) -> basic_scope&
+  auto route(const route_type& route) -> basic_scope&
   {
     std::string path = path_;
-    path += router.path();
+    path += route.path();
     auto middlewares = middlewares_;
-    middlewares.insert(middlewares.end(), router.middlewares().begin(),
-                       router.middlewares().end());
-    routers_.push_back(router_type(router.method(), std::move(path),
-                                   std::move(middlewares), router.handler()));
+    middlewares.insert(middlewares.end(), route.middlewares().begin(),
+                       route.middlewares().end());
+    routes_.push_back(route_type(route.method(), std::move(path),
+                                 std::move(middlewares), route.handler()));
     return *this;
   }
 
   auto route(http::verb method, const std::string& path, Handler handler)
       -> basic_scope&
   {
-    routers_.push_back(
-        router_type(method, path_ + path, middlewares_, std::move(handler)));
+    routes_.push_back(
+        route_type(method, path_ + path, middlewares_, std::move(handler)));
     return *this;
   }
 
-  auto sub_group(basic_scope rg) -> basic_scope&
+  auto sub_group(basic_scope scope) -> basic_scope&
   {
-    for (auto& routers : rg.routers_) {
-      routers_.push_back(routers.rebind_parent(path_, middlewares_));
+    for (auto& routes : scope.routes_) {
+      routes_.push_back(routes.rebind_parent(path_, middlewares_));
     }
 
     return *this;
   }
 
-  auto routers() const noexcept -> const std::vector<router_type>&
+  auto routes() const noexcept -> const std::vector<route_type>&
   {
-    return routers_;
+    return routes_;
   }
 
 private:
   std::string path_;
   std::vector<Middleware> middlewares_;
-  std::vector<router_type> routers_;
+  std::vector<route_type> routes_;
 };
 
 FITORIA_NAMESPACE_END

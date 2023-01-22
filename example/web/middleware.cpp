@@ -31,7 +31,7 @@ int main()
   auto server
       = http_server::builder()
             .route(
-                // Add a router group
+                // Add a scope
                 scope("/api/v1")
                     // Register built-in logger middleware
                     .use(middleware::logger())
@@ -52,7 +52,7 @@ int main()
                     })
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .route(router(
+                    .route(route(
                         http::verb::get, "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           FITORIA_ASSERT(req.method() == http::verb::get);

@@ -13,7 +13,7 @@
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
-#include <fitoria/web/basic_router.hpp>
+#include <fitoria/web/basic_route.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/segments_view.hpp>
@@ -26,26 +26,26 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename Router>
+template <typename Route>
 class basic_router_tree {
 public:
-  using router_type = Router;
+  using route_type = Route;
 
 private:
   class node {
     friend class basic_router_tree;
 
   private:
-    auto try_insert(const router_type& r,
+    auto try_insert(const route_type& route,
                     const segments_view& segments,
                     std::size_t segment_index) -> expected<void, error_code>
     {
       if (segment_index == segments.size()) {
-        if (router_) {
+        if (route_) {
           return unexpected { make_error_code(error::route_already_exists) };
         }
 
-        router_.emplace(r);
+        route_.emplace(route);
         return {};
       }
 
@@ -54,19 +54,20 @@ private:
         if (!param_trees_) {
           param_trees_.emplace(std::make_shared<node>());
         }
-        return param_trees_.value()->try_insert(r, segments, segment_index + 1);
+        return param_trees_.value()->try_insert(route, segments,
+                                                segment_index + 1);
       }
 
       return path_trees_[std::string(segment.escaped)].try_insert(
-          r, segments, segment_index + 1);
+          route, segments, segment_index + 1);
     }
 
     auto try_find(const segments_view& segments,
                   std::size_t segment_index) const noexcept
-        -> expected<const router_type&, error_code>
+        -> expected<const route_type&, error_code>
     {
       if (segment_index == segments.size()) {
-        return optional<const router_type&>(router_).to_expected_or(
+        return optional<const route_type&>(route_).to_expected_or(
             make_error_code(error::route_not_exists));
       }
 
@@ -78,7 +79,7 @@ private:
           .or_else([&](auto&& error) {
             return param_trees_.to_expected_or(error).and_then(
                 [&](auto&& node_ptr)
-                    -> expected<const router_type&, error_code> {
+                    -> expected<const route_type&, error_code> {
                   return node_ptr->try_find(segments, segment_index + 1);
                 });
           });
@@ -104,21 +105,21 @@ private:
       return segments_view::from_path(path);
     }
 
-    optional<router_type> router_;
+    optional<route_type> route_;
     unordered_string_map<node> path_trees_;
     optional<std::shared_ptr<node>> param_trees_;
   };
 
 public:
-  auto try_insert(const router_type& r) -> expected<void, error_code>
+  auto try_insert(const route_type& route) -> expected<void, error_code>
   {
-    return node::try_parse_path(r.path()).and_then([&](auto&& segments) {
-      return subtrees_[r.method()].try_insert(r, segments, 0);
+    return node::try_parse_path(route.path()).and_then([&](auto&& segments) {
+      return subtrees_[route.method()].try_insert(route, segments, 0);
     });
   }
 
   auto try_find(http::verb method, std::string_view path) const
-      -> expected<const router_type&, error_code>
+      -> expected<const route_type&, error_code>
   {
     return node::try_parse_path(path)
         .transform_error(

@@ -97,21 +97,21 @@ public:
     return s;
   }
 
-  static auto parse_param_map(std::string_view router_path,
+  static auto parse_param_map(std::string_view route_path,
                               std::string_view req_path)
       -> expected<query_map, error_code>
   {
-    auto router_segs = from_path(router_path);
+    auto route_segs = from_path(route_path);
     auto req_segs = from_path(req_path);
 
-    if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
+    if (!route_segs || !req_segs || route_segs->size() != req_segs->size()) {
       return unexpected { make_error_code(error::route_parse_error) };
     }
 
     query_map map;
-    for (std::size_t i = 0; i < router_segs->size(); ++i) {
-      if (router_segs.value()[i].is_param) {
-        map[std::string(router_segs.value()[i].escaped)]
+    for (std::size_t i = 0; i < route_segs->size(); ++i) {
+      if (route_segs.value()[i].is_param) {
+        map[std::string(route_segs.value()[i].escaped)]
             = req_segs.value()[i].original;
       }
     }

@@ -53,7 +53,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(router(
+            .route(route(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
                   if (auto ct = req.headers().get(http::field::content_type);

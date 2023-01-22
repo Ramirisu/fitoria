@@ -36,7 +36,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(router(
+            .route(route(
                 http::verb::get, "/api/v1/{owner}/{repo}",
                 [](http_request& req) -> net::awaitable<http_response> {
                   log::debug("route: {}", req.route().path());

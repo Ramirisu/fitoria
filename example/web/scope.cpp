@@ -65,36 +65,36 @@ namespace v2 {
 void configure_application(http_server::builder& builder)
 {
   builder.route(
-      // Global router group
+      // Global scope
       scope("")
           // Register a global middleware for all handlers
           .use(my_middleware::log)
-          // Create a subgroup "/api/v1" under global router group
+          // Create a subgroup "/api/v1" under global scope
           .sub_group(
               scope("/api/v1")
-                  // Register a middleware for this group
+                  // Register a middleware for this scope
                   .use(my_middleware::v1::auth)
-                  // Register a route for this group
-                  .route(router(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route: {}", req.route().path());
+                  // Register a route for this scope
+                  .route(route(http::verb::get, "/users/{user}",
+                               []([[maybe_unused]] http_request& req)
+                                   -> net::awaitable<http_response> {
+                                 log::debug("route: {}", req.route().path());
 
-                                  co_return http_response(http::status::ok);
-                                })))
-          // Create a subgroup "/api/v2" under global router group
+                                 co_return http_response(http::status::ok);
+                               })))
+          // Create a subgroup "/api/v2" under global scope
           .sub_group(
               scope("/api/v2")
-                  // Register a middleware for this group
+                  // Register a middleware for this scope
                   .use(my_middleware::v2::auth)
-                  // Register a route for this group
-                  .route(router(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route: {}", req.route().path());
+                  // Register a route for this scope
+                  .route(route(http::verb::get, "/users/{user}",
+                               []([[maybe_unused]] http_request& req)
+                                   -> net::awaitable<http_response> {
+                                 log::debug("route: {}", req.route().path());
 
-                                  co_return http_response(http::status::ok);
-                                }))));
+                                 co_return http_response(http::status::ok);
+                               }))));
 }
 
 int main()

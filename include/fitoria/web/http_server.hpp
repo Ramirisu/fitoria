@@ -62,9 +62,9 @@ public:
       return *this;
     }
 
-    builder& route(const router& router)
+    builder& route(const route& route)
     {
-      if (auto res = router_tree_.try_insert(router); !res) {
+      if (auto res = router_tree_.try_insert(route); !res) {
         throw system_error(res.error());
       }
 
@@ -73,8 +73,8 @@ public:
 
     builder& route(const scope& scope)
     {
-      for (auto& router : scope.routers()) {
-        route(router);
+      for (auto& route : scope.routes()) {
+        this->route(route);
       }
 
       return *this;
@@ -360,25 +360,24 @@ private:
           .set_body("request target is invalid");
     }
 
-    auto router
-        = builder_.router_tree_.try_find(method, req_url.value().path());
-    if (!router) {
+    auto route = builder_.router_tree_.try_find(method, req_url.value().path());
+    if (!route) {
       co_return http_response(http::status::not_found)
           .set_header(http::field::content_type, "text/plain")
           .set_body("request path is not found");
     }
 
     auto route_params
-        = segments_view::parse_param_map(router->path(), req_url->path());
+        = segments_view::parse_param_map(route->path(), req_url->path());
     FITORIA_ASSERT(route_params);
 
     auto request
         = http_request(local_endpoint, remote_endpoint,
-                       http_route(*route_params, std::string(router->path())),
+                       http_route(*route_params, std::string(route->path())),
                        req_url->path(), method, to_query_map(req_url->params()),
                        std::move(header), std::move(body));
     auto context = http_context(
-        http_context::invoker_type(router->middlewares(), router->handler()),
+        http_context::invoker_type(route->middlewares(), route->handler()),
         request);
     co_return co_await context.next();
   }

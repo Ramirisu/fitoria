@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_BASIC_ROUTER_HPP
-#define FITORIA_WEB_BASIC_ROUTER_HPP
+#ifndef FITORIA_WEB_BASIC_ROUTE_HPP
+#define FITORIA_WEB_BASIC_ROUTE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -18,19 +18,19 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename Middleware, typename Handler>
-class basic_router {
+class basic_route {
 public:
-  basic_router(http::verb method, std::string path, Handler handler)
+  basic_route(http::verb method, std::string path, Handler handler)
       : method_(method)
       , path_(std::move(path))
       , handler_(std::move(handler))
   {
   }
 
-  basic_router(http::verb method,
-               std::string path,
-               std::vector<Middleware> middlewares,
-               Handler handler)
+  basic_route(http::verb method,
+              std::string path,
+              std::vector<Middleware> middlewares,
+              Handler handler)
       : method_(method)
       , path_(std::move(path))
       , middlewares_(std::move(middlewares))
@@ -60,13 +60,13 @@ public:
 
   auto rebind_parent(const std::string& parent_path,
                      const std::vector<Middleware>& parent_middlewares) const
-      -> basic_router
+      -> basic_route
   {
     auto middlewares = parent_middlewares;
     middlewares.insert(middlewares.end(), middlewares_.begin(),
                        middlewares_.end());
-    return basic_router(method_, parent_path + path_, std::move(middlewares),
-                        handler_);
+    return basic_route(method_, parent_path + path_, std::move(middlewares),
+                       handler_);
   }
 
 private:

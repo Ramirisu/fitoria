@@ -23,7 +23,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(router(
+            .route(route(
                 http::verb::get, "/api/v1/users",
                 [](const http_request& req) -> net::awaitable<http_response> {
                   auto user = req.query().get("user");

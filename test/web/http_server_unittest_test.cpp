@@ -52,7 +52,7 @@ TEST_CASE("unittest")
 {
   auto server
       = http_server::builder()
-            .route(router(
+            .route(route(
                 http::verb::get, "/api/v1/users/{user}",
                 [](http_request& req) -> net::awaitable<http_response> {
                   user_t user;

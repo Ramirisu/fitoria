@@ -37,11 +37,11 @@ TEST_CASE("builder")
                       } catch (...) {
                       }
                     })
-                    .route(router(http::verb::get, "/api",
-                                  [&]([[maybe_unused]] http_request& req)
-                                      -> net::awaitable<http_response> {
-                                    co_return http_response(http::status::ok);
-                                  }))
+                    .route(route(http::verb::get, "/api",
+                                 [&]([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok);
+                                 }))
                     .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -80,11 +80,11 @@ TEST_CASE("invalid target")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .route(router(http::verb::get, "/api/v1/users/{user}",
-                                  []([[maybe_unused]] http_request& req)
-                                      -> net::awaitable<http_response> {
-                                    co_return http_response(http::status::ok);
-                                  }))
+                    .route(route(http::verb::get, "/api/v1/users/{user}",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok);
+                                 }))
                     .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -115,12 +115,12 @@ TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .route(router(http::verb::post, "/api/v1/post",
-                                  []([[maybe_unused]] http_request& req)
-                                      -> net::awaitable<http_response> {
-                                    CHECK_EQ(req.body(), "text");
-                                    co_return http_response(http::status::ok);
-                                  }))
+                    .route(route(http::verb::post, "/api/v1/post",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   CHECK_EQ(req.body(), "text");
+                                   co_return http_response(http::status::ok);
+                                 }))
                     .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -155,12 +155,12 @@ TEST_CASE("unhandled exception from handler")
                         }
                       }
                     })
-                    .route(router(http::verb::get, "/api/v1/get",
-                                  []([[maybe_unused]] http_request& req)
-                                      -> net::awaitable<http_response> {
-                                    throw std::exception();
-                                    co_return http_response(http::status::ok);
-                                  }))
+                    .route(route(http::verb::get, "/api/v1/get",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   throw std::exception();
+                                   co_return http_response(http::status::ok);
+                                 }))
                     .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -217,7 +217,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(router(
+            .route(route(
                 http::verb::get,
                 "/api/v1/users/{user}/filmography/years/{year}",
                 [](http_request& req) -> net::awaitable<http_response> {
@@ -312,11 +312,11 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(router(http::verb::get, "/api",
-                          []([[maybe_unused]] http_request& req)
-                              -> net::awaitable<http_response> {
-                            co_return http_response(http::status::accepted);
-                          }))
+            .route(route(http::verb::get, "/api",
+                         []([[maybe_unused]] http_request& req)
+                             -> net::awaitable<http_response> {
+                           co_return http_response(http::status::accepted);
+                         }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -342,14 +342,14 @@ TEST_CASE("response with plain text")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .route(router(http::verb::get, "/api",
-                                  []([[maybe_unused]] http_request& req)
-                                      -> net::awaitable<http_response> {
-                                    co_return http_response(http::status::ok)
-                                        .set_header(http::field::content_type,
-                                                    "text/plain")
-                                        .set_body("plain text");
-                                  }))
+                    .route(route(http::verb::get, "/api",
+                                 []([[maybe_unused]] http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok)
+                                       .set_header(http::field::content_type,
+                                                   "text/plain")
+                                       .set_body("plain text");
+                                 }))
                     .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -375,20 +375,20 @@ TEST_CASE("response with json")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(router(http::verb::get, "/api",
-                          []([[maybe_unused]] http_request& req)
-                              -> net::awaitable<http_response> {
-                            co_return http_response(http::status::ok)
-                                .set_header(http::field::content_type,
-                                            http::fields::content_type::json())
-                                .set_json({
-                                    { "obj_boolean", true },
-                                    { "obj_number", 1234567 },
-                                    { "obj_string", "str" },
-                                    { "obj_array",
-                                      json::array { false, 7654321, "rts" } },
-                                });
-                          }))
+            .route(route(http::verb::get, "/api",
+                         []([[maybe_unused]] http_request& req)
+                             -> net::awaitable<http_response> {
+                           co_return http_response(http::status::ok)
+                               .set_header(http::field::content_type,
+                                           http::fields::content_type::json())
+                               .set_json({
+                                   { "obj_boolean", true },
+                                   { "obj_number", 1234567 },
+                                   { "obj_string", "str" },
+                                   { "obj_array",
+                                     json::array { false, 7654321, "rts" } },
+                               });
+                         }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -421,17 +421,17 @@ TEST_CASE("response with struct to json")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(router(http::verb::get, "/api",
-                          []([[maybe_unused]] http_request& req)
-                              -> net::awaitable<http_response> {
-                            co_return http_response(http::status::ok)
-                                .set_header(http::field::content_type,
-                                            http::fields::content_type::json())
-                                .set_json(user_t {
-                                    .name = "Rina Hidaka",
-                                    .birth = "1994/06/15",
-                                });
-                          }))
+            .route(route(http::verb::get, "/api",
+                         []([[maybe_unused]] http_request& req)
+                             -> net::awaitable<http_response> {
+                           co_return http_response(http::status::ok)
+                               .set_header(http::field::content_type,
+                                           http::fields::content_type::json())
+                               .set_json(user_t {
+                                   .name = "Rina Hidaka",
+                                   .birth = "1994/06/15",
+                               });
+                         }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;

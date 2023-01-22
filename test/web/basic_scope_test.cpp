@@ -34,7 +34,7 @@ TEST_CASE("basic")
                 scope_type("/gul")
                     .use(ag)
                     .route(http::verb::get, "/tags", h)
-                    .route(scope_type::router_type(http::verb::put, "/tags", h))
+                    .route(scope_type::route_type(http::verb::put, "/tags", h))
                     .sub_group(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
@@ -45,7 +45,7 @@ TEST_CASE("basic")
                 scope_type("/fitoria")
                     .use(af)
                     .route(http::verb::get, "/tags", h)
-                    .route(scope_type::router_type(http::verb::put, "/tags", h))
+                    .route(scope_type::route_type(http::verb::put, "/tags", h))
                     .sub_group(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
@@ -53,7 +53,7 @@ TEST_CASE("basic")
                                    .route(http::verb::get, "/{branch}", h)
                                    .route(http::verb::put, "/{branch}", h)));
 
-  const auto exp = std::vector<scope_type::router_type> {
+  const auto exp = std::vector<scope_type::route_type> {
     { http::verb::get, "/ramirisu/libraries", { l }, { h } },
     { http::verb::put, "/ramirisu/libraries", { l }, { h } },
     { http::verb::get, "/ramirisu/gul/tags", { l, ag }, { h } },
@@ -75,7 +75,7 @@ TEST_CASE("basic")
       { l, af },
       { h } },
   };
-  CHECK(range_equal(rg.routers(), exp, [](auto& lhs, auto& rhs) {
+  CHECK(range_equal(rg.routes(), exp, [](auto& lhs, auto& rhs) {
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
         && lhs.handler()(0) == rhs.handler()(0)) {
       for (std::size_t i = 0; i < lhs.middlewares().size(); ++i) {
