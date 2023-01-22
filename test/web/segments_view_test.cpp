@@ -33,4 +33,25 @@ TEST_CASE("escape_segment")
   CHECK_EQ(segments_view::escape_segment("{abc}"), exp_t("abc"));
 }
 
+TEST_CASE("unescape_segment")
+{
+  CHECK_EQ(segments_view::unescape_segment(""), "{}");
+  CHECK_EQ(segments_view::unescape_segment("abc"), "{abc}");
+}
+
+TEST_CASE("parse_param_map")
+{
+  using exp_t = expected<query_map, error_code>;
+
+  CHECK_EQ(segments_view::parse_param_map("", ""), exp_t());
+  CHECK_EQ(segments_view::parse_param_map("/{1}/2/{3}/4", "/w/x/y/z"),
+           exp_t(query_map {
+               { "1", "w" },
+               { "3", "y" },
+           }));
+
+  CHECK_EQ(segments_view::parse_param_map("/1", ""),
+           exp_t(unexpect, make_error_code(error::route_parse_error)));
+}
+
 TEST_SUITE_END();

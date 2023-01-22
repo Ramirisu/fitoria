@@ -28,7 +28,7 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
   user_t user;
 
   if (!jv.is_object()) {
-    return make_error_code(std::errc::invalid_argument);
+    return make_error_code(json::error::incomplete);
   }
 
   const auto& obj = jv.get_object();
@@ -40,7 +40,7 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
                     .birth = std::string(birth->get_string()) };
   }
 
-  return make_error_code(std::errc::invalid_argument);
+  return make_error_code(json::error::incomplete);
 }
 
 void tag_invoke(const json::value_from_tag&,
@@ -64,6 +64,10 @@ TEST_CASE("body_as_json")
   }
   {
     CHECK_EQ(as_json<user_t>("{").error(),
+             make_error_code(json::error::incomplete));
+  }
+  {
+    CHECK_EQ(as_json<user_t>(R"del({ "name": "Rina Hidaka" })del").error(),
              make_error_code(json::error::incomplete));
   }
   {

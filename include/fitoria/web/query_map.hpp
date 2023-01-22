@@ -33,6 +33,11 @@ public:
 
   query_map() = default;
 
+  query_map(std::initializer_list<value_type> init)
+      : map_(std::move(init))
+  {
+  }
+
   query_map(const query_map&) = default;
 
   query_map(query_map&&) = default;
@@ -140,6 +145,8 @@ public:
   {
     return map_.cend();
   }
+
+  friend bool operator==(const query_map&, const query_map&) = default;
 
 private:
   map_type map_;
