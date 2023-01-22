@@ -19,16 +19,16 @@ int main()
                     .route(
                         http::verb::get, "/1",
                         [](http_request& req) -> net::awaitable<http_response> {
-                          log::debug("path: {}", req.route().path());
+                          log::debug("path: {}", req.route_params().path());
 
                           co_return http_response(http::status::ok)
                               .set_header(http::field::content_type,
                                           "text/plain")
                               .set_body("extractor");
                         })
-                    // Extract `http_route`
+                    // Extract `route_params`
                     .route(http::verb::get, "/2",
-                           [](const http_route& r)
+                           [](const route_params& r)
                                -> net::awaitable<http_response> {
                              log::debug("path: {}", r.path());
 

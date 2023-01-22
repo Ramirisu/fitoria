@@ -57,7 +57,8 @@ int main()
                         [](http_request& req) -> net::awaitable<http_response> {
                           FITORIA_ASSERT(req.method() == http::verb::get);
 
-                          log::debug("user: {}", req.route().get("user"));
+                          log::debug("user: {}",
+                                     req.route_params().get("user"));
 
                           co_return http_response(http::status::ok)
                               .set_body("abcde");

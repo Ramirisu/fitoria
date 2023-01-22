@@ -7,16 +7,16 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/web/http_route.hpp>
+#include <fitoria/web/route_params.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.http_route");
+TEST_SUITE_BEGIN("web.route_params");
 
 TEST_CASE("basic")
 {
-  http_route route({}, "/api/v1/users/{user}");
-  CHECK_EQ(route.path(), "/api/v1/users/{user}");
+  route_params params({}, "/api/v1/users/{user}");
+  CHECK_EQ(params.path(), "/api/v1/users/{user}");
 }
 
 TEST_SUITE_END();

@@ -369,13 +369,12 @@ private:
           .set_body("request path is not found");
     }
 
-    auto route_params
-        = segments_view::parse_param_map(route->path(), req_url->path());
-    FITORIA_ASSERT(route_params);
-
     auto request
         = http_request(local_endpoint, remote_endpoint,
-                       http_route(*route_params, std::string(route->path())),
+                       route_params(segments_view::parse_param_map(
+                                        route->path(), req_url->path())
+                                        .value(),
+                                    std::string(route->path())),
                        req_url->path(), method, to_query_map(req_url->params()),
                        std::move(header), std::move(body));
     auto context = http_context(

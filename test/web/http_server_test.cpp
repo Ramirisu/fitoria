@@ -233,8 +233,7 @@ TEST_CASE("generic request")
                     CHECK_EQ(route.at("user"), "Rina Hidaka");
                     CHECK_EQ(route.at("year"), "2022");
                   };
-                  test_route(req.route());
-                  test_route(static_cast<const http_request&>(req).route());
+                  test_route(req.route_params());
 
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),

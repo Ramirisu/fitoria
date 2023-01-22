@@ -26,7 +26,7 @@ int main()
             .route(route(
                 http::verb::get, "/api/v1/users/{user}",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  auto user = req.route().get("user");
+                  auto user = req.route_params().get("user");
                   if (!user) {
                     co_return http_response(http::status::bad_request);
                   }

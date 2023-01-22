@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_HTTP_ROUTE_HPP
-#define FITORIA_WEB_HTTP_ROUTE_HPP
+#ifndef FITORIA_WEB_ROUTE_PARAMS_HPP
+#define FITORIA_WEB_ROUTE_PARAMS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -14,18 +14,16 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_route : public query_map {
+class route_params : public query_map {
 public:
-  http_route() = default;
+  route_params() = default;
 
-  http_route(query_map params, std::string path)
+  route_params(query_map params, std::string path)
       : query_map(std::move(params))
       , path_(std::move(path))
   {
   }
 
-  /// @brief get the route configured for the handler
-  /// @return "/api/v1/users/{user}"
   const std::string& path() const noexcept
   {
     return path_;

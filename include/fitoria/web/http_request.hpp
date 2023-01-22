@@ -15,8 +15,8 @@
 
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_header.hpp>
-#include <fitoria/web/http_route.hpp>
 #include <fitoria/web/query_map.hpp>
+#include <fitoria/web/route_params.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -26,7 +26,7 @@ public:
 
   http_request(net::ip::tcp::endpoint local_endpoint,
                net::ip::tcp::endpoint remote_endpoint,
-               http_route route,
+               route_params route_params,
                std::string path,
                http::verb method,
                query_map query,
@@ -34,7 +34,7 @@ public:
                std::string body)
       : local_endpoint_(local_endpoint)
       , remote_endpoint_(remote_endpoint)
-      , route_(std::move(route))
+      , route_params_(std::move(route_params))
       , path_(std::move(path))
       , method_(method)
       , query_(std::move(query))
@@ -53,14 +53,14 @@ public:
     return remote_endpoint_;
   }
 
-  const http_route& route() const noexcept
+  const class route_params& route_params() const noexcept
   {
-    return route_;
+    return route_params_;
   }
 
-  operator const http_route&() const noexcept
+  operator const class route_params &() const noexcept
   {
-    return route_;
+    return route_params_;
   }
 
   http::verb method() const noexcept
@@ -182,7 +182,7 @@ public:
 private:
   net::ip::tcp::endpoint local_endpoint_;
   net::ip::tcp::endpoint remote_endpoint_;
-  http_route route_;
+  class route_params route_params_;
   std::string path_;
   http::verb method_;
   query_map query_;
