@@ -22,12 +22,25 @@ struct user_t {
   friend bool operator==(const user_t&, const user_t&) = default;
 };
 
-user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
+json::result_for<user_t, json::value>::type
+tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 {
-  return user_t {
-    .name = std::string(jv.at("name").as_string()),
-    .birth = std::string(jv.at("birth").as_string()),
-  };
+  user_t user;
+
+  if (!jv.is_object()) {
+    return make_error_code(std::errc::invalid_argument);
+  }
+
+  const auto& obj = jv.get_object();
+
+  auto* name = obj.if_contains("name");
+  auto* birth = obj.if_contains("birth");
+  if (name && birth && name->is_string() && birth->is_string()) {
+    return user_t { .name = std::string(name->get_string()),
+                    .birth = std::string(birth->get_string()) };
+  }
+
+  return make_error_code(std::errc::invalid_argument);
 }
 
 void tag_invoke(const json::value_from_tag&,

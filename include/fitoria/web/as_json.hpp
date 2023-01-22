@@ -29,7 +29,11 @@ expected<T, error_code> as_json(std::string_view text)
   if constexpr (std::is_same_v<T, json::value>) {
     return jv;
   } else {
-    return json::value_to<T>(jv);
+    if (auto res = json::try_value_to<T>(jv); res) {
+      return res.value();
+    } else {
+      return unexpected { res.error() };
+    }
   }
 }
 
