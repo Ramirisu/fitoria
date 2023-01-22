@@ -368,7 +368,8 @@ private:
           .set_body("request path is not found");
     }
 
-    auto route_params = route::parse_param_map(router->path(), req_url->path());
+    auto route_params
+        = segments_view::parse_param_map(router->path(), req_url->path());
     FITORIA_ASSERT(route_params);
 
     auto request

@@ -16,7 +16,7 @@
 #include <fitoria/web/basic_router.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/route.hpp>
+#include <fitoria/web/segments_view.hpp>
 
 #include <memory>
 #include <string>
@@ -37,7 +37,7 @@ private:
 
   private:
     auto try_insert(const router_type& r,
-                    const route::segments& segments,
+                    const segments_view& segments,
                     std::size_t segment_index) -> expected<void, error_code>
     {
       if (segment_index == segments.size()) {
@@ -61,7 +61,7 @@ private:
           r, segments, segment_index + 1);
     }
 
-    auto try_find(const route::segments& segments,
+    auto try_find(const segments_view& segments,
                   std::size_t segment_index) const noexcept
         -> expected<const router_type&, error_code>
     {
@@ -95,13 +95,13 @@ private:
     }
 
     static auto try_parse_path(std::string_view path)
-        -> expected<route::segments, error_code>
+        -> expected<segments_view, error_code>
     {
       if (path.empty()) {
         return unexpected { make_error_code(error::route_parse_error) };
       }
 
-      return route::to_segments(path);
+      return segments_view::from_path(path);
     }
 
     optional<router_type> router_;

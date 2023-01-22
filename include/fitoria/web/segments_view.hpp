@@ -5,11 +5,13 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_ROUTE_HPP
-#define FITORIA_WEB_ROUTE_HPP
+#ifndef FITORIA_WEB_SEGMENTS_VIEW_HPP
+#define FITORIA_WEB_SEGMENTS_VIEW_HPP
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
+#include <fitoria/core/optional.hpp>
 #include <fitoria/core/url.hpp>
 
 #include <fitoria/web/error.hpp>
@@ -21,20 +23,23 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class route {
+struct segment_view {
+  bool is_param;
+  std::string_view original;
+  std::string_view escaped;
+};
+
+class segments_view : public std::vector<segment_view> {
 public:
-  struct segment {
-    bool is_param;
-    std::string_view original;
-    std::string_view escaped;
-  };
-
-  using segments = std::vector<segment>;
-
-  static auto to_segments(std::string_view path)
-      -> expected<segments, error_code>
+  segments_view(std::vector<segment_view> segments)
+      : std::vector<segment_view>(std::move(segments))
   {
-    segments segs;
+  }
+
+  static auto from_path(std::string_view path)
+      -> expected<segments_view, error_code>
+  {
+    std::vector<segment_view> segments;
     while (!path.empty()) {
       if (!path.starts_with('/')) {
         return unexpected { make_error_code(error::route_parse_error) };
@@ -52,7 +57,7 @@ public:
 
       if (auto escaped = escape_segment(original);
           escaped && !escaped.value().empty()) {
-        segs.push_back(segment {
+        segments.push_back(segment_view {
             original != escaped,
             original,
             escaped.value(),
@@ -62,7 +67,7 @@ public:
       }
     }
 
-    return segs;
+    return segments_view(segments);
   }
 
   static auto escape_segment(std::string_view segment) noexcept
@@ -96,8 +101,8 @@ public:
                               std::string_view req_path)
       -> expected<query_map, error_code>
   {
-    auto router_segs = to_segments(router_path);
-    auto req_segs = to_segments(req_path);
+    auto router_segs = from_path(router_path);
+    auto req_segs = from_path(req_path);
 
     if (!router_segs || !req_segs || router_segs->size() != req_segs->size()) {
       return unexpected { make_error_code(error::route_parse_error) };

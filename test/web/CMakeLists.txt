@@ -1,7 +1,7 @@
 fitoria_add_test(NAME as_json_test SRCS as_json_test.cpp)
 fitoria_add_test(NAME as_form_test SRCS as_form_test.cpp)
 fitoria_add_test(NAME basic_chain_invoker_test SRCS
-                 basic_chain_invoker_test.cpp)
+    basic_chain_invoker_test.cpp)
 fitoria_add_test(NAME basic_router_tree_test SRCS basic_router_tree_test.cpp)
 fitoria_add_test(NAME basic_scope_test SRCS basic_scope_test.cpp)
 fitoria_add_test(NAME http_client_test SRCS http_client_test.cpp)
@@ -11,7 +11,9 @@ fitoria_add_test(NAME http_route_test SRCS http_route_test.cpp)
 fitoria_add_test(NAME http_server_test SRCS http_server_test.cpp)
 fitoria_add_test(NAME http_server_tls_test SRCS http_server_tls_test.cpp)
 fitoria_add_test(NAME http_server_unittest_test SRCS
-                 http_server_unittest_test.cpp)
+    http_server_unittest_test.cpp)
+fitoria_add_test(NAME segments_view_test SRCS
+    segments_view_test.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)
