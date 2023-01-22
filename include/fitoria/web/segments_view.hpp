@@ -55,8 +55,7 @@ public:
         path = {};
       }
 
-      if (auto escaped = escape_segment(original);
-          escaped && !escaped.value().empty()) {
+      if (auto escaped = escape_segment(original); escaped) {
         segments.push_back(segment_view {
             original != escaped,
             original,

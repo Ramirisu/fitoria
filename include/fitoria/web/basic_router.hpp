@@ -95,16 +95,6 @@ private:
       return nullopt;
     }
 
-    static auto try_parse_path(std::string_view path)
-        -> expected<segments_view, error_code>
-    {
-      if (path.empty()) {
-        return unexpected { make_error_code(error::route_parse_error) };
-      }
-
-      return segments_view::from_path(path);
-    }
-
     optional<route_type> route_;
     unordered_string_map<node> path_trees_;
     optional<std::shared_ptr<node>> param_trees_;
@@ -113,15 +103,16 @@ private:
 public:
   auto try_insert(const route_type& route) -> expected<void, error_code>
   {
-    return node::try_parse_path(route.path()).and_then([&](auto&& segments) {
-      return subtrees_[route.method()].try_insert(route, segments, 0);
-    });
+    return segments_view::from_path(route.path())
+        .and_then([&](auto&& segments) {
+          return subtrees_[route.method()].try_insert(route, segments, 0);
+        });
   }
 
   auto try_find(http::verb method, std::string_view path) const
       -> expected<const route_type&, error_code>
   {
-    return node::try_parse_path(path)
+    return segments_view::from_path(path)
         .transform_error(
             [](auto&&) { return make_error_code(error::route_not_exists); })
         .and_then([&](auto&& segments) {
