@@ -18,6 +18,7 @@
 #if defined(FITORIA_CXX_COMPILER_GCC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wrestrict"
 #endif
 
 #include <boost/iostreams/copy.hpp>
@@ -28,6 +29,8 @@
 #if defined(FITORIA_CXX_COMPILER_GCC)
 #pragma GCC diagnostic pop
 #endif
+
+#include <iterator>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -46,9 +49,7 @@ public:
 
   std::streamsize write(const char* s, std::streamsize n)
   {
-    const auto size = container_.size();
-    container_.resize(size + n);
-    std::memcpy(container_.data() + size, s, n);
+    std::copy(s, s + n, std::back_inserter(container_));
     return n;
   }
 
