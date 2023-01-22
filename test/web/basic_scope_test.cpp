@@ -30,26 +30,26 @@ TEST_CASE("basic")
             .use(l)
             .route(http::verb::get, "/libraries", h)
             .route(http::verb::put, "/libraries", h)
-            .sub_group(
+            .sub_scope(
                 scope_type("/gul")
                     .use(ag)
                     .route(http::verb::get, "/tags", h)
                     .route(scope_type::route_type(http::verb::put, "/tags", h))
-                    .sub_group(scope_type("/tags")
+                    .sub_scope(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
-                    .sub_group(scope_type("/branches")
+                    .sub_scope(scope_type("/branches")
                                    .route(http::verb::get, "/{branch}", h)
                                    .route(http::verb::put, "/{branch}", h)))
-            .sub_group(
+            .sub_scope(
                 scope_type("/fitoria")
                     .use(af)
                     .route(http::verb::get, "/tags", h)
                     .route(scope_type::route_type(http::verb::put, "/tags", h))
-                    .sub_group(scope_type("/tags")
+                    .sub_scope(scope_type("/tags")
                                    .route(http::verb::get, "/{tag}", h)
                                    .route(http::verb::put, "/{tag}", h))
-                    .sub_group(scope_type("/branches")
+                    .sub_scope(scope_type("/branches")
                                    .route(http::verb::get, "/{branch}", h)
                                    .route(http::verb::put, "/{branch}", h)));
 

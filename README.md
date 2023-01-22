@@ -333,8 +333,8 @@ void configure_application(http_server::builder& builder)
       scope("")
           // Register a global middleware for all handlers
           .use(my_middleware::log)
-          // Create a subgroup "/api/v1" under global scope
-          .sub_group(
+          // Create a sub-scope "/api/v1" under global scope
+          .sub_scope(
               scope("/api/v1")
                   // Register a middleware for this scope
                   .use(my_middleware::v1::auth)
@@ -346,8 +346,8 @@ void configure_application(http_server::builder& builder)
 
                                  co_return http_response(http::status::ok);
                                })))
-          // Create a subgroup "/api/v2" under global scope
-          .sub_group(
+          // Create a sub-scope "/api/v2" under global scope
+          .sub_scope(
               scope("/api/v2")
                   // Register a middleware for this scope
                   .use(my_middleware::v2::auth)

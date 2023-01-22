@@ -50,7 +50,7 @@ public:
     return *this;
   }
 
-  auto sub_group(basic_scope scope) -> basic_scope&
+  auto sub_scope(basic_scope scope) -> basic_scope&
   {
     for (auto& routes : scope.routes_) {
       routes_.push_back(routes.rebind_parent(path_, middlewares_));
