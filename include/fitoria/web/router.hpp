@@ -5,17 +5,17 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_ROUTER_TREE_HPP
-#define FITORIA_WEB_ROUTER_TREE_HPP
+#ifndef FITORIA_WEB_ROUTER_HPP
+#define FITORIA_WEB_ROUTER_HPP
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/basic_router_tree.hpp>
+#include <fitoria/web/basic_router.hpp>
 #include <fitoria/web/route.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-using router_tree = basic_router_tree<route>;
+using router = basic_router<route>;
 
 FITORIA_NAMESPACE_END
 

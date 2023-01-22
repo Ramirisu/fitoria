@@ -17,12 +17,14 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
-#include <fitoria/web/router_tree.hpp>
+#include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 class http_server {
+  using router_type = router;
+
 public:
   class builder {
     friend class http_server;
@@ -64,7 +66,7 @@ public:
 
     builder& route(const route& route)
     {
-      if (auto res = router_tree_.try_insert(route); !res) {
+      if (auto res = router_.try_insert(route); !res) {
         throw system_error(res.error());
       }
 
@@ -101,7 +103,7 @@ public:
     std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
     std::function<void(std::exception_ptr)> exception_handler_
         = default_exception_handler;
-    router_tree router_tree_;
+    router_type router_;
   };
 
   http_server(builder builder)
@@ -360,7 +362,7 @@ private:
           .set_body("request target is invalid");
     }
 
-    auto route = builder_.router_tree_.try_find(method, req_url.value().path());
+    auto route = builder_.router_.try_find(method, req_url.value().path());
     if (!route) {
       co_return http_response(http::status::not_found)
           .set_header(http::field::content_type, "text/plain")

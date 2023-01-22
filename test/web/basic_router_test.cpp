@@ -9,18 +9,17 @@
 
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
-#include <fitoria/web/router_tree.hpp>
+#include <fitoria/web/basic_router.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.basic_router_tree");
+TEST_SUITE_BEGIN("web.basic_router");
 
 namespace {
 
 using middleware_type = basic_middleware<int, int>;
 using handler_type = basic_handler<int, int>;
-using router_tree_type
-    = basic_router_tree<basic_route<middleware_type, handler_type>>;
+using router_type = basic_router<basic_route<middleware_type, handler_type>>;
 }
 
 TEST_CASE("try_insert")
@@ -28,11 +27,11 @@ TEST_CASE("try_insert")
   using exp_t = expected<void, error>;
 
   auto r = [=](http::verb method, std::string path) {
-    return router_tree_type::route_type(method, std::move(path),
-                                        handler_type([](int) { return 0; }));
+    return router_type::route_type(method, std::move(path),
+                                   handler_type([](int) { return 0; }));
   };
 
-  router_tree_type rt;
+  router_type rt;
   CHECK_EQ(rt.try_insert(r(http::verb::get, "")),
            exp_t(unexpect, error::route_parse_error));
   CHECK_EQ(rt.try_insert(r(http::verb::get, "/")),
@@ -69,11 +68,11 @@ TEST_CASE("try_insert")
 TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
-    return router_tree_type::route_type(
+    return router_type::route_type(
         method, std::move(path), handler_type([=](int) -> int { return exp; }));
   };
 
-  router_tree_type rt;
+  router_type rt;
   rt.try_insert(r(http::verb::get, "/api/v1/x", 10));
   rt.try_insert(r(http::verb::put, "/api/v1/x", 11));
   rt.try_insert(r(http::verb::get, "/api/v1/{x}", 12));
