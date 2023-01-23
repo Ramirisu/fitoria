@@ -10,7 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/expected.hpp>
+#include <fitoria/core/format.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <exception>
@@ -20,9 +20,6 @@
 #include <utility>
 
 FITORIA_NAMESPACE_BEGIN
-
-template <typename T, typename E>
-class expected;
 
 struct nullopt_t {
   struct tag_t {
@@ -518,28 +515,6 @@ public:
     }
   }
 
-  template <typename E>
-  constexpr auto to_expected_or(E&& default_error) const&
-  {
-    using Exp = expected<T, std::remove_cvref_t<E>>;
-    if (has_value()) {
-      return Exp(value());
-    } else {
-      return Exp(unexpect, std::forward<E>(default_error));
-    }
-  }
-
-  template <typename E>
-  constexpr auto to_expected_or(E&& default_error) &&
-  {
-    using Exp = expected<T, std::remove_cvref_t<E>>;
-    if (has_value()) {
-      return Exp(std::move(value()));
-    } else {
-      return Exp(unexpect, std::forward<E>(default_error));
-    }
-  }
-
   constexpr void swap(optional& other) noexcept(
       std::is_nothrow_move_constructible_v<T>&& std::is_nothrow_swappable_v<T>)
     requires(std::is_move_constructible_v<T>)
@@ -695,17 +670,6 @@ public:
       return U(std::in_place);
     } else {
       return U(std::forward<F>(f)());
-    }
-  }
-
-  template <typename E>
-  constexpr auto to_expected_or(E&& default_error) const
-  {
-    using Exp = expected<T, std::remove_cvref_t<E>>;
-    if (has_value()) {
-      return Exp();
-    } else {
-      return Exp(unexpect, std::forward<E>(default_error));
     }
   }
 
@@ -949,17 +913,6 @@ public:
       return U(value());
     } else {
       return U(std::forward<F>(f)());
-    }
-  }
-
-  template <typename E>
-  constexpr auto to_expected_or(E&& default_error) const
-  {
-    using Exp = expected<T, std::remove_cvref_t<E>>;
-    if (has_value()) {
-      return Exp(value());
-    } else {
-      return Exp(unexpect, std::forward<E>(default_error));
     }
   }
 
@@ -1241,8 +1194,6 @@ constexpr void swap(optional<T>& lhs,
 }
 
 FITORIA_NAMESPACE_END
-
-#include <fitoria/core/format.hpp>
 
 template <typename T, typename CharT>
 struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>

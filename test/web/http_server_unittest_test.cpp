@@ -78,8 +78,7 @@ TEST_CASE("unittest")
                                                   ct) } });
                   }
                   if (auto msg
-                      = as_json(req.body())
-                            .value_to_optional()
+                      = value_to_optional(as_json(req.body()))
                             .and_then([](auto&& jv) -> optional<json::object> {
                               if (jv.is_object()) {
                                 return jv.as_object();

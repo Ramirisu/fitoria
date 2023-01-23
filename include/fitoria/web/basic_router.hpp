@@ -10,7 +10,8 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/optional.hpp>
+#include <fitoria/core/expected_ext.hpp>
+#include <fitoria/core/optional_ext.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
 #include <fitoria/web/basic_route.hpp>
@@ -67,19 +68,19 @@ private:
         -> expected<const route_type&, error_code>
     {
       if (segment_index == segments.size()) {
-        return optional<const route_type&>(route_).to_expected_or(
-            make_error_code(error::route_not_exists));
+        return to_expected(optional<const route_type&>(route_),
+                           make_error_code(error::route_not_exists));
       }
 
-      return try_find_path_trees(segments[segment_index].original)
-          .to_expected_or(make_error_code(error::route_not_exists))
+      return to_expected(try_find_path_trees(segments[segment_index].original),
+                         make_error_code(error::route_not_exists))
           .and_then([&](auto&& node) {
             return node.try_find(segments, segment_index + 1);
           })
           .or_else([&](auto&& error) {
-            return param_trees_.to_expected_or(error).and_then(
-                [&](auto&& node_ptr)
-                    -> expected<const route_type&, error_code> {
+            return to_expected(param_trees_, error)
+                .and_then([&](auto&& node_ptr)
+                              -> expected<const route_type&, error_code> {
                   return node_ptr->try_find(segments, segment_index + 1);
                 });
           });
@@ -116,8 +117,8 @@ public:
         .transform_error(
             [](auto&&) { return make_error_code(error::route_not_exists); })
         .and_then([&](auto&& segments) {
-          return try_find(method)
-              .to_expected_or(make_error_code(error::route_not_exists))
+          return to_expected(try_find(method),
+                             make_error_code(error::route_not_exists))
               .and_then(
                   [&](auto&& node) { return node.try_find(segments, 0); });
         });

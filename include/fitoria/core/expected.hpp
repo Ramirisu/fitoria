@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <exception>
@@ -19,9 +20,6 @@
 #include <utility>
 
 FITORIA_NAMESPACE_BEGIN
-
-template <typename T>
-class optional;
 
 template <typename E>
 class unexpected {
@@ -999,78 +997,6 @@ public:
     }
   }
 
-  constexpr auto value_to_optional() &
-  {
-    if (has_value()) {
-      return optional<T>(value());
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<T>(value());
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<T>(std::move(value()));
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<T>(std::move(value()));
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto error_to_optional() &
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
-    }
-  }
-
-  constexpr auto error_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
-    }
-  }
-
   template <typename... Args>
   constexpr T& emplace(Args&&... args) noexcept
     requires(std::is_nothrow_constructible_v<T, Args...>)
@@ -1701,78 +1627,6 @@ public:
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
-    }
-  }
-
-  constexpr auto value_to_optional() &
-  {
-    if (has_value()) {
-      return optional<T>(std::in_place);
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<T>(std::in_place);
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<T>(std::in_place);
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<T>(std::in_place);
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto error_to_optional() &
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
-    }
-  }
-
-  constexpr auto error_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
     }
   }
 
@@ -2432,78 +2286,6 @@ public:
     }
   }
 
-  constexpr auto value_to_optional() &
-  {
-    if (has_value()) {
-      return optional<T>(value());
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<T>(value());
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<T>(std::move(value()));
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto value_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<T>(std::move(value()));
-    } else {
-      return optional<T>();
-    }
-  }
-
-  constexpr auto error_to_optional() &
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() const&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(error());
-    }
-  }
-
-  constexpr auto error_to_optional() &&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
-    }
-  }
-
-  constexpr auto error_to_optional() const&&
-  {
-    if (has_value()) {
-      return optional<E>();
-    } else {
-      return optional<E>(std::move(error()));
-    }
-  }
-
   template <typename U>
   constexpr T& emplace(U& value) noexcept
   {
@@ -2553,8 +2335,6 @@ private:
 
 FITORIA_NAMESPACE_END
 
-#include <fitoria/core/format.hpp>
-
 template <typename T, typename E, typename CharT>
 struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::expected<T, E>,
                                          CharT>
@@ -2570,7 +2350,5 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::expected<T, E>,
     }
   }
 };
-
-#include <fitoria/core/optional.hpp>
 
 #endif
