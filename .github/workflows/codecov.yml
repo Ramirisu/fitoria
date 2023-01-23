@@ -4,11 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os_cxx.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04]
-        cxx: [g++-12]
+        os_cxx:
+          - os: ubuntu-22.04
+            cxx: g++-12
         std: [20]
         build_type: [Debug]
         generator: [Ninja]
@@ -25,7 +26,7 @@ jobs:
           restore-keys: ${{ runner.os }}-vcpkg-
 
       - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu')
+        if: startsWith(matrix.os_cxx.os, 'ubuntu')
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
@@ -51,7 +52,7 @@ jobs:
             -B build \
             -G "${{ matrix.generator }}" \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.os_cxx.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=ON \
