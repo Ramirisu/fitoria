@@ -559,24 +559,24 @@ TODO:
 
 ## Building
 
-Compiler Supported
+Platform & Compiler Support (Require C++20 coroutine and concepts)
 
-* GCC 12
-* MSVC 17 2022
-* Clang 15
+- Linux w/ GCC 12 (`-std=c++20`)
+- Windows w/ MSVC 17 2022 (`/std=c++20`)
+- MacOS w/ Clang 15 (`-std=c++20`)
 
 Dependencies
 
 |            Library             | Usage                              |              Namespace              | required/optional |
 | :----------------------------: | :--------------------------------- | :---------------------------------: | :---------------: |
-|         `boost::asio`          | networking                         |           `fitoria::net`            |     required      |
-|         `boost::beast`         | http                               | `fitoria::net`<br />`fitoria::http` |     required      |
-|          `boost::url`          | internal url parsing               |           `fitoria::urls`           |     required      |
-|         `boost::json`          | json serialization/deserialization |           `fitoria::json`           |     required      |
-| `boost::iostreams`<br />`zlib` | middleware gzip                    |                none                 |     optional      |
-|             `fmt`              | formatting                         |           `fitoria::fmt`            |     optional      |
-|           `OpenSSL`            | secure networking                  |                none                 |     optional      |
-|           `doctest`            | unittesting                        |                none                 |     optional      |
+|         `boost::asio`          | Networking                         |           `fitoria::net`            |     required      |
+|         `boost::beast`         | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
+|          `boost::url`          | Internal url parsing               |           `fitoria::urls`           |     required      |
+|         `boost::json`          | JSON serialization/deserialization |           `fitoria::json`           |     required      |
+| `boost::iostreams`<br />`zlib` | Built-in middleware zlib/gzip      |                none                 |     optional      |
+|             `fmt`              | Formatting                         |           `fitoria::fmt`            |     optional      |
+|           `OpenSSL`            | Secure networking                  |                none                 |     optional      |
+|           `doctest`            | Unit testing                       |                none                 |     optional      |
 
 CMake
 
