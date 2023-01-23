@@ -17,22 +17,32 @@ TEST_CASE("basic")
 {
   http_header header;
   const auto& cheader = header;
-  header.set(http::field::content_type, "text/plain");
-  CHECK_EQ(header.get(http::field::content_type), "text/plain");
-  CHECK_EQ(header.get("Content-Type"), "text/plain");
-  CHECK_EQ(header.get("content-type"), "text/plain");
-  CHECK_EQ(cheader.get(http::field::content_type), "text/plain");
-  CHECK_EQ(cheader.get("Content-Type"), "text/plain");
-  CHECK_EQ(cheader.get("content-type"), "text/plain");
-  CHECK_EQ(header.at(http::field::content_type), "text/plain");
-  CHECK_EQ(header.at("Content-Type"), "text/plain");
-  CHECK_EQ(header.at("content-type"), "text/plain");
-  CHECK_EQ(cheader.at(http::field::content_type), "text/plain");
-  CHECK_EQ(cheader.at("Content-Type"), "text/plain");
-  CHECK_EQ(cheader.at("content-type"), "text/plain");
-  CHECK_EQ(header.operator[](http::field::content_type), "text/plain");
-  CHECK_EQ(header.operator[]("Content-Type"), "text/plain");
-  CHECK_EQ(header.operator[]("content-type"), "text/plain");
+  header.set(http::field::content_type,
+             http::fields::content_type::plaintext());
+  CHECK_EQ(header.get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(header.get("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(header.get("content-type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.get("Content-Type"),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.get("content-type"),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(header.at(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(header.at("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(header.at("content-type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.at(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.at("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cheader.at("content-type"), http::fields::content_type::plaintext());
+  CHECK_EQ(header.operator[](http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(header.operator[]("Content-Type"),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(header.operator[]("content-type"),
+           http::fields::content_type::plaintext());
   CHECK(header.contains(http::field::content_type));
   CHECK(header.contains("Content-Type"));
   CHECK(header.contains("content-type"));

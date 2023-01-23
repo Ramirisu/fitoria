@@ -22,8 +22,9 @@ int main()
                           log::debug("path: {}", req.route_params().path());
 
                           co_return http_response(http::status::ok)
-                              .set_header(http::field::content_type,
-                                          "text/plain")
+                              .set_header(
+                                  http::field::content_type,
+                                  http::fields::content_type::plaintext())
                               .set_body("extractor");
                         })
                     // Extract `route_params`
@@ -33,8 +34,9 @@ int main()
                              log::debug("path: {}", r.path());
 
                              co_return http_response(http::status::ok)
-                                 .set_header(http::field::content_type,
-                                             "text/plain")
+                                 .set_header(
+                                     http::field::content_type,
+                                     http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            })
                     // Extract `query_map`
@@ -44,8 +46,9 @@ int main()
                              log::debug("brand: {}", qm.get("brand"));
 
                              co_return http_response(http::status::ok)
-                                 .set_header(http::field::content_type,
-                                             "text/plain")
+                                 .set_header(
+                                     http::field::content_type,
+                                     http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            })
                     // Extract `http_header`
@@ -56,8 +59,9 @@ int main()
                                         header.get(http::field::content_type));
 
                              co_return http_response(http::status::ok)
-                                 .set_header(http::field::content_type,
-                                             "text/plain")
+                                 .set_header(
+                                     http::field::content_type,
+                                     http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            })
                     // Extract body as `std::string`
@@ -67,8 +71,9 @@ int main()
                              log::debug("body: {}", body);
 
                              co_return http_response(http::status::ok)
-                                 .set_header(http::field::content_type,
-                                             "text/plain")
+                                 .set_header(
+                                     http::field::content_type,
+                                     http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            })
                     // Extract arbitrary types that can be converted from
@@ -83,8 +88,9 @@ int main()
                              log::debug("body: {}", body);
 
                              co_return http_response(http::status::ok)
-                                 .set_header(http::field::content_type,
-                                             "text/plain")
+                                 .set_header(
+                                     http::field::content_type,
+                                     http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            }))
             .build();

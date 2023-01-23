@@ -99,13 +99,13 @@ public:
     return header_;
   }
 
-  http_client& set_header(http::field name, std::string value)
+  http_client& set_header(http::field name, std::string_view value)
   {
     header_.set(name, value);
     return *this;
   }
 
-  http_client& set_header(std::string name, std::string value)
+  http_client& set_header(std::string name, std::string_view value)
   {
     header_.set(name, value);
     return *this;

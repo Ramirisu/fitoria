@@ -31,13 +31,16 @@ TEST_CASE("set_header")
 {
   {
     http_response res;
-    res.set_header(http::field::content_type, "text/plain");
-    CHECK_EQ(res.headers().get(http::field::content_type), "text/plain");
+    res.set_header(http::field::content_type,
+                   http::fields::content_type::plaintext());
+    CHECK_EQ(res.headers().get(http::field::content_type),
+             http::fields::content_type::plaintext());
   }
   {
     http_response res;
-    res.set_header("Content-Type", "text/plain");
-    CHECK_EQ(res.headers().get(http::field::content_type), "text/plain");
+    res.set_header("Content-Type", http::fields::content_type::plaintext());
+    CHECK_EQ(res.headers().get(http::field::content_type),
+             http::fields::content_type::plaintext());
   }
 }
 

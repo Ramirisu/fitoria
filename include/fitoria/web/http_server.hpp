@@ -358,14 +358,16 @@ private:
     auto req_url = urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
-          .set_header(http::field::content_type, "text/plain")
+          .set_header(http::field::content_type,
+                      http::fields::content_type::plaintext())
           .set_body("request target is invalid");
     }
 
     auto route = builder_.router_.try_find(method, req_url.value().path());
     if (!route) {
       co_return http_response(http::status::not_found)
-          .set_header(http::field::content_type, "text/plain")
+          .set_header(http::field::content_type,
+                      http::fields::content_type::plaintext())
           .set_body("request path is not found");
     }
 

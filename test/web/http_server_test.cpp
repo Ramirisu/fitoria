@@ -104,7 +104,8 @@ TEST_CASE("invalid target")
                     .with_field(http::field::connection, "close")
                     .send_request();
     CHECK_EQ(resp.result(), http::status::not_found);
-    CHECK_EQ(resp.at(http::field::content_type), "text/plain");
+    CHECK_EQ(resp.at(http::field::content_type),
+             http::fields::content_type::plaintext());
     CHECK_EQ(resp.body(), "request path is not found");
   }
   ioc.stop();
@@ -249,10 +250,10 @@ TEST_CASE("generic request")
                   test_query(static_cast<const http_request&>(req).query());
 
                   CHECK_EQ(req.headers().at(http::field::content_type),
-                           "text/plain");
+                           http::fields::content_type::plaintext());
                   CHECK_EQ(static_cast<const http_request&>(req).headers().at(
                                http::field::content_type),
-                           "text/plain");
+                           http::fields::content_type::plaintext());
                   CHECK_EQ(req.body(), "happy birthday");
                   CHECK_EQ(static_cast<const http_request&>(req).body(),
                            "happy birthday");
@@ -274,7 +275,8 @@ TEST_CASE("generic request")
             .with_target(
                 R"(/api/v1/users/Rina%20Hidaka/filmography/years/2022?name=Rina%20Hidaka&birth=1994%2F06%2F15)")
             .with(http::verb::get)
-            .with_field(http::field::content_type, "text/plain")
+            .with_field(http::field::content_type,
+                        http::fields::content_type::plaintext())
             .with_field(http::field::connection, "close")
             .with_body("happy birthday")
             .send_request();
@@ -343,16 +345,18 @@ TEST_CASE("response status only")
 TEST_CASE("response with plain text")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
-                    .route(route(http::verb::get, "/api",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   co_return http_response(http::status::ok)
-                                       .set_header(http::field::content_type,
-                                                   "text/plain")
-                                       .set_body("plain text");
-                                 }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(route(http::verb::get, "/api",
+                         []([[maybe_unused]] http_request& req)
+                             -> net::awaitable<http_response> {
+                           co_return http_response(http::status::ok)
+                               .set_header(
+                                   http::field::content_type,
+                                   http::fields::content_type::plaintext())
+                               .set_body("plain text");
+                         }))
+            .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -368,7 +372,8 @@ TEST_CASE("response with plain text")
                   .with_field(http::field::connection, "close")
                   .send_request();
   CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type), "text/plain");
+  CHECK_EQ(resp.at(http::field::content_type),
+           http::fields::content_type::plaintext());
   CHECK_EQ(resp.body(), "plain text");
   ioc.stop();
 }

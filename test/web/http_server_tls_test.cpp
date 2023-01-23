@@ -34,7 +34,7 @@ void configure_server(http_server::builder& builder)
                         CHECK_EQ(req.route_params().at("repo"), "fitoria");
                         CHECK_EQ(req.path(), "/api/repos/fitoria");
                         CHECK_EQ(req.headers().at(http::field::content_type),
-                                 "text/plain");
+                                 http::fields::content_type::plaintext());
                         CHECK_EQ(req.body(), "hello world");
                         co_return http_response(http::status::ok);
                       }));
@@ -44,7 +44,8 @@ void configure_client(simple_http_client& client)
 {
   client.with(http::verb::get)
       .with_target("/api/repos/fitoria")
-      .with_field(http::field::content_type, "text/plain")
+      .with_field(http::field::content_type,
+                  http::fields::content_type::plaintext())
       .with_body("hello world");
 }
 
