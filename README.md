@@ -562,11 +562,17 @@ TODO:
 
 ## Building
 
-Platform & Compiler Support (Require C++20 coroutine and concepts)
+Platform
 
-- Linux w/ GCC 12 (`-std=c++20`)
-- Windows w/ MSVC 17 2022 (`/std=c++20`)
-- MacOS w/ Clang 15 (`-std=c++20`)
+- Linux
+- Windows
+- MacOS
+
+Compiler
+
+- GCC 12
+- MSVC 17 2022
+- Clang 15
 
 Dependencies
 
