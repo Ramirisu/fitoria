@@ -60,7 +60,8 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = simple_http_client(localhost, port);

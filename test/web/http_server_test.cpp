@@ -5,7 +5,6 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <boost/asio/detached.hpp>
 #include <fitoria_test.h>
 
 #include <fitoria_certificate.h>
@@ -13,8 +12,6 @@
 #include <fitoria_simple_http_client.h>
 
 #include <fitoria/web.hpp>
-
-#include <thread>
 
 using namespace fitoria;
 
@@ -48,7 +45,8 @@ TEST_CASE("builder")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -91,7 +89,8 @@ TEST_CASE("invalid target")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   const auto test_cases = std::vector {
@@ -127,7 +126,8 @@ TEST_CASE("expect: 100-continue")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -167,7 +167,8 @@ TEST_CASE("unhandled exception from handler")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   CHECK_THROWS(simple_http_client(localhost, port)
@@ -264,7 +265,8 @@ TEST_CASE("generic request")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp
@@ -322,7 +324,8 @@ TEST_CASE("response status only")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -355,7 +358,8 @@ TEST_CASE("response with plain text")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -394,7 +398,8 @@ TEST_CASE("response with json")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)
@@ -437,7 +442,8 @@ TEST_CASE("response with struct to json")
   net::co_spawn(
       ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
       net::detached);
-  std::jthread thread([&]() { ioc.run(); });
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto resp = simple_http_client(localhost, port)

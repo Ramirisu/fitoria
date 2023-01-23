@@ -39,7 +39,7 @@
 #define FITORIA_CXX_COMPILER_MSVC
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #define FITORIA_CXX_COMPILER_GCC
 #endif
 

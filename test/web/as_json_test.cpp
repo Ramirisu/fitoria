@@ -43,13 +43,6 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
   return make_error_code(json::error::incomplete);
 }
 
-void tag_invoke(const json::value_from_tag&,
-                json::value& jv,
-                const user_t& user)
-{
-  jv = { { "name", user.name }, { "birth", user.birth } };
-}
-
 }
 
 TEST_CASE("body_as_json")

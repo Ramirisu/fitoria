@@ -18,8 +18,7 @@ namespace log {
 
 template <typename... Args>
 struct [[maybe_unused]] debug {
-  debug(Args&&... args,
-        const std::source_location& loc = std::source_location::current())
+  debug(Args&&... args, const source_location& loc = source_location::current())
   {
     global_logger()->log(loc, level::debug, std::forward<Args>(args)...);
   }
@@ -30,8 +29,7 @@ debug(Args&&...) -> debug<Args...>;
 
 template <typename... Args>
 struct [[maybe_unused]] info {
-  info(Args&&... args,
-       const std::source_location& loc = std::source_location::current())
+  info(Args&&... args, const source_location& loc = source_location::current())
   {
     global_logger()->log(loc, level::info, std::forward<Args>(args)...);
   }
@@ -43,7 +41,7 @@ info(Args&&...) -> info<Args...>;
 template <typename... Args>
 struct [[maybe_unused]] warning {
   warning(Args&&... args,
-          const std::source_location& loc = std::source_location::current())
+          const source_location& loc = source_location::current())
   {
     global_logger()->log(loc, level::warning, std::forward<Args>(args)...);
   }
@@ -54,8 +52,7 @@ warning(Args&&...) -> warning<Args...>;
 
 template <typename... Args>
 struct [[maybe_unused]] error {
-  error(Args&&... args,
-        const std::source_location& loc = std::source_location::current())
+  error(Args&&... args, const source_location& loc = source_location::current())
   {
     global_logger()->log(loc, level::error, std::forward<Args>(args)...);
   }
@@ -66,8 +63,7 @@ error(Args&&...) -> error<Args...>;
 
 template <typename... Args>
 struct [[maybe_unused]] fatal {
-  fatal(Args&&... args,
-        const std::source_location& loc = std::source_location::current())
+  fatal(Args&&... args, const source_location& loc = source_location::current())
   {
     global_logger()->log(loc, level::fatal, std::forward<Args>(args)...);
   }

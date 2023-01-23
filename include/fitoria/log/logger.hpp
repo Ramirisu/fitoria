@@ -11,13 +11,13 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/format.hpp>
+#include <fitoria/core/source_location.hpp>
 
 #include <fitoria/log/level.hpp>
 #include <fitoria/log/writer.hpp>
 
 #include <atomic>
 #include <chrono>
-#include <source_location>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -34,8 +34,10 @@ public:
   }
 
   template <typename Format, typename... Args>
-  void
-  log(const std::source_location& loc, level lv, Format&& fmt, Args&&... args)
+  void log([[maybe_unused]] const source_location& loc,
+           level lv,
+           Format&& fmt,
+           Args&&... args)
   {
     if (!writer_ || lv < log_level()) {
       return;
@@ -47,8 +49,11 @@ public:
                                   to_string(lv));
     msg += fmt::vformat(std::forward<Format>(fmt),
                         fmt::make_format_args(std::forward<Args>(args)...));
+
+#if defined(__cpp_lib_source_location)
     msg += fmt::format(" [{}:{}:{}]\n", get_file_name(loc.file_name()),
                        loc.line(), loc.column());
+#endif
 
     writer_->write(std::move(msg));
   }
