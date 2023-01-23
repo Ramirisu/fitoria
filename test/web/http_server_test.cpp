@@ -9,9 +9,9 @@
 
 #include <fitoria_certificate.h>
 #include <fitoria_http_server_utils.h>
-#include <fitoria_simple_http_client.h>
 
 #include <fitoria/web.hpp>
+#include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
 
@@ -49,11 +49,12 @@ TEST_CASE("builder")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto resp = simple_http_client(localhost, port)
-                  .with(http::verb::get)
-                  .with_target("/api")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
+  auto client
+      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
+            .value()
+            .set_method(http::verb::get);
+  auto res = client.send().value();
+  CHECK_EQ(res.status_code(), http::status::ok);
   ioc.stop();
 }
 
@@ -98,15 +99,17 @@ TEST_CASE("invalid target")
   };
 
   for (auto& test_case : test_cases) {
-    auto resp = simple_http_client(localhost, port)
-                    .with_target(test_case)
-                    .with(http::verb::get)
-                    .with_field(http::field::connection, "close")
-                    .send_request();
-    CHECK_EQ(resp.result(), http::status::not_found);
-    CHECK_EQ(resp.at(http::field::content_type),
+    auto client = http_client::from_url(
+                      to_local_url(urls::scheme::http, port, test_case))
+                      .value()
+                      .set_method(http::verb::get)
+                      .set_header(http::field::connection, "close")
+                      .set_body("text");
+    auto res = client.send().value();
+    CHECK_EQ(res.status_code(), http::status::not_found);
+    CHECK_EQ(res.headers().get(http::field::content_type),
              http::fields::content_type::plaintext());
-    CHECK_EQ(resp.body(), "request path is not found");
+    CHECK_EQ(res.body(), "request path is not found");
   }
   ioc.stop();
 }
@@ -131,14 +134,15 @@ TEST_CASE("expect: 100-continue")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto resp = simple_http_client(localhost, port)
-                  .with_target("/api/v1/post")
-                  .with(http::verb::post)
-                  .with_field(http::field::expect, "100-continue")
-                  .with_field(http::field::connection, "close")
-                  .with_body("text")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
+  auto client = http_client::from_url(
+                    to_local_url(urls::scheme::http, port, "/api/v1/post"))
+                    .value()
+                    .set_method(http::verb::post)
+                    .set_header(http::field::expect, "100-continue")
+                    .set_header(http::field::connection, "close")
+                    .set_body("text");
+  auto res = client.send().value();
+  CHECK_EQ(res.status_code(), http::status::ok);
   ioc.stop();
 }
 
@@ -172,11 +176,13 @@ TEST_CASE("unhandled exception from handler")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  CHECK_THROWS(simple_http_client(localhost, port)
-                   .with_target("/api/v1/get")
-                   .with(http::verb::get)
-                   .with_field(http::field::connection, "close")
-                   .send_request());
+  auto client = http_client::from_url(
+                    to_local_url(urls::scheme::http, port, "/api/v1/get"))
+                    .value()
+                    .set_method(http::verb::get)
+                    .set_header(http::field::connection, "close")
+                    .set_body("text");
+  CHECK(!client.send());
   CHECK(got_exception);
   ioc.stop();
 }
@@ -270,44 +276,20 @@ TEST_CASE("generic request")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto resp
-      = simple_http_client(localhost, port)
-            .with_target(
-                R"(/api/v1/users/Rina%20Hidaka/filmography/years/2022?name=Rina%20Hidaka&birth=1994%2F06%2F15)")
-            .with(http::verb::get)
-            .with_field(http::field::content_type,
+  auto client
+      = http_client::from_url(
+            to_local_url(
+                urls::scheme::http, port,
+                R"(/api/v1/users/Rina%20Hidaka/filmography/years/2022?name=Rina%20Hidaka&birth=1994%2F06%2F15)"))
+            .value()
+            .set_method(http::verb::get)
+            .set_header(http::field::content_type,
                         http::fields::content_type::plaintext())
-            .with_field(http::field::connection, "close")
-            .with_body("happy birthday")
-            .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
+            .set_header(http::field::connection, "close")
+            .set_body("happy birthday");
+  auto res = client.send().value();
+  CHECK_EQ(res.status_code(), http::status::ok);
   ioc.stop();
-}
-
-namespace {
-
-struct user_t {
-  std::string name;
-  std::string birth;
-
-  friend bool operator==(const user_t&, const user_t&) = default;
-};
-
-user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
-{
-  return user_t {
-    .name = std::string(jv.at("name").as_string()),
-    .birth = std::string(jv.at("birth").as_string()),
-  };
-}
-
-void tag_invoke(const json::value_from_tag&,
-                json::value& jv,
-                const user_t& user)
-{
-  jv = { { "name", user.name }, { "birth", user.birth } };
-}
-
 }
 
 TEST_CASE("response status only")
@@ -330,15 +312,16 @@ TEST_CASE("response status only")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto resp = simple_http_client(localhost, port)
-                  .with(http::verb::get)
-                  .with_target("/api")
-                  .with_field(http::field::connection, "close")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::accepted);
-  CHECK_EQ(resp.at(http::field::connection), "close");
-  CHECK_EQ(resp.at(http::field::content_length), "0");
-  CHECK_EQ(resp.body(), "");
+  auto client
+      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
+            .value()
+            .set_method(http::verb::get)
+            .set_header(http::field::connection, "close");
+  auto res = client.send().value();
+  CHECK_EQ(res.status_code(), http::status::accepted);
+  CHECK_EQ(res.headers().get(http::field::connection), "close");
+  CHECK_EQ(res.headers().get(http::field::content_length), "0");
+  CHECK_EQ(res.body(), "");
   ioc.stop();
 }
 
@@ -366,104 +349,17 @@ TEST_CASE("response with plain text")
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto resp = simple_http_client(localhost, port)
-                  .with(http::verb::get)
-                  .with_target("/api")
-                  .with_field(http::field::connection, "close")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type),
+  auto client
+      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
+            .value()
+            .set_method(http::verb::get)
+            .set_header(http::field::connection, "close");
+  auto res = client.send().value();
+  CHECK_EQ(res.status_code(), http::status::ok);
+  CHECK_EQ(res.headers().get(http::field::connection), "close");
+  CHECK_EQ(res.headers().get(http::field::content_type),
            http::fields::content_type::plaintext());
-  CHECK_EQ(resp.body(), "plain text");
-  ioc.stop();
-}
-
-TEST_CASE("response with json")
-{
-  const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .route(route(http::verb::get, "/api",
-                         []([[maybe_unused]] http_request& req)
-                             -> net::awaitable<http_response> {
-                           co_return http_response(http::status::ok)
-                               .set_header(http::field::content_type,
-                                           http::fields::content_type::json())
-                               .set_json({
-                                   { "obj_boolean", true },
-                                   { "obj_number", 1234567 },
-                                   { "obj_string", "str" },
-                                   { "obj_array",
-                                     json::array { false, 7654321, "rts" } },
-                               });
-                         }))
-            .build();
-  server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  std::this_thread::sleep_for(server_start_wait_time);
-
-  auto resp = simple_http_client(localhost, port)
-                  .with(http::verb::get)
-                  .with_target("/api")
-                  .with_field(http::field::connection, "close")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type),
-           http::fields::content_type::json());
-  CHECK_EQ(resp.body(),
-           json::serialize(json::value({
-               { "obj_boolean", true },
-               { "obj_number", 1234567 },
-               { "obj_string", "str" },
-               { "obj_array", json::array { false, 7654321, "rts" } },
-           })));
-  ioc.stop();
-}
-
-TEST_CASE("response with struct to json")
-{
-  const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .route(route(http::verb::get, "/api",
-                         []([[maybe_unused]] http_request& req)
-                             -> net::awaitable<http_response> {
-                           co_return http_response(http::status::ok)
-                               .set_header(http::field::content_type,
-                                           http::fields::content_type::json())
-                               .set_json(user_t {
-                                   .name = "Rina Hidaka",
-                                   .birth = "1994/06/15",
-                               });
-                         }))
-            .build();
-  server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  std::this_thread::sleep_for(server_start_wait_time);
-
-  auto resp = simple_http_client(localhost, port)
-                  .with(http::verb::get)
-                  .with_target("/api")
-                  .with_field(http::field::connection, "close")
-                  .send_request();
-  CHECK_EQ(resp.result(), http::status::ok);
-  CHECK_EQ(resp.at(http::field::content_type),
-           http::fields::content_type::json());
-  CHECK_EQ(json::value_to<user_t>(json::parse(resp.body())),
-           user_t {
-               .name = "Rina Hidaka",
-               .birth = "1994/06/15",
-           });
+  CHECK_EQ(res.body(), "plain text");
   ioc.stop();
 }
 

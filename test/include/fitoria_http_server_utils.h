@@ -10,7 +10,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
 #include <fitoria/core/net.hpp>
+#include <fitoria/core/url.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -23,6 +25,14 @@ inline std::uint16_t generate_port()
 {
   static std::uint16_t port = 43210;
   return ++port;
+}
+
+inline std::string
+to_local_url(urls::scheme scheme, std::uint16_t port, std::string_view path)
+{
+  return fmt::vformat("{}://{}:{}{}",
+                      fmt::make_format_args(std::string_view(to_string(scheme)),
+                                            localhost, port, path));
 }
 
 }

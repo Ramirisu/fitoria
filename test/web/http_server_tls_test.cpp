@@ -9,11 +9,9 @@
 
 #include <fitoria_certificate.h>
 #include <fitoria_http_server_utils.h>
-#include <fitoria_simple_http_client.h>
 
 #include <fitoria/web.hpp>
-
-#include <thread>
+#include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
 
@@ -40,15 +38,6 @@ void configure_server(http_server::builder& builder)
                       }));
 }
 
-void configure_client(simple_http_client& client)
-{
-  client.with(http::verb::get)
-      .with_target("/api/repos/fitoria")
-      .with_field(http::field::content_type,
-                  http::fields::content_type::plaintext())
-      .with_body("hello world");
-}
-
 }
 
 void test_with_tls(net::ssl::context::method server_ssl_ver,
@@ -65,10 +54,16 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client = simple_http_client(localhost, port);
-  configure_client(client);
-  auto resp = client.send_request(cert::get_client_ssl_ctx(client_ssl_ver));
-  CHECK_EQ(resp.result(), http::status::ok);
+  auto client = http_client::from_url(to_local_url(urls::scheme::https, port,
+                                                   "/api/repos/fitoria"))
+                    .value();
+  client.set_method(http::verb::get)
+      .set_header(http::field::content_type,
+                  http::fields::content_type::plaintext())
+      .set_body("hello world");
+
+  auto res = client.send(cert::get_client_ssl_ctx(client_ssl_ver)).value();
+  CHECK_EQ(res.status_code(), http::status::ok);
   ioc.stop();
 }
 
