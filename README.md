@@ -563,6 +563,7 @@ Compiler Supported
 
 * GCC 12
 * MSVC 17 2022
+* Clang 15
 
 Dependencies
 
