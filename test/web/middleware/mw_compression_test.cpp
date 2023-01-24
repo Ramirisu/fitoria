@@ -62,7 +62,8 @@ TEST_CASE("compression priority: gzip > zlib")
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::zlib::compress<std::string>(
-                net::const_buffer(in.data(), in.size())))
+                          net::const_buffer(in.data(), in.size()))
+                          .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.headers().get(http::field::content_encoding), "gzip");
@@ -119,7 +120,8 @@ TEST_CASE("compression priority: zlib > gzip")
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::zlib::compress<std::string>(
-                net::const_buffer(in.data(), in.size())))
+                          net::const_buffer(in.data(), in.size()))
+                          .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");

@@ -58,6 +58,15 @@ using resolver_results = net::ip::basic_resolver_results<net::ip::tcp>;
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 #endif
 
+namespace zlib {
+  using boost::beast::zlib::deflate_stream;
+  using boost::beast::zlib::deflate_upper_bound;
+  using boost::beast::zlib::error;
+  using boost::beast::zlib::Flush;
+  using boost::beast::zlib::inflate_stream;
+  using boost::beast::zlib::z_params;
+}
+
 }
 
 FITORIA_NAMESPACE_END
