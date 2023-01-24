@@ -39,7 +39,6 @@ jobs:
           vcpkg install boost-beast:x64-linux
           vcpkg install boost-json:x64-linux
           vcpkg install boost-url:x64-linux
-          vcpkg install boost-iostreams:x64-linux
           vcpkg install openssl:x64-linux
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux

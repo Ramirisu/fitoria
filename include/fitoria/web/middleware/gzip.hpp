@@ -12,7 +12,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/middleware/detail/sink.hpp>
+#include <fitoria/web/middleware/detail/gzip.hpp>
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -26,12 +26,19 @@ public:
   net::awaitable<http_response> operator()(http_context& c) const
   {
     if (c.request().headers().get(http::field::content_encoding) == "gzip") {
-      auto dec = decompress<std::string>(net::const_buffer(
-          c.request().body().data(), c.request().body().size()));
-      c.request().headers().erase(http::field::content_encoding);
-      c.request().headers().set(http::field::content_length,
-                                std::to_string(dec.size()));
-      c.request().set_body(std::move(dec));
+      if (auto plain = decompress<std::string>(net::const_buffer(
+              c.request().body().data(), c.request().body().size()));
+          plain) {
+        c.request().headers().erase(http::field::content_encoding);
+        c.request().headers().set(http::field::content_length,
+                                  std::to_string(plain->size()));
+        c.request().set_body(std::move(*plain));
+      } else {
+        co_return http_response(http::status::bad_request)
+            .set_header(http::field::content_type,
+                        http::fields::content_type::plaintext())
+            .set_body("request body is not a valid gzip stream");
+      }
     }
 
     auto res = co_await c.next();
@@ -39,43 +46,36 @@ public:
     if (auto ac = c.request().headers().get(http::field::accept_encoding);
         !res.headers().get(http::field::content_encoding) && ac
         && ac->find("gzip") != std::string::npos) {
-      res.set_body(compress<std::string>(
-          net::const_buffer(res.body().data(), res.body().size())));
-      res.headers().set(http::field::content_encoding, "gzip");
+      if (auto comp = compress<std::string>(
+              net::const_buffer(res.body().data(), res.body().size()));
+          comp) {
+        res.set_body(std::move(*comp));
+        res.headers().set(http::field::content_encoding, "gzip");
+      } else {
+        co_return http_response(http::status::internal_server_error)
+            .set_header(http::field::content_type,
+                        http::fields::content_type::plaintext())
+            .set_body("failed to compress response body into gzip stream");
+      }
     }
 
     co_return res;
   }
 
   template <typename R>
-  static R decompress(net::const_buffer in)
+  static expected<R, error_code> decompress(net::const_buffer in)
   {
-    namespace bio = boost::iostreams;
+    if (in.size() == 0) {
+      return R();
+    }
 
-    R out;
-    bio::filtering_ostream stream;
-    stream.push(bio::gzip_decompressor());
-    stream.push(detail::sink(out));
-    bio::copy(bio::basic_array_source<char>(static_cast<const char*>(in.data()),
-                                            in.size()),
-              stream);
-    return out;
+    return detail::gzip_inflate<R>(in.data(), in.size());
   }
 
   template <typename R>
-  static R compress(net::const_buffer in)
+  static expected<R, error_code> compress(net::const_buffer in)
   {
-    namespace bio = boost::iostreams;
-
-    R out;
-    bio::filtering_ostream stream;
-    stream.push(
-        bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
-    stream.push(detail::sink(out));
-    bio::copy(bio::basic_array_source<char>(static_cast<const char*>(in.data()),
-                                            in.size()),
-              stream);
-    return out;
+    return detail::gzip_deflate<R>(in.data(), in.size());
   }
 };
 }

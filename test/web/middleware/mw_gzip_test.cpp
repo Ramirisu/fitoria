@@ -35,13 +35,29 @@ TEST_CASE("gzip decompress")
   CHECK_EQ(out, exp);
 }
 
+TEST_CASE("gzip decompress w/ empty stream")
+{
+  CHECK_EQ(
+      middleware::gzip::decompress<std::string>(net::const_buffer(nullptr, 0)),
+      "");
+}
+
+TEST_CASE("deflate decompress w/ invalid deflate stream")
+{
+  const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
+
+  CHECK(!middleware::gzip::decompress<std::string>(
+      net::const_buffer(in.data(), in.size())));
+}
+
 TEST_CASE("gzip compress")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
   auto intermediate = middleware::gzip::compress<std::vector<std::uint8_t>>(
-      net::const_buffer(in.data(), in.size()));
+                          net::const_buffer(in.data(), in.size()))
+                          .value();
 
   auto out = middleware::gzip::decompress<std::string>(
       net::const_buffer(intermediate.data(), intermediate.size()));
@@ -78,7 +94,8 @@ TEST_CASE("gzip middleware")
           .set_header(http::field::content_encoding, "gzip")
           .set_header(http::field::accept_encoding, "gzip")
           .set_body(middleware::gzip::compress<std::string>(
-              net::const_buffer(in.data(), in.size())))
+                        net::const_buffer(in.data(), in.size()))
+                        .value())
           .prepare_payload());
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(res.headers().get(http::field::content_encoding), "gzip");

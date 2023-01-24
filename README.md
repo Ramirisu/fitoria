@@ -574,16 +574,16 @@ Compiler
 
 Dependencies
 
-|            Library             | Usage                              |              Namespace              | required/optional |
-| :----------------------------: | :--------------------------------- | :---------------------------------: | :---------------: |
-|         `boost::asio`          | Networking                         |           `fitoria::net`            |     required      |
-|         `boost::beast`         | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
-|          `boost::url`          | Internal url parsing               |           `fitoria::urls`           |     required      |
-|         `boost::json`          | JSON serialization/deserialization |           `fitoria::json`           |     required      |
-| `boost::iostreams`<br />`zlib` | Built-in middleware gzip           |                none                 |     optional      |
-|             `fmt`              | Formatting                         |           `fitoria::fmt`            |     optional      |
-|           `OpenSSL`            | Secure networking                  |                none                 |     optional      |
-|           `doctest`            | Unit testing                       |                none                 |     optional      |
+|    Library     | Usage                              |              Namespace              | required/optional |
+| :------------: | :--------------------------------- | :---------------------------------: | :---------------: |
+| `boost::asio`  | Networking                         |           `fitoria::net`            |     required      |
+| `boost::beast` | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
+|  `boost::url`  | Internal url parsing               |           `fitoria::urls`           |     required      |
+| `boost::json`  | JSON serialization/deserialization |           `fitoria::json`           |     required      |
+|     `zlib`     | Built-in middleware gzip           |                none                 |     optional      |
+|     `fmt`      | Formatting                         |           `fitoria::fmt`            |     optional      |
+|   `OpenSSL`    | Secure networking                  |                none                 |     optional      |
+|   `doctest`    | Unit testing                       |                none                 |     optional      |
 
 CMake
 
