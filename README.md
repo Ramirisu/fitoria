@@ -391,7 +391,7 @@ fitoria provides following build-in middlewares
 
 * `middleware::logger`
 * `middleware::exception_handler`
-* `middleware::zlib`
+* `middleware::deflate`
 * `middleware::gzip`
 
 ```cpp
@@ -411,8 +411,8 @@ int main()
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
 #if defined(FITORIA_HAS_ZLIB)
-                    // Register built-in zlib middleware
-                    .use(middleware::zlib())
+                    // Register built-in deflate middleware
+                    .use(middleware::deflate())
                     // Register built-in gzip middleware
                     .use(middleware::gzip())
 #endif
@@ -580,7 +580,8 @@ Dependencies
 |         `boost::beast`         | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
 |          `boost::url`          | Internal url parsing               |           `fitoria::urls`           |     required      |
 |         `boost::json`          | JSON serialization/deserialization |           `fitoria::json`           |     required      |
-| `boost::iostreams`<br />`zlib` | Built-in middleware zlib/gzip      |                none                 |     optional      |
+|             `zlib`             | Built-in middleware deflate        |                none                 |     optional      |
+| `boost::iostreams`<br />`zlib` | Built-in middleware gzip           |                none                 |     optional      |
 |             `fmt`              | Formatting                         |           `fitoria::fmt`            |     optional      |
 |           `OpenSSL`            | Secure networking                  |                none                 |     optional      |
 |           `doctest`            | Unit testing                       |                none                 |     optional      |

@@ -38,8 +38,8 @@ int main()
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
 #if defined(FITORIA_HAS_ZLIB)
-                    // Register built-in zlib middleware
-                    .use(middleware::zlib())
+                    // Register built-in deflate middleware
+                    .use(middleware::deflate())
                     // Register built-in gzip middleware
                     .use(middleware::gzip())
 #endif

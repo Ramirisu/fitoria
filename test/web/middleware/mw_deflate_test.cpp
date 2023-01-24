@@ -11,11 +11,11 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.middleware.zlib");
+TEST_SUITE_BEGIN("web.middleware.deflate");
 
 #if defined(FITORIA_HAS_ZLIB)
 
-TEST_CASE("zlib decompress")
+TEST_CASE("deflate decompress")
 {
   const auto in = std::vector<std::uint8_t> {
     0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b, 0xcf, 0xc8, 0xcc, 0xca,
@@ -26,7 +26,7 @@ TEST_CASE("zlib decompress")
     0x0e, 0x09, 0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00
   };
 
-  auto out = middleware::zlib::decompress<std::string>(
+  auto out = middleware::deflate::decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -34,22 +34,22 @@ TEST_CASE("zlib decompress")
   CHECK_EQ(out, exp);
 }
 
-TEST_CASE("zlib compress")
+TEST_CASE("deflate compress")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto intermediate = middleware::zlib::compress<std::vector<std::uint8_t>>(
+  auto intermediate = middleware::deflate::compress<std::vector<std::uint8_t>>(
                           net::const_buffer(in.data(), in.size()))
                           .value();
 
-  auto out = middleware::zlib::decompress<std::string>(
+  auto out = middleware::deflate::decompress<std::string>(
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
 }
 
-TEST_CASE("zlib middleware")
+TEST_CASE("deflate middleware")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -57,7 +57,7 @@ TEST_CASE("zlib middleware")
   auto server
       = http_server::builder()
             .route(scope("/api")
-                       .use(middleware::zlib())
+                       .use(middleware::deflate())
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
@@ -77,14 +77,14 @@ TEST_CASE("zlib middleware")
           .set_method(http::verb::get)
           .set_header(http::field::content_encoding, "deflate")
           .set_header(http::field::accept_encoding, "deflate")
-          .set_body(middleware::zlib::compress<std::string>(
+          .set_body(middleware::deflate::compress<std::string>(
                         net::const_buffer(in.data(), in.size()))
                         .value())
           .prepare_payload());
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
   CHECK_EQ(res.body(),
-           middleware::zlib::compress<std::string>(
+           middleware::deflate::compress<std::string>(
                net::const_buffer(in.data(), in.size())));
 }
 

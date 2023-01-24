@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_MIDDLEWARE_ZLIB_HPP
-#define FITORIA_WEB_MIDDLEWARE_ZLIB_HPP
+#ifndef FITORIA_WEB_MIDDLEWARE_DEFLATE_HPP
+#define FITORIA_WEB_MIDDLEWARE_DEFLATE_HPP
 
 #if defined(FITORIA_HAS_ZLIB)
 
@@ -22,7 +22,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace middleware {
 
-class zlib {
+class deflate {
 public:
   net::awaitable<http_response> operator()(http_context& c) const
   {

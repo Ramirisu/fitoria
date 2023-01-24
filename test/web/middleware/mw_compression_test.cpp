@@ -15,7 +15,7 @@ TEST_SUITE_BEGIN("web.middleware.compression");
 
 #if defined(FITORIA_HAS_ZLIB)
 
-TEST_CASE("compression priority: gzip > zlib")
+TEST_CASE("compression priority: gzip > deflate")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -23,7 +23,7 @@ TEST_CASE("compression priority: gzip > zlib")
   auto server
       = http_server::builder()
             .route(scope("/api")
-                       .use(middleware::zlib())
+                       .use(middleware::deflate())
                        .use(middleware::gzip())
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
@@ -61,7 +61,7 @@ TEST_CASE("compression priority: gzip > zlib")
             .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::zlib::compress<std::string>(
+            .set_body(middleware::deflate::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
@@ -73,7 +73,7 @@ TEST_CASE("compression priority: gzip > zlib")
   }
 }
 
-TEST_CASE("compression priority: zlib > gzip")
+TEST_CASE("compression priority: deflate > gzip")
 {
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -82,7 +82,7 @@ TEST_CASE("compression priority: zlib > gzip")
       = http_server::builder()
             .route(scope("/api")
                        .use(middleware::gzip())
-                       .use(middleware::zlib())
+                       .use(middleware::deflate())
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
@@ -109,7 +109,7 @@ TEST_CASE("compression priority: zlib > gzip")
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
-             middleware::zlib::compress<std::string>(
+             middleware::deflate::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
   {
@@ -119,14 +119,14 @@ TEST_CASE("compression priority: zlib > gzip")
             .set_method(http::verb::get)
             .set_header(http::field::content_encoding, "deflate")
             .set_header(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::zlib::compress<std::string>(
+            .set_body(middleware::deflate::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
-             middleware::zlib::compress<std::string>(
+             middleware::deflate::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
 }
