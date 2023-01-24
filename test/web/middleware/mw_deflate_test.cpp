@@ -13,8 +13,6 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("web.middleware.deflate");
 
-#if defined(FITORIA_HAS_ZLIB)
-
 TEST_CASE("deflate decompress")
 {
   const auto in = std::vector<std::uint8_t> {
@@ -102,7 +100,5 @@ TEST_CASE("deflate middleware")
            middleware::deflate::compress<std::string>(
                net::const_buffer(in.data(), in.size())));
 }
-
-#endif
 
 TEST_SUITE_END();

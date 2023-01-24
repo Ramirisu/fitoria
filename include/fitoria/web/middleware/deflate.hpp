@@ -8,8 +8,6 @@
 #ifndef FITORIA_WEB_MIDDLEWARE_DEFLATE_HPP
 #define FITORIA_WEB_MIDDLEWARE_DEFLATE_HPP
 
-#if defined(FITORIA_HAS_ZLIB)
-
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
@@ -130,7 +128,5 @@ public:
 }
 
 FITORIA_NAMESPACE_END
-
-#endif
 
 #endif
