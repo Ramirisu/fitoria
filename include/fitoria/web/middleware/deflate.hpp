@@ -66,6 +66,10 @@ public:
   template <typename R>
   static expected<R, error_code> decompress(net::const_buffer in)
   {
+    if (in.size() == 0) {
+      return R();
+    }
+
     R out;
     out.resize(in.size());
 
@@ -83,6 +87,10 @@ public:
       }
       if (ec && ec != net::zlib::error::need_buffers) {
         return unexpected { ec };
+      }
+      if (p.avail_out == out.size()) {
+        // special case to handle invalid input stream
+        return unexpected { make_error_code(net::zlib::error::stream_error) };
       }
       if (p.avail_out > 0) {
         break;
