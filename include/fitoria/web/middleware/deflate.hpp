@@ -68,8 +68,12 @@ public:
       return R();
     }
 
+    // set a min buffer size to avoid too many memory reallocations
+    // when input size is much smaller than output size
+    static constexpr std::size_t min_buff_size = 256;
+
     R out;
-    out.resize(in.size());
+    out.resize(std::max(in.size(), min_buff_size));
 
     net::zlib::z_params p;
     p.next_in = in.data();
@@ -95,7 +99,7 @@ public:
       }
       out.resize(2 * p.total_out);
       p.next_out = out.data() + p.total_out;
-      p.avail_out = out.size() - p.total_out;
+      p.avail_out = p.total_out;
     }
     out.resize(p.total_out);
 

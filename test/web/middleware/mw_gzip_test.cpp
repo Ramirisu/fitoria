@@ -15,7 +15,7 @@ TEST_SUITE_BEGIN("web.middleware.gzip");
 
 #if defined(FITORIA_HAS_ZLIB)
 
-TEST_CASE("gzip decompress")
+TEST_CASE("gzip decompress in > out")
 {
   const auto in = std::vector<std::uint8_t> {
     0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x4B, 0x4C,
@@ -32,6 +32,29 @@ TEST_CASE("gzip decompress")
 
   const auto exp = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  CHECK_EQ(out, exp);
+}
+
+TEST_CASE("gzip decompress in < out")
+{
+  const auto in
+      = std::vector<std::uint8_t> { 0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00,
+                                    0x00, 0x00, 0x0a, 0x4b, 0x4c, 0x1c, 0x05,
+                                    0x23, 0x19, 0x00, 0x00, 0x51, 0x70, 0x51,
+                                    0xf9, 0x00, 0x02, 0x00, 0x00 };
+
+  auto out = middleware::gzip::decompress<std::string>(
+      net::const_buffer(in.data(), in.size()));
+
+  const auto exp = std::string_view(
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaa");
   CHECK_EQ(out, exp);
 }
 

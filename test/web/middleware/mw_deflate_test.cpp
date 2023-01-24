@@ -13,7 +13,7 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("web.middleware.deflate");
 
-TEST_CASE("deflate decompress")
+TEST_CASE("deflate decompress in > out")
 {
   const auto in = std::vector<std::uint8_t> {
     0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b, 0xcf, 0xc8, 0xcc, 0xca,
@@ -29,6 +29,26 @@ TEST_CASE("deflate decompress")
 
   const auto exp = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  CHECK_EQ(out, exp);
+}
+
+TEST_CASE("deflate decompress in < out")
+{
+  const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
+                                              0x23, 0x19, 0x00, 0x00 };
+
+  auto out = middleware::deflate::decompress<std::string>(
+      net::const_buffer(in.data(), in.size()));
+
+  const auto exp = std::string_view(
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "aaaaaaaa");
   CHECK_EQ(out, exp);
 }
 

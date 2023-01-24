@@ -69,13 +69,13 @@ public:
       return R();
     }
 
-    return detail::gzip_inflate<R>(in.data(), in.size());
+    return detail::gzip_inflate<R>(in);
   }
 
   template <typename R>
   static expected<R, error_code> compress(net::const_buffer in)
   {
-    return detail::gzip_deflate<R>(in.data(), in.size());
+    return detail::gzip_deflate<R>(in);
   }
 };
 }

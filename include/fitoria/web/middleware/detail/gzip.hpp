@@ -45,27 +45,31 @@ net::zlib::error to_net_zlib_error(int zlib_error)
 }
 
 template <typename R>
-expected<R, error_code> gzip_inflate(const void* in_data, std::size_t in_size)
+expected<R, error_code> gzip_inflate(net::const_buffer in)
 {
+  // set a min buffer size to avoid too many memory reallocations
+  // when input size is much smaller than output size
+  static constexpr std::size_t min_buff_size = 256;
+
   static const auto gzip_flag = 16;
   z_stream stream {};
 
   stream.zalloc = Z_NULL;
   stream.zfree = Z_NULL;
   stream.opaque = Z_NULL;
-  stream.next_in = static_cast<unsigned char*>(const_cast<void*>(in_data));
-  stream.avail_in = static_cast<unsigned int>(in_size);
+  stream.next_in = static_cast<unsigned char*>(const_cast<void*>(in.data()));
+  stream.avail_in = static_cast<unsigned int>(in.size());
   if (auto err = ::inflateInit2(&stream, 15 + gzip_flag); err < 0) {
     ::inflateEnd(&stream);
     return unexpected { make_error_code(to_net_zlib_error(err)) };
   }
 
   R out;
-  out.resize(in_size);
+  out.resize(std::max(in.size(), min_buff_size));
   stream.next_out = reinterpret_cast<unsigned char*>(out.data());
   stream.avail_out = static_cast<unsigned int>(out.size());
   for (;;) {
-    auto err = inflate(&stream, Z_SYNC_FLUSH);
+    auto err = ::inflate(&stream, Z_SYNC_FLUSH);
     if (err != Z_OK && err != Z_STREAM_END && err != Z_BUF_ERROR) {
       ::inflateEnd(&stream);
       return unexpected { make_error_code(to_net_zlib_error(err)) };
@@ -87,7 +91,7 @@ expected<R, error_code> gzip_inflate(const void* in_data, std::size_t in_size)
 }
 
 template <typename R>
-expected<R, error_code> gzip_deflate(const void* in_data, std::size_t in_size)
+expected<R, error_code> gzip_deflate(net::const_buffer in)
 {
   static const auto gzip_flag = 16;
   z_stream stream {};
@@ -95,8 +99,8 @@ expected<R, error_code> gzip_deflate(const void* in_data, std::size_t in_size)
   stream.zalloc = Z_NULL;
   stream.zfree = Z_NULL;
   stream.opaque = Z_NULL;
-  stream.next_in = static_cast<unsigned char*>(const_cast<void*>(in_data));
-  stream.avail_in = static_cast<unsigned int>(in_size);
+  stream.next_in = static_cast<unsigned char*>(const_cast<void*>(in.data()));
+  stream.avail_in = static_cast<unsigned int>(in.size());
   if (auto err = ::deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED,
                                 15 + gzip_flag, 9, Z_DEFAULT_STRATEGY);
       err < 0) {
@@ -105,7 +109,7 @@ expected<R, error_code> gzip_deflate(const void* in_data, std::size_t in_size)
   }
 
   R out;
-  out.resize(in_size);
+  out.resize(in.size());
   stream.next_out = reinterpret_cast<unsigned char*>(out.data());
   stream.avail_out = static_cast<unsigned int>(out.size());
   for (;;) {
