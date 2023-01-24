@@ -52,7 +52,7 @@ int main()
                     })
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .route(route(
+                    .route(
                         http::verb::get, "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           FITORIA_ASSERT(req.method() == http::verb::get);
@@ -62,7 +62,7 @@ int main()
 
                           co_return http_response(http::status::ok)
                               .set_body("abcde");
-                        })))
+                        }))
             .build();
   server //
       .bind("127.0.0.1", 8080)

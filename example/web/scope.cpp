@@ -74,29 +74,27 @@ void configure_application(http_server::builder& builder)
                          // Register a middleware for this scope
                          .use(my_middleware::v1::auth)
                          // Register a route for this scope
-                         .route(route(http::verb::get, "/users/{user}",
-                                      []([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-                                        log::debug("route: {}",
-                                                   req.route_params().path());
+                         .route(http::verb::get, "/users/{user}",
+                                []([[maybe_unused]] http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  log::debug("route: {}",
+                                             req.route_params().path());
 
-                                        co_return http_response(
-                                            http::status::ok);
-                                      })))
+                                  co_return http_response(http::status::ok);
+                                }))
           // Create a sub-scope "/api/v2" under global scope
           .sub_scope(scope("/api/v2")
                          // Register a middleware for this scope
                          .use(my_middleware::v2::auth)
                          // Register a route for this scope
-                         .route(route(http::verb::get, "/users/{user}",
-                                      []([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-                                        log::debug("route_params: {}",
-                                                   req.route_params().path());
+                         .route(http::verb::get, "/users/{user}",
+                                []([[maybe_unused]] http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  log::debug("route_params: {}",
+                                             req.route_params().path());
 
-                                        co_return http_response(
-                                            http::status::ok);
-                                      }))));
+                                  co_return http_response(http::status::ok);
+                                })));
 }
 
 int main()
