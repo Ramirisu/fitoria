@@ -128,4 +128,46 @@ TEST_CASE("deflate middleware")
                net::const_buffer(in.data(), in.size())));
 }
 
+TEST_CASE("deflate middleware: header vary")
+{
+  auto server
+      = http_server::builder()
+            .route(scope("/api")
+                       .use(middleware::deflate())
+                       .route(http::verb::get, "/get",
+                              [&]([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                auto res = http_response(http::status::ok)
+                                               .set_body("hello world");
+                                if (!req.body().empty()) {
+                                  res.set_header(http::field::vary, req.body());
+                                }
+                                co_return res;
+                              }))
+            .build();
+
+  struct test_case_t {
+    std::string input;
+    std::string expected;
+  };
+
+  const auto test_cases = std::vector<test_case_t> {
+    { "", "Content-Encoding" },
+    { "*", "*" },
+    { "User-Agent", "User-Agent, Content-Encoding" },
+  };
+
+  for (auto& test_case : test_cases) {
+    auto res = server.serve_http_request(
+        "/api/get",
+        http_request()
+            .set_method(http::verb::get)
+            .set_header(http::field::accept_encoding, "deflate")
+            .set_body(test_case.input)
+            .prepare_payload());
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.headers().get(http::field::vary), test_case.expected);
+  }
+}
+
 TEST_SUITE_END();

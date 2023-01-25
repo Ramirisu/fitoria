@@ -54,6 +54,14 @@ public:
           comp) {
         res.set_body(std::move(*comp));
         res.headers().set(http::field::content_encoding, "deflate");
+        if (auto vary = res.headers().get(http::field::vary); vary == "*") {
+        } else if (vary && !vary->empty()) {
+          *vary += ", ";
+          *vary += to_string(http::field::content_encoding);
+        } else {
+          res.set_header(http::field::vary,
+                         to_string(http::field::content_encoding));
+        }
       } else {
         co_return http_response(http::status::internal_server_error)
             .set_header(http::field::content_type,
