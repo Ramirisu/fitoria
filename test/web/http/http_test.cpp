@@ -17,13 +17,13 @@ TEST_SUITE_BEGIN("web.http");
 TEST_CASE("authorization")
 {
   {
-    CHECK_EQ(authorization::barear("abc"), "Bearer: abc");
+    CHECK_EQ(authorization::bearer("abc"), "Bearer: abc");
   }
   {
-    CHECK_EQ(authorization::parse_barear(""), nullopt);
-    CHECK_EQ(authorization::parse_barear("bearer: "), nullopt);
-    CHECK_EQ(authorization::parse_barear("Bearer: "), "");
-    CHECK_EQ(authorization::parse_barear("Bearer: abcd"), "abcd");
+    CHECK_EQ(authorization::parse_bearer(""), nullopt);
+    CHECK_EQ(authorization::parse_bearer("bearer: "), nullopt);
+    CHECK_EQ(authorization::parse_bearer("Bearer: "), "");
+    CHECK_EQ(authorization::parse_bearer("Bearer: abcd"), "abcd");
   }
 }
 

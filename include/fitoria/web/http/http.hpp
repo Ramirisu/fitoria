@@ -81,12 +81,12 @@ namespace fields {
 
   namespace authorization {
 
-    inline std::string barear(std::string_view token)
+    inline std::string bearer(std::string_view token)
     {
       return fmt::format("Bearer: {}", token);
     }
 
-    inline optional<std::string_view> parse_barear(std::string_view str)
+    inline optional<std::string_view> parse_bearer(std::string_view str)
     {
       const auto prefix = std::string_view("Bearer: ");
       if (str.starts_with(prefix)) {
