@@ -60,12 +60,11 @@ TEST_CASE("gzip decompress in < out")
 
 TEST_CASE("gzip decompress w/ empty stream")
 {
-  CHECK_EQ(
-      middleware::gzip::decompress<std::string>(net::const_buffer(nullptr, 0)),
-      "");
+  CHECK(!middleware::gzip::decompress<std::string>(
+      net::const_buffer(nullptr, 0)));
 }
 
-TEST_CASE("deflate decompress w/ invalid deflate stream")
+TEST_CASE("gzip decompress w/ invalid gzip stream")
 {
   const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
@@ -86,6 +85,14 @@ TEST_CASE("gzip compress")
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
+}
+
+TEST_CASE("gzip compress w/ empty stream")
+{
+  const auto in = std::string_view();
+
+  CHECK(!middleware::gzip::compress<std::vector<std::uint8_t>>(
+      net::const_buffer(in.data(), in.size())));
 }
 
 TEST_CASE("gzip middleware")

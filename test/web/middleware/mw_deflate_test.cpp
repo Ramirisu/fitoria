@@ -54,9 +54,8 @@ TEST_CASE("deflate decompress in < out")
 
 TEST_CASE("deflate decompress w/ empty stream")
 {
-  CHECK_EQ(middleware::deflate::decompress<std::string>(
-               net::const_buffer(nullptr, 0)),
-           "");
+  CHECK(!middleware::deflate::decompress<std::string>(
+      net::const_buffer(nullptr, 0)));
 }
 
 TEST_CASE("deflate decompress w/ invalid deflate stream")
@@ -80,6 +79,14 @@ TEST_CASE("deflate compress")
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
+}
+
+TEST_CASE("deflate compress w/ empty stream")
+{
+  const auto in = std::string_view();
+
+  CHECK(!middleware::deflate::compress<std::vector<std::uint8_t>>(
+      net::const_buffer(in.data(), in.size())));
 }
 
 TEST_CASE("deflate middleware")

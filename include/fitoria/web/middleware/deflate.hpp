@@ -42,6 +42,10 @@ public:
 
     auto res = co_await c.next();
 
+    if (res.body().empty()) {
+      co_return res;
+    }
+
     if (auto ac = c.request().headers().get(http::field::accept_encoding);
         !res.headers().get(http::field::content_encoding) && ac
         && ac->find("deflate") != std::string::npos) {
@@ -65,7 +69,7 @@ public:
   static expected<R, error_code> decompress(net::const_buffer in)
   {
     if (in.size() == 0) {
-      return R();
+      return unexpected { make_error_code(net::zlib::error::stream_error) };
     }
 
     // set a min buffer size to avoid too many memory reallocations
@@ -109,6 +113,10 @@ public:
   template <typename R>
   static expected<R, error_code> compress(net::const_buffer in)
   {
+    if (in.size() == 0) {
+      return unexpected { make_error_code(net::zlib::error::stream_error) };
+    }
+
     R out;
     out.resize(net::zlib::deflate_upper_bound(in.size()));
 

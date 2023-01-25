@@ -47,6 +47,10 @@ net::zlib::error to_net_zlib_error(int zlib_error)
 template <typename R>
 expected<R, error_code> gzip_inflate(net::const_buffer in)
 {
+  if (in.size() == 0) {
+    return unexpected { make_error_code(net::zlib::error::stream_error) };
+  }
+
   // set a min buffer size to avoid too many memory reallocations
   // when input size is much smaller than output size
   static constexpr std::size_t min_buff_size = 256;
@@ -93,6 +97,10 @@ expected<R, error_code> gzip_inflate(net::const_buffer in)
 template <typename R>
 expected<R, error_code> gzip_deflate(net::const_buffer in)
 {
+  if (in.size() == 0) {
+    return unexpected { make_error_code(net::zlib::error::stream_error) };
+  }
+
   static const auto gzip_flag = 16;
   z_stream stream {};
 

@@ -43,6 +43,10 @@ public:
 
     auto res = co_await c.next();
 
+    if (res.body().empty()) {
+      co_return res;
+    }
+
     if (auto ac = c.request().headers().get(http::field::accept_encoding);
         !res.headers().get(http::field::content_encoding) && ac
         && ac->find("gzip") != std::string::npos) {
@@ -65,10 +69,6 @@ public:
   template <typename R>
   static expected<R, error_code> decompress(net::const_buffer in)
   {
-    if (in.size() == 0) {
-      return R();
-    }
-
     return detail::gzip_inflate<R>(in);
   }
 
