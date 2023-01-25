@@ -13,11 +13,13 @@
 #include <fitoria/core/format.hpp>
 #include <fitoria/core/type_traits.hpp>
 
-#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <memory>
 #include <utility>
+#if !FITORIA_NO_EXCEPTIONS
+#include <exception>
+#endif
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -31,6 +33,8 @@ struct nullopt_t {
 
 inline constexpr nullopt_t nullopt { nullopt_t::tag_t {} };
 
+#if !FITORIA_NO_EXCEPTIONS
+
 class bad_optional_access : public std::exception {
 public:
   ~bad_optional_access() noexcept override = default;
@@ -40,6 +44,8 @@ public:
     return "bad optional access";
   }
 };
+
+#endif
 
 template <typename T>
 class optional {
@@ -342,7 +348,11 @@ public:
   constexpr T& value() &
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return this->val_;
@@ -351,7 +361,11 @@ public:
   constexpr const T& value() const&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return this->val_;
@@ -360,7 +374,11 @@ public:
   constexpr T&& value() &&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return std::move(this->val_);
@@ -369,7 +387,11 @@ public:
   constexpr const T&& value() const&&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return std::move(this->val_);
@@ -634,7 +656,11 @@ public:
   constexpr void value() const
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
   }
 
@@ -854,7 +880,11 @@ public:
   constexpr T& value() const&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return *this->valptr_;
@@ -863,7 +893,11 @@ public:
   constexpr T&& value() const&&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_optional_access();
+#else
+      std::terminate();
+#endif
     }
 
     return std::forward<T>(*this->valptr_);

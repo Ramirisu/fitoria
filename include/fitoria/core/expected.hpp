@@ -13,11 +13,13 @@
 #include <fitoria/core/format.hpp>
 #include <fitoria/core/type_traits.hpp>
 
-#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <memory>
 #include <utility>
+#if !FITORIA_NO_EXCEPTIONS
+#include <exception>
+#endif
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -101,6 +103,8 @@ private:
 template <typename E>
 unexpected(E) -> unexpected<E>;
 
+#if !FITORIA_NO_EXCEPTIONS
+
 template <typename E>
 class bad_expected_access;
 
@@ -172,6 +176,7 @@ private:
   E err_;
 };
 
+#endif
 struct unexpect_t {
   struct tag_t {
     constexpr explicit tag_t() noexcept = default;
@@ -578,7 +583,11 @@ public:
   constexpr T& value() &
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(error());
+#else
+      std::terminate();
+#endif
     }
 
     return this->val_;
@@ -587,7 +596,11 @@ public:
   constexpr const T& value() const&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(error());
+#else
+      std::terminate();
+#endif
     }
 
     return this->val_;
@@ -596,7 +609,11 @@ public:
   constexpr T&& value() &&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(std::move(error()));
+#else
+      std::terminate();
+#endif
     }
 
     return std::move(this->val_);
@@ -605,7 +622,11 @@ public:
   constexpr const T&& value() const&&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(std::move(error()));
+#else
+      std::terminate();
+#endif
     }
 
     return std::move(this->val_);
@@ -1265,14 +1286,22 @@ public:
   constexpr void value() const&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(error());
+#else
+      std::terminate();
+#endif
     }
   }
 
   constexpr void value() &&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(std::move(error()));
+#else
+      std::terminate();
+#endif
     }
   }
 
@@ -1892,7 +1921,11 @@ public:
   constexpr T& value() const&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(error());
+#else
+      std::terminate();
+#endif
     }
 
     return *this->valptr_;
@@ -1901,7 +1934,11 @@ public:
   constexpr T&& value() const&&
   {
     if (!has_value()) {
+#if !FITORIA_NO_EXCEPTIONS
       throw bad_expected_access(std::move(error()));
+#else
+      std::terminate();
+#endif
     }
 
     return std::forward<T>(*this->valptr_);
