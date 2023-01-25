@@ -17,7 +17,6 @@ message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
 message(STATUS "[fitoria] FITORIA_DISABLE_ZLIB = ${FITORIA_DISABLE_ZLIB}")
 message(STATUS "[fitoria] FITORIA_ENABLE_CODECOV = ${FITORIA_ENABLE_CODECOV}")
 
-include(cmake/CPM.cmake)
 include(cmake/fitoria_utils.cmake)
 include(cmake/fitoria_check_compiler_feature.cmake)
 
