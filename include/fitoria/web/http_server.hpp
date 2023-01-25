@@ -57,17 +57,31 @@ public:
     }
 
     template <typename F>
+    builder& set_network_error_handler(F&& f)
+      requires std::invocable<F, net::error_code>
+    {
+      network_error_handler_ = std::forward<F>(f);
+      return *this;
+    }
+
+#if !FITORIA_NO_EXCEPTIONS
+    template <typename F>
     builder& set_exception_handler(F&& f)
       requires std::invocable<F, std::exception_ptr>
     {
       exception_handler_ = std::forward<F>(f);
       return *this;
     }
+#endif
 
     builder& route(const route& route)
     {
       if (auto res = router_.try_insert(route); !res) {
+#if !FITORIA_NO_EXCEPTIONS
         throw system_error(res.error());
+#else
+        std::terminate();
+#endif
       }
 
       return *this;
@@ -83,6 +97,14 @@ public:
     }
 
   private:
+    void handle_network_error(net::error_code ec) const
+    {
+      if (network_error_handler_) {
+        network_error_handler_(ec);
+      }
+    }
+
+#if !FITORIA_NO_EXCEPTIONS
     static void default_exception_handler(std::exception_ptr ptr)
     {
       if (ptr) {
@@ -93,6 +115,7 @@ public:
         }
       }
     }
+#endif
 
     static const char* name() noexcept
     {
@@ -101,8 +124,13 @@ public:
 
     int max_listen_connections_ = net::socket_base::max_listen_connections;
     std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
+    std::function<void(net::error_code)> network_error_handler_;
+#if !FITORIA_NO_EXCEPTIONS
     std::function<void(std::exception_ptr)> exception_handler_
         = default_exception_handler;
+#else
+    net::detached_t exception_handler_;
+#endif
     router_type router_;
   };
 
@@ -206,6 +234,7 @@ private:
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
+        builder_.handle_network_error(ec);
         continue;
       }
 
@@ -225,6 +254,7 @@ private:
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
+        builder_.handle_network_error(ec);
         continue;
       }
 
@@ -239,7 +269,8 @@ private:
   {
     auto ec = co_await do_session_impl(stream);
     if (ec) {
-      throw std::system_error(ec);
+      builder_.handle_network_error(ec);
+      co_return;
     }
 
     stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
@@ -257,17 +288,20 @@ private:
     tie(ec) = co_await stream.async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
-      throw std::system_error(ec);
+      builder_.handle_network_error(ec);
+      co_return;
     }
 
     if (ec = co_await do_session_impl(stream); ec) {
+      builder_.handle_network_error(ec);
       co_return;
     }
 
     tie(ec) = co_await stream.async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
-      throw std::system_error(ec);
+      builder_.handle_network_error(ec);
+      co_return;
     }
   }
 #endif

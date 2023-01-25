@@ -13,6 +13,8 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("web.middleware.exception_handler");
 
+#if !FITORIA_NO_EXCEPTIONS
+
 TEST_CASE("exception_handler middleware")
 {
   auto server
@@ -41,5 +43,7 @@ TEST_CASE("exception_handler middleware")
     CHECK_EQ(res.status_code(), http::status::internal_server_error);
   }
 }
+
+#endif
 
 TEST_SUITE_END();

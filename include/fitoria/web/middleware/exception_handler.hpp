@@ -19,6 +19,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace middleware {
 
+#if !FITORIA_NO_EXCEPTIONS
+
 class exception_handler {
 public:
   net::awaitable<http_response> operator()(http_context& c) const
@@ -38,6 +40,8 @@ private:
     return "fitoria.middleware.exception_handler";
   }
 };
+
+#endif
 
 }
 

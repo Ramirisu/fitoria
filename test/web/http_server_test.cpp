@@ -25,6 +25,9 @@ TEST_CASE("builder")
   auto server = http_server::builder()
                     .set_max_listen_connections(2048)
                     .set_client_request_timeout(std::chrono::seconds(1))
+                    .set_network_error_handler(
+                        []([[maybe_unused]] net::error_code ec) {})
+#if !FITORIA_NO_EXCEPTIONS
                     .set_exception_handler([](std::exception_ptr ptr) {
                       if (!ptr) {
                         return;
@@ -34,6 +37,7 @@ TEST_CASE("builder")
                       } catch (...) {
                       }
                     })
+#endif
                     .route(route(http::verb::get, "/api",
                                  [&]([[maybe_unused]] http_request& req)
                                      -> net::awaitable<http_response> {
@@ -146,6 +150,8 @@ TEST_CASE("expect: 100-continue")
   ioc.stop();
 }
 
+#if !FITORIA_NO_EXCEPTIONS
+
 TEST_CASE("unhandled exception from handler")
 {
   bool got_exception = false;
@@ -186,6 +192,8 @@ TEST_CASE("unhandled exception from handler")
   CHECK(got_exception);
   ioc.stop();
 }
+
+#endif
 
 TEST_CASE("middlewares invocation order")
 {
