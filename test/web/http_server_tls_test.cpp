@@ -52,6 +52,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = http_client::from_url(to_local_url(urls::scheme::https, port,
@@ -64,7 +65,6 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
 
   auto res = client.send(cert::get_client_ssl_ctx(client_ssl_ver)).value();
   CHECK_EQ(res.status_code(), http::status::ok);
-  ioc.stop();
 }
 
 #if OPENSSL_VERSION_MAJOR < 3

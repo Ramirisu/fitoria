@@ -51,6 +51,7 @@ TEST_CASE("builder")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client
@@ -59,7 +60,6 @@ TEST_CASE("builder")
             .set_method(http::verb::get);
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
-  ioc.stop();
 }
 
 TEST_CASE("duplicate route")
@@ -96,6 +96,7 @@ TEST_CASE("invalid target")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   const auto test_cases = std::vector {
@@ -115,7 +116,6 @@ TEST_CASE("invalid target")
              http::fields::content_type::plaintext());
     CHECK_EQ(res.body(), "request path is not found");
   }
-  ioc.stop();
 }
 
 TEST_CASE("expect: 100-continue")
@@ -136,6 +136,7 @@ TEST_CASE("expect: 100-continue")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = http_client::from_url(
@@ -147,7 +148,6 @@ TEST_CASE("expect: 100-continue")
                     .set_body("text");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
-  ioc.stop();
 }
 
 #if !FITORIA_NO_EXCEPTIONS
@@ -180,6 +180,7 @@ TEST_CASE("unhandled exception from handler")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client = http_client::from_url(
@@ -190,7 +191,6 @@ TEST_CASE("unhandled exception from handler")
                     .set_body("text");
   CHECK(!client.send());
   CHECK(got_exception);
-  ioc.stop();
 }
 
 #endif
@@ -282,6 +282,7 @@ TEST_CASE("generic request")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client
@@ -298,7 +299,6 @@ TEST_CASE("generic request")
             .set_body("happy birthday");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
-  ioc.stop();
 }
 
 TEST_CASE("response status only")
@@ -319,6 +319,7 @@ TEST_CASE("response status only")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client
@@ -331,7 +332,6 @@ TEST_CASE("response status only")
   CHECK_EQ(res.headers().get(http::field::connection), "close");
   CHECK_EQ(res.headers().get(http::field::content_length), "0");
   CHECK_EQ(res.body(), "");
-  ioc.stop();
 }
 
 TEST_CASE("response with plain text")
@@ -356,6 +356,7 @@ TEST_CASE("response with plain text")
       net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
   auto client
@@ -369,7 +370,6 @@ TEST_CASE("response with plain text")
   CHECK_EQ(res.headers().get(http::field::content_type),
            http::fields::content_type::plaintext());
   CHECK_EQ(res.body(), "plain text");
-  ioc.stop();
 }
 
 TEST_SUITE_END();

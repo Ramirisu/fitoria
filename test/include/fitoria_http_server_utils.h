@@ -35,6 +35,28 @@ to_local_url(urls::scheme scheme, std::uint16_t port, std::string_view path)
                                             localhost, port, path));
 }
 
+template <typename F>
+  requires std::is_invocable_v<F>
+class [[maybe_unused]] scope_exit {
+public:
+  template <typename F2>
+  scope_exit(F2&& f)
+      : f_(std::forward<F2>(f))
+  {
+  }
+
+  ~scope_exit()
+  {
+    f_();
+  }
+
+private:
+  F f_;
+};
+
+template <typename F>
+scope_exit(F&&) -> scope_exit<F>;
+
 }
 
 FITORIA_NAMESPACE_END
