@@ -15,7 +15,62 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("web.basic_scope");
 
-TEST_CASE("basic")
+TEST_CASE("methods")
+{
+  using scope_type
+      = basic_scope<basic_middleware<int, int>, basic_handler<int, int>>;
+
+  CHECK_EQ(scope_type("/api")
+               .GET("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::get);
+  CHECK_EQ(scope_type("/api")
+               .POST("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::post);
+  CHECK_EQ(scope_type("/api")
+               .PUT("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::put);
+  CHECK_EQ(scope_type("/api")
+               .POST("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::post);
+  CHECK_EQ(scope_type("/api")
+               .PATCH("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::patch);
+  CHECK_EQ(scope_type("/api")
+               .DELETE_("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::delete_);
+  CHECK_EQ(scope_type("/api")
+               .HEAD("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::head);
+  CHECK_EQ(scope_type("/api")
+               .OPTIONS("/", [](int) -> int { return 0; })
+               .routes()
+               .at(0)
+               .method(),
+           http::verb::options);
+}
+
+TEST_CASE("middleware & handler")
 {
   using scope_type
       = basic_scope<basic_middleware<int, int>, basic_handler<int, int>>;

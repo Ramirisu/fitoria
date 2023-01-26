@@ -45,9 +45,7 @@ public:
   auto route(http::verb method, const std::string& path, Handler handler)
       -> basic_scope&
   {
-    routes_.push_back(
-        route_type(method, path_ + path, middlewares_, std::move(handler)));
-    return *this;
+    return route(route_type(method, path, std::move(handler)));
   }
 
   auto GET(const std::string& path, Handler handler) -> basic_scope&
