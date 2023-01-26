@@ -50,6 +50,41 @@ public:
     return *this;
   }
 
+  auto GET(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::get, path, std::move(handler));
+  }
+
+  auto POST(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::post, path, std::move(handler));
+  }
+
+  auto PUT(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::put, path, std::move(handler));
+  }
+
+  auto PATCH(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::patch, path, std::move(handler));
+  }
+
+  auto DELETE_(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::delete_, path, std::move(handler));
+  }
+
+  auto HEAD(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::head, path, std::move(handler));
+  }
+
+  auto OPTIONS(const std::string& path, Handler handler) -> basic_scope&
+  {
+    return route(http::verb::options, path, std::move(handler));
+  }
+
   auto sub_scope(basic_scope scope) -> basic_scope&
   {
     for (auto& routes : scope.routes_) {

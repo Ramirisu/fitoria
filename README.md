@@ -16,7 +16,7 @@
       - [HTTP Server](#http-server)
       - [HTTP Client](#http-client)
     - [HTTP Server](#http-server-1)
-      - [Methods](#methods)
+      - [Method](#method)
       - [Route Parameters](#route-parameters)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
@@ -83,35 +83,40 @@ TODO:
 
 ### HTTP Server
 
-#### Methods
+#### Method
 
 Register `GET`, `POST`, `PUT`, `PATCH`, `DELETE` by using `http::verb::*`.
 
+[Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
+
 ```cpp
 
-int main() {
+int main()
+{
   auto server = http_server::builder()
-      .route(route(http::verb::get, "/get", [](http_request& req)
-        -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      }))
-      .route(route(http::verb::post, "/post", [](http_request& req)
-        -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      }))
-      .route(route(http::verb::put, "/put", [](http_request& req)
-        -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      }))
-      .route(route(http::verb::path, "/path", [](http_request& req)
-        -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      }))
-      .route(route(http::verb::delete_, "/delete", [](http_request& req)
-        -> net::awaitable<http_response> {
-        co_return http_response(http::status::ok);
-      }))
-    .build();
+                    // Single route by using `route`
+                    .route(route(http::verb::get, "/", get))
+                    .route(route::GET("/get", get))
+                    .route(route::POST("/post", post))
+                    .route(route::PUT("/put", put))
+                    .route(route::PATCH("/patch", patch))
+                    .route(route::DELETE_("/delete", delete_))
+                    .route(route::HEAD("/head", head))
+                    .route(route::OPTIONS("/options", options))
+                    // Grouping routes by using `scope`
+                    .route(scope("/api/v1")
+                               .route(route(http::verb::get, "/", get))
+                               .GET("/get", get)
+                               .POST("/post", post)
+                               .PUT("/put", put)
+                               .PATCH("/patch", patch)
+                               .DELETE_("/delete", delete_)
+                               .HEAD("/head", head)
+                               .OPTIONS("/options", options))
+                    .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
 }
 
 ```

@@ -69,6 +69,41 @@ public:
                        handler_);
   }
 
+  static auto GET(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::get, path, std::move(handler));
+  }
+
+  static auto POST(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::post, path, std::move(handler));
+  }
+
+  static auto PUT(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::put, path, std::move(handler));
+  }
+
+  static auto PATCH(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::patch, path, std::move(handler));
+  }
+
+  static auto DELETE_(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::delete_, path, std::move(handler));
+  }
+
+  static auto HEAD(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::head, path, std::move(handler));
+  }
+
+  static auto OPTIONS(const std::string& path, Handler handler) -> basic_route
+  {
+    return basic_route(http::verb::options, path, std::move(handler));
+  }
+
 private:
   http::verb method_;
   std::string path_;
