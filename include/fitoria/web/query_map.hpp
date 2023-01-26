@@ -116,6 +116,22 @@ public:
     return map_.contains(name);
   }
 
+  std::string to_string() const
+  {
+    std::string query;
+    for (auto& [name, value] : map_) {
+      query += name;
+      query += "=";
+      query += value;
+      query += "&";
+    }
+    if (!query.empty()) {
+      query.pop_back();
+    }
+
+    return query;
+  }
+
   auto begin() noexcept
   {
     return map_.begin();

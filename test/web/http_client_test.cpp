@@ -21,13 +21,13 @@ TEST_CASE("basic")
     auto c = http_client("httpbin.org", 80, "/get");
     CHECK_EQ(c.host(), "httpbin.org");
     CHECK_EQ(c.port(), 80);
-    CHECK_EQ(c.target(), "/get");
+    CHECK_EQ(c.path(), "/get");
   }
   {
     auto c = http_client::from_url("http://httpbin.org/get").value();
     CHECK_EQ(c.host(), "httpbin.org");
     CHECK_EQ(c.port(), 80);
-    CHECK_EQ(c.target(), "/get");
+    CHECK_EQ(c.path(), "/get");
   }
   {
     auto c = http_client("httpbin.org", 80, "/get");
@@ -54,6 +54,13 @@ TEST_CASE("basic")
     CHECK_EQ(c.request_timeout(), std::chrono::seconds(5));
     c.set_request_timeout(std::chrono::seconds(10));
     CHECK_EQ(c.request_timeout(), std::chrono::seconds(10));
+  }
+  {
+    auto c = http_client("httpbin.org", 80, "/get");
+    c.set_query("name", "value");
+    CHECK_EQ(c.query().get("name"), "value");
+    const auto& cc = c;
+    CHECK_EQ(cc.query().get("name"), "value");
   }
 }
 

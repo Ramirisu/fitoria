@@ -20,6 +20,7 @@
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_header.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -27,21 +28,21 @@ class http_client {
   struct location {
     std::string host;
     std::uint16_t port;
-    std::string target;
+    std::string path;
   };
 
 public:
-  http_client(std::string host, std::uint16_t port, std::string target)
+  http_client(std::string host, std::uint16_t port, std::string path)
       : host_(std::move(host))
       , port_(port)
-      , target_(std::move(target))
+      , path_(std::move(path))
   {
   }
 
   static expected<http_client, error_code> from_url(std::string url)
   {
     return parse_uri(std::move(url)).transform([](auto&& loc) {
-      return http_client(std::move(loc.host), loc.port, std::move(loc.target));
+      return http_client(std::move(loc.host), loc.port, std::move(loc.path));
     });
   }
 
@@ -67,14 +68,30 @@ public:
     return *this;
   }
 
-  const std::string& target() const noexcept
+  const std::string& path() const noexcept
   {
-    return target_;
+    return path_;
   }
 
-  http_client& set_target(std::string target)
+  http_client& set_path(std::string path)
   {
-    target_ = std::move(target);
+    path_ = std::move(path);
+    return *this;
+  }
+
+  query_map& query() noexcept
+  {
+    return query_;
+  }
+
+  const query_map& query() const noexcept
+  {
+    return query_;
+  }
+
+  http_client& set_query(std::string name, std::string value)
+  {
+    query_.set(std::move(name), std::move(value));
     return *this;
   }
 
@@ -172,8 +189,22 @@ public:
   }
 
 private:
+  static std::string encode_whitespace(std::string_view s)
+  {
+    std::string encoded;
+    for (auto& c : s) {
+      if (c == ' ') {
+        encoded += "%20";
+      } else {
+        encoded += c;
+      }
+    }
+
+    return encoded;
+  }
   static expected<location, error_code> parse_uri(std::string url)
   {
+    url = encode_whitespace(url); // FIXME:
     auto res = urls::parse_uri(url);
     if (!res) {
       return unexpected { res.error() };
@@ -192,8 +223,8 @@ private:
       }
     }
 
-    return location { std::string(res->encoded_host()), port_number,
-                      std::string(res->encoded_target()) };
+    return location { std::string(res->host()), port_number,
+                      std::string(res->path()) };
   }
 
   auto do_resolve() const
@@ -230,7 +261,7 @@ private:
       co_return unexpected { ec };
     }
 
-    auto res = co_await do_session_impl(stream);
+    auto res = co_await do_send_recv(stream);
     if (!res) {
       co_return unexpected { res.error() };
     }
@@ -269,7 +300,7 @@ private:
       co_return unexpected { ec };
     }
 
-    auto res = co_await do_session_impl(stream);
+    auto res = co_await do_send_recv(stream);
     if (!res) {
       co_return unexpected { res.error() };
     }
@@ -286,8 +317,16 @@ private:
   }
 #endif
 
+  std::string get_encoded_target() const
+  {
+    urls::url url;
+    url.set_path(path_);
+    url.set_query(query_.to_string());
+    return std::string(url.encoded_target());
+  }
+
   template <typename Stream>
-  auto do_session_impl(Stream& stream) const -> net::awaitable<
+  auto do_send_recv(Stream& stream) const -> net::awaitable<
       expected<http::detail::response<http::detail::string_body>, error_code>>
   {
     using std::tie;
@@ -296,7 +335,8 @@ private:
     bool use_expect_100_cont
         = header_.get(http::field::expect) == "100-continue" && !body_.empty();
 
-    http::detail::request<http::detail::string_body> req { method_, target_,
+    http::detail::request<http::detail::string_body> req { method_,
+                                                           get_encoded_target(),
                                                            11 };
     for (auto& [name, value] : header_) {
       if (name != to_string(http::field::expect) || use_expect_100_cont) {
@@ -354,7 +394,8 @@ private:
 
   std::string host_;
   std::uint16_t port_;
-  std::string target_;
+  std::string path_;
+  query_map query_;
   http::verb method_ = http::verb::unknown;
   http_header header_;
   std::string body_;

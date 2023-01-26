@@ -286,10 +286,11 @@ TEST_CASE("generic request")
 
   auto client
       = http_client::from_url(
-            to_local_url(
-                urls::scheme::http, port,
-                R"(/api/v1/users/Rina%20Hidaka/filmography/years/2022?name=Rina%20Hidaka&birth=1994%2F06%2F15)"))
+            to_local_url(urls::scheme::http, port,
+                         "/api/v1/users/Rina Hidaka/filmography/years/2022"))
             .value()
+            .set_query("name", "Rina Hidaka")
+            .set_query("birth", "1994/06/15")
             .set_method(http::verb::get)
             .set_header(http::field::content_type,
                         http::fields::content_type::plaintext())
