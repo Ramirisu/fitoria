@@ -39,16 +39,6 @@ user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
   };
 }
 
-void tag_invoke(const json::value_from_tag&,
-                json::value& jv,
-                const user_t& user)
-{
-  jv = {
-    { "name", user.name },
-    { "password", user.password },
-  };
-}
-
 int main()
 {
   auto server
