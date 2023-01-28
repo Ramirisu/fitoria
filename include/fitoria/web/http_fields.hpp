@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_HTTP_HEADER_HPP
-#define FITORIA_WEB_HTTP_HEADER_HPP
+#ifndef FITORIA_WEB_HTTP_FIELDS_HPP
+#define FITORIA_WEB_HTTP_FIELDS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,7 +17,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-class http_header {
+class http_fields {
 public:
   using map_type = unordered_string_map<std::string>;
 
@@ -34,15 +34,15 @@ public:
   using iterator = typename map_type::iterator;
   using const_iterator = typename map_type::const_iterator;
 
-  http_header() = default;
+  http_fields() = default;
 
-  http_header(const http_header&) = default;
+  http_fields(const http_fields&) = default;
 
-  http_header(http_header&&) = default;
+  http_fields(http_fields&&) = default;
 
-  http_header& operator=(const http_header&) = default;
+  http_fields& operator=(const http_fields&) = default;
 
-  http_header& operator=(http_header&&) = default;
+  http_fields& operator=(http_fields&&) = default;
 
   bool empty() const noexcept
   {

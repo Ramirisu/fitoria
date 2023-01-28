@@ -14,7 +14,7 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/http_header.hpp>
+#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -34,7 +34,7 @@ public:
       : status_code_(native.result())
   {
     for (auto& field : native) {
-      set_header(field.name(), field.value());
+      set_field(field.name(), field.value());
     }
     set_body(std::move(native.body()));
   }
@@ -50,25 +50,25 @@ public:
     return *this;
   }
 
-  http_header& headers() noexcept
+  http_fields& fields() noexcept
   {
-    return header_;
+    return fields_;
   }
 
-  const http_header& headers() const noexcept
+  const http_fields& fields() const noexcept
   {
-    return header_;
+    return fields_;
   }
 
-  http_response& set_header(std::string name, std::string_view value)
+  http_response& set_field(std::string name, std::string_view value)
   {
-    header_.set(std::move(name), value);
+    fields_.set(std::move(name), value);
     return *this;
   }
 
-  http_response& set_header(http::field name, std::string_view value)
+  http_response& set_field(http::field name, std::string_view value)
   {
-    header_.set(name, value);
+    fields_.set(name, value);
     return *this;
   }
 
@@ -92,7 +92,7 @@ public:
   http_response& set_json(const T& obj)
   {
     if constexpr (std::is_same_v<T, json::value>) {
-      header_.set(http::field::content_type,
+      fields_.set(http::field::content_type,
                   http::fields::content_type::json());
       body_ = json::serialize(obj);
     } else {
@@ -105,8 +105,8 @@ public:
   {
     native_response_t res;
     res.result(status_code_.value());
-    for (auto&& header : header_) {
-      res.insert(header.first, header.second);
+    for (auto&& fields : fields_) {
+      res.insert(fields.first, fields.second);
     }
     res.body() = body();
 
@@ -117,8 +117,8 @@ public:
   {
     native_response_t res;
     res.result(status_code_.value());
-    for (auto&& header : header_) {
-      res.insert(header.first, header.second);
+    for (auto&& fields : fields_) {
+      res.insert(fields.first, fields.second);
     }
     res.body() = std::move(body());
 
@@ -127,7 +127,7 @@ public:
 
 private:
   http::status_code status_code_ = http::status::ok;
-  http_header header_;
+  http_fields fields_;
   std::string body_;
 };
 

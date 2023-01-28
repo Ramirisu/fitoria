@@ -28,9 +28,9 @@ TEST_CASE("compression priority: gzip > deflate")
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
-                                CHECK(!req.headers().get(
+                                CHECK(!req.fields().get(
                                     http::field::content_encoding));
-                                CHECK_EQ(*req.headers().get(
+                                CHECK_EQ(*req.fields().get(
                                              http::field::content_length),
                                          std::to_string(in.size()));
                                 CHECK_EQ(req.body(), in);
@@ -43,14 +43,14 @@ TEST_CASE("compression priority: gzip > deflate")
         "/api/get",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::content_encoding, "gzip")
-            .set_header(http::field::accept_encoding, "gzip, deflate")
+            .set_field(http::field::content_encoding, "gzip")
+            .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::gzip::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.headers().get(http::field::content_encoding), "gzip");
+    CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
     CHECK_EQ(res.body(),
              middleware::gzip::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
@@ -60,14 +60,14 @@ TEST_CASE("compression priority: gzip > deflate")
         "/api/get",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::content_encoding, "deflate")
-            .set_header(http::field::accept_encoding, "gzip, deflate")
+            .set_field(http::field::content_encoding, "deflate")
+            .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::deflate::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.headers().get(http::field::content_encoding), "gzip");
+    CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
     CHECK_EQ(res.body(),
              middleware::gzip::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
@@ -87,9 +87,9 @@ TEST_CASE("compression priority: deflate > gzip")
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
-                                CHECK(!req.headers().get(
+                                CHECK(!req.fields().get(
                                     http::field::content_encoding));
-                                CHECK_EQ(*req.headers().get(
+                                CHECK_EQ(*req.fields().get(
                                              http::field::content_length),
                                          std::to_string(in.size()));
                                 CHECK_EQ(req.body(), in);
@@ -102,14 +102,14 @@ TEST_CASE("compression priority: deflate > gzip")
         "/api/get",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::content_encoding, "gzip")
-            .set_header(http::field::accept_encoding, "gzip, deflate")
+            .set_field(http::field::content_encoding, "gzip")
+            .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::gzip::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
+    CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
              middleware::deflate::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
@@ -119,14 +119,14 @@ TEST_CASE("compression priority: deflate > gzip")
         "/api/get",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::content_encoding, "deflate")
-            .set_header(http::field::accept_encoding, "gzip, deflate")
+            .set_field(http::field::content_encoding, "deflate")
+            .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::deflate::compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
+    CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
              middleware::deflate::compress<std::string>(
                  net::const_buffer(in.data(), in.size())));

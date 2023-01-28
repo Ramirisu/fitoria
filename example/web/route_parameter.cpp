@@ -32,8 +32,8 @@ int main()
                   }
 
                   co_return http_response(http::status::ok)
-                      .set_header(http::field::content_type,
-                                  http::fields::content_type::plaintext())
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
                       .set_body(fmt::format("user: {}", user.value()));
                 }))
             .build();

@@ -56,7 +56,7 @@ int main()
             .route(route(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  if (auto ct = req.headers().get(http::field::content_type);
+                  if (auto ct = req.fields().get(http::field::content_type);
                       ct != http::fields::content_type::json()) {
                     co_return http_response(http::status::bad_request)
                         .set_json({ { "msg",

@@ -108,11 +108,11 @@ TEST_CASE("invalid target")
                       to_local_url(urls::scheme::http, port, test_case))
                       .value()
                       .set_method(http::verb::get)
-                      .set_header(http::field::connection, "close")
+                      .set_field(http::field::connection, "close")
                       .set_body("text");
     auto res = client.send().value();
     CHECK_EQ(res.status_code(), http::status::not_found);
-    CHECK_EQ(res.headers().get(http::field::content_type),
+    CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
     CHECK_EQ(res.body(), "request path is not found");
   }
@@ -143,8 +143,8 @@ TEST_CASE("expect: 100-continue")
                     to_local_url(urls::scheme::http, port, "/api/v1/post"))
                     .value()
                     .set_method(http::verb::post)
-                    .set_header(http::field::expect, "100-continue")
-                    .set_header(http::field::connection, "close")
+                    .set_field(http::field::expect, "100-continue")
+                    .set_field(http::field::connection, "close")
                     .set_body("text");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
@@ -187,7 +187,7 @@ TEST_CASE("unhandled exception from handler")
                     to_local_url(urls::scheme::http, port, "/api/v1/get"))
                     .value()
                     .set_method(http::verb::get)
-                    .set_header(http::field::connection, "close")
+                    .set_field(http::field::connection, "close")
                     .set_body("text");
   CHECK(!client.send());
   CHECK(got_exception);
@@ -263,9 +263,9 @@ TEST_CASE("generic request")
                   test_query(req.query());
                   test_query(static_cast<const http_request&>(req).query());
 
-                  CHECK_EQ(req.headers().at(http::field::content_type),
+                  CHECK_EQ(req.fields().at(http::field::content_type),
                            http::fields::content_type::plaintext());
-                  CHECK_EQ(static_cast<const http_request&>(req).headers().at(
+                  CHECK_EQ(static_cast<const http_request&>(req).fields().at(
                                http::field::content_type),
                            http::fields::content_type::plaintext());
                   CHECK_EQ(req.body(), "happy birthday");
@@ -293,9 +293,9 @@ TEST_CASE("generic request")
             .set_query("name", "Rina Hidaka")
             .set_query("birth", "1994/06/15")
             .set_method(http::verb::get)
-            .set_header(http::field::content_type,
-                        http::fields::content_type::plaintext())
-            .set_header(http::field::connection, "close")
+            .set_field(http::field::content_type,
+                       http::fields::content_type::plaintext())
+            .set_field(http::field::connection, "close")
             .set_body("happy birthday");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
@@ -326,11 +326,11 @@ TEST_CASE("response status only")
       = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
             .value()
             .set_method(http::verb::get)
-            .set_header(http::field::connection, "close");
+            .set_field(http::field::connection, "close");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::accepted);
-  CHECK_EQ(res.headers().get(http::field::connection), "close");
-  CHECK_EQ(res.headers().get(http::field::content_length), "0");
+  CHECK_EQ(res.fields().get(http::field::connection), "close");
+  CHECK_EQ(res.fields().get(http::field::content_length), "0");
   CHECK_EQ(res.body(), "");
 }
 
@@ -343,7 +343,7 @@ TEST_CASE("response with plain text")
                          []([[maybe_unused]] http_request& req)
                              -> net::awaitable<http_response> {
                            co_return http_response(http::status::ok)
-                               .set_header(
+                               .set_field(
                                    http::field::content_type,
                                    http::fields::content_type::plaintext())
                                .set_body("plain text");
@@ -363,11 +363,11 @@ TEST_CASE("response with plain text")
       = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
             .value()
             .set_method(http::verb::get)
-            .set_header(http::field::connection, "close");
+            .set_field(http::field::connection, "close");
   auto res = client.send().value();
   CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.headers().get(http::field::connection), "close");
-  CHECK_EQ(res.headers().get(http::field::content_type),
+  CHECK_EQ(res.fields().get(http::field::connection), "close");
+  CHECK_EQ(res.fields().get(http::field::content_type),
            http::fields::content_type::plaintext());
   CHECK_EQ(res.body(), "plain text");
 }

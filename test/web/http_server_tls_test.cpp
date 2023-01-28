@@ -31,7 +31,7 @@ void configure_server(http_server::builder& builder)
                         CHECK_EQ(req.route_params().size(), 1);
                         CHECK_EQ(req.route_params().at("repo"), "fitoria");
                         CHECK_EQ(req.path(), "/api/repos/fitoria");
-                        CHECK_EQ(req.headers().at(http::field::content_type),
+                        CHECK_EQ(req.fields().at(http::field::content_type),
                                  http::fields::content_type::plaintext());
                         CHECK_EQ(req.body(), "hello world");
                         co_return http_response(http::status::ok);
@@ -59,8 +59,8 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                                                    "/api/repos/fitoria"))
                     .value();
   client.set_method(http::verb::get)
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
       .set_body("hello world");
 
   auto res = client.send(cert::get_client_ssl_ctx(client_ssl_ver)).value();

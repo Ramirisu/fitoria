@@ -197,7 +197,7 @@ public:
         do_handler(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            request.method(), encode_target(target), request.headers(),
+            request.method(), encode_target(target), request.fields(),
             std::move(request.body())),
         net::use_future);
     ioc.run();
@@ -360,7 +360,7 @@ private:
           co_await do_handler(
               net::get_lowest_layer(stream).socket().local_endpoint(),
               net::get_lowest_layer(stream).socket().remote_endpoint(),
-              req.method(), req.target(), to_header(req),
+              req.method(), req.target(), to_http_fields(req),
               std::move(req.body())));
       res.keep_alive(keep_alive);
       res.prepare_payload();
@@ -386,22 +386,22 @@ private:
              net::ip::tcp::endpoint remote_endpoint,
              http::verb method,
              std::string target,
-             http_header header,
+             http_fields fields,
              std::string body) const
   {
     auto req_url = urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
-          .set_header(http::field::content_type,
-                      http::fields::content_type::plaintext())
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
           .set_body("request target is invalid");
     }
 
     auto route = builder_.router_.try_find(method, req_url.value().path());
     if (!route) {
       co_return http_response(http::status::not_found)
-          .set_header(http::field::content_type,
-                      http::fields::content_type::plaintext())
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
           .set_body("request path is not found");
     }
 
@@ -412,7 +412,7 @@ private:
                                         .value(),
                                     std::string(route->path())),
                        req_url->path(), method, to_query_map(req_url->params()),
-                       std::move(header), std::move(body));
+                       std::move(fields), std::move(body));
     auto context = http_context(
         http_context::invoker_type(route->middlewares(), route->handler()),
         request);
@@ -431,14 +431,14 @@ private:
     return query;
   }
 
-  static http_header
-  to_header(const http::detail::request<http::detail::string_body>& req)
+  static http_fields
+  to_http_fields(const http::detail::request<http::detail::string_body>& req)
   {
-    http_header header;
+    http_fields fields;
     for (auto& kv : req.base()) {
-      header.set(kv.name(), kv.value());
+      fields.set(kv.name(), kv.value());
     }
-    return header;
+    return fields;
   }
 
   static const char* name() noexcept

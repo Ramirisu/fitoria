@@ -14,7 +14,7 @@
 #include <fitoria/web/as_json.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http_context.hpp>
-#include <fitoria/web/http_header.hpp>
+#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_server.hpp>

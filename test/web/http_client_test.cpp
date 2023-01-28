@@ -37,10 +37,10 @@ TEST_CASE("basic")
   }
   {
     auto c = http_client("httpbin.org", 80, "/get");
-    CHECK_EQ(c.headers().get(http::field::content_type), nullopt);
-    c.set_header(http::field::content_type,
-                 http::fields::content_type::plaintext());
-    CHECK_EQ(c.headers().get(http::field::content_type),
+    CHECK_EQ(c.fields().get(http::field::content_type), nullopt);
+    c.set_field(http::field::content_type,
+                http::fields::content_type::plaintext());
+    CHECK_EQ(c.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
   }
   {

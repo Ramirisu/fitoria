@@ -18,7 +18,7 @@
 
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/http_header.hpp>
+#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/query_map.hpp>
 
@@ -106,25 +106,25 @@ public:
     return *this;
   }
 
-  http_header& headers() noexcept
+  http_fields& fields() noexcept
   {
-    return header_;
+    return fields_;
   }
 
-  const http_header& headers() const noexcept
+  const http_fields& fields() const noexcept
   {
-    return header_;
+    return fields_;
   }
 
-  http_client& set_header(http::field name, std::string_view value)
+  http_client& set_field(http::field name, std::string_view value)
   {
-    header_.set(name, value);
+    fields_.set(name, value);
     return *this;
   }
 
-  http_client& set_header(std::string name, std::string_view value)
+  http_client& set_field(std::string name, std::string_view value)
   {
-    header_.set(name, value);
+    fields_.set(name, value);
     return *this;
   }
 
@@ -333,12 +333,12 @@ private:
     auto _ = std::ignore;
 
     bool use_expect_100_cont
-        = header_.get(http::field::expect) == "100-continue" && !body_.empty();
+        = fields_.get(http::field::expect) == "100-continue" && !body_.empty();
 
     http::detail::request<http::detail::string_body> req { method_,
                                                            get_encoded_target(),
                                                            11 };
-    for (auto& [name, value] : header_) {
+    for (auto& [name, value] : fields_) {
       if (name != to_string(http::field::expect) || use_expect_100_cont) {
         req.set(name, value);
       }
@@ -397,7 +397,7 @@ private:
   std::string path_;
   query_map query_;
   http::verb method_ = http::verb::unknown;
-  http_header header_;
+  http_fields fields_;
   std::string body_;
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };

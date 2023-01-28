@@ -58,8 +58,8 @@ int main()
                                    req.route_params().get("repo"));
 
                         co_return http_response(http::status::ok)
-                            .set_header(http::field::content_type,
-                                        http::fields::content_type::plaintext())
+                            .set_field(http::field::content_type,
+                                       http::fields::content_type::plaintext())
                             .set_body("quick start");
                       }))
             .build();
@@ -142,8 +142,8 @@ int main()
                   }
 
                   co_return http_response(http::status::ok)
-                      .set_header(http::field::content_type,
-                                  http::fields::content_type::plaintext())
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
                       .set_body(fmt::format("user: {}", user.value()));
                 }))
             .build();
@@ -175,8 +175,8 @@ int main()
                   }
 
                   co_return http_response(http::status::ok)
-                      .set_header(http::field::content_type,
-                                  http::fields::content_type::plaintext())
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
                       .set_body(fmt::format("user: {}", user.value()));
                 }))
             .build();
@@ -202,7 +202,7 @@ int main()
             .route(route(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  if (req.headers().get(http::field::content_type)
+                  if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);
                   }
@@ -267,7 +267,7 @@ int main()
             .route(route(
                 http::verb::post, "/api/v1/login",
                 [](const http_request& req) -> net::awaitable<http_response> {
-                  if (auto ct = req.headers().get(http::field::content_type);
+                  if (auto ct = req.fields().get(http::field::content_type);
                       ct != http::fields::content_type::json()) {
                     co_return http_response(http::status::bad_request)
                         .set_json({ { "msg",
@@ -497,7 +497,7 @@ int main()
             .route(
                 route(http::verb::post, "/api/v1/login",
                       [](http_request& req) -> net::awaitable<http_response> {
-                        if (req.headers().get(http::field::content_type)
+                        if (req.fields().get(http::field::content_type)
                             != http::fields::content_type::form_urlencoded()) {
                           co_return http_response(http::status::bad_request);
                         }
@@ -507,8 +507,8 @@ int main()
                           co_return http_response(http::status::unauthorized);
                         }
                         co_return http_response(http::status::ok)
-                            .set_header(http::field::content_type,
-                                        http::fields::content_type::plaintext())
+                            .set_field(http::field::content_type,
+                                       http::fields::content_type::plaintext())
                             .set_body(fmt::format("{}, login succeeded",
                                                   user->get("name")));
                       }))
@@ -519,8 +519,8 @@ int main()
         "/api/v1/login",
         http_request()
             .set_method(http::verb::post)
-            .set_header(http::field::content_type,
-                        http::fields::content_type::plaintext())
+            .set_field(http::field::content_type,
+                       http::fields::content_type::plaintext())
             .set_body("name=ramirisu&password=123456"));
     FITORIA_ASSERT(res.status_code() == http::status::bad_request);
   }
@@ -529,8 +529,8 @@ int main()
         "/api/v1/login",
         http_request()
             .set_method(http::verb::post)
-            .set_header(http::field::content_type,
-                        http::fields::content_type::form_urlencoded())
+            .set_field(http::field::content_type,
+                       http::fields::content_type::form_urlencoded())
             .set_body("name=unknown&password=123"));
     FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
   }
@@ -539,8 +539,8 @@ int main()
         "/api/v1/login",
         http_request()
             .set_method(http::verb::post)
-            .set_header(http::field::content_type,
-                        http::fields::content_type::form_urlencoded())
+            .set_field(http::field::content_type,
+                       http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123"));
     FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
   }
@@ -549,11 +549,11 @@ int main()
         "/api/v1/login",
         http_request()
             .set_method(http::verb::post)
-            .set_header(http::field::content_type,
-                        http::fields::content_type::form_urlencoded())
+            .set_field(http::field::content_type,
+                       http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123456"));
     FITORIA_ASSERT(res.status_code() == http::status::ok);
-    FITORIA_ASSERT(res.headers().get(http::field::content_type)
+    FITORIA_ASSERT(res.fields().get(http::field::content_type)
                    == http::fields::content_type::plaintext());
     FITORIA_ASSERT(res.body() == "ramirisu, login succeeded");
   }

@@ -22,7 +22,7 @@ int main()
                           log::debug("path: {}", req.route_params().path());
 
                           co_return http_response(http::status::ok)
-                              .set_header(
+                              .set_field(
                                   http::field::content_type,
                                   http::fields::content_type::plaintext())
                               .set_body("extractor");
@@ -34,7 +34,7 @@ int main()
                              log::debug("path: {}", r.path());
 
                              co_return http_response(http::status::ok)
-                                 .set_header(
+                                 .set_field(
                                      http::field::content_type,
                                      http::fields::content_type::plaintext())
                                  .set_body("extractor");
@@ -46,20 +46,20 @@ int main()
                              log::debug("brand: {}", qm.get("brand"));
 
                              co_return http_response(http::status::ok)
-                                 .set_header(
+                                 .set_field(
                                      http::field::content_type,
                                      http::fields::content_type::plaintext())
                                  .set_body("extractor");
                            })
-                    // Extract `http_header`
+                    // Extract `http_fields`
                     .route(http::verb::get, "/4",
-                           [](const http_header& header)
+                           [](const http_fields& fields)
                                -> net::awaitable<http_response> {
                              log::debug("Content-Type: {}",
-                                        header.get(http::field::content_type));
+                                        fields.get(http::field::content_type));
 
                              co_return http_response(http::status::ok)
-                                 .set_header(
+                                 .set_field(
                                      http::field::content_type,
                                      http::fields::content_type::plaintext())
                                  .set_body("extractor");
@@ -71,7 +71,7 @@ int main()
                              log::debug("body: {}", body);
 
                              co_return http_response(http::status::ok)
-                                 .set_header(
+                                 .set_field(
                                      http::field::content_type,
                                      http::fields::content_type::plaintext())
                                  .set_body("extractor");
@@ -79,16 +79,16 @@ int main()
                     // Extract arbitrary types that can be converted from
                     // `http_request`
                     .route(http::verb::get, "/nations",
-                           [](const query_map& qm, const http_header& header,
+                           [](const query_map& qm, const http_fields& fields,
                               const std::string& body)
                                -> net::awaitable<http_response> {
                              log::debug("brand: {}", qm.get("brand"));
                              log::debug("Content-Type: {}",
-                                        header.get(http::field::content_type));
+                                        fields.get(http::field::content_type));
                              log::debug("body: {}", body);
 
                              co_return http_response(http::status::ok)
-                                 .set_header(
+                                 .set_field(
                                      http::field::content_type,
                                      http::fields::content_type::plaintext())
                                  .set_body("extractor");

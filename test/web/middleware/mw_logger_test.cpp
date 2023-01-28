@@ -30,7 +30,7 @@ TEST_CASE("logger middleware")
       "/api/get",
       http_request()
           .set_method(http::verb::get)
-          .set_header(http::field::user_agent, "fitoria"));
+          .set_field(http::field::user_agent, "fitoria"));
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 

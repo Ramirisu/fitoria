@@ -101,9 +101,9 @@ TEST_CASE("deflate middleware")
                        .route(http::verb::get, "/get",
                               [&]([[maybe_unused]] http_request& req)
                                   -> net::awaitable<http_response> {
-                                CHECK(!req.headers().get(
+                                CHECK(!req.fields().get(
                                     http::field::content_encoding));
-                                CHECK_EQ(*req.headers().get(
+                                CHECK_EQ(*req.fields().get(
                                              http::field::content_length),
                                          std::to_string(in.size()));
                                 CHECK_EQ(req.body(), in);
@@ -115,14 +115,14 @@ TEST_CASE("deflate middleware")
       "/api/get",
       http_request()
           .set_method(http::verb::get)
-          .set_header(http::field::content_encoding, "deflate")
-          .set_header(http::field::accept_encoding, "deflate")
+          .set_field(http::field::content_encoding, "deflate")
+          .set_field(http::field::accept_encoding, "deflate")
           .set_body(middleware::deflate::compress<std::string>(
                         net::const_buffer(in.data(), in.size()))
                         .value())
           .prepare_payload());
   CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
+  CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
   CHECK_EQ(res.body(),
            middleware::deflate::compress<std::string>(
                net::const_buffer(in.data(), in.size())));
@@ -140,7 +140,7 @@ TEST_CASE("deflate middleware: header vary")
                                 auto res = http_response(http::status::ok)
                                                .set_body("hello world");
                                 if (!req.body().empty()) {
-                                  res.set_header(http::field::vary, req.body());
+                                  res.set_field(http::field::vary, req.body());
                                 }
                                 co_return res;
                               }))
@@ -162,11 +162,11 @@ TEST_CASE("deflate middleware: header vary")
         "/api/get",
         http_request()
             .set_method(http::verb::get)
-            .set_header(http::field::accept_encoding, "deflate")
+            .set_field(http::field::accept_encoding, "deflate")
             .set_body(test_case.input)
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.headers().get(http::field::vary), test_case.expected);
+    CHECK_EQ(res.fields().get(http::field::vary), test_case.expected);
   }
 }
 

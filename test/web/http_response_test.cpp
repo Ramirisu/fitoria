@@ -27,19 +27,19 @@ TEST_CASE("status_code")
   }
 }
 
-TEST_CASE("set_header")
+TEST_CASE("set_field")
 {
   {
     http_response res;
-    res.set_header(http::field::content_type,
-                   http::fields::content_type::plaintext());
-    CHECK_EQ(res.headers().get(http::field::content_type),
+    res.set_field(http::field::content_type,
+                  http::fields::content_type::plaintext());
+    CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
   }
   {
     http_response res;
-    res.set_header("Content-Type", http::fields::content_type::plaintext());
-    CHECK_EQ(res.headers().get(http::field::content_type),
+    res.set_field("Content-Type", http::fields::content_type::plaintext());
+    CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
   }
 }

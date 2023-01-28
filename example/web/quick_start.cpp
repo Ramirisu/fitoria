@@ -45,8 +45,8 @@ int main()
                                    req.route_params().get("repo"));
 
                         co_return http_response(http::status::ok)
-                            .set_header(http::field::content_type,
-                                        http::fields::content_type::plaintext())
+                            .set_field(http::field::content_type,
+                                       http::fields::content_type::plaintext())
                             .set_body("quick start");
                       }))
             .build();
