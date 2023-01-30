@@ -26,6 +26,12 @@ FITORIA_NAMESPACE_BEGIN
 template <typename E>
 class unexpected {
 public:
+  static_assert(std::is_same_v<std::remove_cvref_t<E>, E>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<E>, unexpected>);
+  static_assert(std::is_object_v<E>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<E>>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<E>>);
+
   template <typename E2 = E>
   constexpr explicit unexpected(E2&& err)
     requires(std::is_constructible_v<E, E2>
@@ -228,6 +234,19 @@ class expected {
   }
 
 public:
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, std::in_place_t>);
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, unexpect_t>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<T>, unexpected>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<T>>);
+  static_assert(!std::is_reference_v<std::remove_cvref_t<T>>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<T>>);
+
+  static_assert(std::is_same_v<std::remove_cvref_t<E>, E>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<E>, unexpected>);
+  static_assert(std::is_object_v<E>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<E>>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<E>>);
+
   using value_type = T;
   using error_type = E;
   using unexpected_type = unexpected<E>;
@@ -1064,6 +1083,12 @@ class expected<T, E> {
       || std::is_constructible_v<unexpected<E>, const expected<U, G>>;
 
 public:
+  static_assert(std::is_same_v<std::remove_cvref_t<E>, E>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<E>, unexpected>);
+  static_assert(std::is_object_v<E>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<E>>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<E>>);
+
   using value_type = T;
   using error_type = E;
   using unexpected_type = unexpected<E>;
@@ -1618,7 +1643,7 @@ private:
 };
 
 template <typename T, typename E>
-  requires(std::is_reference_v<T>)
+  requires(std::is_lvalue_reference_v<T>)
 class expected<T, E> {
   using raw_value_type = std::remove_cvref_t<T>;
 
@@ -1638,6 +1663,17 @@ class expected<T, E> {
       || std::is_constructible_v<unexpected<E>, const expected<U, G>>;
 
 public:
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, std::in_place_t>);
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, unexpect_t>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<T>, unexpected>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<T>>);
+
+  static_assert(std::is_same_v<std::remove_cvref_t<E>, E>);
+  static_assert(!is_specialization_of_v<std::remove_cvref_t<E>, unexpected>);
+  static_assert(std::is_object_v<E>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<E>>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<E>>);
+
   using value_type = T;
   using error_type = E;
   using unexpected_type = unexpected<E>;

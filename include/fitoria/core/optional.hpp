@@ -69,6 +69,12 @@ class optional {
       || std::is_assignable_v<T&, const optional<U>&&>;
 
 public:
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, std::in_place_t>);
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, nullopt_t>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<T>>);
+  static_assert(!std::is_reference_v<std::remove_cvref_t<T>>);
+  static_assert(std::is_destructible_v<std::remove_cvref_t<T>>);
+
   using value_type = T;
 
   constexpr optional() noexcept
@@ -720,7 +726,7 @@ private:
 };
 
 template <typename T>
-  requires(std::is_reference_v<T>)
+  requires(std::is_lvalue_reference_v<T>)
 class optional<T> {
   using raw_value_type = std::remove_cvref_t<T>;
 
@@ -744,6 +750,10 @@ class optional<T> {
       || std::is_assignable_v<T&, const optional<U>&&>;
 
 public:
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, std::in_place_t>);
+  static_assert(!std::is_same_v<std::remove_cvref_t<T>, nullopt_t>);
+  static_assert(!std::is_array_v<std::remove_cvref_t<T>>);
+
   using value_type = T;
 
   constexpr optional() noexcept = default;
