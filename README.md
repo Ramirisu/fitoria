@@ -85,7 +85,7 @@ TODO:
 
 #### Method
 
-Register `GET`, `POST`, `PUT`, `PATCH`, `DELETE` by using `http::verb::*`.
+Register `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD` and `OPTIONS`.
 
 [Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
 
@@ -123,7 +123,7 @@ int main()
 
 #### Route Parameters
 
-Use `http_request::route()` to access the route parameters.
+Use `http_request::route_params()` to access the route parameters.
 
 [Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp)
 
@@ -156,9 +156,9 @@ int main()
 
 #### Query String Parameters
 
-Use `http_request::query()` to access the qeury string parameters.
+Use `http_request::query()` to access the query string parameters.
 
-[Query String Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp)
+[Query String Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp)
 
 ```cpp
 
@@ -288,7 +288,7 @@ int main()
 
 #### Scope
 
-Configure nested routers by using `scope`.
+Configure nested `route`s by using `scope`.
 
 [Scope Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
 
@@ -382,7 +382,7 @@ int main()
 
 ([Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
-fitoria provides following build-in middlewares
+fitoria provides following build-in middlewares:
 
 * `middleware::logger`
 * `middleware::exception_handler`
@@ -563,7 +563,7 @@ Platform
 - Windows
 - MacOS
 
-Compiler
+Compiler (C++20 coroutine/concepts)
 
 - GCC 12
 - MSVC 17 2022
