@@ -25,59 +25,51 @@
 FITORIA_NAMESPACE_BEGIN
 
 class http_client {
-  struct location {
+public:
+  struct resource {
     std::string host;
     std::uint16_t port;
     std::string path;
+
+    static expected<resource, error_code> parse_uri(std::string_view url)
+    {
+      auto encoded_url = encode_whitespace(url); // FIXME:
+      auto res = urls::parse_uri(encoded_url);
+      if (!res) {
+        return unexpected { res.error() };
+      }
+
+      auto port_number = res->port_number();
+      if (port_number == 0) {
+        switch (res->scheme_id()) {
+        case urls::scheme::https:
+          port_number = 443;
+          break;
+        case urls::scheme::http:
+        default:
+          port_number = 80;
+          break;
+        }
+      }
+
+      return resource { std::string(res->host()), port_number,
+                        std::string(res->path()) };
+    }
+
+    static std::string encode_whitespace(std::string_view s)
+    {
+      std::string encoded;
+      for (auto& c : s) {
+        if (c == ' ') {
+          encoded += "%20";
+        } else {
+          encoded += c;
+        }
+      }
+
+      return encoded;
+    }
   };
-
-public:
-  http_client(std::string host, std::uint16_t port, std::string path)
-      : host_(std::move(host))
-      , port_(port)
-      , path_(std::move(path))
-  {
-  }
-
-  static expected<http_client, error_code> from_url(std::string url)
-  {
-    return parse_uri(std::move(url)).transform([](auto&& loc) {
-      return http_client(std::move(loc.host), loc.port, std::move(loc.path));
-    });
-  }
-
-  const std::string& host() const noexcept
-  {
-    return host_;
-  }
-
-  http_client& set_host(std::string host)
-  {
-    host_ = std::move(host);
-    return *this;
-  }
-
-  const std::uint16_t& port() const noexcept
-  {
-    return port_;
-  }
-
-  http_client& set_port(std::uint16_t port)
-  {
-    port_ = port;
-    return *this;
-  }
-
-  const std::string& path() const noexcept
-  {
-    return path_;
-  }
-
-  http_client& set_path(std::string path)
-  {
-    path_ = std::move(path);
-    return *this;
-  }
 
   query_map& query() noexcept
   {
@@ -150,36 +142,57 @@ public:
     return *this;
   }
 
-  auto send() const -> expected<http_response, error_code>
+  auto send(expected<resource, error_code> rc) const
+      -> expected<http_response, error_code>
   {
+    if (!rc) {
+      return unexpected { rc.error() };
+    }
+
     net::io_context ioc;
-    auto fut = net::co_spawn(ioc, do_session(), net::use_future);
+    auto fut = net::co_spawn(ioc, do_session(std::move(rc.value())),
+                             net::use_future);
     ioc.run();
     return fut.get();
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto send(net::ssl::context ssl_ctx) const
+  auto send(expected<resource, error_code> rc, net::ssl::context ssl_ctx) const
       -> expected<http_response, error_code>
   {
+    if (!rc) {
+      return unexpected { rc.error() };
+    }
+
     net::io_context ioc;
-    auto fut
-        = net::co_spawn(ioc, do_session(std::move(ssl_ctx)), net::use_future);
+    auto fut = net::co_spawn(
+        ioc, do_session(std::move(rc.value()), std::move(ssl_ctx)),
+        net::use_future);
     ioc.run();
     return fut.get();
   }
 #endif
 
-  auto async_send() const -> net::awaitable<expected<http_response, error_code>>
+  auto async_send(expected<resource, error_code> rc) const
+      -> net::awaitable<expected<http_response, error_code>>
   {
-    co_return co_await do_session();
+    if (!rc) {
+      co_return unexpected { rc.error() };
+    }
+
+    co_return co_await do_session(std::move(rc.value()));
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto async_send(net::ssl::context ssl_ctx) const
+  auto async_send(expected<resource, error_code> rc,
+                  net::ssl::context ssl_ctx) const
       -> net::awaitable<expected<http_response, error_code>>
   {
-    co_return co_await do_session(std::move(ssl_ctx));
+    if (!rc) {
+      co_return unexpected { rc.error() };
+    }
+
+    co_return co_await do_session(std::move(rc.value()), std::move(ssl_ctx));
   }
 #endif
 
@@ -189,50 +202,12 @@ public:
   }
 
 private:
-  static std::string encode_whitespace(std::string_view s)
-  {
-    std::string encoded;
-    for (auto& c : s) {
-      if (c == ' ') {
-        encoded += "%20";
-      } else {
-        encoded += c;
-      }
-    }
-
-    return encoded;
-  }
-  static expected<location, error_code> parse_uri(std::string url)
-  {
-    url = encode_whitespace(url); // FIXME:
-    auto res = urls::parse_uri(url);
-    if (!res) {
-      return unexpected { res.error() };
-    }
-
-    auto port_number = res->port_number();
-    if (port_number == 0) {
-      switch (res->scheme_id()) {
-      case urls::scheme::https:
-        port_number = 443;
-        break;
-      case urls::scheme::http:
-      default:
-        port_number = 80;
-        break;
-      }
-    }
-
-    return location { std::string(res->host()), port_number,
-                      std::string(res->path()) };
-  }
-
-  auto do_resolve() const
+  auto do_resolve(const resource& loc) const
       -> net::awaitable<expected<net::resolver_results, error_code>>
   {
     auto resolver = net::resolver(co_await net::this_coro::executor);
     auto [ec, results]
-        = co_await resolver.async_resolve(host_, std::to_string(port_));
+        = co_await resolver.async_resolve(loc.host, std::to_string(loc.port));
     if (ec) {
       log::debug("[{}] async_resolve failed: {}", name(), ec.message());
       co_return unexpected { ec };
@@ -241,12 +216,13 @@ private:
     co_return results;
   }
 
-  auto do_session() const -> net::awaitable<expected<http_response, error_code>>
+  auto do_session(const resource& loc) const
+      -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
 
-    auto results = co_await do_resolve();
+    auto results = co_await do_resolve(loc);
     if (!results) {
       co_return unexpected { results.error() };
     }
@@ -261,7 +237,7 @@ private:
       co_return unexpected { ec };
     }
 
-    auto res = co_await do_send_recv(stream);
+    auto res = co_await do_send_recv(loc, stream);
     if (!res) {
       co_return unexpected { res.error() };
     }
@@ -272,13 +248,13 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(net::ssl::context ssl_ctx) const
+  auto do_session(const resource& loc, net::ssl::context ssl_ctx) const
       -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
 
-    auto results = co_await do_resolve();
+    auto results = co_await do_resolve(loc);
     if (!results) {
       co_return unexpected { results.error() };
     }
@@ -300,7 +276,7 @@ private:
       co_return unexpected { ec };
     }
 
-    auto res = co_await do_send_recv(stream);
+    auto res = co_await do_send_recv(loc, stream);
     if (!res) {
       co_return unexpected { res.error() };
     }
@@ -317,16 +293,9 @@ private:
   }
 #endif
 
-  std::string get_encoded_target() const
-  {
-    urls::url url;
-    url.set_path(path_);
-    url.set_query(query_.to_string());
-    return std::string(url.encoded_target());
-  }
-
   template <typename Stream>
-  auto do_send_recv(Stream& stream) const -> net::awaitable<
+  auto
+  do_send_recv(const resource& loc, Stream& stream) const -> net::awaitable<
       expected<http::detail::response<http::detail::string_body>, error_code>>
   {
     using std::tie;
@@ -335,15 +304,15 @@ private:
     bool use_expect_100_cont
         = fields_.get(http::field::expect) == "100-continue" && !body_.empty();
 
-    http::detail::request<http::detail::string_body> req { method_,
-                                                           get_encoded_target(),
-                                                           11 };
+    http::detail::request<http::detail::string_body> req {
+      method_, get_encoded_target(loc.path, query_.to_string()), 11
+    };
     for (auto& [name, value] : fields_) {
       if (name != to_string(http::field::expect) || use_expect_100_cont) {
         req.set(name, value);
       }
     }
-    req.set(http::field::host, host_);
+    req.set(http::field::host, loc.host);
     req.body() = body_;
     req.prepare_payload();
 
@@ -392,9 +361,15 @@ private:
     co_return res;
   }
 
-  std::string host_;
-  std::uint16_t port_;
-  std::string path_;
+  static std::string get_encoded_target(std::string_view path,
+                                        std::string_view query_string)
+  {
+    urls::url url;
+    url.set_path(path);
+    url.set_query(query_string);
+    return std::string(url.encoded_target());
+  }
+
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;

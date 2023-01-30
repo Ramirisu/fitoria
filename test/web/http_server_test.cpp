@@ -54,11 +54,11 @@ TEST_CASE("builder")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client
-      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
-            .value()
-            .set_method(http::verb::get);
-  auto res = client.send().value();
+  auto res = http_client()
+                 .set_method(http::verb::get)
+                 .send(http_client::resource::parse_uri(
+                     to_local_url(urls::scheme::http, port, "/api")))
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
@@ -104,13 +104,13 @@ TEST_CASE("invalid target")
   };
 
   for (auto& test_case : test_cases) {
-    auto client = http_client::from_url(
-                      to_local_url(urls::scheme::http, port, test_case))
-                      .value()
-                      .set_method(http::verb::get)
-                      .set_field(http::field::connection, "close")
-                      .set_body("text");
-    auto res = client.send().value();
+    auto res = http_client()
+                   .set_method(http::verb::get)
+                   .set_field(http::field::connection, "close")
+                   .set_body("text")
+                   .send(http_client::resource::parse_uri(
+                       to_local_url(urls::scheme::http, port, test_case)))
+                   .value();
     CHECK_EQ(res.status_code(), http::status::not_found);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
@@ -139,14 +139,14 @@ TEST_CASE("expect: 100-continue")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client = http_client::from_url(
-                    to_local_url(urls::scheme::http, port, "/api/v1/post"))
-                    .value()
-                    .set_method(http::verb::post)
-                    .set_field(http::field::expect, "100-continue")
-                    .set_field(http::field::connection, "close")
-                    .set_body("text");
-  auto res = client.send().value();
+  auto res = http_client()
+                 .set_method(http::verb::post)
+                 .set_field(http::field::expect, "100-continue")
+                 .set_field(http::field::connection, "close")
+                 .set_body("text")
+                 .send(http_client::resource::parse_uri(
+                     to_local_url(urls::scheme::http, port, "/api/v1/post")))
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
@@ -183,13 +183,12 @@ TEST_CASE("unhandled exception from handler")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client = http_client::from_url(
-                    to_local_url(urls::scheme::http, port, "/api/v1/get"))
-                    .value()
-                    .set_method(http::verb::get)
-                    .set_field(http::field::connection, "close")
-                    .set_body("text");
-  CHECK(!client.send());
+  CHECK(!http_client()
+             .set_method(http::verb::get)
+             .set_field(http::field::connection, "close")
+             .set_body("text")
+             .send(http_client::resource::parse_uri(
+                 to_local_url(urls::scheme::http, port, "/api/v1/get"))));
   CHECK(got_exception);
 }
 
@@ -285,19 +284,18 @@ TEST_CASE("generic request")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client
-      = http_client::from_url(
-            to_local_url(urls::scheme::http, port,
-                         "/api/v1/users/Rina Hidaka/filmography/years/2022"))
-            .value()
-            .set_query("name", "Rina Hidaka")
-            .set_query("birth", "1994/06/15")
-            .set_method(http::verb::get)
-            .set_field(http::field::content_type,
-                       http::fields::content_type::plaintext())
-            .set_field(http::field::connection, "close")
-            .set_body("happy birthday");
-  auto res = client.send().value();
+  auto res = http_client()
+                 .set_query("name", "Rina Hidaka")
+                 .set_query("birth", "1994/06/15")
+                 .set_method(http::verb::get)
+                 .set_field(http::field::content_type,
+                            http::fields::content_type::plaintext())
+                 .set_field(http::field::connection, "close")
+                 .set_body("happy birthday")
+                 .send(http_client::resource::parse_uri(to_local_url(
+                     urls::scheme::http, port,
+                     "/api/v1/users/Rina Hidaka/filmography/years/2022")))
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
@@ -322,12 +320,12 @@ TEST_CASE("response status only")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client
-      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
-            .value()
-            .set_method(http::verb::get)
-            .set_field(http::field::connection, "close");
-  auto res = client.send().value();
+  auto res = http_client()
+                 .set_method(http::verb::get)
+                 .set_field(http::field::connection, "close")
+                 .send(http_client::resource::parse_uri(
+                     to_local_url(urls::scheme::http, port, "/api")))
+                 .value();
   CHECK_EQ(res.status_code(), http::status::accepted);
   CHECK_EQ(res.fields().get(http::field::connection), "close");
   CHECK_EQ(res.fields().get(http::field::content_length), "0");
@@ -359,12 +357,12 @@ TEST_CASE("response with plain text")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto client
-      = http_client::from_url(to_local_url(urls::scheme::http, port, "/api"))
-            .value()
-            .set_method(http::verb::get)
-            .set_field(http::field::connection, "close");
-  auto res = client.send().value();
+  auto res = http_client()
+                 .set_method(http::verb::get)
+                 .set_field(http::field::connection, "close")
+                 .send(http_client::resource::parse_uri(
+                     to_local_url(urls::scheme::http, port, "/api")))
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(res.fields().get(http::field::connection), "close");
   CHECK_EQ(res.fields().get(http::field::content_type),
