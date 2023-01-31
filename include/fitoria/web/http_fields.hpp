@@ -66,7 +66,7 @@ public:
 
   void set(std::string name, std::string_view value)
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     map_.insert_or_assign(std::move(name), std::string(value));
   }
 
@@ -77,7 +77,7 @@ public:
 
   optional<mapped_type&> get(std::string name) noexcept
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     if (auto it = map_.find(name); it != map_.end()) {
       return it->second;
     }
@@ -92,7 +92,7 @@ public:
 
   optional<const mapped_type&> get(std::string name) const noexcept
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     if (auto it = map_.find(name); it != map_.end()) {
       return it->second;
     }
@@ -107,7 +107,7 @@ public:
 
   optional<mapped_type> erase(std::string name)
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     if (auto it = map_.find(name); it != map_.end()) {
       auto value = std::move(it->second);
       map_.erase(it);
@@ -124,7 +124,7 @@ public:
 
   mapped_type& at(std::string name)
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     return map_.at(std::move(name));
   }
 
@@ -135,7 +135,7 @@ public:
 
   const mapped_type& at(std::string name) const
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     return map_.at(std::move(name));
   }
 
@@ -146,7 +146,7 @@ public:
 
   mapped_type& operator[](std::string name)
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     return map_.operator[](std::move(name));
   }
 
@@ -157,7 +157,7 @@ public:
 
   bool contains(std::string name) const
   {
-    normalize_field(name);
+    canonicalize_field_name(name);
     return map_.contains(std::move(name));
   }
 
@@ -197,7 +197,7 @@ public:
   }
 
 private:
-  static void normalize_field(std::string& name) noexcept
+  static void canonicalize_field_name(std::string& name) noexcept
   {
     bool upper = true;
     for (std::size_t i = 0; i < name.size(); ++i) {
