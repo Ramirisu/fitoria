@@ -91,9 +91,15 @@ public:
     return nullopt;
   }
 
-  bool erase(const std::string& name)
+  optional<mapped_type> erase(const std::string& name)
   {
-    return map_.erase(name) == 1;
+    if (auto it = map_.find(name); it != map_.end()) {
+      auto value = std::move(it->second);
+      map_.erase(it);
+      return value;
+    }
+
+    return nullopt;
   }
 
   mapped_type& at(const std::string& name)

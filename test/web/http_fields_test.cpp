@@ -83,9 +83,10 @@ TEST_CASE("basic")
   CHECK(!fields.contains("Connection"));
   CHECK(!fields.contains("connection"));
 
-  fields.erase(http::field::content_type);
+  CHECK_EQ(fields.erase(http::field::content_type),
+           http::fields::content_type::plaintext());
   CHECK(!fields.contains(http::field::content_type));
-  fields.erase("accept-encoding");
+  CHECK_EQ(fields.erase("accept-encoding"), "gzip");
   CHECK(!fields.contains(http::field::accept_encoding));
 }
 

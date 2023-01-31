@@ -105,15 +105,21 @@ public:
     return get(to_string(name));
   }
 
-  bool erase(std::string name)
+  optional<mapped_type> erase(std::string name)
   {
     normalize_field(name);
-    return map_.erase(std::move(name));
+    if (auto it = map_.find(name); it != map_.end()) {
+      auto value = std::move(it->second);
+      map_.erase(it);
+      return value;
+    }
+
+    return nullopt;
   }
 
-  bool erase(http::field name)
+  optional<mapped_type> erase(http::field name)
   {
-    return map_.erase(to_string(name));
+    return erase(to_string(name));
   }
 
   mapped_type& at(std::string name)

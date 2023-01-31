@@ -24,13 +24,13 @@ TEST_CASE("basic")
   CHECK_EQ(m.get("name1"), nullopt);
   CHECK_EQ(c.get("name1"), nullopt);
 
-  m.set("name1", "value");
+  m.set("name1", "value1");
   CHECK(!m.empty());
   CHECK_EQ(m.size(), 1);
   CHECK(m.contains("name1"));
   CHECK(!m.contains("name2"));
-  CHECK_EQ(m.get("name1"), "value");
-  CHECK_EQ(c.get("name1"), "value");
+  CHECK_EQ(m.get("name1"), "value1");
+  CHECK_EQ(c.get("name1"), "value1");
 
   m.set("name2", "value2");
   CHECK(!m.empty());
@@ -40,9 +40,9 @@ TEST_CASE("basic")
   CHECK_EQ(m.get("name2"), "value2");
   CHECK_EQ(c.get("name2"), "value2");
 
-  CHECK(!m.erase("name3"));
+  CHECK_EQ(m.erase("name3"), nullopt);
 
-  CHECK(m.erase("name1"));
+  CHECK_EQ(m.erase("name1"), "value1");
   CHECK(!m.empty());
   CHECK_EQ(m.size(), 1);
   CHECK_EQ(m.get("name1"), nullopt);
