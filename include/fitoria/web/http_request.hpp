@@ -99,6 +99,12 @@ public:
     return query_;
   }
 
+  http_request& set_query(std::string name, std::string value)
+  {
+    query_.set(std::move(name), std::move(value));
+    return *this;
+  };
+
   http_fields& fields() noexcept
   {
     return fields_;

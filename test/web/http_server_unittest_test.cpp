@@ -128,10 +128,11 @@ TEST_CASE("unittest")
             .build();
   {
     auto res = server.serve_http_request(
-
-        "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
+        "/api/v1/users/Rina Hidaka",
         http_request()
             .set_method(http::verb::get)
+            .set_query("gender", "female")
+            .set_query("birth", "1994/06/15")
             .set_json({ { "message", "happy birthday" } }));
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_type),
@@ -160,9 +161,10 @@ TEST_CASE("unittest")
              json::value { { "error", "gender is not provided" } });
   }
   {
-    auto res
-        = server.serve_http_request("/api/v1/users/Rina Hidaka?gender=female",
-                                    http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
+                                         http_request()
+                                             .set_method(http::verb::get)
+                                             .set_query("gender", "female"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -170,9 +172,11 @@ TEST_CASE("unittest")
              json::value { { "error", "birth is not provided" } });
   }
   {
-    auto res = server.serve_http_request(
-        "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
-        http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
+                                         http_request()
+                                             .set_method(http::verb::get)
+                                             .set_query("gender", "female")
+                                             .set_query("birth", "1994/06/15"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -184,9 +188,11 @@ TEST_CASE("unittest")
   }
   {
     auto res = server.serve_http_request(
-        "/api/v1/users/Rina Hidaka?gender=female&birth=1994/06/15",
+        "/api/v1/users/Rina Hidaka",
         http_request()
             .set_method(http::verb::get)
+            .set_query("gender", "female")
+            .set_query("birth", "1994/06/15")
             .set_field(http::field::content_type,
                        http::fields::content_type::json()));
     CHECK_EQ(res.status_code(), http::status::bad_request);

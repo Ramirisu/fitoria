@@ -178,18 +178,11 @@ public:
     co_return;
   }
 
-  http_response serve_http_request(std::string_view target,
-                                   http_request request)
+  http_response serve_http_request(std::string_view path, http_request request)
   {
-    auto encode_target = [](std::string_view target) -> std::string {
-      urls::url url;
-      auto pos = target.find('?');
-      if (pos != std::string::npos) {
-        url.set_query(target.substr(pos + 1));
-      }
-      url.set_path(target.substr(0, pos));
-      return std::string(url.encoded_target());
-    };
+    urls::url url;
+    url.set_path(path);
+    url.set_query(request.query().to_string());
 
     net::io_context ioc;
     auto response = net::co_spawn(
@@ -197,8 +190,8 @@ public:
         do_handler(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            request.method(), encode_target(target), request.fields(),
-            std::move(request.body())),
+            request.method(), std::string(url.encoded_target()),
+            request.fields(), std::move(request.body())),
         net::use_future);
     ioc.run();
     return response.get();
