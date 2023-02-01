@@ -11,6 +11,7 @@ using namespace fitoria;
 
 int main()
 {
+#if defined(FITORIA_ENABLE_EXPERIMENTAL_FEATURE_EXTRACTOR)
   auto server
       = http_server::builder()
             .route(
@@ -97,4 +98,5 @@ int main()
   server //
       .bind("127.0.0.1", 8080)
       .run();
+#endif
 }

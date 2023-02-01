@@ -20,6 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 
 template <typename Request, typename Response>
 class basic_handler {
+#if defined(FITORIA_ENABLE_EXPERIMENTAL_FEATURE_EXTRACTOR)
   template <typename R,
             typename F,
             typename T,
@@ -32,11 +33,13 @@ class basic_handler {
     using rebind = T;
     static constexpr bool value = std::is_invocable_r_v<R, F, rebind<Is>...>;
   };
+#endif
 
 public:
   using request_type = Request;
   using response_type = Response;
 
+#if defined(FITORIA_ENABLE_EXPERIMENTAL_FEATURE_EXTRACTOR)
   template <typename F>
   basic_handler(F f)
     requires(!std::is_same_v<F, basic_handler>
@@ -89,6 +92,15 @@ public:
       }
     }
   }
+#else
+  template <typename F>
+  basic_handler(F f)
+    requires(!std::is_same_v<F, basic_handler>
+             && std::is_invocable_r_v<Response, F, Request>)
+      : handler_(std::move(f))
+  {
+  }
+#endif
 
   Response operator()(Request request) const
     requires(awaitable<Response>)
