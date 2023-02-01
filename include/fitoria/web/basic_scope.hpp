@@ -19,8 +19,8 @@ class basic_scope {
 public:
   using route_type = basic_route<Middleware, Handler>;
 
-  basic_scope(std::string path)
-      : path_(std::move(path))
+  basic_scope(std::string_view path)
+      : path_(path)
   {
   }
 
@@ -42,43 +42,43 @@ public:
     return *this;
   }
 
-  auto route(http::verb method, const std::string& path, Handler handler)
+  auto route(http::verb method, std::string_view path, Handler handler)
       -> basic_scope&
   {
     return route(route_type(method, path, std::move(handler)));
   }
 
-  auto GET(const std::string& path, Handler handler) -> basic_scope&
+  auto GET(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::get, path, std::move(handler));
   }
 
-  auto POST(const std::string& path, Handler handler) -> basic_scope&
+  auto POST(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::post, path, std::move(handler));
   }
 
-  auto PUT(const std::string& path, Handler handler) -> basic_scope&
+  auto PUT(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::put, path, std::move(handler));
   }
 
-  auto PATCH(const std::string& path, Handler handler) -> basic_scope&
+  auto PATCH(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::patch, path, std::move(handler));
   }
 
-  auto DELETE_(const std::string& path, Handler handler) -> basic_scope&
+  auto DELETE_(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::delete_, path, std::move(handler));
   }
 
-  auto HEAD(const std::string& path, Handler handler) -> basic_scope&
+  auto HEAD(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::head, path, std::move(handler));
   }
 
-  auto OPTIONS(const std::string& path, Handler handler) -> basic_scope&
+  auto OPTIONS(std::string_view path, Handler handler) -> basic_scope&
   {
     return route(http::verb::options, path, std::move(handler));
   }

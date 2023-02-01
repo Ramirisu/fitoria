@@ -20,19 +20,19 @@ FITORIA_NAMESPACE_BEGIN
 template <typename Middleware, typename Handler>
 class basic_route {
 public:
-  basic_route(http::verb method, std::string path, Handler handler)
+  basic_route(http::verb method, std::string_view path, Handler handler)
       : method_(method)
-      , path_(std::move(path))
+      , path_(path)
       , handler_(std::move(handler))
   {
   }
 
   basic_route(http::verb method,
-              std::string path,
+              std::string_view path,
               std::vector<Middleware> middlewares,
               Handler handler)
       : method_(method)
-      , path_(std::move(path))
+      , path_(path)
       , middlewares_(std::move(middlewares))
       , handler_(std::move(handler))
   {
@@ -58,52 +58,51 @@ public:
     return handler_;
   }
 
-  auto rebind_parent(const std::string& parent_path,
+  auto rebind_parent(std::string_view parent_path,
                      const std::vector<Middleware>& parent_middlewares) const
       -> basic_route
   {
+    auto path = std::string(parent_path);
+    path += path_;
     auto middlewares = parent_middlewares;
     middlewares.insert(middlewares.end(), middlewares_.begin(),
                        middlewares_.end());
-    return basic_route(method_, parent_path + path_, std::move(middlewares),
-                       handler_);
+    return basic_route(method_, path, std::move(middlewares), handler_);
   }
 
-  static auto GET(std::string path, Handler handler) -> basic_route
+  static auto GET(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::get, std::move(path), std::move(handler));
+    return basic_route(http::verb::get, path, std::move(handler));
   }
 
-  static auto POST(std::string path, Handler handler) -> basic_route
+  static auto POST(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::post, std::move(path), std::move(handler));
+    return basic_route(http::verb::post, path, std::move(handler));
   }
 
-  static auto PUT(std::string path, Handler handler) -> basic_route
+  static auto PUT(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::put, std::move(path), std::move(handler));
+    return basic_route(http::verb::put, path, std::move(handler));
   }
 
-  static auto PATCH(std::string path, Handler handler) -> basic_route
+  static auto PATCH(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::patch, std::move(path), std::move(handler));
+    return basic_route(http::verb::patch, path, std::move(handler));
   }
 
-  static auto DELETE_(std::string path, Handler handler) -> basic_route
+  static auto DELETE_(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::delete_, std::move(path),
-                       std::move(handler));
+    return basic_route(http::verb::delete_, path, std::move(handler));
   }
 
-  static auto HEAD(std::string path, Handler handler) -> basic_route
+  static auto HEAD(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::head, std::move(path), std::move(handler));
+    return basic_route(http::verb::head, path, std::move(handler));
   }
 
-  static auto OPTIONS(std::string path, Handler handler) -> basic_route
+  static auto OPTIONS(std::string_view path, Handler handler) -> basic_route
   {
-    return basic_route(http::verb::options, std::move(path),
-                       std::move(handler));
+    return basic_route(http::verb::options, path, std::move(handler));
   }
 
 private:
