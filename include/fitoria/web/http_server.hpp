@@ -187,11 +187,11 @@ public:
     net::io_context ioc;
     auto response = net::co_spawn(
         ioc,
-        do_handler(
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            request.method(), std::string(url.encoded_target()),
-            request.fields(), std::move(request.body())),
+        do_handler(connection_info { net::ip::make_address("127.0.0.1"), 0,
+                                     net::ip::make_address("127.0.0.1"), 0,
+                                     net::ip::make_address("127.0.0.1"), 0 },
+                   request.method(), std::string(url.encoded_target()),
+                   request.fields(), std::move(request.body())),
         net::use_future);
     ioc.run();
     return response.get();
@@ -232,7 +232,7 @@ private:
       }
 
       net::co_spawn(acceptor.get_executor(),
-                    do_session(net::tcp_stream(std::move(socket))),
+                    do_session(net::tcp_stream(std::move(socket)), endpoint),
                     builder_.exception_handler_);
     }
   }
@@ -251,16 +251,18 @@ private:
         continue;
       }
 
-      net::co_spawn(acceptor.get_executor(),
-                    do_session(net::ssl_stream(std::move(socket), ssl_ctx)),
-                    builder_.exception_handler_);
+      net::co_spawn(
+          acceptor.get_executor(),
+          do_session(net::ssl_stream(std::move(socket), ssl_ctx), endpoint),
+          builder_.exception_handler_);
     }
   }
 #endif
 
-  net::awaitable<void> do_session(net::tcp_stream stream) const
+  net::awaitable<void> do_session(net::tcp_stream stream,
+                                  net::ip::tcp::endpoint listen_ep) const
   {
-    auto ec = co_await do_session_impl(stream);
+    auto ec = co_await do_session_impl(stream, std::move(listen_ep));
     if (ec) {
       builder_.handle_network_error(ec);
       co_return;
@@ -270,7 +272,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(net::ssl_stream stream) const
+  net::awaitable<void> do_session(net::ssl_stream stream,
+                                  net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
 
@@ -285,7 +288,7 @@ private:
       co_return;
     }
 
-    if (ec = co_await do_session_impl(stream); ec) {
+    if (ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
       builder_.handle_network_error(ec);
       co_return;
     }
@@ -300,7 +303,8 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<net::error_code> do_session_impl(Stream& stream) const
+  net::awaitable<net::error_code>
+  do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
     auto _ = std::ignore;
@@ -349,12 +353,20 @@ private:
         co_return ec;
       }
 
-      auto res = static_cast<http::detail::response<http::detail::string_body>>(
-          co_await do_handler(
-              net::get_lowest_layer(stream).socket().local_endpoint(),
-              net::get_lowest_layer(stream).socket().remote_endpoint(),
-              req.method(), req.target(), to_http_fields(req),
-              std::move(req.body())));
+      auto res = static_cast<
+          http::detail::
+              response<http::detail::string_body>>(co_await do_handler(
+          connection_info {
+              net::get_lowest_layer(stream).socket().local_endpoint().address(),
+              net::get_lowest_layer(stream).socket().local_endpoint().port(),
+              net::get_lowest_layer(stream)
+                  .socket()
+                  .remote_endpoint()
+                  .address(),
+              net::get_lowest_layer(stream).socket().remote_endpoint().port(),
+              listen_ep.address(), listen_ep.port() },
+          req.method(), req.target(), to_http_fields(req),
+          std::move(req.body())));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
@@ -374,13 +386,11 @@ private:
     co_return ec;
   }
 
-  net::awaitable<http_response>
-  do_handler(net::ip::tcp::endpoint local_endpoint,
-             net::ip::tcp::endpoint remote_endpoint,
-             http::verb method,
-             std::string target,
-             http_fields fields,
-             std::string body) const
+  net::awaitable<http_response> do_handler(connection_info connection_info,
+                                           http::verb method,
+                                           std::string target,
+                                           http_fields fields,
+                                           std::string body) const
   {
     auto req_url = urls::parse_origin_form(target);
     if (!req_url) {
@@ -399,7 +409,7 @@ private:
     }
 
     auto request
-        = http_request(local_endpoint, remote_endpoint,
+        = http_request(std::move(connection_info),
                        route_params(segments_view::parse_param_map(
                                         route->path(), req_url->path())
                                         .value(),

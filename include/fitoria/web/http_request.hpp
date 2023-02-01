@@ -13,6 +13,7 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
+#include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
@@ -24,16 +25,14 @@ class http_request {
 public:
   http_request() = default;
 
-  http_request(net::ip::tcp::endpoint local_endpoint,
-               net::ip::tcp::endpoint remote_endpoint,
+  http_request(connection_info conn_info,
                route_params route_params,
                std::string path,
                http::verb method,
                query_map query,
                http_fields fields,
                std::string body)
-      : local_endpoint_(local_endpoint)
-      , remote_endpoint_(remote_endpoint)
+      : conn_info_(std::move(conn_info))
       , route_params_(std::move(route_params))
       , path_(std::move(path))
       , method_(method)
@@ -43,14 +42,9 @@ public:
   {
   }
 
-  const net::ip::tcp::endpoint& local_endpoint() const noexcept
+  const connection_info& conn_info() const noexcept
   {
-    return local_endpoint_;
-  }
-
-  const net::ip::tcp::endpoint& remote_endpoint() const noexcept
-  {
-    return remote_endpoint_;
+    return conn_info_;
   }
 
   const class route_params& route_params() const noexcept
@@ -186,8 +180,7 @@ public:
   }
 
 private:
-  net::ip::tcp::endpoint local_endpoint_;
-  net::ip::tcp::endpoint remote_endpoint_;
+  connection_info conn_info_;
   class route_params route_params_;
   std::string path_;
   http::verb method_;

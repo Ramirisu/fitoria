@@ -32,7 +32,7 @@ public:
     auto res = co_await c.next();
 
     log::info("[{}] {} {} {} {} {}B {} {:%T}s", name(),
-              c.request().remote_endpoint().address().to_string(),
+              c.request().conn_info().remote_addr().to_string(),
               std::string(to_string(c.request().method())), c.request().path(),
               res.status_code(), res.body().size(),
               c.request().fields().get(http::field::user_agent).value_or(""),

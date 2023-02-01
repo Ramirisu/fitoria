@@ -66,6 +66,31 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 
 }
 
+TEST_CASE("connection_info")
+{
+  auto server = http_server::builder()
+                    .route(route(
+                        http::verb::get, "/get",
+                        [](http_request& req) -> net::awaitable<http_response> {
+                          CHECK_EQ(req.conn_info().local_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().local_port(), 0);
+                          CHECK_EQ(req.conn_info().remote_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().remote_port(), 0);
+                          CHECK_EQ(req.conn_info().listen_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().listen_port(), 0);
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+  {
+    auto res = server.serve_http_request(
+        "/get", http_request().set_method(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+}
+
 TEST_CASE("unittest")
 {
   auto server
