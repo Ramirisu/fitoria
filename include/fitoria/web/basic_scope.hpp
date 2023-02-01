@@ -32,13 +32,7 @@ public:
 
   auto route(const route_type& route) -> basic_scope&
   {
-    std::string path = path_;
-    path += route.path();
-    auto middlewares = middlewares_;
-    middlewares.insert(middlewares.end(), route.middlewares().begin(),
-                       route.middlewares().end());
-    routes_.push_back(route_type(route.method(), std::move(path),
-                                 std::move(middlewares), route.handler()));
+    routes_.push_back(route.rebind_parent(path_, middlewares_));
     return *this;
   }
 

@@ -27,15 +27,10 @@ public:
   {
   }
 
-  basic_route(http::verb method,
-              std::string_view path,
-              std::vector<Middleware> middlewares,
-              Handler handler)
-      : method_(method)
-      , path_(path)
-      , middlewares_(std::move(middlewares))
-      , handler_(std::move(handler))
+  auto use(Middleware middleware) -> basic_route&
   {
+    middlewares_.push_back(middleware);
+    return *this;
   }
 
   auto method() const noexcept -> http::verb
@@ -64,10 +59,15 @@ public:
   {
     auto path = std::string(parent_path);
     path += path_;
-    auto middlewares = parent_middlewares;
-    middlewares.insert(middlewares.end(), middlewares_.begin(),
-                       middlewares_.end());
-    return basic_route(method_, path, std::move(middlewares), handler_);
+
+    auto route = basic_route(method_, path, handler_);
+    for (auto& middlware : parent_middlewares) {
+      route.use(middlware);
+    }
+    for (auto& middlware : middlewares_) {
+      route.use(middlware);
+    }
+    return route;
   }
 
   static auto GET(std::string_view path, Handler handler) -> basic_route

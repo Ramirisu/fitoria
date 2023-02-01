@@ -109,26 +109,49 @@ TEST_CASE("middleware & handler")
                                    .route(http::verb::put, "/{branch}", h)));
 
   const auto exp = std::vector<scope_type::route_type> {
-    { http::verb::get, "/ramirisu/libraries", { l }, { h } },
-    { http::verb::put, "/ramirisu/libraries", { l }, { h } },
-    { http::verb::get, "/ramirisu/gul/tags", { l, ag }, { h } },
-    { http::verb::put, "/ramirisu/gul/tags", { l, ag }, { h } },
-    { http::verb::get, "/ramirisu/gul/tags/{tag}", { l, ag }, { h } },
-    { http::verb::put, "/ramirisu/gul/tags/{tag}", { l, ag }, { h } },
-    { http::verb::get, "/ramirisu/gul/branches/{branch}", { l, ag }, { h } },
-    { http::verb::put, "/ramirisu/gul/branches/{branch}", { l, ag }, { h } },
-    { http::verb::get, "/ramirisu/fitoria/tags", { l, af }, { h } },
-    { http::verb::put, "/ramirisu/fitoria/tags", { l, af }, { h } },
-    { http::verb::get, "/ramirisu/fitoria/tags/{tag}", { l, af }, { h } },
-    { http::verb::put, "/ramirisu/fitoria/tags/{tag}", { l, af }, { h } },
-    { http::verb::get,
-      "/ramirisu/fitoria/branches/{branch}",
-      { l, af },
-      { h } },
-    { http::verb::put,
-      "/ramirisu/fitoria/branches/{branch}",
-      { l, af },
-      { h } },
+    scope_type::route_type(http::verb::get, "/ramirisu/libraries", h).use(l),
+    scope_type::route_type(http::verb::put, "/ramirisu/libraries", h).use(l),
+    scope_type::route_type(http::verb::get, "/ramirisu/gul/tags", h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::put, "/ramirisu/gul/tags", h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::get, "/ramirisu/gul/tags/{tag}", h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::put, "/ramirisu/gul/tags/{tag}", h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::get, "/ramirisu/gul/branches/{branch}",
+                           h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::put, "/ramirisu/gul/branches/{branch}",
+                           h)
+        .use(l)
+        .use(ag),
+    scope_type::route_type(http::verb::get, "/ramirisu/fitoria/tags", h)
+        .use(l)
+        .use(af),
+    scope_type::route_type(http::verb::put, "/ramirisu/fitoria/tags", h)
+        .use(l)
+        .use(af),
+    scope_type::route_type(http::verb::get, "/ramirisu/fitoria/tags/{tag}", h)
+        .use(l)
+        .use(af),
+    scope_type::route_type(http::verb::put, "/ramirisu/fitoria/tags/{tag}", h)
+        .use(l)
+        .use(af),
+    scope_type::route_type(http::verb::get,
+                           "/ramirisu/fitoria/branches/{branch}", h)
+        .use(l)
+        .use(af),
+    scope_type::route_type(http::verb::put,
+                           "/ramirisu/fitoria/branches/{branch}", h)
+        .use(l)
+        .use(af)
+
   };
   CHECK(range_equal(rg.routes(), exp, [](auto& lhs, auto& rhs) {
     if (lhs.method() == rhs.method() && lhs.path() == rhs.path()
