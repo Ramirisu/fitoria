@@ -24,50 +24,68 @@ using namespace fitoria;
 //
 // clang-format on
 
+namespace api::v1::login {
 struct user_t {
   std::string name;
   std::string password;
-
-  friend bool operator==(const user_t&, const user_t&) = default;
 };
 
-user_t tag_invoke(const json::value_to_tag<user_t>&, const json::value& jv)
+json::result_for<user_t, json::value>::type
+tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 {
-  return user_t {
-    .name = std::string(jv.at("name").as_string()),
-    .password = std::string(jv.at("password").as_string()),
-  };
+  user_t user;
+
+  if (!jv.is_object()) {
+    return make_error_code(json::error::incomplete);
+  }
+
+  const auto& obj = jv.get_object();
+
+  auto* name = obj.if_contains("name");
+  auto* password = obj.if_contains("password");
+  if (name && password && name->is_string() && password->is_string()) {
+    return user_t { .name = std::string(name->get_string()),
+                    .password = std::string(password->get_string()) };
+  }
+
+  return make_error_code(json::error::incomplete);
+}
+
+struct output {
+  std::string msg;
+};
+
+void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
+{
+  jv = { { "msg", out.msg } };
+}
+
+auto api(const http_request& req) -> net::awaitable<http_response>
+{
+  if (auto ct = req.fields().get(http::field::content_type);
+      ct != http::fields::content_type::json()) {
+    co_return http_response(http::status::bad_request)
+        .set_json(output { .msg = "unexpected Content-Type" });
+  }
+  auto user = as_json<user_t>(req.body());
+  if (!user) {
+    co_return http_response(http::status::bad_request)
+        .set_json(output { .msg = user.error().message() });
+  }
+  if (user->name != "ramirisu" || user->password != "123456") {
+    co_return http_response(http::status::unauthorized)
+        .set_json(output { .msg = "user name or password is incorrect" });
+  }
+  co_return http_response(http::status::ok)
+      .set_json(output { .msg = "login succeeded" });
+}
 }
 
 int main()
 {
-  auto server
-      = http_server::builder()
-            .route(route(
-                http::verb::post, "/api/v1/login",
-                [](const http_request& req) -> net::awaitable<http_response> {
-                  if (auto ct = req.fields().get(http::field::content_type);
-                      ct != http::fields::content_type::json()) {
-                    co_return http_response(http::status::bad_request)
-                        .set_json({ { "msg",
-                                      fmt::format("expected Content-Type: "
-                                                  "application/json, got {}",
-                                                  ct) } });
-                  }
-                  auto user = as_json<user_t>(req.body());
-                  if (!user) {
-                    co_return http_response(http::status::bad_request)
-                        .set_json({ { "msg", user.error().message() } });
-                  }
-                  if (user->name != "ramirisu" || user->password != "123456") {
-                    co_return http_response(http::status::unauthorized)
-                        .set_json({ { "msg",
-                                      "user name or password is incorrect" } });
-                  }
-                  co_return http_response(http::status::ok)
-                      .set_json({ { "msg", "login succeeded" } });
-                }))
-            .build();
+  auto server = http_server::builder()
+                    .route(route::POST("/api/v1/login", api::v1::login::api))
+                    .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
