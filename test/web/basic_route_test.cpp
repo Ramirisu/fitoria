@@ -29,7 +29,7 @@ TEST_CASE("basic")
   CHECK_EQ(route.method(), http::verb::get);
   CHECK_EQ(route.path(), "/v1");
 
-  auto new_route = route.rebind_parent("/api", {});
+  auto new_route = route.rebind_parent("/api", {}, {});
   CHECK_EQ(new_route.method(), http::verb::get);
   CHECK_EQ(new_route.path(), "/api/v1");
 }

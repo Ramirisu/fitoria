@@ -24,6 +24,14 @@ public:
   {
   }
 
+  template <typename State>
+  auto state(State&& state) -> basic_scope&
+  {
+    state_map_[std::type_index(typeid(State))]
+        = std::any(std::forward<State>(state));
+    return *this;
+  }
+
   auto use(Middleware middleware) -> basic_scope&
   {
     middlewares_.push_back(std::move(middleware));
@@ -32,7 +40,7 @@ public:
 
   auto route(const route_type& route) -> basic_scope&
   {
-    routes_.push_back(route.rebind_parent(path_, middlewares_));
+    routes_.push_back(route.rebind_parent(path_, state_map_, middlewares_));
     return *this;
   }
 
@@ -80,7 +88,7 @@ public:
   auto sub_scope(basic_scope scope) -> basic_scope&
   {
     for (auto& routes : scope.routes_) {
-      routes_.push_back(routes.rebind_parent(path_, middlewares_));
+      routes_.push_back(routes.rebind_parent(path_, state_map_, middlewares_));
     }
 
     return *this;
@@ -93,6 +101,7 @@ public:
 
 private:
   std::string path_;
+  state_map state_map_;
   std::vector<Middleware> middlewares_;
   std::vector<route_type> routes_;
 };

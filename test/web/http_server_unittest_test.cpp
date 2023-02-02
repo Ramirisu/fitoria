@@ -228,4 +228,69 @@ TEST_CASE("unittest")
   }
 }
 
+TEST_CASE("state")
+{
+  struct shared_resource {
+    std::string_view value;
+  };
+
+  auto server
+      = http_server::builder()
+            .route(
+                scope("")
+                    .state(shared_resource { "global scope" })
+                    .sub_scope(
+                        scope("/api/v1")
+                            .route(route(
+                                http::verb::get, "/global_scope",
+                                [](http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                }))
+                            .state(shared_resource { "scope" })
+                            .route(route(
+                                http::verb::get, "/scope",
+                                [](http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                }))
+                            .route(
+                                route(http::verb::get, "/route",
+                                      [](http_request& req)
+                                          -> net::awaitable<http_response> {
+                                        co_return http_response(
+                                            http::status::ok)
+                                            .set_body(std::string(
+                                                req.state<
+                                                       const shared_resource&>()
+                                                    ->value));
+                                      })
+                                    .state(shared_resource { "route" }))))
+            .build();
+  {
+    auto res = server.serve_http_request(
+        "/api/v1/global_scope", http_request().set_method(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "global scope");
+  }
+  {
+    auto res = server.serve_http_request(
+        "/api/v1/scope", http_request().set_method(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "scope");
+  }
+  {
+    auto res = server.serve_http_request(
+        "/api/v1/route", http_request().set_method(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "route");
+  }
+}
+
 TEST_SUITE_END();

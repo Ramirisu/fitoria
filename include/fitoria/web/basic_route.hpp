@@ -11,8 +11,10 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/http.hpp>
+#include <fitoria/web/state_map.hpp>
 
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 FITORIA_NAMESPACE_BEGIN
@@ -25,6 +27,18 @@ public:
       , path_(path)
       , handler_(std::move(handler))
   {
+  }
+
+  template <typename State>
+  auto state(State&& state) -> basic_route&
+  {
+    if (state_maps_.empty()) {
+      state_maps_.push_back({});
+    }
+
+    state_maps_.front()[std::type_index(typeid(State))]
+        = std::any(std::forward<State>(state));
+    return *this;
   }
 
   auto use(Middleware middleware) -> basic_route&
@@ -43,6 +57,11 @@ public:
     return path_;
   }
 
+  auto state_maps() const noexcept -> const std::vector<state_map>&
+  {
+    return state_maps_;
+  }
+
   auto middlewares() const noexcept -> const std::vector<Middleware>&
   {
     return middlewares_;
@@ -54,6 +73,7 @@ public:
   }
 
   auto rebind_parent(std::string_view parent_path,
+                     const state_map& parent_state_map,
                      const std::vector<Middleware>& parent_middlewares) const
       -> basic_route
   {
@@ -61,12 +81,17 @@ public:
     path += path_;
 
     auto route = basic_route(method_, path, handler_);
+    route.state_maps_.insert(route.state_maps_.end(), state_maps_.begin(),
+                             state_maps_.end());
+    route.state_maps_.push_back(parent_state_map);
+
     for (auto& middlware : parent_middlewares) {
       route.use(middlware);
     }
     for (auto& middlware : middlewares_) {
       route.use(middlware);
     }
+
     return route;
   }
 
@@ -108,6 +133,7 @@ public:
 private:
   http::verb method_;
   std::string path_;
+  std::vector<state_map> state_maps_;
   std::vector<Middleware> middlewares_;
   Handler handler_;
 };

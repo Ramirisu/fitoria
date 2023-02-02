@@ -415,7 +415,7 @@ private:
                                         .value(),
                                     std::string(route->path())),
                        req_url->path(), method, to_query_map(req_url->params()),
-                       std::move(fields), std::move(body));
+                       std::move(fields), std::move(body), route->state_maps());
     auto context = http_context(
         http_context::invoker_type(route->middlewares(), route->handler()),
         request);

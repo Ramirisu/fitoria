@@ -18,6 +18,7 @@
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route_params.hpp>
+#include <fitoria/web/state_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -31,7 +32,8 @@ public:
                http::verb method,
                query_map query,
                http_fields fields,
-               std::string body)
+               std::string body,
+               const std::vector<state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , route_params_(std::move(route_params))
       , path_(std::move(path))
@@ -39,6 +41,7 @@ public:
       , query_(std::move(query))
       , fields_(std::move(fields))
       , body_(std::move(body))
+      , state_maps_(state_maps)
   {
   }
 
@@ -179,6 +182,24 @@ public:
     return *this;
   }
 
+  template <typename T>
+  optional<T> state() const
+  {
+    if (state_maps_) {
+      for (auto& state : *state_maps_) {
+        if (auto it = state.find(std::type_index(typeid(T)));
+            it != state.end()) {
+          try {
+            return std::any_cast<T>(it->second);
+          } catch (const std::bad_any_cast&) {
+          }
+        }
+      }
+    }
+
+    return nullopt;
+  }
+
 private:
   connection_info conn_info_;
   class route_params route_params_;
@@ -187,6 +208,7 @@ private:
   query_map query_;
   http_fields fields_;
   std::string body_;
+  optional<const std::vector<state_map>&> state_maps_;
 };
 
 FITORIA_NAMESPACE_END
