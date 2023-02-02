@@ -19,23 +19,26 @@ using namespace fitoria;
 // <
 // user: ramirisu
 
+namespace api::v1::users::get_user {
+auto api(const http_request& req) -> net::awaitable<http_response>
+{
+  auto user = req.query().get("user");
+  if (!user) {
+    co_return http_response(http::status::bad_request);
+  }
+
+  co_return http_response(http::status::ok)
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body(fmt::format("user: {}", user.value()));
+}
+}
+
 int main()
 {
   auto server
       = http_server::builder()
-            .route(route(
-                http::verb::get, "/api/v1/users",
-                [](const http_request& req) -> net::awaitable<http_response> {
-                  auto user = req.query().get("user");
-                  if (!user) {
-                    co_return http_response(http::status::bad_request);
-                  }
-
-                  co_return http_response(http::status::ok)
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body(fmt::format("user: {}", user.value()));
-                }))
+            .route(route::GET("/api/v1/users", api::v1::users::get_user::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)
