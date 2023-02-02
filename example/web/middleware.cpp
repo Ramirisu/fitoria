@@ -57,13 +57,12 @@ int main()
                     .route(
                         http::verb::get, "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
-                          FITORIA_ASSERT(req.method() == http::verb::get);
-
                           log::debug("user: {}",
                                      req.route_params().get("user"));
 
                           co_return http_response(http::status::ok)
-                              .set_body("abcde");
+                              .set_body(req.route_params().get("user").value_or(
+                                  "{{unknown}}"));
                         }))
             .build();
   server //
