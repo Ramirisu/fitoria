@@ -292,6 +292,46 @@ TEST_CASE("converting constructor")
   }
 }
 
+TEST_CASE("rebinding constructor")
+{
+  {
+    auto s = optional<int>(1);
+    auto d = optional<int&>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = optional<int>();
+    auto d = optional<int&>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    auto s = optional<int>(1);
+    auto d = optional<const int&>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = optional<int>();
+    auto d = optional<const int&>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    const auto s = optional<int>(1);
+    auto d = optional<const int&>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    const auto s = optional<int>();
+    auto d = optional<const int&>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+}
+
 TEST_CASE("perfect forwarding assignment operator")
 {
   {
@@ -548,6 +588,52 @@ TEST_CASE("converting assignment operator")
     d = std::move(s);
     CHECK(s);
     CHECK_EQ(d.value(), dc<int> { 0, 1, 2 });
+  }
+}
+
+TEST_CASE("rebinding assignment operator")
+{
+  {
+    auto s = optional<int>(1);
+    auto d = optional<int&>();
+    d = s;
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = optional<int>();
+    auto d = optional<int&>();
+    d = s;
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    auto s = optional<int>(1);
+    auto d = optional<const int&>();
+    d = s;
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = optional<int>();
+    auto d = optional<const int&>();
+    d = s;
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    const auto s = optional<int>(1);
+    auto d = optional<const int&>();
+    d = s;
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    const auto s = optional<int>();
+    auto d = optional<const int&>();
+    d = s;
+    CHECK(!s);
+    CHECK(!d);
   }
 }
 

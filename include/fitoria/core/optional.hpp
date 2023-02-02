@@ -765,9 +765,8 @@ public:
   constexpr optional(optional&&) noexcept = default;
 
   template <typename U>
-  constexpr explicit(!std::is_convertible_v<const U&, T>)
-      optional(const optional<U>& other) noexcept
-    requires(std::is_constructible_v<T, const U&>
+  constexpr explicit optional(optional<U>& other) noexcept
+    requires(std::is_constructible_v<raw_value_type, const U&>
              && !is_optional_like_construct_v<U>)
   {
     if (other) {
@@ -776,9 +775,8 @@ public:
   }
 
   template <typename U>
-  constexpr explicit(!std::is_convertible_v<U&&, T>)
-      optional(optional<U>&& other) noexcept
-    requires(std::is_constructible_v<T, U &&>
+  constexpr explicit optional(const optional<U>& other) noexcept
+    requires(std::is_constructible_v<raw_value_type, const U&>
              && !is_optional_like_construct_v<U>)
   {
     if (other) {
@@ -828,7 +826,7 @@ public:
   }
 
   template <typename U>
-  constexpr optional& operator=(const optional<U>& other) noexcept
+  constexpr optional& operator=(optional<U>& other) noexcept
     requires(!is_optional_like_assign_v<U>)
   {
     if (other) {
@@ -841,7 +839,7 @@ public:
   }
 
   template <typename U>
-  constexpr optional& operator=(optional<U>&& other) noexcept
+  constexpr optional& operator=(const optional<U>& other) noexcept
     requires(!is_optional_like_assign_v<U>)
   {
     if (other) {
