@@ -499,6 +499,46 @@ TEST_CASE("converting constructor")
   }
 }
 
+TEST_CASE("rebinding constructor")
+{
+  {
+    auto s = expected<int, int>(1);
+    auto d = expected<int&, int>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = expected<int, int>(unexpect, 1);
+    auto d = expected<int&, int>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    auto s = expected<int, int>(1);
+    auto d = expected<const int&, int>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    auto s = expected<int, int>(unexpect, 1);
+    auto d = expected<const int&, int>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+  {
+    const auto s = expected<int, int>(1);
+    auto d = expected<const int&, int>(s);
+    CHECK(s);
+    CHECK_EQ(d.value(), 1);
+  }
+  {
+    const auto s = expected<int, int>(unexpect, 1);
+    auto d = expected<const int&, int>(s);
+    CHECK(!s);
+    CHECK(!d);
+  }
+}
+
 TEST_CASE("in-place constructor")
 {
   {

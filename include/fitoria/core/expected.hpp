@@ -459,7 +459,7 @@ public:
 
   constexpr expected& operator=(const expected&)
     requires(std::is_trivially_copy_assignable_v<T>
-             && std::is_trivially_copy_constructible_v<E>)
+             && std::is_trivially_copy_assignable_v<E>)
   = default;
 
   constexpr expected& operator=(expected&& other) noexcept(
@@ -1229,7 +1229,7 @@ public:
   }
 
   constexpr expected& operator=(const expected&)
-    requires(std::is_trivially_copy_constructible_v<E>)
+    requires(std::is_trivially_copy_assignable_v<E>)
   = default;
 
   constexpr expected&
@@ -1722,10 +1722,8 @@ public:
   = default;
 
   template <typename U, typename G>
-  constexpr explicit(std::is_convertible_v<const U&, T>
-                     || std::is_convertible_v<const G&, E>)
-      expected(const expected<U, G>& other)
-    requires(std::is_constructible_v<T, const U&>
+  constexpr explicit expected(expected<U, G>& other)
+    requires(std::is_constructible_v<raw_value_type, const U&>
              && std::is_constructible_v<E, const G&>
              && !is_expected_like_construct_v<U, G>)
   {
@@ -1738,15 +1736,15 @@ public:
   }
 
   template <typename U, typename G>
-  constexpr explicit(std::is_convertible_v<U, T> || std::is_convertible_v<G, E>)
-      expected(expected<U, G>&& other)
-    requires(std::is_constructible_v<T, U> && std::is_constructible_v<E, G>
+  constexpr explicit expected(const expected<U, G>& other)
+    requires(std::is_constructible_v<raw_value_type, const U&>
+             && std::is_constructible_v<E, const G&>
              && !is_expected_like_construct_v<U, G>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
     } else {
-      std::construct_at(std::addressof(this->err_), std::move(other.error()));
+      std::construct_at(std::addressof(this->err_), other.error());
     }
     this->has_ = other.has_value();
   }
@@ -1825,12 +1823,12 @@ public:
       if (other) {
         this->valptr_ = other.valptr_;
       } else {
-        std::construct_at(this->err_, other.error());
+        std::construct_at(std::addressof(this->err_), other.error());
         this->has_ = false;
       }
     } else {
       if (other) {
-        std::destroy_at(this->err_);
+        std::destroy_at(std::addressof(this->err_));
         this->valptr_ = other.valptr_;
         this->has_ = true;
       } else {
@@ -1842,7 +1840,7 @@ public:
   }
 
   constexpr expected& operator=(const expected&)
-    requires(std::is_trivially_copy_constructible_v<E>)
+    requires(std::is_trivially_copy_assignable_v<E>)
   = default;
 
   constexpr expected&
