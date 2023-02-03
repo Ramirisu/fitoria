@@ -183,6 +183,9 @@ TEST_CASE("unhandled exception from handler")
              .set_field(http::field::connection, "close")
              .set_body("text")
              .send());
+
+  // wait for exception thrown
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   CHECK(got_exception);
 }
 
