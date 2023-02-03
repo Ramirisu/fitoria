@@ -219,8 +219,8 @@ TEST_CASE("middlewares invocation order")
                            }))
             .build();
 
-  auto res = server.serve_http_request(
-      "/api/get", http_request().set_method(http::verb::get));
+  auto res
+      = server.serve_http_request("/api/get", http_request(http::verb::get));
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(++state, 6);
 }

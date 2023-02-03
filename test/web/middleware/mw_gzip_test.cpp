@@ -120,8 +120,7 @@ TEST_CASE("gzip middleware")
             .build();
   auto res = server.serve_http_request(
       "/api/get",
-      http_request()
-          .set_method(http::verb::get)
+      http_request(http::verb::get)
           .set_field(http::field::content_encoding, "gzip")
           .set_field(http::field::accept_encoding, "gzip")
           .set_body(middleware::gzip::compress<std::string>(
@@ -167,8 +166,7 @@ TEST_CASE("gzip middleware: header vary")
   for (auto& test_case : test_cases) {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request()
-            .set_method(http::verb::get)
+        http_request(http::verb::get)
             .set_field(http::field::accept_encoding, "gzip")
             .set_body(test_case.input)
             .prepare_payload());

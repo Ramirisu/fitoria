@@ -114,8 +114,7 @@ TEST_CASE("deflate middleware")
             .build();
   auto res = server.serve_http_request(
       "/api/get",
-      http_request()
-          .set_method(http::verb::get)
+      http_request(http::verb::get)
           .set_field(http::field::content_encoding, "deflate")
           .set_field(http::field::accept_encoding, "deflate")
           .set_body(middleware::deflate::compress<std::string>(
@@ -161,8 +160,7 @@ TEST_CASE("deflate middleware: header vary")
   for (auto& test_case : test_cases) {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request()
-            .set_method(http::verb::get)
+        http_request(http::verb::get)
             .set_field(http::field::accept_encoding, "deflate")
             .set_body(test_case.input)
             .prepare_payload());

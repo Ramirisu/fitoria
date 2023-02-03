@@ -86,8 +86,7 @@ TEST_CASE("connection_info")
                         }))
                     .build();
   {
-    auto res = server.serve_http_request(
-        "/get", http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/get", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
   }
 }
@@ -155,8 +154,7 @@ TEST_CASE("unittest")
   {
     auto res = server.serve_http_request(
         "/api/v1/users/Rina Hidaka",
-        http_request()
-            .set_method(http::verb::get)
+        http_request(http::verb::get)
             .set_query("gender", "female")
             .set_query("birth", "1994/06/15")
             .set_json({ { "message", "happy birthday" } }));
@@ -172,14 +170,13 @@ TEST_CASE("unittest")
              });
   }
   {
-    auto res = server.serve_http_request(
-        "/api/v1/users", http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/users",
+                                         http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::not_found);
   }
   {
-    auto res
-        = server.serve_http_request("/api/v1/users/Rina Hidaka",
-                                    http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
+                                         http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -187,10 +184,9 @@ TEST_CASE("unittest")
              json::value { { "error", "gender is not provided" } });
   }
   {
-    auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
-                                         http_request()
-                                             .set_method(http::verb::get)
-                                             .set_query("gender", "female"));
+    auto res = server.serve_http_request(
+        "/api/v1/users/Rina Hidaka",
+        http_request(http::verb::get).set_query("gender", "female"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -199,8 +195,7 @@ TEST_CASE("unittest")
   }
   {
     auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
-                                         http_request()
-                                             .set_method(http::verb::get)
+                                         http_request(http::verb::get)
                                              .set_query("gender", "female")
                                              .set_query("birth", "1994/06/15"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
@@ -215,8 +210,7 @@ TEST_CASE("unittest")
   {
     auto res = server.serve_http_request(
         "/api/v1/users/Rina Hidaka",
-        http_request()
-            .set_method(http::verb::get)
+        http_request(http::verb::get)
             .set_query("gender", "female")
             .set_query("birth", "1994/06/15")
             .set_field(http::field::content_type,
@@ -275,20 +269,20 @@ TEST_CASE("state")
                                     .state(shared_resource { "route" }))))
             .build();
   {
-    auto res = server.serve_http_request(
-        "/api/v1/global_scope", http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/global_scope",
+                                         http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.body(), "global scope");
   }
   {
-    auto res = server.serve_http_request(
-        "/api/v1/scope", http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/scope",
+                                         http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.body(), "scope");
   }
   {
-    auto res = server.serve_http_request(
-        "/api/v1/route", http_request().set_method(http::verb::get));
+    auto res = server.serve_http_request("/api/v1/route",
+                                         http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.body(), "route");
   }

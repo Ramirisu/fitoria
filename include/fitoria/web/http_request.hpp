@@ -26,7 +26,10 @@ namespace web {
 
 class http_request {
 public:
-  http_request() = default;
+  http_request(http::verb method)
+      : method_(method)
+  {
+  }
 
   http_request(connection_info conn_info,
                route_params route_params,
