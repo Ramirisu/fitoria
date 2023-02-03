@@ -13,7 +13,7 @@
 #include <fitoria/web/basic_handler.hpp>
 #include <fitoria/web/basic_middleware.hpp>
 
-using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.basic_chain_invoker");
 

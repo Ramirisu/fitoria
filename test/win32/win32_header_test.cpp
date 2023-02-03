@@ -16,7 +16,7 @@
 #include <thread>
 
 using namespace fitoria;
-
+using namespace fitoria::web;
 using namespace fitoria::http_server_utils;
 
 int main()

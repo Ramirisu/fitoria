@@ -18,6 +18,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 inline expected<query_map, error_code> as_form(std::string_view text)
 {
   auto res = urls::parse_query(text);
@@ -36,6 +38,8 @@ inline expected<query_map, error_code> as_form(std::string_view text)
   }
 
   return map;
+}
+
 }
 
 FITORIA_NAMESPACE_END

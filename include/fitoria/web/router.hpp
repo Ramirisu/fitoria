@@ -15,7 +15,11 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using router = basic_router<route>;
+
+}
 
 FITORIA_NAMESPACE_END
 

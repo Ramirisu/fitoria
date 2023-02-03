@@ -16,7 +16,11 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using scope = basic_scope<middleware_t, handler_t>;
+
+}
 
 FITORIA_NAMESPACE_END
 

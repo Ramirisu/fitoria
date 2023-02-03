@@ -22,6 +22,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_server {
   using router_type = router;
 
@@ -452,6 +454,8 @@ private:
   builder builder_;
   std::vector<net::awaitable<void>> tasks_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

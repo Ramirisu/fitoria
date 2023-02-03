@@ -12,6 +12,7 @@
 #include <fitoria/web/basic_router.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.basic_router");
 
@@ -20,6 +21,7 @@ namespace {
 using middleware_type = basic_middleware<int, int>;
 using handler_type = basic_handler<int, int>;
 using router_type = basic_router<basic_route<middleware_type, handler_type>>;
+
 }
 
 TEST_CASE("try_insert")

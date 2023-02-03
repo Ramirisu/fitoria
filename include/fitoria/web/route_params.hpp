@@ -14,6 +14,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class route_params : public query_map {
 public:
   route_params() = default;
@@ -32,6 +34,8 @@ public:
 private:
   std::string path_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

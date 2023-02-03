@@ -5,9 +5,10 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria/fitoria.hpp>
+#include <fitoria/web.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 // clang-format off
 //

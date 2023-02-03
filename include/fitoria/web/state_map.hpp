@@ -16,7 +16,11 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using state_map = std::unordered_map<std::type_index, std::any>;
+
+}
 
 FITORIA_NAMESPACE_END
 

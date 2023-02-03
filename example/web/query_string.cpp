@@ -8,6 +8,7 @@
 #include <fitoria/fitoria.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 // $ ./query_string
 // $ curl -X GET http://127.0.0.1:8080/api/v1/users?user=ramirisu --verbose

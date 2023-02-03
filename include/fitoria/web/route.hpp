@@ -18,7 +18,11 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using route = basic_route<middleware_t, handler_t>;
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -16,6 +16,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 enum class error {
   route_parse_error,
   route_already_exists,
@@ -54,12 +56,14 @@ inline error_code make_error_code(error e)
   return error_code(static_cast<int>(e), c);
 }
 
+}
+
 FITORIA_NAMESPACE_END
 
 namespace std {
 
 template <>
-struct is_error_code_enum<fitoria::error> : std::true_type { };
+struct is_error_code_enum<FITORIA_NAMESPACE::web::error> : std::true_type { };
 
 }
 

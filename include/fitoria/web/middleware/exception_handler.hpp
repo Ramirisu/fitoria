@@ -17,7 +17,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace middleware {
+namespace web::middleware {
 
 #if !FITORIA_NO_EXCEPTIONS
 

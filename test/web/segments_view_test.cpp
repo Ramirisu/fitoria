@@ -10,6 +10,7 @@
 #include <fitoria/web/segments_view.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.segments_view");
 

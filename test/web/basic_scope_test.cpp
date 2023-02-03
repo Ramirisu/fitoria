@@ -11,7 +11,7 @@
 #include <fitoria/web/basic_middleware.hpp>
 #include <fitoria/web/basic_scope.hpp>
 
-using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.basic_scope");
 

@@ -18,7 +18,11 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using handler_t = basic_handler<http_request&, net::awaitable<http_response>>;
+
+}
 
 FITORIA_NAMESPACE_END
 

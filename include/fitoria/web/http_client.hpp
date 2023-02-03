@@ -24,6 +24,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_client {
   struct resource {
     std::string host;
@@ -420,6 +422,8 @@ private:
   std::string body_;
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

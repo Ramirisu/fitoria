@@ -11,7 +11,7 @@
 #include <fitoria/web/basic_middleware.hpp>
 #include <fitoria/web/basic_route.hpp>
 
-using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.basic_route");
 
@@ -20,6 +20,7 @@ namespace {
 using middleware_type = basic_middleware<int, int>;
 using handler_type = basic_handler<int, int>;
 using route_type = basic_route<middleware_type, handler_type>;
+
 }
 
 TEST_CASE("basic")

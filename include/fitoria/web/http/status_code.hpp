@@ -16,7 +16,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace http {
+namespace web::http {
 
 class status_code {
 public:
@@ -65,15 +65,16 @@ FITORIA_NAMESPACE_END
 #include <fitoria/core/format.hpp>
 
 template <>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::status_code>
+struct FITORIA_NAMESPACE::fmt::formatter<
+    FITORIA_NAMESPACE::web::http::status_code>
     : FITORIA_NAMESPACE::fmt::formatter<
-          std::underlying_type_t<FITORIA_NAMESPACE::http::status>> {
+          std::underlying_type_t<FITORIA_NAMESPACE::web::http::status>> {
   template <typename FormatContext>
-  auto format(FITORIA_NAMESPACE::http::status_code status_code,
+  auto format(FITORIA_NAMESPACE::web::http::status_code status_code,
               FormatContext& ctx) const
   {
     return FITORIA_NAMESPACE::fmt::formatter<
-        std::underlying_type_t<FITORIA_NAMESPACE::http::status>>::
+        std::underlying_type_t<FITORIA_NAMESPACE::web::http::status>>::
         format(FITORIA_NAMESPACE::to_underlying(status_code.value()), ctx);
   }
 };

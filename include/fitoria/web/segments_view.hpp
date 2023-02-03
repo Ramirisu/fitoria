@@ -23,6 +23,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 struct segment_view {
   bool is_param;
   std::string_view original;
@@ -118,6 +120,8 @@ public:
     return map;
   }
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

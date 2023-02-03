@@ -27,6 +27,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 template <typename Route>
 class basic_router {
 public:
@@ -130,6 +132,8 @@ private:
 
   std::unordered_map<http::verb, node> subtrees_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

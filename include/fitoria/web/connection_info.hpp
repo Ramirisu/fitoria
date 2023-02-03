@@ -14,6 +14,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class connection_info {
 public:
   connection_info() = default;
@@ -71,6 +73,8 @@ private:
   net::ip::address listen_addr_;
   std::uint16_t listen_port_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

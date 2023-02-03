@@ -11,7 +11,7 @@
 
 #include <fitoria/web/http/status_code.hpp>
 
-using namespace fitoria::http;
+using namespace fitoria::web::http;
 using namespace fitoria;
 
 TEST_SUITE_BEGIN("web.status_code");

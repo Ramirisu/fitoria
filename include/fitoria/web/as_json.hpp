@@ -17,6 +17,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 template <typename T = json::value>
 expected<T, error_code> as_json(std::string_view text)
 {
@@ -35,6 +37,8 @@ expected<T, error_code> as_json(std::string_view text)
       return unexpected { res.error() };
     }
   }
+}
+
 }
 
 FITORIA_NAMESPACE_END

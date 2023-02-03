@@ -18,7 +18,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace middleware {
+namespace web::middleware {
 
 class deflate {
 public:

@@ -18,8 +18,12 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 using middleware_t
     = basic_middleware<http_context&, net::awaitable<http_response>>;
+
+}
 
 FITORIA_NAMESPACE_END
 

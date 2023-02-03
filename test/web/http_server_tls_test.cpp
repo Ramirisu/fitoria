@@ -14,6 +14,7 @@
 #include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 using namespace http_server_utils;
 

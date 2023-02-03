@@ -10,6 +10,7 @@
 #include <fitoria_certificate.h>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 // clang-format off
 // 

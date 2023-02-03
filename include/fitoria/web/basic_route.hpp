@@ -19,6 +19,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 template <typename Middleware, typename Handler>
 class basic_route {
 public:
@@ -137,6 +139,8 @@ private:
   std::vector<Middleware> middlewares_;
   Handler handler_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -18,7 +18,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace http {
+namespace web::http {
 
 using boost::beast::http::field;
 using boost::beast::http::status;

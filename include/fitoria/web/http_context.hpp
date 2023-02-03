@@ -20,6 +20,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_context {
 public:
   using invoker_type = basic_chain_invoker<middleware_t, handler_t>;
@@ -59,6 +61,8 @@ private:
   invoker_type invoker_;
   http_request& request_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -19,7 +19,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace middleware {
+namespace web::middleware {
 
 class gzip {
 public:

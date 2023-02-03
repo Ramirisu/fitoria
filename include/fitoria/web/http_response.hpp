@@ -19,6 +19,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_response {
   using native_response_t = http::detail::response<http::detail::string_body>;
 
@@ -130,6 +132,8 @@ private:
   http_fields fields_;
   std::string body_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -12,9 +12,13 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_request;
 class http_response;
 class http_context;
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -8,6 +8,7 @@
 #include <fitoria/fitoria.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 // clang-format off
 // 

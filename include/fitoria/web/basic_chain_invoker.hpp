@@ -17,6 +17,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 template <typename Middleware, typename Handler>
 class basic_chain_invoker {
 
@@ -68,6 +70,8 @@ private:
   typename std::vector<Middleware>::const_iterator curr_;
   const Handler& handler_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

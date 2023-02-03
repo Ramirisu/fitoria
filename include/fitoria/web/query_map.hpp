@@ -15,6 +15,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class query_map {
   using map_type = unordered_string_map<std::string>;
 
@@ -173,6 +175,8 @@ public:
 private:
   map_type map_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

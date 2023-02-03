@@ -14,7 +14,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace http::detail {
+namespace web::http::detail {
 
 using boost::beast::http::async_read;
 using boost::beast::http::async_read_header;

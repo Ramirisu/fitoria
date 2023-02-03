@@ -10,6 +10,7 @@
 #include <fitoria/web/query_map.hpp>
 
 using namespace fitoria;
+using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.query_map");
 

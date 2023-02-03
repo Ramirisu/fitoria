@@ -17,6 +17,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_fields {
 public:
   using map_type = unordered_string_map<std::string>;
@@ -215,6 +217,8 @@ private:
 private:
   map_type map_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

@@ -22,6 +22,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 class http_request {
 public:
   http_request() = default;
@@ -210,6 +212,8 @@ private:
   std::string body_;
   optional<const std::vector<state_map>&> state_maps_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

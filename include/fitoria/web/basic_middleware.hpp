@@ -17,6 +17,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+namespace web {
+
 template <typename Request, typename Response>
 class basic_middleware {
 public:
@@ -46,6 +48,8 @@ public:
 private:
   std::function<Response(Request)> handler_;
 };
+
+}
 
 FITORIA_NAMESPACE_END
 

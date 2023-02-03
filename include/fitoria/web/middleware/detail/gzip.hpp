@@ -22,7 +22,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace middleware::detail {
+namespace web::middleware::detail {
 
 net::zlib::error to_net_zlib_error(int zlib_error)
 {
