@@ -308,6 +308,14 @@ private:
     net::error_code ec;
     auto stream = net::ssl_stream(co_await net::this_coro::executor, ssl_ctx);
 
+    // Set SNI Hostname (many hosts need this to handshake successfully)
+    if (!SSL_set_tlsext_host_name(stream.native_handle(),
+                                  resource_->host.c_str())) {
+      co_return unexpected { net::error_code(
+          static_cast<int>(::ERR_get_error()),
+          net::error::get_ssl_category()) };
+    }
+
     net::get_lowest_layer(stream).expires_after(request_timeout_);
     tie(ec, _) = co_await net::get_lowest_layer(stream).async_connect(*results);
     if (ec) {
