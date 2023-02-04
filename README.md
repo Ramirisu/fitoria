@@ -3,6 +3,7 @@
 [![build](https://github.com/Ramirisu/fitoria/actions/workflows/build_matrix.yml/badge.svg)](https://github.com/Ramirisu/fitoria/actions/workflows/build_matrix.yml)
 [![codecov](https://codecov.io/gh/Ramirisu/fitoria/branch/main/graph/badge.svg?token=YDZ6KGEV0A)](https://codecov.io/gh/Ramirisu/fitoria)
 ![std](https://img.shields.io/badge/std-20-blue.svg)
+![platform](https://img.shields.io/badge/platform-windows%2Flinux%2Fmacos-blue)
 ![license](https://img.shields.io/badge/license-BSL--1.0-blue)
 
 **fitoria** is an HTTP web framework built on top of C++20 coroutine.
@@ -534,8 +535,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request()
-            .set_method(http::verb::post)
+        http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body("name=ramirisu&password=123456"));
@@ -544,8 +544,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request()
-            .set_method(http::verb::post)
+        http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=unknown&password=123"));
@@ -554,8 +553,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request()
-            .set_method(http::verb::post)
+        http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123"));
@@ -564,8 +562,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request()
-            .set_method(http::verb::post)
+        http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123456"));
