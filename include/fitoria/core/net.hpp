@@ -40,19 +40,18 @@ using boost::beast::system_error;
 
 using boost::beast::flat_buffer;
 
-using boost::beast::async_write;
 using boost::beast::get_lowest_layer;
 
-using acceptor = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
-    net::ip::tcp::acceptor>;
+using acceptor
+    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<ip::tcp::acceptor>;
 
-using tcp_stream = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
-    boost::beast::tcp_stream>;
+using resolver
+    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<ip::tcp::resolver>;
 
-using resolver = net::as_tuple_t<net::use_awaitable_t<>>::as_default_on_t<
-    net::ip::tcp::resolver>;
+using resolver_results = ip::basic_resolver_results<ip::tcp>;
 
-using resolver_results = net::ip::basic_resolver_results<net::ip::tcp>;
+using tcp_stream
+    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<boost::beast::tcp_stream>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
