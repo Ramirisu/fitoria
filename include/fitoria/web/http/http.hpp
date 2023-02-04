@@ -79,6 +79,14 @@ namespace fields {
     }
   }
 
+  namespace content_encoding {
+
+    inline std::string_view identity() noexcept
+    {
+      return "identity";
+    }
+  }
+
   namespace authorization {
 
     inline std::string bearer(std::string_view token)
