@@ -10,12 +10,21 @@
 #include <fitoria/web/http/http.hpp>
 
 using namespace fitoria;
-using namespace fitoria::web::http::fields;
 
 TEST_SUITE_BEGIN("web.http");
 
+TEST_CASE("version")
+{
+  using namespace fitoria::web;
+
+  CHECK_EQ(to_string(http::version::unknown), "UNKNOWN");
+  CHECK_EQ(to_string(http::version::v10), "1.0");
+  CHECK_EQ(to_string(http::version::v11), "1.1");
+}
+
 TEST_CASE("authorization")
 {
+  using namespace fitoria::web::http::fields;
   {
     CHECK_EQ(authorization::bearer("abc"), "Bearer: abc");
   }
