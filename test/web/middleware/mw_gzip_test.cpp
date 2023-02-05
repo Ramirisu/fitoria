@@ -103,35 +103,57 @@ TEST_CASE("gzip middleware")
 
   auto server
       = http_server::builder()
-            .route(scope("/api")
-                       .use(middleware::gzip())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                CHECK(!req.fields().get(
-                                    http::field::content_encoding));
-                                CHECK_EQ(*req.fields().get(
-                                             http::field::content_length),
-                                         std::to_string(in.size()));
-                                CHECK_EQ(req.body(), in);
-                                co_return http_response(http::status::ok)
-                                    .set_body(req.body());
-                              }))
+            .route(
+                route::GET(
+                    "/get/{no_compression}",
+                    [&](http_request& req) -> net::awaitable<http_response> {
+                      CHECK(!req.fields().get(http::field::content_encoding));
+                      CHECK_EQ(*req.fields().get(http::field::content_length),
+                               std::to_string(in.size()));
+                      CHECK_EQ(req.body(), in);
+
+                      auto res = http_response(http::status::ok)
+                                     .set_body(req.body());
+                      if (req.route_params().get("no_compression") == "yes") {
+                        res.set_field(
+                            http::field::content_encoding,
+                            http::fields::content_encoding::identity());
+                      }
+                      co_return res;
+                    })
+                    .use(middleware::gzip()))
             .build();
-  auto res = server.serve_http_request(
-      "/api/get",
-      http_request(http::verb::get)
-          .set_field(http::field::content_encoding, "gzip")
-          .set_field(http::field::accept_encoding, "gzip")
-          .set_body(middleware::gzip::compress<std::string>(
-                        net::const_buffer(in.data(), in.size()))
-                        .value())
-          .prepare_payload());
-  CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
-  CHECK_EQ(res.body(),
-           middleware::gzip::compress<std::string>(
-               net::const_buffer(in.data(), in.size())));
+  {
+    auto res = server.serve_http_request(
+        "/get/no",
+        http_request(http::verb::get)
+            .set_field(http::field::content_encoding, "gzip")
+            .set_field(http::field::accept_encoding, "gzip")
+            .set_body(middleware::gzip::compress<std::string>(
+                          net::const_buffer(in.data(), in.size()))
+                          .value())
+            .prepare_payload());
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
+    CHECK_EQ(res.body(),
+             middleware::gzip::compress<std::string>(
+                 net::const_buffer(in.data(), in.size())));
+  }
+  {
+    auto res = server.serve_http_request(
+        "/get/yes",
+        http_request(http::verb::get)
+            .set_field(http::field::content_encoding, "gzip")
+            .set_field(http::field::accept_encoding, "gzip")
+            .set_body(middleware::gzip::compress<std::string>(
+                          net::const_buffer(in.data(), in.size()))
+                          .value())
+            .prepare_payload());
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.fields().get(http::field::content_encoding),
+             http::fields::content_encoding::identity());
+    CHECK_EQ(res.body(), in);
+  }
 }
 
 TEST_CASE("gzip middleware: header vary")
