@@ -17,9 +17,10 @@
 
 #include <fitoria/log/log.hpp>
 
+#include <fitoria/client/http_response.hpp>
+
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -29,7 +30,6 @@ namespace client {
 namespace http = web::http;
 
 using web::http_fields;
-using web::http_response;
 using web::query_map;
 
 class http_client {

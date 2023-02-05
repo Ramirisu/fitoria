@@ -11,6 +11,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/client/http_client.hpp>
-#include <fitoria/log.hpp>
+#include <fitoria/client/http_response.hpp>
 
 #endif

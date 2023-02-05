@@ -10,12 +10,10 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
-#include <fitoria/web/query_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
