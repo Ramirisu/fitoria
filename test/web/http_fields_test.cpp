@@ -16,79 +16,86 @@ TEST_SUITE_BEGIN("web.http_fields");
 
 TEST_CASE("basic")
 {
-  http_fields fields;
-  const auto& cfields = fields;
-  fields.set(http::field::content_type,
-             http::fields::content_type::plaintext());
-  CHECK_EQ(fields.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(fields.get("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(fields.get("content-type"), http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.get("Content-Type"),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.get("content-type"),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(fields.at(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(fields.at("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(fields.at("content-type"), http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.at(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.at("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(cfields.at("content-type"), http::fields::content_type::plaintext());
-  CHECK_EQ(fields.operator[](http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(fields.operator[]("Content-Type"),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(fields.operator[]("content-type"),
-           http::fields::content_type::plaintext());
-  CHECK(fields.contains(http::field::content_type));
-  CHECK(fields.contains("Content-Type"));
-  CHECK(fields.contains("content-type"));
+  http_fields fs;
+  const auto& cfs = fs;
 
-  fields.set("accept-encoding", "gzip");
-  CHECK_EQ(fields.get(http::field::accept_encoding), "gzip");
-  CHECK_EQ(fields.get("Accept-Encoding"), "gzip");
-  CHECK_EQ(fields.get("accept-encoding"), "gzip");
-  CHECK_EQ(cfields.get(http::field::accept_encoding), "gzip");
-  CHECK_EQ(cfields.get("Accept-Encoding"), "gzip");
-  CHECK_EQ(cfields.get("accept-encoding"), "gzip");
-  CHECK_EQ(fields.at(http::field::accept_encoding), "gzip");
-  CHECK_EQ(fields.at("Accept-Encoding"), "gzip");
-  CHECK_EQ(fields.at("accept-encoding"), "gzip");
-  CHECK_EQ(cfields.at(http::field::accept_encoding), "gzip");
-  CHECK_EQ(cfields.at("Accept-Encoding"), "gzip");
-  CHECK_EQ(cfields.at("accept-encoding"), "gzip");
-  CHECK_EQ(fields.operator[](http::field::accept_encoding), "gzip");
-  CHECK_EQ(fields.operator[]("Accept-Encoding"), "gzip");
-  CHECK_EQ(fields.operator[]("accept-encoding"), "gzip");
-  CHECK(fields.contains(http::field::accept_encoding));
-  CHECK(fields.contains("Accept-Encoding"));
-  CHECK(fields.contains("accept-encoding"));
-
-  CHECK_EQ(fields.get(http::field::connection), nullopt);
-  CHECK_EQ(fields.get("Connection"), nullopt);
-  CHECK_EQ(fields.get("connection"), nullopt);
-  CHECK_EQ(cfields.get(http::field::connection), nullopt);
-  CHECK_EQ(cfields.get("Connection"), nullopt);
-  CHECK_EQ(cfields.get("connection"), nullopt);
-  CHECK_THROWS_AS(fields.at(http::field::connection), std::out_of_range);
-  CHECK_THROWS_AS(fields.at("Connection"), std::out_of_range);
-  CHECK_THROWS_AS(fields.at("connection"), std::out_of_range);
-  CHECK_THROWS_AS(cfields.at(http::field::connection), std::out_of_range);
-  CHECK_THROWS_AS(cfields.at("Connection"), std::out_of_range);
-  CHECK_THROWS_AS(cfields.at("connection"), std::out_of_range);
-  CHECK(!fields.contains(http::field::connection));
-  CHECK(!fields.contains("Connection"));
-  CHECK(!fields.contains("connection"));
-
-  CHECK_EQ(fields.erase(http::field::content_type),
+  fs.set(http::field::content_type, http::fields::content_type::plaintext());
+  CHECK_EQ(fs.get(http::field::content_type),
            http::fields::content_type::plaintext());
-  CHECK(!fields.contains(http::field::content_type));
-  CHECK_EQ(fields.erase("accept-encoding"), "gzip");
-  CHECK(!fields.contains(http::field::accept_encoding));
+  CHECK_EQ(fs.get("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(fs.get("content-type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get("content-type"), http::fields::content_type::plaintext());
+  CHECK(fs.contains(http::field::content_type));
+  CHECK(fs.contains("Content-Type"));
+  CHECK(fs.contains("content-type"));
+
+  fs.set("accept-encoding", "gzip");
+  CHECK_EQ(fs.get(http::field::accept_encoding), "gzip");
+  CHECK_EQ(fs.get("Accept-Encoding"), "gzip");
+  CHECK_EQ(fs.get("accept-encoding"), "gzip");
+  CHECK_EQ(cfs.get(http::field::accept_encoding), "gzip");
+  CHECK_EQ(cfs.get("Accept-Encoding"), "gzip");
+  CHECK_EQ(cfs.get("accept-encoding"), "gzip");
+  CHECK(fs.contains(http::field::accept_encoding));
+  CHECK(fs.contains("Accept-Encoding"));
+  CHECK(fs.contains("accept-encoding"));
+
+  CHECK_EQ(fs.get(http::field::connection), nullopt);
+  CHECK_EQ(fs.get("Connection"), nullopt);
+  CHECK_EQ(fs.get("connection"), nullopt);
+  CHECK_EQ(cfs.get(http::field::connection), nullopt);
+  CHECK_EQ(cfs.get("Connection"), nullopt);
+  CHECK_EQ(cfs.get("connection"), nullopt);
+  CHECK(!fs.contains(http::field::connection));
+  CHECK(!fs.contains("Connection"));
+  CHECK(!fs.contains("connection"));
+
+  CHECK_EQ(fs.erase(http::field::content_type), 1);
+  CHECK(!fs.contains(http::field::content_type));
+  CHECK_EQ(fs.erase("accept-encoding"), 1);
+  CHECK(!fs.contains(http::field::accept_encoding));
+}
+
+TEST_CASE("insert")
+{
+  http_fields fs;
+  const auto& cfs = fs;
+
+  fs.insert(http::field::content_type, http::fields::content_type::plaintext());
+  CHECK_EQ(fs.get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(fs.get("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(fs.get("content-type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get("Content-Type"), http::fields::content_type::plaintext());
+  CHECK_EQ(cfs.get("content-type"), http::fields::content_type::plaintext());
+  CHECK(fs.contains(http::field::content_type));
+  CHECK(fs.contains("Content-Type"));
+  CHECK(fs.contains("content-type"));
+
+  fs.insert(http::field::content_type, http::fields::content_type::json());
+  CHECK_EQ(fs.size(), 2);
+  {
+    const auto exp
+        = std::set<std::string_view> { http::fields::content_type::plaintext(),
+                                       http::fields::content_type::json() };
+    auto iters = fs.equal_range(http::field::content_type);
+    int match_count = 0;
+    for (auto iter = iters.first; iter != iters.second; ++iter) {
+      if (exp.contains(iter->second)) {
+        ++match_count;
+      }
+    }
+    CHECK_EQ(match_count, 2);
+  }
+
+  fs.set(http::field::content_type,
+         http::fields::content_type::form_urlencoded());
+  CHECK_EQ(fs.size(), 1);
 }
 
 TEST_SUITE_END();

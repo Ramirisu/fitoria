@@ -263,16 +263,26 @@ TEST_CASE("generic request")
                   test_query(req.query());
                   test_query(static_cast<const http_request&>(req).query());
 
-                  CHECK_EQ(req.fields().at(http::field::content_type),
+                  CHECK_EQ(req.fields().get(http::field::content_type),
                            http::fields::content_type::plaintext());
-                  CHECK_EQ(static_cast<const http_request&>(req).fields().at(
+                  CHECK_EQ(static_cast<const http_request&>(req).fields().get(
                                http::field::content_type),
                            http::fields::content_type::plaintext());
+
+                  CHECK(range_in_set(
+                      req.fields().equal_range(http::field::user_agent),
+                      [](auto&& p) { return p->second; },
+                      std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
+                                                   "fitoria" }));
+
                   CHECK_EQ(req.body(), "happy birthday");
                   CHECK_EQ(static_cast<const http_request&>(req).body(),
                            "happy birthday");
 
-                  co_return http_response(http::status::ok);
+                  co_return http_response(http::status::ok)
+                      .insert_field(http::field::user_agent,
+                                    BOOST_BEAST_VERSION_STRING)
+                      .insert_field(http::field::user_agent, "fitoria");
                 }))
             .build();
   server.bind(server_ip, port);
@@ -294,10 +304,16 @@ TEST_CASE("generic request")
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_field(http::field::connection, "close")
+            .insert_field(http::field::user_agent, BOOST_BEAST_VERSION_STRING)
+            .insert_field(http::field::user_agent, "fitoria")
             .set_body("happy birthday")
             .send()
             .value();
   CHECK_EQ(res.status_code(), http::status::ok);
+  CHECK(range_in_set(
+      res.fields().equal_range(http::field::user_agent),
+      [](auto&& p) { return p->second; },
+      std::set<std::string_view> { BOOST_BEAST_VERSION_STRING, "fitoria" }));
 }
 
 TEST_CASE("response status only")

@@ -441,7 +441,7 @@ private:
   {
     http_fields fields;
     for (auto& kv : req.base()) {
-      fields.set(kv.name(), kv.value());
+      fields.insert(kv.name(), kv.value());
     }
     return fields;
   }

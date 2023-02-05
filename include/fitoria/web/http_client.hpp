@@ -129,7 +129,19 @@ public:
 
   http_client& set_field(std::string name, std::string_view value)
   {
-    fields_.set(name, value);
+    fields_.set(std::move(name), value);
+    return *this;
+  }
+
+  http_client& insert_field(http::field name, std::string_view value)
+  {
+    fields_.insert(name, value);
+    return *this;
+  }
+
+  http_client& insert_field(std::string name, std::string_view value)
+  {
+    fields_.insert(std::move(name), value);
     return *this;
   }
 
@@ -362,7 +374,7 @@ private:
     };
     for (auto& [name, value] : fields_) {
       if (name != to_string(http::field::expect) || use_expect_100_cont) {
-        req.set(name, value);
+        req.insert(name, value);
       }
     }
     req.set(http::field::host, resource_->host);

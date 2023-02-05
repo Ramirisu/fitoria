@@ -32,7 +32,7 @@ void configure_server(http_server::builder& builder)
                         CHECK_EQ(req.route_params().size(), 1);
                         CHECK_EQ(req.route_params().at("repo"), "fitoria");
                         CHECK_EQ(req.path(), "/api/repos/fitoria");
-                        CHECK_EQ(req.fields().at(http::field::content_type),
+                        CHECK_EQ(req.fields().get(http::field::content_type),
                                  http::fields::content_type::plaintext());
                         CHECK_EQ(req.body(), "hello world");
                         co_return http_response(http::status::ok);

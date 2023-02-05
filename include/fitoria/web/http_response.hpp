@@ -36,7 +36,7 @@ public:
       : status_code_(native.result())
   {
     for (auto& field : native) {
-      set_field(field.name(), field.value());
+      insert_field(field.name(), field.value());
     }
     set_body(std::move(native.body()));
   }
@@ -71,6 +71,18 @@ public:
   http_response& set_field(http::field name, std::string_view value)
   {
     fields_.set(name, value);
+    return *this;
+  }
+
+  http_response& insert_field(std::string name, std::string_view value)
+  {
+    fields_.insert(std::move(name), value);
+    return *this;
+  }
+
+  http_response& insert_field(http::field name, std::string_view value)
+  {
+    fields_.insert(name, value);
     return *this;
   }
 

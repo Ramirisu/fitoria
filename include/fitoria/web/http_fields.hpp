@@ -21,7 +21,7 @@ namespace web {
 
 class http_fields {
 public:
-  using map_type = unordered_string_map<std::string>;
+  using map_type = unordered_string_multimap<std::string>;
 
 public:
   using key_type = typename map_type::key_type;
@@ -69,12 +69,24 @@ public:
   void set(std::string name, std::string_view value)
   {
     canonicalize_field_name(name);
-    map_.insert_or_assign(std::move(name), std::string(value));
+    erase(name);
+    map_.insert({ std::move(name), std::string(value) });
   }
 
   void set(http::field name, std::string_view value)
   {
     set(std::string(to_string(name)), value);
+  }
+
+  void insert(std::string name, std::string_view value)
+  {
+    canonicalize_field_name(name);
+    map_.insert({ std::move(name), std::string(value) });
+  }
+
+  void insert(http::field name, std::string_view value)
+  {
+    insert(std::string(to_string(name)), std::string(value));
   }
 
   optional<mapped_type&> get(std::string name) noexcept
@@ -107,54 +119,26 @@ public:
     return get(to_string(name));
   }
 
-  optional<mapped_type> erase(std::string name)
+  std::pair<iterator, iterator> equal_range(std::string name)
   {
     canonicalize_field_name(name);
-    if (auto it = map_.find(name); it != map_.end()) {
-      auto value = std::move(it->second);
-      map_.erase(it);
-      return value;
-    }
-
-    return nullopt;
+    return map_.equal_range(std::move(name));
   }
 
-  optional<mapped_type> erase(http::field name)
+  std::pair<iterator, iterator> equal_range(http::field name)
+  {
+    return equal_range(to_string(name));
+  }
+
+  size_type erase(std::string name)
+  {
+    canonicalize_field_name(name);
+    return map_.erase(name);
+  }
+
+  size_type erase(http::field name)
   {
     return erase(to_string(name));
-  }
-
-  mapped_type& at(std::string name)
-  {
-    canonicalize_field_name(name);
-    return map_.at(std::move(name));
-  }
-
-  mapped_type& at(http::field name)
-  {
-    return map_.at(to_string(name));
-  }
-
-  const mapped_type& at(std::string name) const
-  {
-    canonicalize_field_name(name);
-    return map_.at(std::move(name));
-  }
-
-  const mapped_type& at(http::field name) const
-  {
-    return map_.at(to_string(name));
-  }
-
-  mapped_type& operator[](std::string name)
-  {
-    canonicalize_field_name(name);
-    return map_.operator[](std::move(name));
-  }
-
-  mapped_type& operator[](http::field name)
-  {
-    return map_.operator[](to_string(name));
   }
 
   bool contains(std::string name) const
