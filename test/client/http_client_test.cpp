@@ -9,12 +9,12 @@
 
 #include <fitoria_certificate.h>
 
-#include <fitoria/web/http_client.hpp>
+#include <fitoria/client.hpp>
 
 using namespace fitoria;
-using namespace fitoria::web;
+using namespace fitoria::client;
 
-TEST_SUITE_BEGIN("web.http_client");
+TEST_SUITE_BEGIN("client.http_client");
 
 TEST_CASE("basic")
 {

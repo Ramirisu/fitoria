@@ -10,8 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/client.hpp>
+#include <fitoria/client/http_client.hpp>
 #include <fitoria/log.hpp>
-#include <fitoria/web.hpp>
 
 #endif

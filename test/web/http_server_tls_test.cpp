@@ -10,13 +10,13 @@
 #include <fitoria_certificate.h>
 #include <fitoria_http_server_utils.h>
 
+#include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
-#include <fitoria/web/http_client.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
-
 using namespace http_server_utils;
+using fitoria::client::http_client;
 
 TEST_SUITE_BEGIN("web.http_server.tls");
 

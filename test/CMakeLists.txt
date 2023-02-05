@@ -16,6 +16,7 @@ function(fitoria_add_test)
 endfunction()
 
 add_subdirectory(core)
-add_subdirectory(web)
 add_subdirectory(log)
+add_subdirectory(web)
+add_subdirectory(client)
 add_subdirectory(win32)

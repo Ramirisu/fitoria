@@ -5,7 +5,6 @@ fitoria_add_test(NAME basic_chain_invoker_test SRCS
 fitoria_add_test(NAME basic_route_test SRCS basic_route_test.cpp)
 fitoria_add_test(NAME basic_router_test SRCS basic_router_test.cpp)
 fitoria_add_test(NAME basic_scope_test SRCS basic_scope_test.cpp)
-fitoria_add_test(NAME http_client_test SRCS http_client_test.cpp)
 fitoria_add_test(NAME http_fields_test SRCS http_fields_test.cpp)
 fitoria_add_test(NAME http_response_test SRCS http_response_test.cpp)
 fitoria_add_test(NAME http_server_test SRCS http_server_test.cpp)

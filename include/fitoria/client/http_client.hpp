@@ -5,18 +5,18 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_HTTP_CLIENT_HPP
-#define FITORIA_WEB_HTTP_CLIENT_HPP
+#ifndef FITORIA_CLIENT_HTTP_CLIENT_HPP
+#define FITORIA_CLIENT_HTTP_CLIENT_HPP
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
 #include <fitoria/log/log.hpp>
 
-#include <fitoria/web/error.hpp>
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -24,7 +24,13 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web {
+namespace client {
+
+namespace http = web::http;
+
+using web::http_fields;
+using web::http_response;
+using web::query_map;
 
 class http_client {
   struct resource {
