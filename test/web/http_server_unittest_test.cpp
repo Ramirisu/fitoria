@@ -70,8 +70,8 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 TEST_CASE("connection_info")
 {
   auto server = http_server::builder()
-                    .route(route(
-                        http::verb::get, "/get",
+                    .route(route::GET(
+                        "/get",
                         [](http_request& req) -> net::awaitable<http_response> {
                           CHECK_EQ(req.conn_info().local_addr(),
                                    net::ip::make_address("127.0.0.1"));
@@ -95,8 +95,8 @@ TEST_CASE("unittest")
 {
   auto server
       = http_server::builder()
-            .route(route(
-                http::verb::get, "/api/v1/users/{user}",
+            .route(route::GET(
+                "/api/v1/users/{user}",
                 [](http_request& req) -> net::awaitable<http_response> {
                   user_t user;
                   user.name = req.route_params().get("user").value();
@@ -233,46 +233,44 @@ TEST_CASE("state")
       = http_server::builder()
             .route(
                 scope("")
-                    .state(shared_resource { "global scope" })
+                    .state(shared_resource { "global" })
                     .sub_scope(
                         scope("/api/v1")
-                            .route(route(
-                                http::verb::get, "/global_scope",
-                                [](http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_body(std::string(
-                                          req.state<const shared_resource&>()
-                                              ->value));
-                                }))
+                            .GET("/global",
+                                 [](http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok)
+                                       .set_body(std::string(
+                                           req.state<const shared_resource&>()
+                                               ->value));
+                                 })
                             .state(shared_resource { "scope" })
-                            .route(route(
-                                http::verb::get, "/scope",
-                                [](http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_body(std::string(
-                                          req.state<const shared_resource&>()
-                                              ->value));
-                                }))
+                            .GET("/scope",
+                                 [](http_request& req)
+                                     -> net::awaitable<http_response> {
+                                   co_return http_response(http::status::ok)
+                                       .set_body(std::string(
+                                           req.state<const shared_resource&>()
+                                               ->value));
+                                 })
                             .route(
-                                route(http::verb::get, "/route",
-                                      [](http_request& req)
-                                          -> net::awaitable<http_response> {
-                                        co_return http_response(
-                                            http::status::ok)
-                                            .set_body(std::string(
-                                                req.state<
-                                                       const shared_resource&>()
-                                                    ->value));
-                                      })
+                                route::GET(
+                                    "/route",
+                                    [](http_request& req)
+                                        -> net::awaitable<http_response> {
+                                      co_return http_response(http::status::ok)
+                                          .set_body(std::string(
+                                              req.state<
+                                                     const shared_resource&>()
+                                                  ->value));
+                                    })
                                     .state(shared_resource { "route" }))))
             .build();
   {
-    auto res = server.serve_http_request("/api/v1/global_scope",
+    auto res = server.serve_http_request("/api/v1/global",
                                          http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "global scope");
+    CHECK_EQ(res.body(), "global");
   }
   {
     auto res = server.serve_http_request("/api/v1/scope",

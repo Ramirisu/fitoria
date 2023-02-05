@@ -26,17 +26,18 @@ namespace {
 
 void configure_server(http_server::builder& builder)
 {
-  builder.route(route(http::verb::get, "/api/repos/{repo}",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        CHECK_EQ(req.method(), http::verb::get);
-                        CHECK_EQ(req.route_params().size(), 1);
-                        CHECK_EQ(req.route_params().at("repo"), "fitoria");
-                        CHECK_EQ(req.path(), "/api/repos/fitoria");
-                        CHECK_EQ(req.fields().get(http::field::content_type),
-                                 http::fields::content_type::plaintext());
-                        CHECK_EQ(req.body(), "hello world");
-                        co_return http_response(http::status::ok);
-                      }));
+  builder.route(
+      route::GET("/api/repos/{repo}",
+                 [](http_request& req) -> net::awaitable<http_response> {
+                   CHECK_EQ(req.method(), http::verb::get);
+                   CHECK_EQ(req.route_params().size(), 1);
+                   CHECK_EQ(req.route_params().at("repo"), "fitoria");
+                   CHECK_EQ(req.path(), "/api/repos/fitoria");
+                   CHECK_EQ(req.fields().get(http::field::content_type),
+                            http::fields::content_type::plaintext());
+                   CHECK_EQ(req.body(), "hello world");
+                   co_return http_response(http::status::ok);
+                 }));
 }
 
 }

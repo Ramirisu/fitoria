@@ -23,28 +23,29 @@ TEST_SUITE_BEGIN("web.http_server");
 TEST_CASE("builder")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
-                    .set_max_listen_connections(2048)
-                    .set_client_request_timeout(std::chrono::seconds(1))
-                    .set_network_error_handler(
-                        []([[maybe_unused]] net::error_code ec) {})
+  auto server
+      = http_server::builder()
+            .set_max_listen_connections(2048)
+            .set_client_request_timeout(std::chrono::seconds(1))
+            .set_network_error_handler(
+                []([[maybe_unused]] net::error_code ec) {})
 #if !FITORIA_NO_EXCEPTIONS
-                    .set_exception_handler([](std::exception_ptr ptr) {
-                      if (!ptr) {
-                        return;
-                      }
-                      try {
-                        std::rethrow_exception(ptr);
-                      } catch (...) {
-                      }
-                    })
+            .set_exception_handler([](std::exception_ptr ptr) {
+              if (!ptr) {
+                return;
+              }
+              try {
+                std::rethrow_exception(ptr);
+              } catch (...) {
+              }
+            })
 #endif
-                    .route(route(http::verb::get, "/api",
-                                 [&]([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   co_return http_response(http::status::ok);
-                                 }))
-                    .build();
+            .route(route::GET("/api",
+                              [&]([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                co_return http_response(http::status::ok);
+                              }))
+            .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -65,29 +66,30 @@ TEST_CASE("duplicate route")
 {
   CHECK_THROWS_AS(http_server::builder().route(
                       scope("/api/v1")
-                          .route(http::verb::get, "/xxx",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   co_return http_response(http::status::ok);
-                                 })
-                          .route(http::verb::get, "/xxx",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   co_return http_response(http::status::ok);
-                                 })),
+                          .GET("/xxx",
+                               []([[maybe_unused]] http_request& req)
+                                   -> net::awaitable<http_response> {
+                                 co_return http_response(http::status::ok);
+                               })
+                          .GET("/xxx",
+                               []([[maybe_unused]] http_request& req)
+                                   -> net::awaitable<http_response> {
+                                 co_return http_response(http::status::ok);
+                               })),
                   std::system_error);
 }
 
 TEST_CASE("invalid target")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
-                    .route(route(http::verb::get, "/api/v1/users/{user}",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   co_return http_response(http::status::ok);
-                                 }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(route::GET("/api/v1/users/{user}",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                co_return http_response(http::status::ok);
+                              }))
+            .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -119,14 +121,15 @@ TEST_CASE("invalid target")
 TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
-                    .route(route(http::verb::post, "/api/v1/post",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   CHECK_EQ(req.body(), "text");
-                                   co_return http_response(http::status::ok);
-                                 }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(route::POST("/api/v1/post",
+                               []([[maybe_unused]] http_request& req)
+                                   -> net::awaitable<http_response> {
+                                 CHECK_EQ(req.body(), "text");
+                                 co_return http_response(http::status::ok);
+                               }))
+            .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -153,23 +156,24 @@ TEST_CASE("unhandled exception from handler")
 {
   bool got_exception = false;
   const auto port = generate_port();
-  auto server = http_server::builder()
-                    .set_exception_handler([&](std::exception_ptr ptr) {
-                      if (ptr) {
-                        try {
-                          std::rethrow_exception(ptr);
-                        } catch (const std::exception&) {
-                          got_exception = true;
-                        }
-                      }
-                    })
-                    .route(route(http::verb::get, "/api/v1/get",
-                                 []([[maybe_unused]] http_request& req)
-                                     -> net::awaitable<http_response> {
-                                   throw std::exception();
-                                   co_return http_response(http::status::ok);
-                                 }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .set_exception_handler([&](std::exception_ptr ptr) {
+              if (ptr) {
+                try {
+                  std::rethrow_exception(ptr);
+                } catch (const std::exception&) {
+                  got_exception = true;
+                }
+              }
+            })
+            .route(route::GET("/api/v1/get",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                throw std::exception();
+                                co_return http_response(http::status::ok);
+                              }))
+            .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -211,12 +215,12 @@ TEST_CASE("middlewares invocation order")
                       CHECK_EQ(++state, 4);
                       co_return resp;
                     })
-                    .route(http::verb::get, "/get",
-                           [&]([[maybe_unused]] http_request& req)
-                               -> net::awaitable<http_response> {
-                             CHECK_EQ(++state, 3);
-                             co_return http_response(http::status::ok);
-                           }))
+                    .GET("/get",
+                         [&]([[maybe_unused]] http_request& req)
+                             -> net::awaitable<http_response> {
+                           CHECK_EQ(++state, 3);
+                           co_return http_response(http::status::ok);
+                         }))
             .build();
 
   auto res
@@ -230,8 +234,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route(
-                http::verb::get,
+            .route(route::GET(
                 "/api/v1/users/{user}/filmography/years/{year}",
                 [=](http_request& req) -> net::awaitable<http_response> {
                   CHECK_EQ(req.conn_info().local_addr(),
@@ -321,11 +324,11 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route(http::verb::get, "/api",
-                         []([[maybe_unused]] http_request& req)
-                             -> net::awaitable<http_response> {
-                           co_return http_response(http::status::accepted);
-                         }))
+            .route(route::GET("/api",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                co_return http_response(http::status::accepted);
+                              }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -352,15 +355,15 @@ TEST_CASE("response with plain text")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route(http::verb::get, "/api",
-                         []([[maybe_unused]] http_request& req)
-                             -> net::awaitable<http_response> {
-                           co_return http_response(http::status::ok)
-                               .set_field(
-                                   http::field::content_type,
-                                   http::fields::content_type::plaintext())
-                               .set_body("plain text");
-                         }))
+            .route(route::GET("/api",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                co_return http_response(http::status::ok)
+                                    .set_field(
+                                        http::field::content_type,
+                                        http::fields::content_type::plaintext())
+                                    .set_body("plain text");
+                              }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
