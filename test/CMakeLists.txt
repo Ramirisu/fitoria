@@ -17,6 +17,7 @@ endfunction()
 
 add_subdirectory(core)
 add_subdirectory(log)
+add_subdirectory(encoding)
 add_subdirectory(web)
 add_subdirectory(client)
 add_subdirectory(win32)
