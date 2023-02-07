@@ -21,15 +21,23 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware {
 
-class logger {
+template <typename Next>
+class logger_service {
+  Next next_;
+
 public:
   using clock_t = std::chrono::system_clock;
+
+  logger_service(Next next)
+      : next_(std::move(next))
+  {
+  }
 
   net::awaitable<http_response> operator()(http_context& c) const
   {
     auto start_time = clock_t::now();
 
-    auto res = co_await c.next();
+    auto res = co_await next_(c);
 
     log::info("[{}] {} {} {} {} {}B {} {:%T}s", name(),
               c.request().conn_info().remote_addr().to_string(),
@@ -46,6 +54,15 @@ private:
   static const char* name() noexcept
   {
     return "fitoria.middleware.logger";
+  }
+};
+
+class logger {
+public:
+  template <typename Next>
+  auto create(Next next) const
+  {
+    return logger_service(std::move(next));
   }
 };
 

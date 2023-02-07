@@ -21,12 +21,20 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware {
 
-class gzip {
+template <typename Next>
+class gzip_service {
+  Next next_;
+
 public:
+  gzip_service(Next next)
+      : next_(std::move(next))
+  {
+  }
+
   net::awaitable<http_response> operator()(http_context& c) const
   {
     if (c.request().fields().get(http::field::content_encoding) == "gzip") {
-      if (auto plain = decompress<std::string>(net::const_buffer(
+      if (auto plain = detail::gzip_decompress<std::string>(net::const_buffer(
               c.request().body().data(), c.request().body().size()));
           plain) {
         c.request().fields().erase(http::field::content_encoding);
@@ -41,7 +49,7 @@ public:
       }
     }
 
-    auto res = co_await c.next();
+    auto res = co_await next_(c);
 
     if (res.body().empty()) {
       co_return res;
@@ -50,7 +58,7 @@ public:
     if (auto ac = c.request().fields().get(http::field::accept_encoding);
         !res.fields().get(http::field::content_encoding) && ac
         && ac->find("gzip") != std::string::npos) {
-      if (auto comp = compress<std::string>(
+      if (auto comp = detail::gzip_compress<std::string>(
               net::const_buffer(res.body().data(), res.body().size()));
           comp) {
         res.set_body(std::move(*comp));
@@ -73,19 +81,17 @@ public:
 
     co_return res;
   }
+};
 
-  template <typename R>
-  static expected<R, error_code> decompress(net::const_buffer in)
+class gzip {
+public:
+  template <typename Next>
+  auto create(Next next) const
   {
-    return detail::gzip_inflate<R>(in);
-  }
-
-  template <typename R>
-  static expected<R, error_code> compress(net::const_buffer in)
-  {
-    return detail::gzip_deflate<R>(in);
+    return gzip_service(std::move(next));
   }
 };
+
 }
 
 FITORIA_NAMESPACE_END

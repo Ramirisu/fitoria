@@ -49,7 +49,7 @@ int main()
 {
   auto server = http_server::builder()
                     // Single route by using `route`
-                    .route(route(http::verb::get, "/", get))
+                    .route(route::handle(http::verb::get, "/", get))
                     .route(route::GET("/get", get))
                     .route(route::POST("/post", post))
                     .route(route::PUT("/put", put))
@@ -59,7 +59,7 @@ int main()
                     .route(route::OPTIONS("/options", options))
                     // Grouping routes by using `scope`
                     .route(scope("/api/v1")
-                               .route(route(http::verb::get, "/", get))
+                               .handle(http::verb::get, "/", get)
                                .GET("/get", get)
                                .POST("/post", post)
                                .PUT("/put", put)

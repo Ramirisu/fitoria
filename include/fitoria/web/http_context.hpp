@@ -12,11 +12,8 @@
 
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/web/basic_chain_invoker.hpp>
-#include <fitoria/web/handler_t.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/middleware_t.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -24,17 +21,9 @@ namespace web {
 
 class http_context {
 public:
-  using invoker_type = basic_chain_invoker<middleware_t, handler_t>;
-
-  http_context(invoker_type invoker, http_request& request)
-      : invoker_(invoker)
-      , request_(request)
+  http_context(http_request& request)
+      : request_(request)
   {
-  }
-
-  [[nodiscard]] net::awaitable<http_response> next()
-  {
-    co_return co_await invoker_.next(*this);
   }
 
   http_request& request() noexcept
@@ -58,7 +47,6 @@ public:
   }
 
 private:
-  invoker_type invoker_;
   http_request& request_;
 };
 

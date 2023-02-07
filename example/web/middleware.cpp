@@ -24,6 +24,37 @@ using namespace fitoria::web;
 //
 // clang-format on
 
+template <typename Next>
+class my_log_service {
+  Next next_;
+
+public:
+  my_log_service(Next next)
+      : next_(std::move(next))
+  {
+  }
+
+  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  {
+    log::debug("before handler");
+
+    auto res = co_await next_(ctx);
+
+    log::debug("after handler");
+
+    co_return res;
+  }
+};
+
+class my_log {
+public:
+  template <typename Next>
+  auto create(Next next) const
+  {
+    return my_log_service(std::move(next));
+  }
+};
+
 int main()
 {
   log::global_logger() = log::stdout_logger();
@@ -47,16 +78,11 @@ int main()
                     .use(middleware::gzip())
 #endif
                     // Register a custom middleware for this group
-                    .use([](http_context& c) -> net::awaitable<http_response> {
-                      log::debug("before handler");
-                      auto res = co_await c.next();
-                      log::debug("after handler");
-                      co_return res;
-                    })
+                    .use(my_log())
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .route(
-                        http::verb::get, "/users/{user}",
+                    .GET(
+                        "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           log::debug("user: {}",
                                      req.route_params().get("user"));

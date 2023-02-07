@@ -25,7 +25,7 @@ TEST_CASE("deflate decompress in > out")
     0x0e, 0x09, 0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00
   };
 
-  auto out = middleware::deflate::decompress<std::string>(
+  auto out = middleware::detail::deflate_decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -38,7 +38,7 @@ TEST_CASE("deflate decompress in < out")
   const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
                                               0x23, 0x19, 0x00, 0x00 };
 
-  auto out = middleware::deflate::decompress<std::string>(
+  auto out = middleware::detail::deflate_decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -55,7 +55,7 @@ TEST_CASE("deflate decompress in < out")
 
 TEST_CASE("deflate decompress w/ empty stream")
 {
-  CHECK(!middleware::deflate::decompress<std::string>(
+  CHECK(!middleware::detail::deflate_decompress<std::string>(
       net::const_buffer(nullptr, 0)));
 }
 
@@ -63,7 +63,7 @@ TEST_CASE("deflate decompress w/ invalid deflate stream")
 {
   const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
-  CHECK(!middleware::deflate::decompress<std::string>(
+  CHECK(!middleware::detail::deflate_decompress<std::string>(
       net::const_buffer(in.data(), in.size())));
 }
 
@@ -72,11 +72,12 @@ TEST_CASE("deflate compress")
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto intermediate = middleware::deflate::compress<std::vector<std::uint8_t>>(
-                          net::const_buffer(in.data(), in.size()))
-                          .value();
+  auto intermediate
+      = middleware::detail::deflate_compress<std::vector<std::uint8_t>>(
+            net::const_buffer(in.data(), in.size()))
+            .value();
 
-  auto out = middleware::deflate::decompress<std::string>(
+  auto out = middleware::detail::deflate_decompress<std::string>(
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
@@ -86,7 +87,7 @@ TEST_CASE("deflate compress w/ empty stream")
 {
   const auto in = std::string_view();
 
-  CHECK(!middleware::deflate::compress<std::vector<std::uint8_t>>(
+  CHECK(!middleware::detail::deflate_compress<std::vector<std::uint8_t>>(
       net::const_buffer(in.data(), in.size())));
 }
 
@@ -123,14 +124,14 @@ TEST_CASE("deflate middleware")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "deflate")
-            .set_body(middleware::deflate::compress<std::string>(
+            .set_body(middleware::detail::deflate_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
-             middleware::deflate::compress<std::string>(
+             middleware::detail::deflate_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
   {
@@ -139,7 +140,7 @@ TEST_CASE("deflate middleware")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "deflate")
-            .set_body(middleware::deflate::compress<std::string>(
+            .set_body(middleware::detail::deflate_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
@@ -156,16 +157,16 @@ TEST_CASE("deflate middleware: header vary")
       = http_server::builder()
             .route(scope("/api")
                        .use(middleware::deflate())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                auto res = http_response(http::status::ok)
-                                               .set_body("hello world");
-                                if (!req.body().empty()) {
-                                  res.set_field(http::field::vary, req.body());
-                                }
-                                co_return res;
-                              }))
+                       .GET("/get",
+                            [&]([[maybe_unused]] http_request& req)
+                                -> net::awaitable<http_response> {
+                              auto res = http_response(http::status::ok)
+                                             .set_body("hello world");
+                              if (!req.body().empty()) {
+                                res.set_field(http::field::vary, req.body());
+                              }
+                              co_return res;
+                            }))
             .build();
 
   struct test_case_t {

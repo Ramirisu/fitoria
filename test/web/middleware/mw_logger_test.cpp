@@ -16,16 +16,15 @@ TEST_SUITE_BEGIN("web.middleware.logger");
 
 TEST_CASE("logger middleware")
 {
-  auto server
-      = http_server::builder()
-            .route(scope("/api")
-                       .use(middleware::logger())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                co_return http_response(http::status::ok);
-                              }))
-            .build();
+  auto server = http_server::builder()
+                    .route(scope("/api")
+                               .use(middleware::logger())
+                               .GET("/get",
+                                    [&]([[maybe_unused]] http_request& req)
+                                        -> net::awaitable<http_response> {
+                                      co_return http_response(http::status::ok);
+                                    }))
+                    .build();
 
   auto res = server.serve_http_request(
       "/api/get",

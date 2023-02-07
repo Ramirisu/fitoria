@@ -37,19 +37,19 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(
-                route(http::verb::get, "/api/v1/{owner}/{repo}",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        log::debug("route: {}", req.route_params().path());
-                        log::debug("owner: {}, repo: {}",
-                                   req.route_params().get("owner"),
-                                   req.route_params().get("repo"));
+            .route(route::GET(
+                "/api/v1/{owner}/{repo}",
+                [](http_request& req) -> net::awaitable<http_response> {
+                  log::debug("route: {}", req.route_params().path());
+                  log::debug("owner: {}, repo: {}",
+                             req.route_params().get("owner"),
+                             req.route_params().get("repo"));
 
-                        co_return http_response(http::status::ok)
-                            .set_field(http::field::content_type,
-                                       http::fields::content_type::plaintext())
-                            .set_body("quick start");
-                      }))
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body("quick start");
+                }))
             .build();
   server
       // Start to listen to port 8080

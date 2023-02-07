@@ -196,39 +196,6 @@ TEST_CASE("unhandled exception from handler")
 
 #endif
 
-TEST_CASE("middlewares invocation order")
-{
-  int state = 0;
-  auto server
-      = http_server::builder()
-            .route(
-                scope("/api")
-                    .use([&](http_context& c) -> net::awaitable<http_response> {
-                      CHECK_EQ(++state, 1);
-                      auto resp = co_await c.next();
-                      CHECK_EQ(++state, 5);
-                      co_return resp;
-                    })
-                    .use([&](http_context& c) -> net::awaitable<http_response> {
-                      CHECK_EQ(++state, 2);
-                      auto resp = co_await c.next();
-                      CHECK_EQ(++state, 4);
-                      co_return resp;
-                    })
-                    .GET("/get",
-                         [&]([[maybe_unused]] http_request& req)
-                             -> net::awaitable<http_response> {
-                           CHECK_EQ(++state, 3);
-                           co_return http_response(http::status::ok);
-                         }))
-            .build();
-
-  auto res
-      = server.serve_http_request("/api/get", http_request(http::verb::get));
-  CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(++state, 6);
-}
-
 TEST_CASE("generic request")
 {
   const auto port = generate_port();

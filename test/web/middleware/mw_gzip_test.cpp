@@ -28,7 +28,7 @@ TEST_CASE("gzip decompress in > out")
     0x02, 0x00, 0x32, 0xFA, 0xF8, 0x21, 0x3E, 0x00, 0x00, 0x00
   };
 
-  auto out = middleware::gzip::decompress<std::string>(
+  auto out = middleware::detail::gzip_decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -44,7 +44,7 @@ TEST_CASE("gzip decompress in < out")
                                     0x23, 0x19, 0x00, 0x00, 0x51, 0x70, 0x51,
                                     0xf9, 0x00, 0x02, 0x00, 0x00 };
 
-  auto out = middleware::gzip::decompress<std::string>(
+  auto out = middleware::detail::gzip_decompress<std::string>(
       net::const_buffer(in.data(), in.size()));
 
   const auto exp = std::string_view(
@@ -61,7 +61,7 @@ TEST_CASE("gzip decompress in < out")
 
 TEST_CASE("gzip decompress w/ empty stream")
 {
-  CHECK(!middleware::gzip::decompress<std::string>(
+  CHECK(!middleware::detail::gzip_decompress<std::string>(
       net::const_buffer(nullptr, 0)));
 }
 
@@ -69,7 +69,7 @@ TEST_CASE("gzip decompress w/ invalid gzip stream")
 {
   const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
-  CHECK(!middleware::gzip::decompress<std::string>(
+  CHECK(!middleware::detail::gzip_decompress<std::string>(
       net::const_buffer(in.data(), in.size())));
 }
 
@@ -78,11 +78,12 @@ TEST_CASE("gzip compress")
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto intermediate = middleware::gzip::compress<std::vector<std::uint8_t>>(
-                          net::const_buffer(in.data(), in.size()))
-                          .value();
+  auto intermediate
+      = middleware::detail::gzip_compress<std::vector<std::uint8_t>>(
+            net::const_buffer(in.data(), in.size()))
+            .value();
 
-  auto out = middleware::gzip::decompress<std::string>(
+  auto out = middleware::detail::gzip_decompress<std::string>(
       net::const_buffer(intermediate.data(), intermediate.size()));
 
   CHECK_EQ(out, in);
@@ -92,7 +93,7 @@ TEST_CASE("gzip compress w/ empty stream")
 {
   const auto in = std::string_view();
 
-  CHECK(!middleware::gzip::compress<std::vector<std::uint8_t>>(
+  CHECK(!middleware::detail::gzip_compress<std::vector<std::uint8_t>>(
       net::const_buffer(in.data(), in.size())));
 }
 
@@ -129,14 +130,14 @@ TEST_CASE("gzip middleware")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip")
-            .set_body(middleware::gzip::compress<std::string>(
+            .set_body(middleware::detail::gzip_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
     CHECK_EQ(res.body(),
-             middleware::gzip::compress<std::string>(
+             middleware::detail::gzip_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
   {
@@ -145,7 +146,7 @@ TEST_CASE("gzip middleware")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip")
-            .set_body(middleware::gzip::compress<std::string>(
+            .set_body(middleware::detail::gzip_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
@@ -162,16 +163,16 @@ TEST_CASE("gzip middleware: header vary")
       = http_server::builder()
             .route(scope("/api")
                        .use(middleware::gzip())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                auto res = http_response(http::status::ok)
-                                               .set_body("hello world");
-                                if (!req.body().empty()) {
-                                  res.set_field(http::field::vary, req.body());
-                                }
-                                co_return res;
-                              }))
+                       .GET("/get",
+                            [&]([[maybe_unused]] http_request& req)
+                                -> net::awaitable<http_response> {
+                              auto res = http_response(http::status::ok)
+                                             .set_body("hello world");
+                              if (!req.body().empty()) {
+                                res.set_field(http::field::vary, req.body());
+                              }
+                              co_return res;
+                            }))
             .build();
 
   struct test_case_t {

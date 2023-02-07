@@ -10,15 +10,19 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/net.hpp>
+
+#include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/basic_router.hpp>
-#include <fitoria/web/route.hpp>
+#include <fitoria/web/http_context.hpp>
+#include <fitoria/web/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-using router = basic_router<route>;
-
+using router
+    = basic_router<any_routable<http_context&, net::awaitable<http_response>>>;
 }
 
 FITORIA_NAMESPACE_END

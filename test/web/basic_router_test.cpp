@@ -7,8 +7,7 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/web/basic_handler.hpp>
-#include <fitoria/web/basic_middleware.hpp>
+#include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/basic_router.hpp>
 
 using namespace fitoria;
@@ -18,9 +17,7 @@ TEST_SUITE_BEGIN("web.basic_router");
 
 namespace {
 
-using middleware_type = basic_middleware<int, int>;
-using handler_type = basic_handler<int, int>;
-using router_type = basic_router<basic_route<middleware_type, handler_type>>;
+using router_type = basic_router<any_routable<int, int>>;
 
 }
 
@@ -29,8 +26,8 @@ TEST_CASE("try_insert")
   using exp_t = expected<void, error>;
 
   auto r = [=](http::verb method, std::string path) {
-    return router_type::route_type(method, std::move(path),
-                                   handler_type([](int) { return 0; }));
+    return router_type::route_type(method, std::move(path), {},
+                                   [](int) { return 0; });
   };
 
   router_type rt;
@@ -76,8 +73,8 @@ TEST_CASE("try_insert")
 TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
-    return router_type::route_type(
-        method, std::move(path), handler_type([=](int) -> int { return exp; }));
+    return router_type::route_type(method, std::move(path), {},
+                                   [=](int) -> int { return exp; });
   };
 
   router_type rt;
@@ -108,16 +105,16 @@ TEST_CASE("try_find")
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/x"),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->handler()(0), 10);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->handler()(0), 11);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->handler()(0), 12);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx")->handler()(0), 13);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y")->handler()(0), 20);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y")->handler()(0), 21);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/y")->handler()(0), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->handler()(0), 23);
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->handler()(0), 22);
-  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->handler()(0), 23);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->operator()(0), 10);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->operator()(0), 11);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx")->operator()(0), 12);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx")->operator()(0), 13);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y")->operator()(0), 20);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y")->operator()(0), 21);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/y")->operator()(0), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->operator()(0), 23);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->operator()(0), 22);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->operator()(0), 23);
 }
 
 TEST_SUITE_END();

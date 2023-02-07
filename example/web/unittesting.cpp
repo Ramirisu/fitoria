@@ -14,24 +14,24 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(
-                route(http::verb::post, "/api/v1/login",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        if (req.fields().get(http::field::content_type)
-                            != http::fields::content_type::form_urlencoded()) {
-                          co_return http_response(http::status::bad_request);
-                        }
-                        auto user = as_form(req.body());
-                        if (!user || user->get("name") != "ramirisu"
-                            || user->get("password") != "123456") {
-                          co_return http_response(http::status::unauthorized);
-                        }
-                        co_return http_response(http::status::ok)
-                            .set_field(http::field::content_type,
-                                       http::fields::content_type::plaintext())
-                            .set_body(fmt::format("{}, login succeeded",
-                                                  user->get("name")));
-                      }))
+            .route(route::POST(
+                "/api/v1/login",
+                [](http_request& req) -> net::awaitable<http_response> {
+                  if (req.fields().get(http::field::content_type)
+                      != http::fields::content_type::form_urlencoded()) {
+                    co_return http_response(http::status::bad_request);
+                  }
+                  auto user = as_form(req.body());
+                  if (!user || user->get("name") != "ramirisu"
+                      || user->get("password") != "123456") {
+                    co_return http_response(http::status::unauthorized);
+                  }
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body(fmt::format("{}, login succeeded",
+                                            user->get("name")));
+                }))
             .build();
 
   {

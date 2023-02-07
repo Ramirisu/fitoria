@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_MIDDLEWARE_DETAIL_SINK_HPP
-#define FITORIA_WEB_MIDDLEWARE_DETAIL_SINK_HPP
+#ifndef FITORIA_WEB_MIDDLEWARE_DETAIL_GZIP_HPP
+#define FITORIA_WEB_MIDDLEWARE_DETAIL_GZIP_HPP
 
 #if defined(FITORIA_HAS_ZLIB)
 
@@ -45,7 +45,7 @@ net::zlib::error to_net_zlib_error(int zlib_error)
 }
 
 template <typename R>
-expected<R, error_code> gzip_inflate(net::const_buffer in)
+expected<R, error_code> gzip_decompress(net::const_buffer in)
 {
   if (in.size() == 0) {
     return unexpected { make_error_code(net::zlib::error::stream_error) };
@@ -95,7 +95,7 @@ expected<R, error_code> gzip_inflate(net::const_buffer in)
 }
 
 template <typename R>
-expected<R, error_code> gzip_deflate(net::const_buffer in)
+expected<R, error_code> gzip_compress(net::const_buffer in)
 {
   if (in.size() == 0) {
     return unexpected { make_error_code(net::zlib::error::stream_error) };

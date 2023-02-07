@@ -21,12 +21,20 @@ namespace web::middleware {
 
 #if !FITORIA_NO_EXCEPTIONS
 
-class exception_handler {
+template <typename Next>
+class exception_handler_service {
+  Next next_;
+
 public:
+  exception_handler_service(Next next)
+      : next_(std::move(next))
+  {
+  }
+
   net::awaitable<http_response> operator()(http_context& c) const
   {
     try {
-      co_return co_await c.next();
+      co_return co_await next_(c);
     } catch (const std::exception& ex) {
       log::error("[{}] exception: {}", name(), ex.what());
     }
@@ -38,6 +46,15 @@ private:
   static const char* name() noexcept
   {
     return "fitoria.middleware.exception_handler";
+  }
+};
+
+class exception_handler {
+public:
+  template <typename Next>
+  auto create(Next next) const
+  {
+    return exception_handler_service(std::move(next));
   }
 };
 

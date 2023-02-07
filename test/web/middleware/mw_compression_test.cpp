@@ -21,38 +21,37 @@ TEST_CASE("compression priority: gzip > deflate")
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto server
-      = http_server::builder()
-            .route(scope("/api")
-                       .use(middleware::deflate())
-                       .use(middleware::gzip())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                CHECK(!req.fields().get(
-                                    http::field::content_encoding));
-                                CHECK_EQ(*req.fields().get(
-                                             http::field::content_length),
-                                         std::to_string(in.size()));
-                                CHECK_EQ(req.body(), in);
-                                co_return http_response(http::status::ok)
-                                    .set_body(req.body());
-                              }))
-            .build();
+  auto server = http_server::builder()
+                    .route(scope("/api")
+                               .use(middleware::deflate())
+                               .use(middleware::gzip())
+                               .GET("/get",
+                                    [&]([[maybe_unused]] http_request& req)
+                                        -> net::awaitable<http_response> {
+                                      CHECK(!req.fields().get(
+                                          http::field::content_encoding));
+                                      CHECK_EQ(*req.fields().get(
+                                                   http::field::content_length),
+                                               std::to_string(in.size()));
+                                      CHECK_EQ(req.body(), in);
+                                      co_return http_response(http::status::ok)
+                                          .set_body(req.body());
+                                    }))
+                    .build();
   {
     auto res = server.serve_http_request(
         "/api/get",
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::gzip::compress<std::string>(
+            .set_body(middleware::detail::gzip_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
     CHECK_EQ(res.body(),
-             middleware::gzip::compress<std::string>(
+             middleware::detail::gzip_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
   {
@@ -61,14 +60,14 @@ TEST_CASE("compression priority: gzip > deflate")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::deflate::compress<std::string>(
+            .set_body(middleware::detail::deflate_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "gzip");
     CHECK_EQ(res.body(),
-             middleware::gzip::compress<std::string>(
+             middleware::detail::gzip_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
 }
@@ -78,38 +77,37 @@ TEST_CASE("compression priority: deflate > gzip")
   const auto in = std::string_view(
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-  auto server
-      = http_server::builder()
-            .route(scope("/api")
-                       .use(middleware::gzip())
-                       .use(middleware::deflate())
-                       .route(http::verb::get, "/get",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                CHECK(!req.fields().get(
-                                    http::field::content_encoding));
-                                CHECK_EQ(*req.fields().get(
-                                             http::field::content_length),
-                                         std::to_string(in.size()));
-                                CHECK_EQ(req.body(), in);
-                                co_return http_response(http::status::ok)
-                                    .set_body(req.body());
-                              }))
-            .build();
+  auto server = http_server::builder()
+                    .route(scope("/api")
+                               .use(middleware::gzip())
+                               .use(middleware::deflate())
+                               .GET("/get",
+                                    [&]([[maybe_unused]] http_request& req)
+                                        -> net::awaitable<http_response> {
+                                      CHECK(!req.fields().get(
+                                          http::field::content_encoding));
+                                      CHECK_EQ(*req.fields().get(
+                                                   http::field::content_length),
+                                               std::to_string(in.size()));
+                                      CHECK_EQ(req.body(), in);
+                                      co_return http_response(http::status::ok)
+                                          .set_body(req.body());
+                                    }))
+                    .build();
   {
     auto res = server.serve_http_request(
         "/api/get",
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::gzip::compress<std::string>(
+            .set_body(middleware::detail::gzip_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
-             middleware::deflate::compress<std::string>(
+             middleware::detail::deflate_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
   {
@@ -118,14 +116,14 @@ TEST_CASE("compression priority: deflate > gzip")
         http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "gzip, deflate")
-            .set_body(middleware::deflate::compress<std::string>(
+            .set_body(middleware::detail::deflate_compress<std::string>(
                           net::const_buffer(in.data(), in.size()))
                           .value())
             .prepare_payload());
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_encoding), "deflate");
     CHECK_EQ(res.body(),
-             middleware::deflate::compress<std::string>(
+             middleware::detail::deflate_compress<std::string>(
                  net::const_buffer(in.data(), in.size())));
   }
 }

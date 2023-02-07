@@ -14,7 +14,7 @@
 #include <fitoria/core/optional_ext.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
-#include <fitoria/web/basic_route.hpp>
+#include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/segments_view.hpp>

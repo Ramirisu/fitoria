@@ -10,92 +10,39 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-// clang-format off
-// 
-// $ ./scope
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
-//
-// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
-// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (in) [scope.cpp:25:15]
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/users/{user} [scope.cpp:59:45]
-// > 2023-01-01T00:00:00Z DEBUG v1 auth middleware (out) [scope.cpp:27:15]
-// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
-//
-// $ curl -X GET http://127.0.0.1:8080/api/v2/users/ramirisu --verbose
-//
-// > 2023-01-01T00:00:00Z DEBUG log middleware (in) [scope.cpp:16:13]
-// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (in) [scope.cpp:25:15]
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v2/users/{user} [scope.cpp:59:45]
-// > 2023-01-01T00:00:00Z DEBUG v2 auth middleware (out) [scope.cpp:27:15]
-// > 2023-01-01T00:00:00Z DEBUG log middleware (out) [scope.cpp:18:13]
-// 
-//
-// clang-format on
-
-namespace my_middleware {
-
-auto log(http_context& c) -> net::awaitable<http_response>
-{
-  log::debug("log middleware (in)");
-  auto res = co_await c.next();
-  log::debug("log middleware (out)");
-  co_return res;
-}
-
-namespace v1 {
-  auto auth(http_context& c) -> net::awaitable<http_response>
-  {
-    log::debug("v1 auth middleware (in)");
-    auto res = co_await c.next();
-    log::debug("v1 auth middleware (out)");
-    co_return res;
-  }
-}
-
-namespace v2 {
-  auto auth(http_context& c) -> net::awaitable<http_response>
-  {
-    log::debug("v2 auth middleware (in)");
-    auto res = co_await c.next();
-    log::debug("v2 auth middleware (out)");
-    co_return res;
-  }
-}
-}
-
 void configure_application(http_server::builder& builder)
 {
   builder.route(
       // Global scope
       scope("")
           // Register a global middleware for all handlers
-          .use(my_middleware::log)
+          .use(middleware::logger())
           // Create a sub-scope "/api/v1" under global scope
           .sub_scope(scope("/api/v1")
                          // Register a middleware for this scope
-                         .use(my_middleware::v1::auth)
+                         .use(middleware::gzip())
                          // Register a route for this scope
-                         .route(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route: {}",
-                                             req.route_params().path());
+                         .GET("/users/{user}",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                log::debug("route: {}",
+                                           req.route_params().path());
 
-                                  co_return http_response(http::status::ok);
-                                }))
+                                co_return http_response(http::status::ok);
+                              }))
           // Create a sub-scope "/api/v2" under global scope
           .sub_scope(scope("/api/v2")
                          // Register a middleware for this scope
-                         .use(my_middleware::v2::auth)
+                         .use(middleware::deflate())
                          // Register a route for this scope
-                         .route(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route_params: {}",
-                                             req.route_params().path());
+                         .GET("/users/{user}",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                log::debug("route_params: {}",
+                                           req.route_params().path());
 
-                                  co_return http_response(http::status::ok);
-                                })));
+                                co_return http_response(http::status::ok);
+                              })));
 }
 
 int main()

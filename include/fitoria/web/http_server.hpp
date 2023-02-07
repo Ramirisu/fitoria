@@ -76,9 +76,15 @@ public:
     }
 #endif
 
-    builder& route(const route& route)
+    template <typename... RouteServices, typename F>
+    builder& route(route_impl<std::tuple<RouteServices...>, F> route)
     {
-      if (auto res = router_.try_insert(route); !res) {
+      auto [method, path, state_maps, service] = route.build_service();
+
+      if (auto res = router_.try_insert(router_type::route_type(
+              method, std::move(path), std::move(state_maps),
+              std::move(service)));
+          !res) {
 #if !FITORIA_NO_EXCEPTIONS
         throw system_error(res.error());
 #else
@@ -89,11 +95,15 @@ public:
       return *this;
     }
 
-    builder& route(const scope& scope)
+    template <typename... Services, typename... Routes>
+    builder&
+    route(scope_impl<std::tuple<Services...>, std::tuple<Routes...>> scope)
     {
-      for (auto& route : scope.routes()) {
-        this->route(route);
-      }
+      std::apply(
+          [this](auto&&... routes) {
+            (this->route(std::forward<decltype(routes)>(routes)), ...);
+          },
+          scope.routes());
 
       return *this;
     }
@@ -418,10 +428,8 @@ private:
                                     std::string(route->path())),
                        req_url->path(), method, to_query_map(req_url->params()),
                        std::move(fields), std::move(body), route->state_maps());
-    auto context = http_context(
-        http_context::invoker_type(route->middlewares(), route->handler()),
-        request);
-    co_return co_await context.next();
+    auto context = http_context(request);
+    co_return co_await route->operator()(context);
   }
 
   static query_map to_query_map(urls::params_view params)
