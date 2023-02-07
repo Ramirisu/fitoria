@@ -121,6 +121,17 @@ TEST_CASE("url_decoder")
 
 TEST_CASE("standard_decoder & url_decoder with invalid input")
 {
+  {
+    std::string out;
+    auto decoder = standard_decoder();
+    decoder.decode_next('M', std::back_inserter(out));
+    CHECK(!decoder.is_error());
+    decoder.decode_next('=', std::back_inserter(out));
+    CHECK(decoder.is_error());
+    decoder.decode_next('=', std::back_inserter(out));
+    CHECK(decoder.is_error());
+  }
+
   const auto test_cases = std::vector<std::vector<std::uint8_t>> {
     // "MA==" -> "0"
     // "MDE=" -> "01"
@@ -135,7 +146,9 @@ TEST_CASE("standard_decoder & url_decoder with invalid input")
     { 'M', 'D', 'E', 'y', 0 },
     { 'M', 'D', 'E', 'y', 0, 0 },
     { 'M', 'D', 'E', 'y', '=' },
+    { 'M', 'D', 'E', '=', 0 },
     { 'M', 'D', 'E', '=', '=' },
+    { 'M', 'A', '=', '=', 0 },
     { 'M', 'A', '=', '=', '=' },
   };
 

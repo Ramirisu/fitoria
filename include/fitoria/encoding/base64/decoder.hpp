@@ -66,14 +66,14 @@ public:
     auto& table = Alphabet::decode_table;
 
     switch (state_) {
-    case state::s0: {
+    case state::s0:
       rest_ = table[s(in)];
       if (rest_ == Alphabet::x) {
         state_ = state::error;
-        break;
+      } else {
+        state_ = state::s1;
       }
-      state_ = state::s1;
-    } break;
+      break;
     case state::s1:
       if (auto curr = table[s(in)]; curr == Alphabet::x) {
         state_ = state::error;
