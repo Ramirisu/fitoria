@@ -37,6 +37,11 @@ public:
     return state_ == state::error;
   }
 
+  bool is_done() const noexcept
+  {
+    return !is_error() && state_ != state::s1;
+  }
+
   template <typename InputIt, typename OutputIt>
   OutputIt decode_next(InputIt first, InputIt last, OutputIt out)
   {
@@ -133,7 +138,7 @@ public:
   {
     basic_decoder decoder;
     out = decoder.decode_next(first, last, out);
-    if (decoder.is_error()) {
+    if (!decoder.is_done()) {
       throw std::invalid_argument("base64 decode error");
     }
 

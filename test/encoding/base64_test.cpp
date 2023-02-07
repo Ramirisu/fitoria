@@ -137,6 +137,7 @@ TEST_CASE("standard_decoder & url_decoder with invalid input")
     // "MDE=" -> "01"
     // "MDEy" -> "012"
     { 0 },
+    { 'M' },
     { 'M', 0 },
     { 'M', 0, 0 },
     { 'M', 'D', 0 },

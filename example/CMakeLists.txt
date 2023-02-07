@@ -13,4 +13,5 @@ function(fitoria_add_example)
     PRIVATE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
 endfunction()
 
+add_subdirectory(encoding)
 add_subdirectory(web)
