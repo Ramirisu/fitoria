@@ -50,19 +50,19 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(
-                route(http::verb::get, "/api/v1/{owner}/{repo}",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        log::debug("route: {}", req.route_params().path());
-                        log::debug("owner: {}, repo: {}",
-                                   req.route_params().get("owner"),
-                                   req.route_params().get("repo"));
+            .route(route::GET(
+                "/api/v1/{owner}/{repo}",
+                [](http_request& req) -> net::awaitable<http_response> {
+                  log::debug("route: {}", req.route_params().path());
+                  log::debug("owner: {}, repo: {}",
+                             req.route_params().get("owner"),
+                             req.route_params().get("repo"));
 
-                        co_return http_response(http::status::ok)
-                            .set_field(http::field::content_type,
-                                       http::fields::content_type::plaintext())
-                            .set_body("quick start");
-                      }))
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body("quick start");
+                }))
             .build();
   server
       // Start to listen to port 8080
@@ -96,7 +96,7 @@ int main()
 {
   auto server = http_server::builder()
                     // Single route by using `route`
-                    .route(route(http::verb::get, "/", get))
+                    .route(route::handle(http::verb::get, "/", get))
                     .route(route::GET("/get", get))
                     .route(route::POST("/post", post))
                     .route(route::PUT("/put", put))
@@ -106,7 +106,7 @@ int main()
                     .route(route::OPTIONS("/options", options))
                     // Grouping routes by using `scope`
                     .route(scope("/api/v1")
-                               .route(route(http::verb::get, "/", get))
+                               .handle(http::verb::get, "/", get)
                                .GET("/get", get)
                                .POST("/post", post)
                                .PUT("/put", put)
@@ -191,7 +191,6 @@ int main()
       .bind("127.0.0.1", 8080)
       .run();
 }
-
 
 ```
 
@@ -312,7 +311,6 @@ int main()
       .run();
 }
 
-
 ```
 
 #### Scope
@@ -323,70 +321,39 @@ Configure nested `route`s by using `scope`.
 
 ```cpp
 
-namespace my_middleware {
-
-auto log(http_context& c) -> net::awaitable<http_response>
-{
-  log::debug("log middleware (in)");
-  auto res = co_await c.next();
-  log::debug("log middleware (out)");
-  co_return res;
-}
-
-namespace v1 {
-  auto auth(http_context& c) -> net::awaitable<http_response>
-  {
-    log::debug("v1 auth middleware (in)");
-    auto res = co_await c.next();
-    log::debug("v1 auth middleware (out)");
-    co_return res;
-  }
-}
-
-namespace v2 {
-  auto auth(http_context& c) -> net::awaitable<http_response>
-  {
-    log::debug("v2 auth middleware (in)");
-    auto res = co_await c.next();
-    log::debug("v2 auth middleware (out)");
-    co_return res;
-  }
-}
-}
-
 void configure_application(http_server::builder& builder)
 {
   builder.route(
       // Global scope
       scope("")
           // Register a global middleware for all handlers
-          .use(my_middleware::log)
+          .use(middleware::logger())
           // Create a sub-scope "/api/v1" under global scope
           .sub_scope(scope("/api/v1")
                          // Register a middleware for this scope
-                         .use(my_middleware::v1::auth)
+                         .use(middleware::gzip())
                          // Register a route for this scope
-                         .route(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route: {}",
-                                             req.route_params().path());
+                         .GET("/users/{user}",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                log::debug("route: {}",
+                                           req.route_params().path());
 
-                                  co_return http_response(http::status::ok);
-                                }))
+                                co_return http_response(http::status::ok);
+                              }))
           // Create a sub-scope "/api/v2" under global scope
           .sub_scope(scope("/api/v2")
                          // Register a middleware for this scope
-                         .use(my_middleware::v2::auth)
+                         .use(middleware::deflate())
                          // Register a route for this scope
-                         .route(http::verb::get, "/users/{user}",
-                                []([[maybe_unused]] http_request& req)
-                                    -> net::awaitable<http_response> {
-                                  log::debug("route_params: {}",
-                                             req.route_params().path());
+                         .GET("/users/{user}",
+                              []([[maybe_unused]] http_request& req)
+                                  -> net::awaitable<http_response> {
+                                log::debug("route_params: {}",
+                                           req.route_params().path());
 
-                                  co_return http_response(http::status::ok);
-                                })));
+                                co_return http_response(http::status::ok);
+                              })));
 }
 
 int main()
@@ -420,6 +387,37 @@ fitoria provides following build-in middlewares:
 
 ```cpp
 
+template <typename Next>
+class my_log_service {
+  Next next_;
+
+public:
+  my_log_service(Next next)
+      : next_(std::move(next))
+  {
+  }
+
+  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  {
+    log::debug("before handler");
+
+    auto res = co_await next_(ctx);
+
+    log::debug("after handler");
+
+    co_return res;
+  }
+};
+
+class my_log {
+public:
+  template <typename Next>
+  auto create(Next next) const
+  {
+    return my_log_service(std::move(next));
+  }
+};
+
 int main()
 {
   log::global_logger() = log::stdout_logger();
@@ -443,16 +441,11 @@ int main()
                     .use(middleware::gzip())
 #endif
                     // Register a custom middleware for this group
-                    .use([](http_context& c) -> net::awaitable<http_response> {
-                      log::debug("before handler");
-                      auto res = co_await c.next();
-                      log::debug("after handler");
-                      co_return res;
-                    })
+                    .use(my_log())
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .route(
-                        http::verb::get, "/users/{user}",
+                    .GET(
+                        "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
                           log::debug("user: {}",
                                      req.route_params().get("user"));
@@ -512,24 +505,24 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(
-                route(http::verb::post, "/api/v1/login",
-                      [](http_request& req) -> net::awaitable<http_response> {
-                        if (req.fields().get(http::field::content_type)
-                            != http::fields::content_type::form_urlencoded()) {
-                          co_return http_response(http::status::bad_request);
-                        }
-                        auto user = as_form(req.body());
-                        if (!user || user->get("name") != "ramirisu"
-                            || user->get("password") != "123456") {
-                          co_return http_response(http::status::unauthorized);
-                        }
-                        co_return http_response(http::status::ok)
-                            .set_field(http::field::content_type,
-                                       http::fields::content_type::plaintext())
-                            .set_body(fmt::format("{}, login succeeded",
-                                                  user->get("name")));
-                      }))
+            .route(route::POST(
+                "/api/v1/login",
+                [](http_request& req) -> net::awaitable<http_response> {
+                  if (req.fields().get(http::field::content_type)
+                      != http::fields::content_type::form_urlencoded()) {
+                    co_return http_response(http::status::bad_request);
+                  }
+                  auto user = as_form(req.body());
+                  if (!user || user->get("name") != "ramirisu"
+                      || user->get("password") != "123456") {
+                    co_return http_response(http::status::unauthorized);
+                  }
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body(fmt::format("{}, login succeeded",
+                                            user->get("name")));
+                }))
             .build();
 
   {
