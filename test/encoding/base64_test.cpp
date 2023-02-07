@@ -59,8 +59,9 @@ TEST_CASE("standard_decoder")
 
   for (auto& test_case : test_cases) {
     std::string out;
-    standard_decoder::decode(test_case.in.begin(), test_case.in.end(),
-                             std::back_inserter(out));
+    auto decoder = standard_decoder();
+    decoder.decode(test_case.in.begin(), test_case.in.end(),
+                   std::back_inserter(out));
     CHECK_EQ(out, test_case.expected);
   }
 }
@@ -80,8 +81,9 @@ TEST_CASE("standard_decoder with invalid input")
 
   for (auto& in : test_cases) {
     std::string out;
+    auto decoder = standard_decoder();
     CHECK_THROWS_AS(
-        standard_decoder::decode(in.begin(), in.end(), std::back_inserter(out)),
+        decoder.decode(in.begin(), in.end(), std::back_inserter(out)),
         std::invalid_argument);
   }
 }
@@ -132,8 +134,9 @@ TEST_CASE("url_decoder")
 
   for (auto& test_case : test_cases) {
     std::string out;
-    url_decoder::decode(test_case.in.begin(), test_case.in.end(),
-                        std::back_inserter(out));
+    auto decoder = url_decoder();
+    decoder.decode(test_case.in.begin(), test_case.in.end(),
+                   std::back_inserter(out));
     CHECK_EQ(out, test_case.expected);
   }
 }

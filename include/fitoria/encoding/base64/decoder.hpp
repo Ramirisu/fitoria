@@ -129,7 +129,7 @@ public:
   }
 
   template <typename InputIt, typename OutputIt>
-  static OutputIt decode(InputIt first, InputIt last, OutputIt out)
+  OutputIt decode(InputIt first, InputIt last, OutputIt out)
   {
     basic_decoder decoder;
     out = decoder.decode_next(first, last, out);
