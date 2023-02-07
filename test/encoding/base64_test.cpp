@@ -66,28 +66,6 @@ TEST_CASE("standard_decoder")
   }
 }
 
-TEST_CASE("standard_decoder with invalid input")
-{
-  const auto test_cases = std::vector<std::vector<std::uint8_t>> {
-    { 0 },
-    { 'M', 0 },
-    { 'M', 'D', 0 },
-    { 'M', 'D', 'E', 0 },
-    { 'M', 'D', 'E', 'y', '=' },
-    { 'M', 'D', 'E', 'y', '=', '=' },
-    { 'M', 'W', '=', 0 },
-    { 'M', 'z', 'Q', '=', '=' },
-  };
-
-  for (auto& in : test_cases) {
-    std::string out;
-    auto decoder = standard_decoder();
-    CHECK_THROWS_AS(
-        decoder.decode(in.begin(), in.end(), std::back_inserter(out)),
-        std::invalid_argument);
-  }
-}
-
 TEST_CASE("url_encoder")
 {
   struct test_case_t {
@@ -138,6 +116,43 @@ TEST_CASE("url_decoder")
     decoder.decode(test_case.in.begin(), test_case.in.end(),
                    std::back_inserter(out));
     CHECK_EQ(out, test_case.expected);
+  }
+}
+
+TEST_CASE("standard_decoder & url_decoder with invalid input")
+{
+  const auto test_cases = std::vector<std::vector<std::uint8_t>> {
+    // "MA==" -> "0"
+    // "MDE=" -> "01"
+    // "MDEy" -> "012"
+    { 0 },
+    { 'M', 0 },
+    { 'M', 0, 0 },
+    { 'M', 'D', 0 },
+    { 'M', 'D', 0, 0 },
+    { 'M', 'D', 'E', 0 },
+    { 'M', 'D', 'E', 0, 0 },
+    { 'M', 'D', 'E', 'y', 0 },
+    { 'M', 'D', 'E', 'y', 0, 0 },
+    { 'M', 'D', 'E', 'y', '=' },
+    { 'M', 'D', 'E', '=', '=' },
+    { 'M', 'A', '=', '=', '=' },
+  };
+
+  for (auto& in : test_cases) {
+    std::string out;
+    auto decoder = standard_decoder();
+    CHECK_THROWS_AS(
+        decoder.decode(in.begin(), in.end(), std::back_inserter(out)),
+        std::invalid_argument);
+  }
+
+  for (auto& in : test_cases) {
+    std::string out;
+    auto decoder = url_decoder();
+    CHECK_THROWS_AS(
+        decoder.decode(in.begin(), in.end(), std::back_inserter(out)),
+        std::invalid_argument);
   }
 }
 
