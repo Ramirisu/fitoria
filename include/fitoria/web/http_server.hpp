@@ -422,14 +422,12 @@ private:
           .set_body("request path is not found");
     }
 
-    auto request
-        = http_request(std::move(connection_info),
-                       route_params(segments_view::parse_param_map(
-                                        route->path(), req_url->path())
-                                        .value(),
-                                    std::string(route->path())),
-                       req_url->path(), method, to_query_map(req_url->params()),
-                       std::move(fields), std::move(body), route->state_maps());
+    auto request = http_request(
+        std::move(connection_info),
+        route_params(route->pattern().match(req_url->path()).value(),
+                     route->pattern().pattern()),
+        req_url->path(), method, to_query_map(req_url->params()),
+        std::move(fields), std::move(body), route->state_maps());
     auto context = http_context(request);
     co_return co_await route->operator()(context);
   }

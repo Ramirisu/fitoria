@@ -26,6 +26,5 @@
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/route_params.hpp>
 #include <fitoria/web/scope.hpp>
-#include <fitoria/web/segments_view.hpp>
 
 #endif

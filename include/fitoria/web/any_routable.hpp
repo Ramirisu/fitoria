@@ -13,10 +13,8 @@
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/http/http.hpp>
+#include <fitoria/web/match_pattern.hpp>
 #include <fitoria/web/state_map.hpp>
-
-#include <string>
-#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -49,19 +47,19 @@ class any_routable {
   };
 
   http::verb method_;
-  std::string path_;
+  match_pattern pattern_;
   std::vector<state_map> state_maps_;
   std::shared_ptr<base> erased_;
 
 public:
   template <typename F>
   any_routable(http::verb method,
-               std::string path,
+               match_pattern pattern,
                std::vector<state_map> state_maps,
                F f)
     requires(!is_specialization_of_v<F, any_routable>)
       : method_(method)
-      , path_(std::move(path))
+      , pattern_(std::move(pattern))
       , state_maps_(std::move(state_maps))
       , erased_(std::make_shared<derived<F>>(std::move(f)))
   {
@@ -72,9 +70,9 @@ public:
     return method_;
   }
 
-  auto path() const noexcept -> const std::string&
+  auto pattern() const noexcept -> const match_pattern&
   {
-    return path_;
+    return pattern_;
   }
 
   auto state_maps() const noexcept -> const std::vector<state_map>&

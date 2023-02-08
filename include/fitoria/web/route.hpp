@@ -11,6 +11,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/http/http.hpp>
+#include <fitoria/web/match_pattern.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #include <string>
@@ -26,19 +27,32 @@ struct route_impl;
 template <typename... Services, typename Handler>
 struct route_impl<std::tuple<Services...>, Handler> {
   http::verb method_;
-  std::string path_;
+  match_pattern match_pattern_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
 
-public:
   route_impl(http::verb method,
-             std::string path,
+             match_pattern pattern,
              std::vector<state_map> state_maps,
              std::tuple<Services...> services,
              Handler handler)
       : method_(method)
-      , path_(std::move(path))
+      , match_pattern_(std::move(pattern))
+      , state_maps_(std::move(state_maps))
+      , services_(std::move(services))
+      , handler_(std::move(handler))
+  {
+  }
+
+public:
+  route_impl(http::verb method,
+             std::string pattern,
+             std::vector<state_map> state_maps,
+             std::tuple<Services...> services,
+             Handler handler)
+      : method_(method)
+      , match_pattern_(match_pattern::from_pattern(std::move(pattern)).value())
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
       , handler_(std::move(handler))
@@ -55,14 +69,14 @@ public:
     state_maps.front()[std::type_index(typeid(State))]
         = std::any(std::move(state));
     return route_impl<std::tuple<Services...>, Handler>(
-        method_, path_, std::move(state_maps), services_, handler_);
+        method_, match_pattern_, std::move(state_maps), services_, handler_);
   }
 
   template <typename Service>
   auto use(Service service) const
   {
     return route_impl<std::tuple<Services..., Service>, Handler>(
-        method_, path_, state_maps_,
+        method_, match_pattern_, state_maps_,
         std::tuple_cat(services_, std::tuple { std::move(service) }), handler_);
   }
 
@@ -71,7 +85,7 @@ public:
                      state_map parent_state_map,
                      std::tuple<ParentServices...> parent_services) const
   {
-    parent_path += path_;
+    parent_path += match_pattern_.pattern();
     auto state_maps = state_maps_;
     if (!parent_state_map.empty()) {
       state_maps.push_back(std::move(parent_state_map));
@@ -86,28 +100,28 @@ public:
     return method_;
   }
 
-  auto path() const noexcept -> const std::string&
+  auto pattern() const noexcept -> const match_pattern&
   {
-    return path_;
+    return match_pattern_;
   }
 
   auto build_service() const
     requires(sizeof...(Services) == 0)
   {
-    return std::tuple { method_, path_, state_maps_, handler_ };
+    return std::tuple { method_, match_pattern_, state_maps_, handler_ };
   }
 
   auto build_service() const
     requires(sizeof...(Services) == 1)
   {
-    return std::tuple { method_, path_, state_maps_,
+    return std::tuple { method_, match_pattern_, state_maps_,
                         std::get<0>(services_).create(handler_) };
   }
 
   auto build_service() const
     requires(sizeof...(Services) == 2)
   {
-    return std::tuple { method_, path_, state_maps_,
+    return std::tuple { method_, match_pattern_, state_maps_,
                         std::get<0>(services_).create(
                             std::get<1>(services_).create(handler_)) };
   }
@@ -115,7 +129,7 @@ public:
   auto build_service() const
     requires(sizeof...(Services) == 3)
   {
-    return std::tuple { method_, path_, state_maps_,
+    return std::tuple { method_, match_pattern_, state_maps_,
                         std::get<0>(services_).create(
                             std::get<1>(services_).create(
                                 std::get<2>(services_).create(handler_))) };
@@ -125,7 +139,7 @@ public:
     requires(sizeof...(Services) == 4)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(
           std::get<1>(services_).create(std::get<2>(services_).create(
               std::get<3>(services_).create(handler_))))
@@ -136,7 +150,7 @@ public:
     requires(sizeof...(Services) == 5)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(std::get<1>(services_).create(
           std::get<2>(services_).create(std::get<3>(services_).create(
               std::get<4>(services_).create(handler_)))))
@@ -147,7 +161,7 @@ public:
     requires(sizeof...(Services) == 6)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(
           std::get<1>(services_).create(std::get<2>(services_).create(
               std::get<3>(services_).create(std::get<4>(services_).create(
@@ -159,7 +173,7 @@ public:
     requires(sizeof...(Services) == 7)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(std::get<1>(services_).create(
           std::get<2>(services_).create(std::get<3>(services_).create(
               std::get<4>(services_).create(std::get<5>(services_).create(
@@ -171,7 +185,7 @@ public:
     requires(sizeof...(Services) == 8)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(
           std::get<1>(services_).create(std::get<2>(services_).create(
               std::get<3>(services_).create(std::get<4>(services_).create(
@@ -184,7 +198,7 @@ public:
     requires(sizeof...(Services) == 9)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(std::get<1>(services_).create(
           std::get<2>(services_).create(std::get<3>(services_).create(
               std::get<4>(services_).create(std::get<5>(services_).create(
@@ -197,7 +211,7 @@ public:
     requires(sizeof...(Services) == 10)
   {
     return std::tuple {
-      method_, path_, state_maps_,
+      method_, match_pattern_, state_maps_,
       std::get<0>(services_).create(std::get<1>(services_).create(
           std::get<2>(services_).create(std::get<3>(services_).create(
               std::get<4>(services_).create(std::get<5>(services_).create(

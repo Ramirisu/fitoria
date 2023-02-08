@@ -133,7 +133,7 @@ TEST_CASE("middleware & handler")
   static_assert(std::tuple_size_v<decltype(services)> == 14);
 
   auto m = [](auto& route) { return std::get<0>(route); };
-  auto p = [](auto& route) { return std::get<1>(route); };
+  auto p = [](auto& route) { return std::get<1>(route).pattern(); };
   auto s = [](auto& route) { return std::get<3>(route)(0); };
 
   CHECK_EQ(m(std::get<0>(services)), http::verb::get);

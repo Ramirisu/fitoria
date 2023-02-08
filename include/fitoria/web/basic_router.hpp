@@ -17,7 +17,7 @@
 #include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/segments_view.hpp>
+#include <fitoria/web/match_pattern.hpp>
 
 #include <memory>
 #include <string>
@@ -39,11 +39,10 @@ private:
     friend class basic_router;
 
   private:
-    auto try_insert(const route_type& route,
-                    const segments_view& segs,
-                    std::size_t seg_idx) -> expected<void, error_code>
+    auto try_insert(const route_type& route, std::size_t seg_idx)
+        -> expected<void, error_code>
     {
-      if (seg_idx == segs.size()) {
+      if (seg_idx == route.pattern().segments().size()) {
         if (route_) {
           return unexpected { make_error_code(error::route_already_exists) };
         }
@@ -52,19 +51,19 @@ private:
         return {};
       }
 
-      auto& segment = segs[seg_idx];
-      if (segment.is_param) {
+      auto& segment = route.pattern().segments()[seg_idx];
+      if (segment.kind == match_pattern::segment_kind::parameterized) {
         if (!param_tree_) {
           param_tree_.emplace(std::make_shared<node>());
         }
-        return param_tree_.value()->try_insert(route, segs, seg_idx + 1);
+        return param_tree_.value()->try_insert(route, seg_idx + 1);
       }
 
-      return subtrees_[std::string(segment.escaped)].try_insert(route, segs,
-                                                                seg_idx + 1);
+      return subtrees_[segment.value].try_insert(route, seg_idx + 1);
     }
 
-    auto try_find(const segments_view& segs, std::size_t seg_idx) const noexcept
+    auto try_find(const match_pattern::segments_t& segs,
+                  std::size_t seg_idx) const noexcept
         -> expected<const route_type&, error_code>
     {
       if (seg_idx == segs.size()) {
@@ -72,7 +71,7 @@ private:
                            make_error_code(error::route_not_exists));
       }
 
-      return to_expected(try_find_path_trees(segs[seg_idx].original),
+      return to_expected(try_find_subtrees(segs[seg_idx].value),
                          make_error_code(error::route_not_exists))
           .and_then(
               [&](auto&& node) { return node.try_find(segs, seg_idx + 1); })
@@ -84,10 +83,10 @@ private:
           });
     }
 
-    auto try_find_path_trees(std::string_view token) const noexcept
+    auto try_find_subtrees(std::string_view segment) const noexcept
         -> optional<const node&>
     {
-      if (auto iter = subtrees_.find(token); iter != subtrees_.end()) {
+      if (auto iter = subtrees_.find(segment); iter != subtrees_.end()) {
         return iter->second;
       }
 
@@ -102,21 +101,20 @@ private:
 public:
   auto try_insert(const route_type& route) -> expected<void, error_code>
   {
-    return segments_view::from_path(route.path()).and_then([&](auto&& segs) {
-      return subtrees_[route.method()].try_insert(route, segs, 0);
-    });
+    return subtrees_[route.method()].try_insert(route, 0);
   }
 
-  auto try_find(http::verb method, std::string_view path) const
+  auto try_find(http::verb method, std::string path) const
       -> expected<const route_type&, error_code>
   {
-    return segments_view::from_path(path)
-        .transform_error(
-            [](auto&&) { return make_error_code(error::route_not_exists); })
-        .and_then([&](auto&& segs) {
+    return to_expected(match_pattern::from_pattern(path),
+                       make_error_code(error::route_not_exists))
+        .and_then([&](auto&& pattern) {
           return to_expected(try_find(method),
                              make_error_code(error::route_not_exists))
-              .and_then([&](auto&& node) { return node.try_find(segs, 0); });
+              .and_then([&](auto&& node) {
+                return node.try_find(pattern.segments(), 0);
+              });
         });
   }
 

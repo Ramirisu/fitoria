@@ -15,14 +15,14 @@ TEST_SUITE_BEGIN("web.route");
 
 TEST_CASE("basic")
 {
-  const auto r
+  const auto r1
       = route::handle(http::verb::get, "/v1", [](int) -> int { return 0; });
-  CHECK_EQ(r.method(), http::verb::get);
-  CHECK_EQ(r.path(), "/v1");
+  CHECK_EQ(r1.method(), http::verb::get);
+  CHECK_EQ(r1.pattern().pattern(), "/v1");
 
-  auto new_route = r.rebind_parent("/api", {}, {});
-  CHECK_EQ(new_route.method(), http::verb::get);
-  CHECK_EQ(new_route.path(), "/api/v1");
+  auto r2 = r1.rebind_parent("/api", {}, {});
+  CHECK_EQ(r2.method(), http::verb::get);
+  CHECK_EQ(r2.pattern().pattern(), "/api/v1");
 }
 
 TEST_CASE("methods")

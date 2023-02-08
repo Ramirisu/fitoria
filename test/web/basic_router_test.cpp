@@ -26,20 +26,12 @@ TEST_CASE("try_insert")
   using exp_t = expected<void, error>;
 
   auto r = [=](http::verb method, std::string path) {
-    return router_type::route_type(method, std::move(path), {},
-                                   [](int) { return 0; });
+    return router_type::route_type(
+        method, match_pattern::from_pattern(std::move(path)).value(), {},
+        [](int) { return 0; });
   };
 
   router_type rt;
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/{")),
-           exp_t(unexpect, error::route_parse_error));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/}")),
-           exp_t(unexpect, error::route_parse_error));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{")),
-           exp_t(unexpect, error::route_parse_error));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/}")),
-           exp_t(unexpect, error::route_parse_error));
-
   CHECK_EQ(rt.try_insert(r(http::verb::get, "")), exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::get, "")),
            exp_t(unexpect, error::route_already_exists));
@@ -49,32 +41,32 @@ TEST_CASE("try_insert")
   CHECK_EQ(rt.try_insert(r(http::verb::get, "//")), exp_t());
   CHECK_EQ(rt.try_insert(r(http::verb::get, "//")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu")),
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::put, "/ramirisu")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::put, "/ramirisu")),
+  CHECK_EQ(rt.try_insert(r(http::verb::put, "/api")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::put, "/api")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/")),
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu//")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu//")),
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api//")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api//")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{repo}")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{r}")),
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x0}")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x1}")),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{repo}/{branch}")),
-           exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/ramirisu/{r}/{b}")),
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x0}/{y0}")), exp_t());
+  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x1}/{y1}")),
            exp_t(unexpect, error::route_already_exists));
 }
 
 TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
-    return router_type::route_type(method, std::move(path), {},
-                                   [=](int) -> int { return exp; });
+    return router_type::route_type(
+        method, match_pattern::from_pattern(std::move(path)).value(), {},
+        [=](int) -> int { return exp; });
   };
 
   router_type rt;
