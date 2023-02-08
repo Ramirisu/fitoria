@@ -144,7 +144,7 @@ public:
 
 inline auto scope(std::string path)
 {
-  return scope_impl<std::tuple<>, std::tuple<>> { std::move(path), {}, {}, {} };
+  return scope_impl<std::tuple<>, std::tuple<>>(std::move(path), {}, {}, {});
 }
 
 }
