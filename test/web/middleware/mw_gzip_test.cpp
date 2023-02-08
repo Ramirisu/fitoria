@@ -115,7 +115,7 @@ TEST_CASE("gzip middleware")
 
                       auto res = http_response(http::status::ok)
                                      .set_body(req.body());
-                      if (req.route_params().get("no_compression") == "yes") {
+                      if (req.params().get("no_compression") == "yes") {
                         res.set_field(
                             http::field::content_encoding,
                             http::fields::content_encoding::identity());

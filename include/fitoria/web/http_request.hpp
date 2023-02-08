@@ -32,7 +32,7 @@ public:
   }
 
   http_request(connection_info conn_info,
-               route_params route_params,
+               route_params params,
                std::string path,
                http::verb method,
                query_map query,
@@ -40,7 +40,7 @@ public:
                std::string body,
                const std::vector<state_map>& state_maps)
       : conn_info_(std::move(conn_info))
-      , route_params_(std::move(route_params))
+      , params_(std::move(params))
       , path_(std::move(path))
       , method_(method)
       , query_(std::move(query))
@@ -55,14 +55,14 @@ public:
     return conn_info_;
   }
 
-  const class route_params& route_params() const noexcept
+  const route_params& params() const noexcept
   {
-    return route_params_;
+    return params_;
   }
 
-  operator const class route_params &() const noexcept
+  operator const route_params&() const noexcept
   {
-    return route_params_;
+    return params_;
   }
 
   http::verb method() const noexcept
@@ -207,7 +207,7 @@ public:
 
 private:
   connection_info conn_info_;
-  class route_params route_params_;
+  route_params params_;
   std::string path_;
   http::verb method_;
   query_map query_;

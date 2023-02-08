@@ -84,11 +84,10 @@ int main()
                     .GET(
                         "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
-                          log::debug("user: {}",
-                                     req.route_params().get("user"));
+                          log::debug("user: {}", req.params().get("user"));
 
                           co_return http_response(http::status::ok)
-                              .set_body(req.route_params().get("user").value_or(
+                              .set_body(req.params().get("user").value_or(
                                   "{{unknown}}"));
                         }))
             .build();

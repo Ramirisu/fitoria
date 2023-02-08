@@ -18,31 +18,29 @@ void configure_application(http_server::builder& builder)
           // Register a global middleware for all handlers
           .use(middleware::logger())
           // Create a sub-scope "/api/v1" under global scope
-          .sub_scope(scope("/api/v1")
-                         // Register a middleware for this scope
-                         .use(middleware::gzip())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                log::debug("route: {}",
-                                           req.route_params().path());
+          .sub_scope(
+              scope("/api/v1")
+                  // Register a middleware for this scope
+                  .use(middleware::gzip())
+                  // Register a route for this scope
+                  .GET("/users/{user}",
+                       [](http_request& req) -> net::awaitable<http_response> {
+                         log::debug("route: {}", req.params().path());
 
-                                co_return http_response(http::status::ok);
-                              }))
+                         co_return http_response(http::status::ok);
+                       }))
           // Create a sub-scope "/api/v2" under global scope
-          .sub_scope(scope("/api/v2")
-                         // Register a middleware for this scope
-                         .use(middleware::deflate())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                log::debug("route_params: {}",
-                                           req.route_params().path());
+          .sub_scope(
+              scope("/api/v2")
+                  // Register a middleware for this scope
+                  .use(middleware::deflate())
+                  // Register a route for this scope
+                  .GET("/users/{user}",
+                       [](http_request& req) -> net::awaitable<http_response> {
+                         log::debug("params: {}", req.params().path());
 
-                                co_return http_response(http::status::ok);
-                              })));
+                         co_return http_response(http::status::ok);
+                       })));
 }
 
 int main()

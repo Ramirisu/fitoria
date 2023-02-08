@@ -53,10 +53,9 @@ int main()
             .route(route::GET(
                 "/api/v1/{owner}/{repo}",
                 [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("route: {}", req.route_params().path());
-                  log::debug("owner: {}, repo: {}",
-                             req.route_params().get("owner"),
-                             req.route_params().get("repo"));
+                  log::debug("route: {}", req.params().path());
+                  log::debug("owner: {}, repo: {}", req.params().get("owner"),
+                             req.params().get("repo"));
 
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
@@ -133,7 +132,7 @@ Use `http_request::route_params()` to access the route parameters.
 namespace api::v1::users::get_user {
 auto api(const http_request& req) -> net::awaitable<http_response>
 {
-  auto user = req.route_params().get("user");
+  auto user = req.params().get("user");
   if (!user) {
     co_return http_response(http::status::bad_request);
   }
@@ -329,31 +328,29 @@ void configure_application(http_server::builder& builder)
           // Register a global middleware for all handlers
           .use(middleware::logger())
           // Create a sub-scope "/api/v1" under global scope
-          .sub_scope(scope("/api/v1")
-                         // Register a middleware for this scope
-                         .use(middleware::gzip())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                log::debug("route: {}",
-                                           req.route_params().path());
+          .sub_scope(
+              scope("/api/v1")
+                  // Register a middleware for this scope
+                  .use(middleware::gzip())
+                  // Register a route for this scope
+                  .GET("/users/{user}",
+                       [](http_request& req) -> net::awaitable<http_response> {
+                         log::debug("route: {}", req.params().path());
 
-                                co_return http_response(http::status::ok);
-                              }))
+                         co_return http_response(http::status::ok);
+                       }))
           // Create a sub-scope "/api/v2" under global scope
-          .sub_scope(scope("/api/v2")
-                         // Register a middleware for this scope
-                         .use(middleware::deflate())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                log::debug("route_params: {}",
-                                           req.route_params().path());
+          .sub_scope(
+              scope("/api/v2")
+                  // Register a middleware for this scope
+                  .use(middleware::deflate())
+                  // Register a route for this scope
+                  .GET("/users/{user}",
+                       [](http_request& req) -> net::awaitable<http_response> {
+                         log::debug("params: {}", req.params().path());
 
-                                co_return http_response(http::status::ok);
-                              })));
+                         co_return http_response(http::status::ok);
+                       })));
 }
 
 int main()
@@ -447,11 +444,10 @@ int main()
                     .GET(
                         "/users/{user}",
                         [](http_request& req) -> net::awaitable<http_response> {
-                          log::debug("user: {}",
-                                     req.route_params().get("user"));
+                          log::debug("user: {}", req.params().get("user"));
 
                           co_return http_response(http::status::ok)
-                              .set_body(req.route_params().get("user").value_or(
+                              .set_body(req.params().get("user").value_or(
                                   "{{unknown}}"));
                         }))
             .build();

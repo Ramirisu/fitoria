@@ -18,8 +18,8 @@ using cache_map_ptr = std::shared_ptr<cache_map>;
 namespace put {
   auto api(const http_request& req) -> net::awaitable<http_response>
   {
-    auto key = req.route_params().get("key");
-    auto value = req.route_params().get("value");
+    auto key = req.params().get("key");
+    auto value = req.params().get("value");
     if (!key || !value) {
       co_return http_response(http::status::bad_request);
     }
@@ -39,7 +39,7 @@ namespace put {
 namespace get {
   auto api(const http_request& req) -> net::awaitable<http_response>
   {
-    auto key = req.route_params().get("key");
+    auto key = req.params().get("key");
     if (!key) {
       co_return http_response(http::status::bad_request);
     }

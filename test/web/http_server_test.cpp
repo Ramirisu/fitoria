@@ -212,14 +212,14 @@ TEST_CASE("generic request")
                            net::ip::make_address(server_ip));
                   CHECK_EQ(req.conn_info().listen_port(), port);
 
-                  auto test_route = [](auto& route) {
+                  auto test_params = [](auto& route) {
                     CHECK_EQ(route.path(),
                              "/api/v1/users/{user}/filmography/years/{year}");
 
                     CHECK_EQ(route.at("user"), "Rina Hidaka");
                     CHECK_EQ(route.at("year"), "2022");
                   };
-                  test_route(req.route_params());
+                  test_params(req.params());
 
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),

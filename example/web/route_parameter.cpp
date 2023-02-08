@@ -11,19 +11,19 @@ using namespace fitoria;
 using namespace fitoria::web;
 
 // $ ./route_parameter
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/david --verbose
 //
 // curl output:
 // < HTTP/1.1 200 OK
 // < Content-Type: text/plain
 // < Content-Length: 14
 // <
-// user: ramirisu
+// user: david
 
 namespace api::v1::users::get_user {
 auto api(const http_request& req) -> net::awaitable<http_response>
 {
-  auto user = req.route_params().get("user");
+  auto user = req.params().get("user");
   if (!user) {
     co_return http_response(http::status::bad_request);
   }

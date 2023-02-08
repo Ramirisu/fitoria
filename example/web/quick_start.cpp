@@ -40,10 +40,9 @@ int main()
             .route(route::GET(
                 "/api/v1/{owner}/{repo}",
                 [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("route: {}", req.route_params().path());
-                  log::debug("owner: {}, repo: {}",
-                             req.route_params().get("owner"),
-                             req.route_params().get("repo"));
+                  log::debug("route: {}", req.params().path());
+                  log::debug("owner: {}, repo: {}", req.params().get("owner"),
+                             req.params().get("repo"));
 
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,

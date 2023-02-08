@@ -99,7 +99,7 @@ TEST_CASE("unittest")
                 "/api/v1/users/{user}",
                 [](http_request& req) -> net::awaitable<http_response> {
                   user_t user;
-                  user.name = req.route_params().get("user").value();
+                  user.name = req.params().get("user").value();
                   if (auto gender = req.query().get("gender"); gender) {
                     user.gender = gender.value();
                   } else {
