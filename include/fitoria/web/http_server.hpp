@@ -79,9 +79,9 @@ public:
 #endif
 
     template <typename... RouteServices, typename F>
-    builder& route(route_impl<std::tuple<RouteServices...>, F> route)
+    builder& route(route_builder<std::tuple<RouteServices...>, F> route)
     {
-      auto [method, path, state_maps, service] = route.build_service();
+      auto [method, path, state_maps, service] = route.build();
 
       if (auto res = router_.try_insert(router_type::route_type(
               method, std::move(path), std::move(state_maps),

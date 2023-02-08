@@ -22,21 +22,21 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 template <typename Services, typename Handler>
-struct route_impl;
+struct route_builder;
 
 template <typename... Services, typename Handler>
-struct route_impl<std::tuple<Services...>, Handler> {
+struct route_builder<std::tuple<Services...>, Handler> {
   http::verb method_;
   match_pattern match_pattern_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
 
-  route_impl(http::verb method,
-             match_pattern pattern,
-             std::vector<state_map> state_maps,
-             std::tuple<Services...> services,
-             Handler handler)
+  route_builder(http::verb method,
+                match_pattern pattern,
+                std::vector<state_map> state_maps,
+                std::tuple<Services...> services,
+                Handler handler)
       : method_(method)
       , match_pattern_(std::move(pattern))
       , state_maps_(std::move(state_maps))
@@ -46,11 +46,11 @@ struct route_impl<std::tuple<Services...>, Handler> {
   }
 
 public:
-  route_impl(http::verb method,
-             std::string pattern,
-             std::vector<state_map> state_maps,
-             std::tuple<Services...> services,
-             Handler handler)
+  route_builder(http::verb method,
+                std::string pattern,
+                std::vector<state_map> state_maps,
+                std::tuple<Services...> services,
+                Handler handler)
       : method_(method)
       , match_pattern_(match_pattern::from_pattern(std::move(pattern)).value())
       , state_maps_(std::move(state_maps))
@@ -68,14 +68,14 @@ public:
     }
     state_maps.front()[std::type_index(typeid(State))]
         = std::any(std::move(state));
-    return route_impl<std::tuple<Services...>, Handler>(
+    return route_builder<std::tuple<Services...>, Handler>(
         method_, match_pattern_, std::move(state_maps), services_, handler_);
   }
 
   template <typename Service>
   auto use(Service service) const
   {
-    return route_impl<std::tuple<Services..., Service>, Handler>(
+    return route_builder<std::tuple<Services..., Service>, Handler>(
         method_, match_pattern_, state_maps_,
         std::tuple_cat(services_, std::tuple { std::move(service) }), handler_);
   }
@@ -90,7 +90,7 @@ public:
     if (!parent_state_map.empty()) {
       state_maps.push_back(std::move(parent_state_map));
     }
-    return route_impl<std::tuple<ParentServices..., Services...>, Handler>(
+    return route_builder<std::tuple<ParentServices..., Services...>, Handler>(
         method_, std::move(parent_path), std::move(state_maps),
         std::tuple_cat(std::move(parent_services), services_), handler_);
   }
@@ -105,20 +105,20 @@ public:
     return match_pattern_;
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 0)
   {
     return std::tuple { method_, match_pattern_, state_maps_, handler_ };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 1)
   {
     return std::tuple { method_, match_pattern_, state_maps_,
                         std::get<0>(services_).create(handler_) };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 2)
   {
     return std::tuple { method_, match_pattern_, state_maps_,
@@ -126,7 +126,7 @@ public:
                             std::get<1>(services_).create(handler_)) };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 3)
   {
     return std::tuple { method_, match_pattern_, state_maps_,
@@ -135,7 +135,7 @@ public:
                                 std::get<2>(services_).create(handler_))) };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 4)
   {
     return std::tuple {
@@ -146,7 +146,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 5)
   {
     return std::tuple {
@@ -157,7 +157,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 6)
   {
     return std::tuple {
@@ -169,7 +169,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 7)
   {
     return std::tuple {
@@ -181,7 +181,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 8)
   {
     return std::tuple {
@@ -194,7 +194,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 9)
   {
     return std::tuple {
@@ -207,7 +207,7 @@ public:
     };
   }
 
-  auto build_service() const
+  auto build() const
     requires(sizeof...(Services) == 10)
   {
     return std::tuple {
@@ -227,8 +227,8 @@ public:
   template <typename Handler>
   static auto handle(http::verb method, std::string path, Handler handler)
   {
-    return route_impl<std::tuple<>, Handler>(method, std::move(path), {}, {},
-                                             std::move(handler));
+    return route_builder<std::tuple<>, Handler>(method, std::move(path), {}, {},
+                                                std::move(handler));
   }
 
   template <typename Handler>

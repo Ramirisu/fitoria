@@ -56,7 +56,7 @@ public:
   }
 
   template <typename... RouteServices, typename Handler>
-  auto route(route_impl<std::tuple<RouteServices...>, Handler> r) const
+  auto route(route_builder<std::tuple<RouteServices...>, Handler> r) const
   {
     auto r2 = r.rebind_parent(path_, state_map_, services_);
     return scope_impl<std::tuple<Services...>,
