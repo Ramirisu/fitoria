@@ -16,52 +16,31 @@
 #include <fitoria/web/match_pattern.hpp>
 #include <fitoria/web/state_map.hpp>
 
+#include <functional>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
 template <typename Request, typename Response>
 class any_routable {
-  class base {
-  public:
-    virtual ~base() = default;
-    virtual auto operator()(Request) const -> Response = 0;
-  };
-
-  template <typename F>
-  class derived : public base {
-    F f_;
-
-  public:
-    derived(F f)
-        : f_(std::move(f))
-    {
-    }
-
-    ~derived() override = default;
-
-    auto operator()(Request req) const -> Response override
-    {
-      return f_(req);
-    }
-  };
-
   http::verb method_;
   match_pattern pattern_;
   std::vector<state_map> state_maps_;
-  std::shared_ptr<base> erased_;
+  std::function<Response(Request)> service_;
 
 public:
-  template <typename F>
+  template <typename Service>
   any_routable(http::verb method,
                match_pattern pattern,
                std::vector<state_map> state_maps,
-               F f)
-    requires(!is_specialization_of_v<F, any_routable>)
+               Service&& service)
+    requires(!is_specialization_of_v<std::remove_cvref_t<Service>,
+                                     any_routable>)
       : method_(method)
       , pattern_(std::move(pattern))
       , state_maps_(std::move(state_maps))
-      , erased_(std::make_shared<derived<F>>(std::move(f)))
+      , service_(std::forward<Service>(service))
   {
   }
 
@@ -82,9 +61,10 @@ public:
 
   auto operator()(Request req) const -> Response
   {
-    return erased_->operator()(req);
+    return service_(req);
   }
 };
+
 }
 
 FITORIA_NAMESPACE_END
