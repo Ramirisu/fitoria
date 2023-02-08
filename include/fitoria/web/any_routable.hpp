@@ -44,7 +44,7 @@ public:
   {
   }
 
-  auto method() const noexcept
+  auto method() const noexcept -> http::verb
   {
     return method_;
   }
