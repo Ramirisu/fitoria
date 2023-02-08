@@ -15,9 +15,10 @@
 
 #include <fitoria/log.hpp>
 
+#include <fitoria/web/any_routable.hpp>
+#include <fitoria/web/basic_router.hpp>
 #include <fitoria/web/http_context.hpp>
-#include <fitoria/web/http_request.hpp>
-#include <fitoria/web/router.hpp>
+#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/scope.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -25,7 +26,8 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_server {
-  using router_type = router;
+  using router_type = basic_router<
+      any_routable<http_context&, net::awaitable<http_response>>>;
 
 public:
   class builder {
