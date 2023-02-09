@@ -10,8 +10,10 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/as_form.hpp>
 #include <fitoria/web/as_json.hpp>
+#include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_fields.hpp>
@@ -25,7 +27,9 @@
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/route_params.hpp>
+#include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/service.hpp>
+#include <fitoria/web/state_map.hpp>
 
 #endif
