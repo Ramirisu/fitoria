@@ -107,190 +107,43 @@ public:
   }
 
   auto build() const
-    requires(sizeof...(Services) == 0)
-  {
-    return std::tuple { method_, match_pattern_, state_maps_, handler_ };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 1)
   {
     return std::tuple { method_, match_pattern_, state_maps_,
-                        tag_invoke(make_service, std::get<0>(services_),
-                                   handler_) };
+                        build_service(std::tuple_cat(
+                            services_, std::tuple { handler_ })) };
   }
 
-  auto build() const
-    requires(sizeof...(Services) == 2)
+private:
+  template <typename... S>
+  static auto build_service(const std::tuple<S...>& s)
   {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(make_service, std::get<0>(services_),
-                 tag_invoke(make_service, std::get<1>(services_), handler_))
-    };
+    return build_service(s, std::make_index_sequence<sizeof...(S)> {});
   }
 
-  auto build() const
-    requires(sizeof...(Services) == 3)
+  template <typename... S, std::size_t... Is>
+  static auto build_service(const std::tuple<S...>& s,
+                            std::index_sequence<Is...>)
   {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(make_service, std::get<0>(services_),
-                 tag_invoke(make_service, std::get<1>(services_),
-                            tag_invoke(make_service, std::get<2>(services_),
-                                       handler_)))
-    };
+    return build_service_impl(std::get<sizeof...(S) - Is - 1>(s)...);
   }
 
-  auto build() const
-    requires(sizeof...(Services) == 4)
+  template <typename S0>
+  static auto build_service_impl(S0&& s0)
   {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(make_service, std::get<1>(services_),
-                     tag_invoke(make_service, std::get<2>(services_),
-                                tag_invoke(make_service, std::get<3>(services_),
-                                           handler_))))
-    };
+    return s0;
   }
 
-  auto build() const
-    requires(sizeof...(Services) == 5)
+  template <typename S0, typename S1, typename... S>
+  static auto build_service_impl(S0&& s0, S1&& s1, S&&... s)
   {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(make_service, std::get<1>(services_),
-                     tag_invoke(make_service, std::get<2>(services_),
-                                tag_invoke(make_service, std::get<3>(services_),
-                                           tag_invoke(make_service,
-                                                      std::get<4>(services_),
-                                                      handler_)))))
-    };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 6)
-  {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(
-              make_service, std::get<1>(services_),
-              tag_invoke(
-                  make_service, std::get<2>(services_),
-                  tag_invoke(make_service, std::get<3>(services_),
-                             tag_invoke(make_service, std::get<4>(services_),
-                                        tag_invoke(make_service,
-                                                   std::get<5>(services_),
-                                                   handler_))))))
-    };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 7)
-  {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(
-              make_service, std::get<1>(services_),
-              tag_invoke(
-                  make_service, std::get<2>(services_),
-                  tag_invoke(
-                      make_service, std::get<3>(services_),
-                      tag_invoke(make_service, std::get<4>(services_),
-                                 tag_invoke(make_service,
-                                            std::get<5>(services_),
-                                            tag_invoke(make_service,
-                                                       std::get<6>(services_),
-                                                       handler_)))))))
-    };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 8)
-  {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(
-              make_service, std::get<1>(services_),
-              tag_invoke(
-                  make_service, std::get<2>(services_),
-                  tag_invoke(
-                      make_service, std::get<3>(services_),
-                      tag_invoke(
-                          make_service, std::get<4>(services_),
-                          tag_invoke(
-                              make_service, std::get<5>(services_),
-                              tag_invoke(make_service, std::get<6>(services_),
-                                         tag_invoke(make_service,
-                                                    std::get<7>(services_),
-                                                    handler_))))))))
-    };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 9)
-  {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(
-              make_service, std::get<1>(services_),
-              tag_invoke(
-                  make_service, std::get<2>(services_),
-                  tag_invoke(
-                      make_service, std::get<3>(services_),
-                      tag_invoke(
-                          make_service, std::get<4>(services_),
-                          tag_invoke(
-                              make_service, std::get<5>(services_),
-                              tag_invoke(
-                                  make_service, std::get<6>(services_),
-                                  tag_invoke(make_service,
-                                             std::get<7>(services_),
-                                             tag_invoke(make_service,
-                                                        std::get<8>(services_),
-                                                        handler_)))))))))
-    };
-  }
-
-  auto build() const
-    requires(sizeof...(Services) == 10)
-  {
-    return std::tuple {
-      method_, match_pattern_, state_maps_,
-      tag_invoke(
-          make_service, std::get<0>(services_),
-          tag_invoke(
-              make_service, std::get<1>(services_),
-              tag_invoke(
-                  make_service, std::get<2>(services_),
-                  tag_invoke(
-                      make_service, std::get<3>(services_),
-                      tag_invoke(
-                          make_service, std::get<4>(services_),
-                          tag_invoke(
-                              make_service, std::get<5>(services_),
-                              tag_invoke(
-                                  make_service, std::get<6>(services_),
-                                  tag_invoke(
-                                      make_service, std::get<7>(services_),
-                                      tag_invoke(
-                                          make_service, std::get<8>(services_),
-                                          tag_invoke(make_service,
-                                                     std::get<9>(services_),
-                                                     handler_))))))))))
-    };
+    if constexpr (sizeof...(S) > 0) {
+      return build_service_impl(
+          tag_invoke(make_service, std::forward<S1>(s1), std::forward<S0>(s0)),
+          std::forward<S>(s)...);
+    } else {
+      return tag_invoke(make_service, std::forward<S1>(s1),
+                        std::forward<S0>(s0));
+    }
   }
 };
 
@@ -345,7 +198,6 @@ public:
     return handle(http::verb::options, std::move(path), std::move(handler));
   }
 };
-
 }
 
 FITORIA_NAMESPACE_END
