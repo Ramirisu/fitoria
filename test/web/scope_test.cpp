@@ -13,49 +13,27 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.basic_scope");
+TEST_SUITE_BEGIN("web.scope");
 
-TEST_CASE("methods")
+TEST_CASE("method")
 {
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .GET("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  auto method
+      = [](auto&& scope) { return std::get<0>(scope.routes()).method(); };
+  CHECK_EQ(method(scope("/api").GET("/", [](int) -> int { return 0; })),
            http::verb::get);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .POST("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").POST("/", [](int) -> int { return 0; })),
            http::verb::post);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .PUT("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").PUT("/", [](int) -> int { return 0; })),
            http::verb::put);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .POST("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").POST("/", [](int) -> int { return 0; })),
            http::verb::post);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .PATCH("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").PATCH("/", [](int) -> int { return 0; })),
            http::verb::patch);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .DELETE_("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").DELETE_("/", [](int) -> int { return 0; })),
            http::verb::delete_);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .HEAD("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").HEAD("/", [](int) -> int { return 0; })),
            http::verb::head);
-  CHECK_EQ(std::get<0>(scope("/api") //
-                           .OPTIONS("/", [](int) -> int { return 0; })
-                           .routes())
-               .method(),
+  CHECK_EQ(method(scope("/api").OPTIONS("/", [](int) -> int { return 0; })),
            http::verb::options);
 }
 
