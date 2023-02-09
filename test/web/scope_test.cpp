@@ -8,6 +8,7 @@
 #include <fitoria_test.h>
 
 #include <fitoria/web/scope.hpp>
+#include <fitoria/web/service.hpp>
 
 using namespace fitoria::web;
 
@@ -85,9 +86,10 @@ public:
   }
 
   template <typename Next>
-  auto create(Next next) const
+  friend constexpr auto
+  tag_invoke(fitoria::tag_t<make_service>, const adder& self, Next&& next)
   {
-    return adder_service(std::move(next), value_);
+    return adder_service(std::move(next), self.value_);
   }
 };
 

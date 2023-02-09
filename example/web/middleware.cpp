@@ -16,9 +16,9 @@ using namespace fitoria::web;
 // $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu --verbose
 //
 // server output:
-// > 2023-01-01T00:00:00Z DEBUG before handler [middleware.cpp:36:23]
+// > 2023-01-01T00:00:00Z INFO before handler [middleware.cpp:36:23]
 // > 2023-01-01T00:00:00Z DEBUG user: ramirisu [middleware.cpp:47:37]
-// > 2023-01-01T00:00:00Z DEBUG after handler [middleware.cpp:38:23]
+// > 2023-01-01T00:00:00Z INFO after handler [middleware.cpp:38:23]
 // > 2023-01-01T00:00:00Z INFO [fitoria.middleware.logger] 127.0.0.1 GET /api/v1/users/ramirisu 200 curl/7.83.1 [logger.hpp:31:14]
 //
 //
@@ -27,31 +27,41 @@ using namespace fitoria::web;
 template <typename Next>
 class my_log_service {
   Next next_;
+  log::level lv_;
 
 public:
-  my_log_service(Next next)
+  my_log_service(Next next, log::level lv)
       : next_(std::move(next))
+      , lv_(lv)
   {
   }
 
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    log::debug("before handler");
+    log::log(lv_, "before handler");
 
     auto res = co_await next_(ctx);
 
-    log::debug("after handler");
+    log::log(lv_, "after handler");
 
     co_return res;
   }
 };
 
 class my_log {
+  log::level lv_;
+
 public:
-  template <typename Next>
-  auto create(Next next) const
+  my_log(log::level lv)
+      : lv_(lv)
   {
-    return my_log_service(std::move(next));
+  }
+
+  template <typename Next>
+  friend constexpr auto
+  tag_invoke(tag_t<make_service>, const my_log& self, Next&& next)
+  {
+    return my_log_service(std::move(next), self.lv_);
   }
 };
 
@@ -78,7 +88,7 @@ int main()
                     .use(middleware::gzip())
 #endif
                     // Register a custom middleware for this group
-                    .use(my_log())
+                    .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
                     .GET(

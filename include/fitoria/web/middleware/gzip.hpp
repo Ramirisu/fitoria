@@ -16,6 +16,7 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/service.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -86,7 +87,8 @@ public:
 class gzip {
 public:
   template <typename Next>
-  auto create(Next next) const
+  friend constexpr auto
+  tag_invoke(tag_t<make_service>, const gzip&, Next&& next)
   {
     return gzip_service(std::move(next));
   }

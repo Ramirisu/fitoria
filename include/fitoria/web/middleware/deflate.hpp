@@ -14,6 +14,7 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/service.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -85,9 +86,10 @@ public:
 class deflate {
 public:
   template <typename Next>
-  auto create(Next next) const
+  friend constexpr auto
+  tag_invoke(tag_t<make_service>, const deflate&, Next&& next)
   {
-    return deflate_service(std::move(next));
+    return deflate_service(std::forward<Next>(next));
   }
 };
 

@@ -26,5 +26,6 @@
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/route_params.hpp>
 #include <fitoria/web/scope.hpp>
+#include <fitoria/web/service.hpp>
 
 #endif

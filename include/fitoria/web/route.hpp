@@ -12,6 +12,7 @@
 
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/match_pattern.hpp>
+#include <fitoria/web/service.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #include <string>
@@ -115,24 +116,30 @@ public:
     requires(sizeof...(Services) == 1)
   {
     return std::tuple { method_, match_pattern_, state_maps_,
-                        std::get<0>(services_).create(handler_) };
+                        tag_invoke(make_service, std::get<0>(services_),
+                                   handler_) };
   }
 
   auto build() const
     requires(sizeof...(Services) == 2)
   {
-    return std::tuple { method_, match_pattern_, state_maps_,
-                        std::get<0>(services_).create(
-                            std::get<1>(services_).create(handler_)) };
+    return std::tuple {
+      method_, match_pattern_, state_maps_,
+      tag_invoke(make_service, std::get<0>(services_),
+                 tag_invoke(make_service, std::get<1>(services_), handler_))
+    };
   }
 
   auto build() const
     requires(sizeof...(Services) == 3)
   {
-    return std::tuple { method_, match_pattern_, state_maps_,
-                        std::get<0>(services_).create(
-                            std::get<1>(services_).create(
-                                std::get<2>(services_).create(handler_))) };
+    return std::tuple {
+      method_, match_pattern_, state_maps_,
+      tag_invoke(make_service, std::get<0>(services_),
+                 tag_invoke(make_service, std::get<1>(services_),
+                            tag_invoke(make_service, std::get<2>(services_),
+                                       handler_)))
+    };
   }
 
   auto build() const
@@ -140,9 +147,12 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(
-          std::get<1>(services_).create(std::get<2>(services_).create(
-              std::get<3>(services_).create(handler_))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(make_service, std::get<1>(services_),
+                     tag_invoke(make_service, std::get<2>(services_),
+                                tag_invoke(make_service, std::get<3>(services_),
+                                           handler_))))
     };
   }
 
@@ -151,9 +161,14 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(std::get<1>(services_).create(
-          std::get<2>(services_).create(std::get<3>(services_).create(
-              std::get<4>(services_).create(handler_)))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(make_service, std::get<1>(services_),
+                     tag_invoke(make_service, std::get<2>(services_),
+                                tag_invoke(make_service, std::get<3>(services_),
+                                           tag_invoke(make_service,
+                                                      std::get<4>(services_),
+                                                      handler_)))))
     };
   }
 
@@ -162,10 +177,17 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(
-          std::get<1>(services_).create(std::get<2>(services_).create(
-              std::get<3>(services_).create(std::get<4>(services_).create(
-                  std::get<5>(services_).create(handler_))))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(
+              make_service, std::get<1>(services_),
+              tag_invoke(
+                  make_service, std::get<2>(services_),
+                  tag_invoke(make_service, std::get<3>(services_),
+                             tag_invoke(make_service, std::get<4>(services_),
+                                        tag_invoke(make_service,
+                                                   std::get<5>(services_),
+                                                   handler_))))))
     };
   }
 
@@ -174,10 +196,20 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(std::get<1>(services_).create(
-          std::get<2>(services_).create(std::get<3>(services_).create(
-              std::get<4>(services_).create(std::get<5>(services_).create(
-                  std::get<6>(services_).create(handler_)))))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(
+              make_service, std::get<1>(services_),
+              tag_invoke(
+                  make_service, std::get<2>(services_),
+                  tag_invoke(
+                      make_service, std::get<3>(services_),
+                      tag_invoke(make_service, std::get<4>(services_),
+                                 tag_invoke(make_service,
+                                            std::get<5>(services_),
+                                            tag_invoke(make_service,
+                                                       std::get<6>(services_),
+                                                       handler_)))))))
     };
   }
 
@@ -186,11 +218,22 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(
-          std::get<1>(services_).create(std::get<2>(services_).create(
-              std::get<3>(services_).create(std::get<4>(services_).create(
-                  std::get<5>(services_).create(std::get<6>(services_).create(
-                      std::get<7>(services_).create(handler_))))))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(
+              make_service, std::get<1>(services_),
+              tag_invoke(
+                  make_service, std::get<2>(services_),
+                  tag_invoke(
+                      make_service, std::get<3>(services_),
+                      tag_invoke(
+                          make_service, std::get<4>(services_),
+                          tag_invoke(
+                              make_service, std::get<5>(services_),
+                              tag_invoke(make_service, std::get<6>(services_),
+                                         tag_invoke(make_service,
+                                                    std::get<7>(services_),
+                                                    handler_))))))))
     };
   }
 
@@ -199,11 +242,25 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(std::get<1>(services_).create(
-          std::get<2>(services_).create(std::get<3>(services_).create(
-              std::get<4>(services_).create(std::get<5>(services_).create(
-                  std::get<6>(services_).create(std::get<7>(services_).create(
-                      std::get<8>(services_).create(handler_)))))))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(
+              make_service, std::get<1>(services_),
+              tag_invoke(
+                  make_service, std::get<2>(services_),
+                  tag_invoke(
+                      make_service, std::get<3>(services_),
+                      tag_invoke(
+                          make_service, std::get<4>(services_),
+                          tag_invoke(
+                              make_service, std::get<5>(services_),
+                              tag_invoke(
+                                  make_service, std::get<6>(services_),
+                                  tag_invoke(make_service,
+                                             std::get<7>(services_),
+                                             tag_invoke(make_service,
+                                                        std::get<8>(services_),
+                                                        handler_)))))))))
     };
   }
 
@@ -212,12 +269,27 @@ public:
   {
     return std::tuple {
       method_, match_pattern_, state_maps_,
-      std::get<0>(services_).create(std::get<1>(services_).create(
-          std::get<2>(services_).create(std::get<3>(services_).create(
-              std::get<4>(services_).create(std::get<5>(services_).create(
-                  std::get<6>(services_).create(std::get<7>(services_).create(
-                      std::get<8>(services_).create(
-                          std::get<9>(services_).create(handler_))))))))))
+      tag_invoke(
+          make_service, std::get<0>(services_),
+          tag_invoke(
+              make_service, std::get<1>(services_),
+              tag_invoke(
+                  make_service, std::get<2>(services_),
+                  tag_invoke(
+                      make_service, std::get<3>(services_),
+                      tag_invoke(
+                          make_service, std::get<4>(services_),
+                          tag_invoke(
+                              make_service, std::get<5>(services_),
+                              tag_invoke(
+                                  make_service, std::get<6>(services_),
+                                  tag_invoke(
+                                      make_service, std::get<7>(services_),
+                                      tag_invoke(
+                                          make_service, std::get<8>(services_),
+                                          tag_invoke(make_service,
+                                                     std::get<9>(services_),
+                                                     handler_))))))))))
     };
   }
 };

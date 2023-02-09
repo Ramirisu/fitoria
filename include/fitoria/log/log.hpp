@@ -17,6 +17,19 @@ FITORIA_NAMESPACE_BEGIN
 namespace log {
 
 template <typename... Args>
+struct [[maybe_unused]] log {
+  log(level lv,
+      Args&&... args,
+      const source_location& loc = source_location::current())
+  {
+    global_logger()->log(loc, lv, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+log(level, Args&&...) -> log<Args...>;
+
+template <typename... Args>
 struct [[maybe_unused]] debug {
   debug(Args&&... args, const source_location& loc = source_location::current())
   {
