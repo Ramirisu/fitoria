@@ -26,16 +26,9 @@ using namespace fitoria::web;
 
 template <typename Next>
 class my_log_service {
-  Next next_;
-  log::level lv_;
+  friend class my_log;
 
 public:
-  my_log_service(Next next, log::level lv)
-      : next_(std::move(next))
-      , lv_(lv)
-  {
-  }
-
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
     log::log(lv_, "before handler");
@@ -46,11 +39,19 @@ public:
 
     co_return res;
   }
+
+private:
+  my_log_service(Next next, log::level lv)
+      : next_(std::move(next))
+      , lv_(lv)
+  {
+  }
+
+  Next next_;
+  log::level lv_;
 };
 
 class my_log {
-  log::level lv_;
-
 public:
   my_log(log::level lv)
       : lv_(lv)
@@ -61,8 +62,17 @@ public:
   friend constexpr auto
   tag_invoke(tag_t<make_service>, const my_log& self, Next&& next)
   {
-    return my_log_service(std::move(next), self.lv_);
+    return self.new_service(std::forward<Next>(next));
   }
+
+private:
+  template <typename Next>
+  auto new_service(Next&& next) const
+  {
+    return my_log_service(std::move(next), lv_);
+  }
+
+  log::level lv_;
 };
 
 int main()

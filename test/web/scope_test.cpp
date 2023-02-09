@@ -10,6 +10,7 @@
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/service.hpp>
 
+using namespace fitoria;
 using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.basic_scope");
@@ -60,25 +61,30 @@ TEST_CASE("methods")
 
 template <typename Next>
 class adder_service {
-  Next next_;
-  int value_;
+  friend class adder;
 
 public:
-  adder_service(Next next, int value)
-      : next_(std::move(next))
-      , value_(value)
-  {
-  }
-
   auto operator()(int in) const -> int
   {
     return next_(in) + value_;
   }
+
+private:
+  template <typename Next2>
+  adder_service(Next2&& next, int value)
+      : next_(std::forward<Next2>(next))
+      , value_(value)
+  {
+  }
+
+  Next next_;
+  int value_;
 };
 
-class adder {
-  int value_;
+template <typename Next>
+adder_service(Next&&, int) -> adder_service<std::decay_t<Next>>;
 
+class adder {
 public:
   adder(int value)
       : value_(value)
@@ -87,10 +93,19 @@ public:
 
   template <typename Next>
   friend constexpr auto
-  tag_invoke(fitoria::tag_t<make_service>, const adder& self, Next&& next)
+  tag_invoke(tag_t<make_service>, const adder& self, Next&& next)
   {
-    return adder_service(std::move(next), self.value_);
+    return self.new_service(std::forward<Next>(next));
   }
+
+private:
+  template <typename Next>
+  auto new_service(Next&& next) const
+  {
+    return adder_service(std::forward<Next>(next), value_);
+  }
+
+  int value_;
 };
 
 TEST_CASE("middleware & handler")

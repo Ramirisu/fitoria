@@ -22,14 +22,9 @@ namespace web::middleware {
 
 template <typename Next>
 class deflate_service {
-  Next next_;
+  friend class deflate;
 
 public:
-  deflate_service(Next next)
-      : next_(std::move(next))
-  {
-  }
-
   net::awaitable<http_response> operator()(http_context& c) const
   {
     if (c.request().fields().get(http::field::content_encoding) == "deflate") {
@@ -81,18 +76,35 @@ public:
 
     co_return res;
   }
+
+private:
+  template <typename Next2>
+  deflate_service(Next2&& next)
+      : next_(std::forward<Next2>(next))
+  {
+  }
+
+  Next next_;
 };
 
+template <typename Next>
+deflate_service(Next&&) -> deflate_service<std::decay_t<Next>>;
+
 class deflate {
-public:
   template <typename Next>
-  friend constexpr auto
-  tag_invoke(tag_t<make_service>, const deflate&, Next&& next)
+  auto new_service(Next&& next) const
   {
     return deflate_service(std::forward<Next>(next));
   }
-};
 
+public:
+  template <typename Next>
+  friend constexpr auto
+  tag_invoke(tag_t<make_service>, const deflate& self, Next&& next)
+  {
+    return self.new_service(std::forward<Next>(next));
+  }
+};
 }
 
 FITORIA_NAMESPACE_END

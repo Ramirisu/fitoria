@@ -24,15 +24,10 @@ namespace web::middleware {
 
 template <typename Next>
 class logger_service {
-  Next next_;
+  friend class logger;
 
 public:
   using clock_t = std::chrono::system_clock;
-
-  logger_service(Next next)
-      : next_(std::move(next))
-  {
-  }
 
   net::awaitable<http_response> operator()(http_context& c) const
   {
@@ -40,7 +35,7 @@ public:
 
     auto res = co_await next_(c);
 
-    log::info("[{}] {} {} {} {} {}B {} {:%T}s", name(),
+    log::info("[fitoria.middleware.logger] {} {} {} {} {}B {} {:%T}s",
               c.request().conn_info().remote_addr().to_string(),
               std::string(to_string(c.request().method())), c.request().path(),
               res.status_code(), res.body().size(),
@@ -52,22 +47,33 @@ public:
   }
 
 private:
-  static const char* name() noexcept
+  template <typename Next2>
+  logger_service(Next2&& next)
+      : next_(std::forward<Next2>(next))
   {
-    return "fitoria.middleware.logger";
   }
+
+  Next next_;
 };
 
+template <typename Next>
+logger_service(Next&&) -> logger_service<std::decay_t<Next>>;
+
 class logger {
+  template <typename Next>
+  auto new_service(Next&& next) const
+  {
+    return logger_service(std::forward<Next>(next));
+  }
+
 public:
   template <typename Next>
   friend constexpr auto
-  tag_invoke(tag_t<make_service>, const logger&, Next&& next)
+  tag_invoke(tag_t<make_service>, const logger& self, Next&& next)
   {
-    return logger_service(std::move(next));
+    return self.new_service(std::forward<Next>(next));
   }
 };
-
 }
 
 FITORIA_NAMESPACE_END

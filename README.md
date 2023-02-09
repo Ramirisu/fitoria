@@ -386,33 +386,53 @@ fitoria provides following build-in middlewares:
 
 template <typename Next>
 class my_log_service {
-  Next next_;
+  friend class my_log;
 
 public:
-  my_log_service(Next next)
-      : next_(std::move(next))
-  {
-  }
-
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    log::debug("before handler");
+    log::log(lv_, "before handler");
 
     auto res = co_await next_(ctx);
 
-    log::debug("after handler");
+    log::log(lv_, "after handler");
 
     co_return res;
   }
+
+private:
+  my_log_service(Next next, log::level lv)
+      : next_(std::move(next))
+      , lv_(lv)
+  {
+  }
+
+  Next next_;
+  log::level lv_;
 };
 
 class my_log {
 public:
-  template <typename Next>
-  auto create(Next next) const
+  my_log(log::level lv)
+      : lv_(lv)
   {
-    return my_log_service(std::move(next));
   }
+
+  template <typename Next>
+  friend constexpr auto
+  tag_invoke(tag_t<make_service>, const my_log& self, Next&& next)
+  {
+    return self.new_service(std::forward<Next>(next));
+  }
+
+private:
+  template <typename Next>
+  auto new_service(Next&& next) const
+  {
+    return my_log_service(std::move(next), lv_);
+  }
+
+  log::level lv_;
 };
 
 int main()
@@ -438,7 +458,7 @@ int main()
                     .use(middleware::gzip())
 #endif
                     // Register a custom middleware for this group
-                    .use(my_log())
+                    .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
                     .GET(

@@ -24,39 +24,48 @@ namespace web::middleware {
 
 template <typename Next>
 class exception_handler_service {
-  Next next_;
+  friend class exception_handler;
 
 public:
-  exception_handler_service(Next next)
-      : next_(std::move(next))
-  {
-  }
-
   net::awaitable<http_response> operator()(http_context& c) const
   {
     try {
       co_return co_await next_(c);
     } catch (const std::exception& ex) {
-      log::error("[{}] exception: {}", name(), ex.what());
+      log::error("[fitoria.middleware.exception_handler] exception: {}",
+                 ex.what());
     }
 
     co_return http_response(http::status::internal_server_error);
   }
 
 private:
-  static const char* name() noexcept
+  template <typename Next2>
+  exception_handler_service(Next2&& next)
+      : next_(std::forward<Next2>(next))
   {
-    return "fitoria.middleware.exception_handler";
   }
+
+  Next next_;
 };
 
+template <typename Next>
+exception_handler_service(Next&&)
+    -> exception_handler_service<std::decay_t<Next>>;
+
 class exception_handler {
+  template <typename Next>
+  auto new_service(Next&& next) const
+  {
+    return exception_handler_service(std::forward<Next>(next));
+  }
+
 public:
   template <typename Next>
   friend constexpr auto
-  tag_invoke(tag_t<make_service>, const exception_handler&, Next&& next)
+  tag_invoke(tag_t<make_service>, const exception_handler& self, Next&& next)
   {
-    return exception_handler_service(std::move(next));
+    return self.new_service(std::forward<Next>(next));
   }
 };
 
