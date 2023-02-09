@@ -424,8 +424,8 @@ private:
 
     auto request = http_request(
         std::move(connection_info),
-        route_params(route->pattern().match(req_url->path()).value(),
-                     route->pattern().pattern()),
+        route_params(route->matcher().match(req_url->path()).value(),
+                     route->matcher().pattern()),
         req_url->path(), method, to_query_map(req_url->params()),
         std::move(fields), std::move(body), route->state_maps());
     auto context = http_context(request);

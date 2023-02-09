@@ -27,7 +27,7 @@ TEST_CASE("try_insert")
 
   auto r = [=](http::verb method, std::string path) {
     return router_type::route_type(
-        method, match_pattern::from_pattern(std::move(path)).value(), {},
+        method, pattern_matcher::from_pattern(std::move(path)).value(), {},
         [](int) { return 0; });
   };
 
@@ -65,7 +65,7 @@ TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
     return router_type::route_type(
-        method, match_pattern::from_pattern(std::move(path)).value(), {},
+        method, pattern_matcher::from_pattern(std::move(path)).value(), {},
         [=](int) -> int { return exp; });
   };
 

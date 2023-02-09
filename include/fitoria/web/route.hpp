@@ -11,7 +11,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/match_pattern.hpp>
+#include <fitoria/web/pattern_matcher.hpp>
 #include <fitoria/web/service.hpp>
 #include <fitoria/web/state_map.hpp>
 
@@ -28,7 +28,7 @@ class route_builder;
 template <typename... Services, typename Handler>
 class route_builder<std::tuple<Services...>, Handler> {
   http::verb method_;
-  match_pattern match_pattern_;
+  pattern_matcher matcher_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
@@ -40,7 +40,7 @@ public:
                 std::tuple<Services...> services,
                 Handler handler)
       : method_(method)
-      , match_pattern_(match_pattern::from_pattern(std::move(pattern)).value())
+      , matcher_(pattern_matcher::from_pattern(std::move(pattern)).value())
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
       , handler_(std::move(handler))
@@ -48,12 +48,12 @@ public:
   }
 
   route_builder(http::verb method,
-                match_pattern pattern,
+                pattern_matcher matcher,
                 std::vector<state_map> state_maps,
                 std::tuple<Services...> services,
                 Handler handler)
       : method_(method)
-      , match_pattern_(std::move(pattern))
+      , matcher_(std::move(matcher))
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
       , handler_(std::move(handler))
@@ -70,14 +70,14 @@ public:
     state_maps.front()[std::type_index(typeid(State))]
         = std::any(std::move(state));
     return route_builder<std::tuple<Services...>, Handler>(
-        method_, match_pattern_, std::move(state_maps), services_, handler_);
+        method_, matcher_, std::move(state_maps), services_, handler_);
   }
 
   template <typename Service>
   auto use(Service service) const
   {
     return route_builder<std::tuple<Services..., Service>, Handler>(
-        method_, match_pattern_, state_maps_,
+        method_, matcher_, state_maps_,
         std::tuple_cat(services_, std::tuple { std::move(service) }), handler_);
   }
 
@@ -86,7 +86,7 @@ public:
                      state_map parent_state_map,
                      std::tuple<ParentServices...> parent_services) const
   {
-    parent_path += match_pattern_.pattern();
+    parent_path += matcher_.pattern();
     auto state_maps = state_maps_;
     if (!parent_state_map.empty()) {
       state_maps.push_back(std::move(parent_state_map));
@@ -101,14 +101,14 @@ public:
     return method_;
   }
 
-  auto pattern() const noexcept -> const match_pattern&
+  auto matcher() const noexcept -> const pattern_matcher&
   {
-    return match_pattern_;
+    return matcher_;
   }
 
   auto build() const
   {
-    return std::tuple { method_, match_pattern_, state_maps_,
+    return std::tuple { method_, matcher_, state_maps_,
                         build_service(std::tuple_cat(
                             services_, std::tuple { handler_ })) };
   }

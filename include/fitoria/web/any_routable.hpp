@@ -13,7 +13,7 @@
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/match_pattern.hpp>
+#include <fitoria/web/pattern_matcher.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #include <functional>
@@ -25,20 +25,20 @@ namespace web {
 template <typename Request, typename Response>
 class any_routable {
   http::verb method_;
-  match_pattern pattern_;
+  pattern_matcher matcher_;
   std::vector<state_map> state_maps_;
   std::function<Response(Request)> service_;
 
 public:
   template <typename Service>
   any_routable(http::verb method,
-               match_pattern pattern,
+               pattern_matcher matcher,
                std::vector<state_map> state_maps,
                Service&& service)
     requires(!is_specialization_of_v<std::remove_cvref_t<Service>,
                                      any_routable>)
       : method_(method)
-      , pattern_(std::move(pattern))
+      , matcher_(std::move(matcher))
       , state_maps_(std::move(state_maps))
       , service_(std::forward<Service>(service))
   {
@@ -49,9 +49,9 @@ public:
     return method_;
   }
 
-  auto pattern() const noexcept -> const match_pattern&
+  auto matcher() const noexcept -> const pattern_matcher&
   {
-    return pattern_;
+    return matcher_;
   }
 
   auto state_maps() const noexcept -> const std::vector<state_map>&

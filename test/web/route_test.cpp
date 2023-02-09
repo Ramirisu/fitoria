@@ -18,11 +18,11 @@ TEST_CASE("basic")
   const auto r1
       = route::handle(http::verb::get, "/v1", [](int) -> int { return 0; });
   CHECK_EQ(r1.method(), http::verb::get);
-  CHECK_EQ(r1.pattern().pattern(), "/v1");
+  CHECK_EQ(r1.matcher().pattern(), "/v1");
 
   auto r2 = r1.rebind_parent("/api", {}, {});
   CHECK_EQ(r2.method(), http::verb::get);
-  CHECK_EQ(r2.pattern().pattern(), "/api/v1");
+  CHECK_EQ(r2.matcher().pattern(), "/api/v1");
 }
 
 TEST_CASE("methods")

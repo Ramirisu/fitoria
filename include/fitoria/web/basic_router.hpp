@@ -17,7 +17,7 @@
 #include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/match_pattern.hpp>
+#include <fitoria/web/pattern_matcher.hpp>
 
 #include <memory>
 #include <string>
@@ -42,7 +42,7 @@ private:
     auto try_insert(const route_type& route, std::size_t seg_idx)
         -> expected<void, error_code>
     {
-      if (seg_idx == route.pattern().segments().size()) {
+      if (seg_idx == route.matcher().segments().size()) {
         if (route_) {
           return unexpected { make_error_code(error::route_already_exists) };
         }
@@ -51,8 +51,8 @@ private:
         return {};
       }
 
-      auto& segment = route.pattern().segments()[seg_idx];
-      if (segment.kind == match_pattern::segment_kind::parameterized) {
+      auto& segment = route.matcher().segments()[seg_idx];
+      if (segment.kind == pattern_matcher::segment_kind::parameterized) {
         if (!param_tree_) {
           param_tree_.emplace(std::make_shared<node>());
         }
@@ -62,7 +62,7 @@ private:
       return subtrees_[segment.value].try_insert(route, seg_idx + 1);
     }
 
-    auto try_find(const match_pattern::segments_t& segs,
+    auto try_find(const pattern_matcher::segments_t& segs,
                   std::size_t seg_idx) const noexcept
         -> expected<const route_type&, error_code>
     {
@@ -107,7 +107,7 @@ public:
   auto try_find(http::verb method, std::string path) const
       -> expected<const route_type&, error_code>
   {
-    return to_expected(match_pattern::from_pattern(path),
+    return to_expected(pattern_matcher::from_pattern(path),
                        make_error_code(error::route_not_exists))
         .and_then([&](auto&& pattern) {
           return to_expected(try_find(method),

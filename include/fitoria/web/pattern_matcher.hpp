@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_MATCH_PATTERN_HPP
-#define FITORIA_WEB_MATCH_PATTERN_HPP
+#ifndef FITORIA_WEB_PATTERN_MATCHER_HPP
+#define FITORIA_WEB_PATTERN_MATCHER_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -22,7 +22,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class match_pattern {
+class pattern_matcher {
 public:
   enum class segment_kind {
     static_,
@@ -76,7 +76,7 @@ public:
     return map;
   }
 
-  static auto from_pattern(std::string pattern) -> optional<match_pattern>
+  static auto from_pattern(std::string pattern) -> optional<pattern_matcher>
   {
     auto pattern_view = std::string_view(pattern);
     segments_t segments;
@@ -113,7 +113,7 @@ public:
       }
     }
 
-    return match_pattern(std::move(pattern), std::move(segments));
+    return pattern_matcher(std::move(pattern), std::move(segments));
   }
 
   static auto escape_segment(std::string_view seg) noexcept
@@ -136,7 +136,7 @@ public:
   }
 
 private:
-  match_pattern(std::string pattern, segments_t segments)
+  pattern_matcher(std::string pattern, segments_t segments)
       : pattern_(std::move(pattern))
       , segments_(std::move(segments))
   {
