@@ -144,7 +144,7 @@ TEST_CASE("middleware & handler")
                                    .handle(http::verb::put, "/s011h", h)));
 
   auto services = std::apply(
-      [](auto&&... routes) { return std::tuple { routes.build()... }; },
+      [](auto&&... routes) { return std::tuple { routes.build(adder(0))... }; },
       router.routes());
 
   static_assert(std::tuple_size_v<decltype(services)> == 14);

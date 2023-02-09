@@ -106,43 +106,39 @@ public:
     return matcher_;
   }
 
-  auto build() const
+  template <typename HandlerServiceFactory>
+  auto build(HandlerServiceFactory handler_service_factory) const
   {
-    return std::tuple { method_, matcher_, state_maps_,
-                        build_service(std::tuple_cat(
-                            services_, std::tuple { handler_ })) };
+    return std::tuple {
+      method_, matcher_, state_maps_,
+      build_service(std::tuple_cat(
+          services_, std::tuple { handler_service_factory, handler_ }))
+    };
   }
 
 private:
   template <typename... S>
-  static auto build_service(const std::tuple<S...>& s)
+  static auto build_service(std::tuple<S...> s)
   {
     return build_service(s, std::make_index_sequence<sizeof...(S)> {});
   }
 
   template <typename... S, std::size_t... Is>
-  static auto build_service(const std::tuple<S...>& s,
-                            std::index_sequence<Is...>)
+  static auto build_service(std::tuple<S...> s, std::index_sequence<Is...>)
   {
-    return build_service_impl(std::get<sizeof...(S) - Is - 1>(s)...);
-  }
-
-  template <typename S0>
-  static auto build_service_impl(S0&& s0)
-  {
-    return s0;
+    return build_service_impl(std::get<sizeof...(S) - Is - 1>(std::move(s))...);
   }
 
   template <typename S0, typename S1, typename... S>
   static auto build_service_impl(S0&& s0, S1&& s1, S&&... s)
   {
+    auto service
+        = tag_invoke(make_service, std::forward<S1>(s1), std::forward<S0>(s0));
+
     if constexpr (sizeof...(S) > 0) {
-      return build_service_impl(
-          tag_invoke(make_service, std::forward<S1>(s1), std::forward<S0>(s0)),
-          std::forward<S>(s)...);
+      return build_service_impl(std::move(service), std::forward<S>(s)...);
     } else {
-      return tag_invoke(make_service, std::forward<S1>(s1),
-                        std::forward<S0>(s0));
+      return service;
     }
   }
 };

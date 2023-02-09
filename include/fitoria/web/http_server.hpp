@@ -17,6 +17,7 @@
 
 #include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/basic_router.hpp>
+#include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/scope.hpp>
@@ -81,7 +82,7 @@ public:
     template <typename... RouteServices, typename F>
     builder& route(route_builder<std::tuple<RouteServices...>, F> route)
     {
-      auto [method, path, state_maps, service] = route.build();
+      auto [method, path, state_maps, service] = route.build(handler());
 
       if (auto res = router_.try_insert(router_type::route_type(
               method, std::move(path), std::move(state_maps),
