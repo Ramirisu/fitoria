@@ -7,17 +7,16 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/web/any_routable.hpp>
-#include <fitoria/web/basic_router.hpp>
+#include <fitoria/web/router.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.basic_router");
+TEST_SUITE_BEGIN("web.router");
 
 namespace {
 
-using router_type = basic_router<any_routable<int, int>>;
+using router_type = router<int, int>;
 
 }
 

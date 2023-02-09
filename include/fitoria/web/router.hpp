@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_BASIC_ROUTER_HPP
-#define FITORIA_WEB_BASIC_ROUTER_HPP
+#ifndef FITORIA_WEB_ROUTER_HPP
+#define FITORIA_WEB_ROUTER_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -29,14 +29,14 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Route>
-class basic_router {
+template <typename Request, typename Response>
+class router {
 public:
-  using route_type = Route;
+  using route_type = any_routable<Request, Response>;
 
 private:
   class node {
-    friend class basic_router;
+    friend class router;
 
   private:
     auto try_insert(const route_type& route, std::size_t seg_idx)
