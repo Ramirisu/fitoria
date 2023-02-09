@@ -22,28 +22,15 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 template <typename Services, typename Handler>
-struct route_builder;
+class route_builder;
 
 template <typename... Services, typename Handler>
-struct route_builder<std::tuple<Services...>, Handler> {
+class route_builder<std::tuple<Services...>, Handler> {
   http::verb method_;
   match_pattern match_pattern_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
-
-  route_builder(http::verb method,
-                match_pattern pattern,
-                std::vector<state_map> state_maps,
-                std::tuple<Services...> services,
-                Handler handler)
-      : method_(method)
-      , match_pattern_(std::move(pattern))
-      , state_maps_(std::move(state_maps))
-      , services_(std::move(services))
-      , handler_(std::move(handler))
-  {
-  }
 
 public:
   route_builder(http::verb method,
@@ -53,6 +40,19 @@ public:
                 Handler handler)
       : method_(method)
       , match_pattern_(match_pattern::from_pattern(std::move(pattern)).value())
+      , state_maps_(std::move(state_maps))
+      , services_(std::move(services))
+      , handler_(std::move(handler))
+  {
+  }
+
+  route_builder(http::verb method,
+                match_pattern pattern,
+                std::vector<state_map> state_maps,
+                std::tuple<Services...> services,
+                Handler handler)
+      : method_(method)
+      , match_pattern_(std::move(pattern))
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
       , handler_(std::move(handler))
