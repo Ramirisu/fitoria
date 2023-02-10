@@ -47,6 +47,7 @@ struct tag_invoke_result<Tag, Args...> {
 
 struct tag_invoke_t {
   template <typename Tag, typename... Args>
+    requires(tag_invocable<Tag, Args...>)
   constexpr auto operator()(Tag tag, Args&&... args) const
       noexcept(nothrow_tag_invocable<Tag, Args...>)
           -> tag_invoke_result_t<Tag, Args...>
@@ -58,10 +59,8 @@ struct tag_invoke_t {
 }
 
 using detail::tag_invoke_t;
-inline constexpr tag_invoke_t tag_invoke {};
 
-template <auto& Tag>
-using tag_t = std::decay_t<decltype(Tag)>;
+inline constexpr tag_invoke_t tag_invoke {};
 
 using detail::tag_invocable;
 

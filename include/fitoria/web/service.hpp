@@ -27,7 +27,6 @@ struct make_service_t {
   }
 };
 
-inline constexpr make_service_t make_service {};
 }
 
 FITORIA_NAMESPACE_END

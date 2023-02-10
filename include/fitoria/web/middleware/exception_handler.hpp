@@ -10,6 +10,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/type_traits.hpp>
+
 #include <fitoria/log.hpp>
 
 #include <fitoria/web/http_context.hpp>
@@ -61,11 +63,10 @@ class exception_handler {
   }
 
 public:
-  template <typename Next>
-  friend constexpr auto
-  tag_invoke(tag_t<make_service>, const exception_handler& self, Next&& next)
+  template <uncvref_same_as<exception_handler> Self, typename Next>
+  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
   {
-    return self.new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_service(std::forward<Next>(next));
   }
 };
 

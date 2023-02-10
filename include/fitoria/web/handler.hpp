@@ -55,11 +55,10 @@ class handler {
   }
 
 public:
-  template <typename Next>
-  friend constexpr auto
-  tag_invoke(tag_t<make_service>, const handler& self, Next&& next)
+  template <uncvref_same_as<handler> Self, typename Next>
+  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
   {
-    return self.new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_service(std::forward<Next>(next));
   }
 };
 }

@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/type_traits.hpp>
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/log/logger.hpp>
@@ -67,11 +68,10 @@ class logger {
   }
 
 public:
-  template <typename Next>
-  friend constexpr auto
-  tag_invoke(tag_t<make_service>, const logger& self, Next&& next)
+  template <uncvref_same_as<logger> Self, typename Next>
+  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
   {
-    return self.new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_service(std::forward<Next>(next));
   }
 };
 }
