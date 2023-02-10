@@ -30,10 +30,14 @@ struct function_traits_helper;
 template <typename R, typename... Args>
 struct function_traits_helper<R(Args...)> {
   using result_type = R;
+
   static constexpr std::size_t arity = sizeof...(Args);
+
+  using args_type = std::tuple<Args...>;
+
   template <std::size_t Index>
   struct arg {
-    using type = typename std::tuple_element<Index, std::tuple<Args...>>::type;
+    using type = std::tuple_element_t<Index, args_type>;
   };
 };
 
