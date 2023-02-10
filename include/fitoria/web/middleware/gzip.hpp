@@ -12,6 +12,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/middleware/detail/gzip.hpp>
@@ -29,7 +30,7 @@ class gzip_service {
   friend class gzip;
 
 public:
-  net::awaitable<http_response> operator()(http_context& c) const
+  auto operator()(http_context& c) const -> lazy<http_response>
   {
     if (c.request().fields().get(http::field::content_encoding) == "gzip") {
       if (auto plain = detail::gzip_decompress<std::string>(net::const_buffer(

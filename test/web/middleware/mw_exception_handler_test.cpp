@@ -18,18 +18,18 @@ TEST_SUITE_BEGIN("web.middleware.exception_handler");
 
 TEST_CASE("exception_handler middleware")
 {
-  auto server = http_server::builder()
-                    .route(scope("/api")
-                               .use(middleware::exception_handler())
-                               .GET("/get",
-                                    [&](http_request& req)
-                                        -> net::awaitable<http_response> {
-                                      if (req.body().ends_with("true")) {
-                                        throw std::exception();
-                                      }
-                                      co_return http_response(http::status::ok);
-                                    }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(scope("/api")
+                       .use(middleware::exception_handler())
+                       .GET("/get",
+                            [&](http_request& req) -> lazy<http_response> {
+                              if (req.body().ends_with("true")) {
+                                throw std::exception();
+                              }
+                              co_return http_response(http::status::ok);
+                            }))
+            .build();
   {
     auto res = server.serve_http_request(
         "/api/get", http_request(http::verb::get).set_body("throw: false"));

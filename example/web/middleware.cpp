@@ -29,7 +29,7 @@ class my_log_service {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_context& ctx) const -> lazy<http_response>
   {
     log::log(lv_, "before handler");
 
@@ -100,15 +100,14 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET(
-                        "/users/{user}",
-                        [](http_request& req) -> net::awaitable<http_response> {
-                          log::debug("user: {}", req.params().get("user"));
+                    .GET("/users/{user}",
+                         [](http_request& req) -> lazy<http_response> {
+                           log::debug("user: {}", req.params().get("user"));
 
-                          co_return http_response(http::status::ok)
-                              .set_body(req.params().get("user").value_or(
-                                  "{{unknown}}"));
-                        }))
+                           co_return http_response(http::status::ok)
+                               .set_body(req.params().get("user").value_or(
+                                   "{{unknown}}"));
+                         }))
             .build();
   server //
       .bind("127.0.0.1", 8080)

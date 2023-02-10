@@ -16,7 +16,7 @@ int main()
       = http_server::builder()
             .route(route::POST(
                 "/api/v1/login",
-                [](http_request& req) -> net::awaitable<http_response> {
+                [](http_request& req) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);

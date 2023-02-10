@@ -40,17 +40,16 @@ TEST_CASE("builder")
               }
             })
 #endif
-            .route(route::GET("/api",
-                              [&]([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                co_return http_response(http::status::ok);
-                              }))
+            .route(route::GET(
+                "/api",
+                [&]([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  co_return http_response(http::status::ok);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -68,12 +67,12 @@ TEST_CASE("duplicate route")
                       scope("/api/v1")
                           .GET("/xxx",
                                []([[maybe_unused]] http_request& req)
-                                   -> net::awaitable<http_response> {
+                                   -> lazy<http_response> {
                                  co_return http_response(http::status::ok);
                                })
                           .GET("/xxx",
                                []([[maybe_unused]] http_request& req)
-                                   -> net::awaitable<http_response> {
+                                   -> lazy<http_response> {
                                  co_return http_response(http::status::ok);
                                })),
                   std::system_error);
@@ -84,17 +83,16 @@ TEST_CASE("invalid target")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET("/api/v1/users/{user}",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                co_return http_response(http::status::ok);
-                              }))
+            .route(route::GET(
+                "/api/v1/users/{user}",
+                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  co_return http_response(http::status::ok);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -123,18 +121,17 @@ TEST_CASE("expect: 100-continue")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::POST("/api/v1/post",
-                               []([[maybe_unused]] http_request& req)
-                                   -> net::awaitable<http_response> {
-                                 CHECK_EQ(req.body(), "text");
-                                 co_return http_response(http::status::ok);
-                               }))
+            .route(route::POST(
+                "/api/v1/post",
+                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  CHECK_EQ(req.body(), "text");
+                  co_return http_response(http::status::ok);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -167,18 +164,17 @@ TEST_CASE("unhandled exception from handler")
                 }
               }
             })
-            .route(route::GET("/api/v1/get",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                throw std::exception();
-                                co_return http_response(http::status::ok);
-                              }))
+            .route(route::GET(
+                "/api/v1/get",
+                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  throw std::exception();
+                  co_return http_response(http::status::ok);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -203,7 +199,7 @@ TEST_CASE("generic request")
       = http_server::builder()
             .route(route::GET(
                 "/api/v1/users/{user}/filmography/years/{year}",
-                [=](http_request& req) -> net::awaitable<http_response> {
+                [=](http_request& req) -> lazy<http_response> {
                   CHECK_EQ(req.conn_info().local_addr(),
                            net::ip::make_address(server_ip));
                   CHECK_EQ(req.conn_info().remote_addr(),
@@ -258,8 +254,7 @@ TEST_CASE("generic request")
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -291,17 +286,16 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET("/api",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                co_return http_response(http::status::accepted);
-                              }))
+            .route(route::GET(
+                "/api",
+                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  co_return http_response(http::status::accepted);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -322,21 +316,19 @@ TEST_CASE("response with plain text")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET("/api",
-                              []([[maybe_unused]] http_request& req)
-                                  -> net::awaitable<http_response> {
-                                co_return http_response(http::status::ok)
-                                    .set_field(
-                                        http::field::content_type,
-                                        http::fields::content_type::plaintext())
-                                    .set_body("plain text");
-                              }))
+            .route(route::GET(
+                "/api",
+                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body("plain text");
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });

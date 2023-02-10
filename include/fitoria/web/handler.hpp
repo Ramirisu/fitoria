@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 
@@ -27,7 +28,7 @@ class handler_service {
   friend class handler;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_context& ctx) const -> lazy<http_response>
   {
     return next_(static_cast<http_request&>(ctx));
   }
@@ -37,8 +38,8 @@ private:
   handler_service(Next2&& next)
       : next_(std::forward<Next2>(next))
   {
-    static_assert(std::is_invocable_r_v<net::awaitable<http_response>, Next2,
-                                        http_request&>);
+    static_assert(
+        std::is_invocable_r_v<lazy<http_response>, Next2, http_request&>);
   }
 
   Next next_;

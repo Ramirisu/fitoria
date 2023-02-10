@@ -52,7 +52,7 @@ int main()
       = http_server::builder()
             .route(route::GET(
                 "/api/v1/{owner}/{repo}",
-                [](http_request& req) -> net::awaitable<http_response> {
+                [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}", req.params().get("owner"),
                              req.params().get("repo"));
@@ -74,6 +74,7 @@ int main()
       // Start the server, `run()` will block current thread.
       .run();
 }
+
 
 ```
 
@@ -130,7 +131,7 @@ Use `http_request::route_params()` to access the route parameters.
 ```cpp
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> lazy<http_response>
 {
   auto user = req.params().get("user");
   if (!user) {
@@ -166,7 +167,7 @@ Use `http_request::query()` to access the query string parameters.
 ```cpp
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> lazy<http_response>
 {
   auto user = req.query().get("user");
   if (!user) {
@@ -202,7 +203,7 @@ Use `as_form()` to parse the url-encoded form body.
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> lazy<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
@@ -279,7 +280,7 @@ void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
   jv = { { "msg", out.msg } };
 }
 
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> lazy<http_response>
 {
   if (auto ct = req.fields().get(http::field::content_type);
       ct != http::fields::content_type::json()) {
@@ -328,29 +329,27 @@ void configure_application(http_server::builder& builder)
           // Register a global middleware for all handlers
           .use(middleware::logger())
           // Create a sub-scope "/api/v1" under global scope
-          .sub_scope(
-              scope("/api/v1")
-                  // Register a middleware for this scope
-                  .use(middleware::gzip())
-                  // Register a route for this scope
-                  .GET("/users/{user}",
-                       [](http_request& req) -> net::awaitable<http_response> {
-                         log::debug("route: {}", req.params().path());
+          .sub_scope(scope("/api/v1")
+                         // Register a middleware for this scope
+                         .use(middleware::gzip())
+                         // Register a route for this scope
+                         .GET("/users/{user}",
+                              [](http_request& req) -> lazy<http_response> {
+                                log::debug("route: {}", req.params().path());
 
-                         co_return http_response(http::status::ok);
-                       }))
+                                co_return http_response(http::status::ok);
+                              }))
           // Create a sub-scope "/api/v2" under global scope
-          .sub_scope(
-              scope("/api/v2")
-                  // Register a middleware for this scope
-                  .use(middleware::deflate())
-                  // Register a route for this scope
-                  .GET("/users/{user}",
-                       [](http_request& req) -> net::awaitable<http_response> {
-                         log::debug("params: {}", req.params().path());
+          .sub_scope(scope("/api/v2")
+                         // Register a middleware for this scope
+                         .use(middleware::deflate())
+                         // Register a route for this scope
+                         .GET("/users/{user}",
+                              [](http_request& req) -> lazy<http_response> {
+                                log::debug("params: {}", req.params().path());
 
-                         co_return http_response(http::status::ok);
-                       })));
+                                co_return http_response(http::status::ok);
+                              })));
 }
 
 int main()
@@ -389,7 +388,7 @@ class my_log_service {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_context& ctx) const -> lazy<http_response>
   {
     log::log(lv_, "before handler");
 
@@ -418,11 +417,10 @@ public:
   {
   }
 
-  template <typename Next>
-  friend constexpr auto
-  tag_invoke(tag_t<make_service>, const my_log& self, Next&& next)
+  template <uncvref_same_as<my_log> Self, typename Next>
+  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
   {
-    return self.new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_service(std::forward<Next>(next));
   }
 
 private:
@@ -461,15 +459,14 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET(
-                        "/users/{user}",
-                        [](http_request& req) -> net::awaitable<http_response> {
-                          log::debug("user: {}", req.params().get("user"));
+                    .GET("/users/{user}",
+                         [](http_request& req) -> lazy<http_response> {
+                           log::debug("user: {}", req.params().get("user"));
 
-                          co_return http_response(http::status::ok)
-                              .set_body(req.params().get("user").value_or(
-                                  "{{unknown}}"));
-                        }))
+                           co_return http_response(http::status::ok)
+                               .set_body(req.params().get("user").value_or(
+                                   "{{unknown}}"));
+                         }))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -523,7 +520,7 @@ int main()
       = http_server::builder()
             .route(route::POST(
                 "/api/v1/login",
-                [](http_request& req) -> net::awaitable<http_response> {
+                [](http_request& req) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);

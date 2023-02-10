@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/middleware/detail/deflate.hpp>
@@ -27,7 +28,7 @@ class deflate_service {
   friend class deflate;
 
 public:
-  net::awaitable<http_response> operator()(http_context& c) const
+  auto operator()(http_context& c) const -> lazy<http_response>
   {
     if (c.request().fields().get(http::field::content_encoding) == "deflate") {
       if (auto plain

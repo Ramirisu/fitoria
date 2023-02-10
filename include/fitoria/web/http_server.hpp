@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
@@ -26,7 +27,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_server {
-  using router_type = router<http_context&, net::awaitable<http_response>>;
+  using router_type = router<http_context&, lazy<http_response>>;
 
 public:
   class builder {
@@ -184,7 +185,7 @@ public:
     ioc.run();
   }
 
-  net::awaitable<void> async_run()
+  lazy<void> async_run()
   {
     log::info("[{}] starting server", name());
     run_impl(co_await net::this_coro::executor);
@@ -220,8 +221,7 @@ private:
     tasks_.clear();
   }
 
-  net::awaitable<net::acceptor>
-  new_acceptor(net::ip::tcp::endpoint endpoint) const
+  lazy<net::acceptor> new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = net::acceptor(co_await net::this_coro::executor);
 
@@ -232,7 +232,7 @@ private:
     co_return acceptor;
   }
 
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint) const
+  lazy<void> do_listen(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -251,8 +251,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
-                                 net::ssl::context ssl_ctx) const
+  lazy<void> do_listen(net::ip::tcp::endpoint endpoint,
+                       net::ssl::context ssl_ctx) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -272,8 +272,8 @@ private:
   }
 #endif
 
-  net::awaitable<void> do_session(net::tcp_stream stream,
-                                  net::ip::tcp::endpoint listen_ep) const
+  lazy<void> do_session(net::tcp_stream stream,
+                        net::ip::tcp::endpoint listen_ep) const
   {
     auto ec = co_await do_session_impl(stream, std::move(listen_ep));
     if (ec) {
@@ -285,8 +285,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(net::ssl_stream stream,
-                                  net::ip::tcp::endpoint listen_ep) const
+  lazy<void> do_session(net::ssl_stream stream,
+                        net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
 
@@ -316,8 +316,8 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<net::error_code>
-  do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
+  lazy<net::error_code> do_session_impl(Stream& stream,
+                                        net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
     auto _ = std::ignore;
@@ -399,11 +399,11 @@ private:
     co_return ec;
   }
 
-  net::awaitable<http_response> do_handler(connection_info connection_info,
-                                           http::verb method,
-                                           std::string target,
-                                           http_fields fields,
-                                           std::string body) const
+  lazy<http_response> do_handler(connection_info connection_info,
+                                 http::verb method,
+                                 std::string target,
+                                 http_fields fields,
+                                 std::string body) const
   {
     auto req_url = urls::parse_origin_form(target);
     if (!req_url) {
@@ -459,7 +459,7 @@ private:
   }
 
   builder builder_;
-  std::vector<net::awaitable<void>> tasks_;
+  std::vector<lazy<void>> tasks_;
 };
 
 }

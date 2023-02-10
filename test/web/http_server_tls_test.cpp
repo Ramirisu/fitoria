@@ -26,18 +26,17 @@ namespace {
 
 void configure_server(http_server::builder& builder)
 {
-  builder.route(
-      route::GET("/api/repos/{repo}",
-                 [](http_request& req) -> net::awaitable<http_response> {
-                   CHECK_EQ(req.method(), http::verb::get);
-                   CHECK_EQ(req.params().size(), 1);
-                   CHECK_EQ(req.params().at("repo"), "fitoria");
-                   CHECK_EQ(req.path(), "/api/repos/fitoria");
-                   CHECK_EQ(req.fields().get(http::field::content_type),
-                            http::fields::content_type::plaintext());
-                   CHECK_EQ(req.body(), "hello world");
-                   co_return http_response(http::status::ok);
-                 }));
+  builder.route(route::GET(
+      "/api/repos/{repo}", [](http_request& req) -> lazy<http_response> {
+        CHECK_EQ(req.method(), http::verb::get);
+        CHECK_EQ(req.params().size(), 1);
+        CHECK_EQ(req.params().at("repo"), "fitoria");
+        CHECK_EQ(req.path(), "/api/repos/fitoria");
+        CHECK_EQ(req.fields().get(http::field::content_type),
+                 http::fields::content_type::plaintext());
+        CHECK_EQ(req.body(), "hello world");
+        co_return http_response(http::status::ok);
+      }));
 }
 
 }
@@ -50,8 +49,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });

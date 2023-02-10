@@ -10,37 +10,37 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto get(http_request&) -> net::awaitable<http_response>
+auto get(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto post(http_request&) -> net::awaitable<http_response>
+auto post(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto put(http_request&) -> net::awaitable<http_response>
+auto put(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto patch(http_request&) -> net::awaitable<http_response>
+auto patch(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto delete_(http_request&) -> net::awaitable<http_response>
+auto delete_(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto head(http_request&) -> net::awaitable<http_response>
+auto head(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto options(http_request&) -> net::awaitable<http_response>
+auto options(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }

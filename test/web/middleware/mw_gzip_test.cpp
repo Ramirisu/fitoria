@@ -107,7 +107,7 @@ TEST_CASE("gzip middleware")
             .route(
                 route::GET(
                     "/get/{no_compression}",
-                    [&](http_request& req) -> net::awaitable<http_response> {
+                    [&](http_request& req) -> lazy<http_response> {
                       CHECK(!req.fields().get(http::field::content_encoding));
                       CHECK_EQ(*req.fields().get(http::field::content_length),
                                std::to_string(in.size()));
@@ -165,7 +165,7 @@ TEST_CASE("gzip middleware: header vary")
                        .use(middleware::gzip())
                        .GET("/get",
                             [&]([[maybe_unused]] http_request& req)
-                                -> net::awaitable<http_response> {
+                                -> lazy<http_response> {
                               auto res = http_response(http::status::ok)
                                              .set_body("hello world");
                               if (!req.body().empty()) {

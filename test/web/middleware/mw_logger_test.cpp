@@ -21,7 +21,7 @@ TEST_CASE("logger middleware")
                                .use(middleware::logger())
                                .GET("/get",
                                     [&]([[maybe_unused]] http_request& req)
-                                        -> net::awaitable<http_response> {
+                                        -> lazy<http_response> {
                                       co_return http_response(http::status::ok);
                                     }))
                     .build();

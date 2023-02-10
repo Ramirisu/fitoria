@@ -27,7 +27,7 @@ TEST_CASE("compression priority: gzip > deflate")
                                .use(middleware::gzip())
                                .GET("/get",
                                     [&]([[maybe_unused]] http_request& req)
-                                        -> net::awaitable<http_response> {
+                                        -> lazy<http_response> {
                                       CHECK(!req.fields().get(
                                           http::field::content_encoding));
                                       CHECK_EQ(*req.fields().get(
@@ -83,7 +83,7 @@ TEST_CASE("compression priority: deflate > gzip")
                                .use(middleware::deflate())
                                .GET("/get",
                                     [&]([[maybe_unused]] http_request& req)
-                                        -> net::awaitable<http_response> {
+                                        -> lazy<http_response> {
                                       CHECK(!req.fields().get(
                                           http::field::content_encoding));
                                       CHECK_EQ(*req.fields().get(

@@ -10,6 +10,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/log.hpp>
@@ -29,7 +30,7 @@ class exception_handler_service {
   friend class exception_handler;
 
 public:
-  net::awaitable<http_response> operator()(http_context& c) const
+  auto operator()(http_context& c) const -> lazy<http_response>
   {
     try {
       co_return co_await next_(c);

@@ -16,7 +16,7 @@ using cache_map = std::unordered_map<std::string, std::string>;
 using cache_map_ptr = std::shared_ptr<cache_map>;
 
 namespace put {
-  auto api(const http_request& req) -> net::awaitable<http_response>
+  auto api(const http_request& req) -> lazy<http_response>
   {
     auto key = req.params().get("key");
     auto value = req.params().get("value");
@@ -37,7 +37,7 @@ namespace put {
   }
 }
 namespace get {
-  auto api(const http_request& req) -> net::awaitable<http_response>
+  auto api(const http_request& req) -> lazy<http_response>
   {
     auto key = req.params().get("key");
     if (!key) {

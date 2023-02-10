@@ -39,7 +39,7 @@ int main()
       = http_server::builder()
             .route(route::GET(
                 "/api/v1/{owner}/{repo}",
-                [](http_request& req) -> net::awaitable<http_response> {
+                [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}", req.params().get("owner"),
                              req.params().get("repo"));

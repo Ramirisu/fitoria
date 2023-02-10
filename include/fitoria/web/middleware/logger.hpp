@@ -30,7 +30,7 @@ class logger_service {
 public:
   using clock_t = std::chrono::system_clock;
 
-  net::awaitable<http_response> operator()(http_context& c) const
+  auto operator()(http_context& c) const -> lazy<http_response>
   {
     auto start_time = clock_t::now();
 

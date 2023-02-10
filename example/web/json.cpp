@@ -61,7 +61,7 @@ void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
   jv = { { "msg", out.msg } };
 }
 
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> lazy<http_response>
 {
   if (auto ct = req.fields().get(http::field::content_type);
       ct != http::fields::content_type::json()) {

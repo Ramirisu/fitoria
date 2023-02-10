@@ -12,6 +12,7 @@
 
 #include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
+#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
@@ -201,7 +202,7 @@ public:
   }
 #endif
 
-  auto async_send() const -> net::awaitable<expected<http_response, error_code>>
+  auto async_send() const -> lazy<expected<http_response, error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -212,7 +213,7 @@ public:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto async_send(net::ssl::context ssl_ctx) const
-      -> net::awaitable<expected<http_response, error_code>>
+      -> lazy<expected<http_response, error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -267,8 +268,7 @@ private:
                       std::string(res->path()) };
   }
 
-  auto do_resolve() const
-      -> net::awaitable<expected<net::resolver_results, error_code>>
+  auto do_resolve() const -> lazy<expected<net::resolver_results, error_code>>
   {
     auto resolver = net::resolver(co_await net::this_coro::executor);
     auto [ec, results] = co_await resolver.async_resolve(
@@ -281,7 +281,7 @@ private:
     co_return results;
   }
 
-  auto do_session() const -> net::awaitable<expected<http_response, error_code>>
+  auto do_session() const -> lazy<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -313,7 +313,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_session(net::ssl::context ssl_ctx) const
-      -> net::awaitable<expected<http_response, error_code>>
+      -> lazy<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -366,7 +366,7 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_send_recv(Stream& stream) const -> net::awaitable<
+  auto do_send_recv(Stream& stream) const -> lazy<
       expected<http::detail::response<http::detail::string_body>, error_code>>
   {
     using std::tie;

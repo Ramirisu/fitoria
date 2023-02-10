@@ -69,22 +69,22 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 
 TEST_CASE("connection_info")
 {
-  auto server = http_server::builder()
-                    .route(route::GET(
-                        "/get",
-                        [](http_request& req) -> net::awaitable<http_response> {
-                          CHECK_EQ(req.conn_info().local_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().local_port(), 0);
-                          CHECK_EQ(req.conn_info().remote_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().remote_port(), 0);
-                          CHECK_EQ(req.conn_info().listen_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().listen_port(), 0);
-                          co_return http_response(http::status::ok);
-                        }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(route::GET("/get",
+                              [](http_request& req) -> lazy<http_response> {
+                                CHECK_EQ(req.conn_info().local_addr(),
+                                         net::ip::make_address("127.0.0.1"));
+                                CHECK_EQ(req.conn_info().local_port(), 0);
+                                CHECK_EQ(req.conn_info().remote_addr(),
+                                         net::ip::make_address("127.0.0.1"));
+                                CHECK_EQ(req.conn_info().remote_port(), 0);
+                                CHECK_EQ(req.conn_info().listen_addr(),
+                                         net::ip::make_address("127.0.0.1"));
+                                CHECK_EQ(req.conn_info().listen_port(), 0);
+                                co_return http_response(http::status::ok);
+                              }))
+            .build();
   {
     auto res = server.serve_http_request("/get", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
@@ -97,7 +97,7 @@ TEST_CASE("unittest")
       = http_server::builder()
             .route(route::GET(
                 "/api/v1/users/{user}",
-                [](http_request& req) -> net::awaitable<http_response> {
+                [](http_request& req) -> lazy<http_response> {
                   user_t user;
                   user.name = req.params().get("user").value();
                   if (auto gender = req.query().get("gender"); gender) {
@@ -237,8 +237,7 @@ TEST_CASE("state")
                     .sub_scope(
                         scope("/api/v1")
                             .GET("/global",
-                                 [](http_request& req)
-                                     -> net::awaitable<http_response> {
+                                 [](http_request& req) -> lazy<http_response> {
                                    co_return http_response(http::status::ok)
                                        .set_body(std::string(
                                            req.state<const shared_resource&>()
@@ -246,8 +245,7 @@ TEST_CASE("state")
                                  })
                             .state(shared_resource { "scope" })
                             .GET("/scope",
-                                 [](http_request& req)
-                                     -> net::awaitable<http_response> {
+                                 [](http_request& req) -> lazy<http_response> {
                                    co_return http_response(http::status::ok)
                                        .set_body(std::string(
                                            req.state<const shared_resource&>()
@@ -257,7 +255,7 @@ TEST_CASE("state")
                                 route::GET(
                                     "/route",
                                     [](http_request& req)
-                                        -> net::awaitable<http_response> {
+                                        -> lazy<http_response> {
                                       co_return http_response(http::status::ok)
                                           .set_body(std::string(
                                               req.state<
