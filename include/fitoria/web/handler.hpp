@@ -14,6 +14,7 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 
+#include <fitoria/web/from_http_request.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -23,14 +24,18 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Next>
-class handler_service {
+template <typename Next, typename Args>
+class handler_service;
+
+template <typename Next, typename... Args>
+class handler_service<Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
   auto operator()(http_context& ctx) const -> lazy<http_response>
   {
-    return next_(static_cast<http_request&>(ctx));
+    return next_(tag_invoke(from_http_request_t<Args> {},
+                            static_cast<http_request&>(ctx))...);
   }
 
 private:
@@ -38,21 +43,18 @@ private:
   handler_service(Next2&& next)
       : next_(std::forward<Next2>(next))
   {
-    static_assert(
-        std::is_invocable_r_v<lazy<http_response>, Next2, http_request&>);
   }
 
   Next next_;
 };
 
-template <typename Next>
-handler_service(Next&&) -> handler_service<std::decay_t<Next>>;
-
 class handler {
   template <typename Next>
   auto new_service(Next&& next) const
   {
-    return handler_service(std::forward<Next>(next));
+    return handler_service<std::decay_t<Next>,
+                           typename function_traits<Next>::args_type>(
+        std::forward<Next>(next));
   }
 
 public:

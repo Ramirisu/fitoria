@@ -132,8 +132,7 @@ private:
   template <typename S0, typename S1, typename... S>
   static auto build_service_impl(S0&& s0, S1&& s1, S&&... s)
   {
-    auto service = tag_invoke(make_service_t {}, std::forward<S1>(s1),
-                              std::forward<S0>(s0));
+    auto service = make_service(std::forward<S1>(s1), std::forward<S0>(s0));
 
     if constexpr (sizeof...(S) > 0) {
       return build_service_impl(std::move(service), std::forward<S>(s)...);

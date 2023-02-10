@@ -18,14 +18,18 @@ namespace web {
 
 struct make_service_t {
   template <typename Factory, typename Next>
+    requires tag_invocable<make_service_t, Factory, Next>
   constexpr auto operator()(Factory&& factory, Next&& next) const
       noexcept(nothrow_tag_invocable<make_service_t, Factory, Next>)
-    requires tag_invocable<make_service_t, Factory, Next>
+          -> tag_invoke_result_t<make_service_t, Factory, Next>
   {
-    return tag_invoke(make_service_t {}, std::forward<Factory>(factory),
-                      std::forward<Next>(next));
+    return FITORIA_NAMESPACE::tag_invoke_f(make_service_t {},
+                                           std::forward<Factory>(factory),
+                                           std::forward<Next>(next));
   }
 };
+
+inline constexpr make_service_t make_service {};
 
 }
 

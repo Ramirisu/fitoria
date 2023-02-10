@@ -199,7 +199,9 @@ TEST_CASE("generic request")
       = http_server::builder()
             .route(route::GET(
                 "/api/v1/users/{user}/filmography/years/{year}",
-                [=](http_request& req) -> lazy<http_response> {
+                [=](http_request& req, route_params& params, query_map& query,
+                    http_fields& fields,
+                    std::string& body) -> lazy<http_response> {
                   CHECK_EQ(req.conn_info().local_addr(),
                            net::ip::make_address(server_ip));
                   CHECK_EQ(req.conn_info().remote_addr(),
@@ -208,18 +210,19 @@ TEST_CASE("generic request")
                            net::ip::make_address(server_ip));
                   CHECK_EQ(req.conn_info().listen_port(), port);
 
-                  auto test_params = [](auto& route) {
-                    CHECK_EQ(route.path(),
-                             "/api/v1/users/{user}/filmography/years/{year}");
-
-                    CHECK_EQ(route.at("user"), "Rina Hidaka");
-                    CHECK_EQ(route.at("year"), "2022");
-                  };
-                  test_params(req.params());
-
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),
                            "/api/v1/users/Rina Hidaka/filmography/years/2022");
+
+                  auto test_params = [](auto& params) {
+                    CHECK_EQ(params.path(),
+                             "/api/v1/users/{user}/filmography/years/{year}");
+
+                    CHECK_EQ(params.at("user"), "Rina Hidaka");
+                    CHECK_EQ(params.at("year"), "2022");
+                  };
+                  test_params(req.params());
+                  test_params(params);
 
                   auto test_query = [](auto& query) {
                     CHECK_EQ(query.size(), 2);
@@ -228,12 +231,16 @@ TEST_CASE("generic request")
                   };
                   test_query(req.query());
                   test_query(static_cast<const http_request&>(req).query());
+                  test_query(query);
 
-                  CHECK_EQ(req.fields().get(http::field::content_type),
-                           http::fields::content_type::plaintext());
-                  CHECK_EQ(static_cast<const http_request&>(req).fields().get(
-                               http::field::content_type),
-                           http::fields::content_type::plaintext());
+                  auto test_fields = [](auto& fields) {
+                    CHECK_EQ(fields.get(http::field::content_type),
+                             http::fields::content_type::plaintext());
+                  };
+
+                  test_fields(req.fields());
+                  test_fields(static_cast<const http_request&>(req).fields());
+                  test_fields(fields);
 
                   CHECK(range_in_set(
                       req.fields().equal_range(http::field::user_agent),
@@ -241,9 +248,11 @@ TEST_CASE("generic request")
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
-                  CHECK_EQ(req.body(), "happy birthday");
-                  CHECK_EQ(static_cast<const http_request&>(req).body(),
-                           "happy birthday");
+                  auto test_body
+                      = [](auto& body) { CHECK_EQ(body, "happy birthday"); };
+                  test_body(req.body());
+                  test_body(static_cast<const http_request&>(req).body());
+                  test_body(body);
 
                   co_return http_response(http::status::ok)
                       .insert_field(http::field::user_agent,

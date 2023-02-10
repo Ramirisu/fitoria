@@ -55,12 +55,12 @@ public:
     return conn_info_;
   }
 
-  const route_params& params() const noexcept
+  route_params& params() noexcept
   {
     return params_;
   }
 
-  operator const route_params&() const noexcept
+  const route_params& params() const noexcept
   {
     return params_;
   }
@@ -91,16 +91,6 @@ public:
     return query_;
   }
 
-  operator query_map&() noexcept
-  {
-    return query_;
-  }
-
-  operator const query_map&() const noexcept
-  {
-    return query_;
-  }
-
   http_request& set_query(std::string name, std::string value)
   {
     query_.set(std::move(name), std::move(value));
@@ -113,16 +103,6 @@ public:
   }
 
   const http_fields& fields() const noexcept
-  {
-    return fields_;
-  }
-
-  operator http_fields&() noexcept
-  {
-    return fields_;
-  }
-
-  operator const http_fields&() const noexcept
   {
     return fields_;
   }
@@ -145,16 +125,6 @@ public:
   }
 
   const std::string& body() const noexcept
-  {
-    return body_;
-  }
-
-  operator std::string&() noexcept
-  {
-    return body_;
-  }
-
-  operator const std::string&() const noexcept
   {
     return body_;
   }
