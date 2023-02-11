@@ -34,11 +34,37 @@ class handler_service<Next, std::tuple<Args...>> {
 public:
   auto operator()(http_context& ctx) const -> lazy<http_response>
   {
-    return next_(tag_invoke(from_http_request_t<Args> {},
-                            static_cast<http_request&>(ctx))...);
+    return invoke_with_args_expansion(ctx);
   }
 
 private:
+  auto invoke_with_args_expansion(http_context& ctx) const
+      -> lazy<http_response>
+  {
+    return invoke_with_args_expansion_impl<0>(std::tuple {
+        from_http_request_t<Args> {}(static_cast<http_request&>(ctx))... });
+  }
+
+  template <std::size_t I>
+  auto invoke_with_args_expansion_impl(
+      std::tuple<expected<Args, http_response>...> args) const
+      -> lazy<http_response>
+  {
+    if constexpr (I < sizeof...(Args)) {
+      if (auto& arg = std::get<I>(args); !arg) {
+        return [](http_response res) -> lazy<http_response> {
+          co_return res;
+        }(std::move(arg).error());
+      } else {
+        return invoke_with_args_expansion_impl<I + 1>(std::move(args));
+      }
+    } else {
+      return std::apply(
+          [&](auto... args) { return next_(std::move(args).value()...); },
+          std::move(args));
+    }
+  }
+
   template <typename Next2>
   handler_service(Next2&& next)
       : next_(std::forward<Next2>(next))

@@ -17,40 +17,62 @@ FITORIA_NAMESPACE_BEGIN
 namespace detail {
 void tag_invoke();
 
-// clang-format off
+// Workaround: Clang 15 bug?
+// using concept to define tag_invocable results `constraints not satisfied`
+// errors
+template <typename Void, typename Tag, typename... Args>
+struct is_tag_invocable_impl : std::false_type { };
 
 template <typename Tag, typename... Args>
-concept tag_invocable = requires(Tag tag, Args&&... args) {
-  tag_invoke(static_cast<Tag&&>(tag), static_cast<Args&&>(args)...);
-};
+struct is_tag_invocable_impl<
+    std::void_t<decltype(tag_invoke(std::declval<Tag>(),
+                                    std::declval<Args>()...))>,
+    Tag,
+    Args...> : std::true_type { };
 
 template <typename Tag, typename... Args>
-concept nothrow_tag_invocable = tag_invocable<Tag, Args...>
-  && requires(Tag tag, Args&&... args) {
-    { tag_invoke(static_cast<Tag&&>(tag), static_cast<Args&&>(args)...) } noexcept;
-  };
-
-// clang-format on
+struct is_tag_invocable : is_tag_invocable_impl<void, Tag, Args...> { };
 
 template <typename Tag, typename... Args>
-using tag_invoke_result_t
-    = decltype(tag_invoke(std::declval<Tag>(), std::declval<Args>()...));
+inline constexpr bool is_tag_invocable_v
+    = is_tag_invocable<Tag, Args...>::value;
+
+template <bool, typename Tag, typename... Args>
+struct is_nothrow_tag_invocable_impl : std::false_type { };
+
+template <typename Tag, typename... Args>
+struct is_nothrow_tag_invocable_impl<true, Tag, Args...>
+    : std::bool_constant<noexcept(
+          tag_invoke(std::declval<Tag>(), std::declval<Args>()...))> { };
+
+template <typename Tag, typename... Args>
+struct is_nothrow_tag_invocable
+    : is_nothrow_tag_invocable_impl<is_tag_invocable_v<Tag, Args...>,
+                                    Tag,
+                                    Args...> { };
+
+template <typename Tag, typename... Args>
+inline constexpr bool is_nothrow_tag_invocable_v
+    = is_nothrow_tag_invocable<Tag, Args...>::value;
 
 template <typename Tag, typename... Args>
 struct tag_invoke_result { };
 
 template <typename Tag, typename... Args>
-  requires tag_invocable<Tag, Args...>
+  requires is_tag_invocable_v<Tag, Args...>
 struct tag_invoke_result<Tag, Args...> {
-  using type = tag_invoke_result_t<Tag, Args...>;
+  using type
+      = decltype(tag_invoke(std::declval<Tag>(), std::declval<Args>()...));
 };
+
+template <typename Tag, typename... Args>
+using tag_invoke_result_t = typename tag_invoke_result<Tag, Args...>::type;
 
 struct tag_invoke_t {
   template <typename Tag, typename... Args>
-    requires(tag_invocable<Tag, Args...>)
+    requires(is_tag_invocable_v<Tag, Args...>)
   constexpr auto operator()(Tag tag, Args&&... args) const
-      noexcept(nothrow_tag_invocable<Tag, Args...>)
-          -> tag_invoke_result_t<Tag, Args...>
+      -> tag_invoke_result_t<Tag, Args...>
   {
     return tag_invoke(static_cast<Tag&&>(tag), static_cast<Args&&>(args)...);
   }
@@ -62,9 +84,9 @@ using detail::tag_invoke_t;
 
 inline constexpr tag_invoke_t tag_invoke_f {};
 
-using detail::tag_invocable;
+using detail::is_tag_invocable_v;
 
-using detail::nothrow_tag_invocable;
+using detail::is_nothrow_tag_invocable_v;
 
 using detail::tag_invoke_result;
 
