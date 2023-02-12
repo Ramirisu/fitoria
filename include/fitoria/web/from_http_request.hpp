@@ -29,7 +29,7 @@ struct from_http_request_t {
     static_assert(std::is_same_v<
                   tag_invoke_result_t<from_http_request_t<R>, http_request&>,
                   expected<R, http_response>>);
-    return FITORIA_NAMESPACE::tag_invoke_f(from_http_request_t<R> {}, req);
+    return tag_invoke(from_http_request_t<R> {}, req);
   }
 
   friend auto tag_invoke(from_http_request_t<R>, http_request& req)

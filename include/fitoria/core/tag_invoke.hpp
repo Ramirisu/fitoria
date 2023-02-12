@@ -82,7 +82,7 @@ struct tag_invoke_t {
 
 using detail::tag_invoke_t;
 
-inline constexpr tag_invoke_t tag_invoke_f {};
+inline constexpr tag_invoke_t tag_invoke {};
 
 using detail::is_tag_invocable_v;
 
