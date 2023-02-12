@@ -39,20 +39,24 @@ public:
   }
 
   template <typename State>
-  auto state(State state) const
+  auto state(State&& state) const
   {
     auto state_map = state_map_;
-    state_map[std::type_index(typeid(State))] = std::any(std::move(state));
+    state_map[std::type_index(typeid(State))]
+        = std::any(std::forward<State>(state));
     return scope_impl<std::tuple<Services...>, std::tuple<Routes...>>(
         path_, std::move(state_map), services_, routes_);
   }
 
   template <typename Service>
-  auto use(Service service) const
+  auto use(Service&& service) const
   {
-    return scope_impl<std::tuple<Services..., Service>, std::tuple<Routes...>>(
+    return scope_impl<std::tuple<Services..., std::decay_t<Service>>,
+                      std::tuple<Routes...>>(
         path_, state_map_,
-        std::tuple_cat(services_, std::tuple { std::move(service) }), routes_);
+        std::tuple_cat(services_,
+                       std::tuple { std::forward<Service>(service) }),
+        routes_);
   }
 
   template <typename... RouteServices, typename Handler>
@@ -69,51 +73,59 @@ public:
   }
 
   template <typename Handler>
-  auto handle(http::verb method, std::string path, Handler handler) const
+  auto handle(http::verb method, std::string path, Handler&& handler) const
   {
-    return route(route::handle(method, std::move(path), std::move(handler)));
+    return route(
+        route::handle(method, std::move(path), std::forward<Handler>(handler)));
   }
 
   template <typename Handler>
-  auto GET(std::string path, Handler handler) const
+  auto GET(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::get, std::move(path), std::move(handler));
+    return handle(http::verb::get, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto POST(std::string path, Handler handler) const
+  auto POST(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::post, std::move(path), std::move(handler));
+    return handle(http::verb::post, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto PUT(std::string path, Handler handler) const
+  auto PUT(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::put, std::move(path), std::move(handler));
+    return handle(http::verb::put, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto PATCH(std::string path, Handler handler) const
+  auto PATCH(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::patch, std::move(path), std::move(handler));
+    return handle(http::verb::patch, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto DELETE_(std::string path, Handler handler) const
+  auto DELETE_(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::delete_, std::move(path), std::move(handler));
+    return handle(http::verb::delete_, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto HEAD(std::string path, Handler handler) const
+  auto HEAD(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::head, std::move(path), std::move(handler));
+    return handle(http::verb::head, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename Handler>
-  auto OPTIONS(std::string path, Handler handler) const
+  auto OPTIONS(std::string path, Handler&& handler) const
   {
-    return handle(http::verb::options, std::move(path), std::move(handler));
+    return handle(http::verb::options, std::move(path),
+                  std::forward<Handler>(handler));
   }
 
   template <typename... ChildServices, typename... ChildRoutes>
