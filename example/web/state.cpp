@@ -7,13 +7,39 @@
 
 #include <fitoria/fitoria.hpp>
 
+#include <shared_mutex>
+
 using namespace fitoria;
 using namespace fitoria::web;
 
 namespace api::v1::cache {
 
-using cache_map = std::unordered_map<std::string, std::string>;
-using cache_map_ptr = std::shared_ptr<cache_map>;
+class simple_cache {
+  using map_type = unordered_string_map<std::string>;
+
+public:
+  optional<map_type::mapped_type> get(std::string_view key) const
+  {
+    auto lock = std::shared_lock { mutex_ };
+    if (auto it = map_.find(key); it != map_.end()) {
+      return it->second;
+    }
+
+    return nullopt;
+  }
+
+  bool put(const std::string& key, std::string value)
+  {
+    auto lock = std::unique_lock { mutex_ };
+    return map_.insert_or_assign(key, std::move(value)).second;
+  }
+
+private:
+  map_type map_;
+  mutable std::shared_mutex mutex_;
+};
+
+using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
 namespace put {
   auto api(const http_request& req) -> lazy<http_response>
@@ -24,12 +50,12 @@ namespace put {
       co_return http_response(http::status::bad_request);
     }
 
-    auto cache = req.state<cache_map_ptr>();
+    auto cache = req.state<simple_cache_ptr>();
     if (!cache) {
       co_return http_response(http::status::internal_server_error);
     }
 
-    if (auto res = (*cache)->insert_or_assign(*key, *value); res.second) {
+    if ((*cache)->put(*key, *value)) {
       co_return http_response(http::status::created);
     } else {
       co_return http_response(http::status::accepted);
@@ -44,13 +70,13 @@ namespace get {
       co_return http_response(http::status::bad_request);
     }
 
-    auto cache = req.state<cache_map_ptr>();
+    auto cache = req.state<simple_cache_ptr>();
     if (!cache) {
       co_return http_response(http::status::internal_server_error);
     }
 
-    if (auto it = (*cache)->find(*key); it != (*cache)->end()) {
-      co_return http_response(http::status::ok).set_body(it->second);
+    if (auto value = (*cache)->get(*key); value) {
+      co_return http_response(http::status::ok).set_body(*value);
     } else {
       co_return http_response(http::status::not_found);
     }
@@ -60,7 +86,7 @@ namespace get {
 
 int main()
 {
-  auto cache = std::make_shared<api::v1::cache::cache_map>();
+  auto cache = std::make_shared<api::v1::cache::simple_cache_ptr>();
 
   auto server = http_server::builder()
                     .route(scope("/api/v1/cache")
