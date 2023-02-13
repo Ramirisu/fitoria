@@ -15,13 +15,13 @@ using namespace fitoria::web;
 // clang-format off
 // 
 // $ ./quick_start
-// $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria --verbose
+// $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria -v
 //
 // server output:
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
 // > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
 //
-// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria --verbose --insecure
+// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria -v --insecure
 //
 // server output:
 // > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]

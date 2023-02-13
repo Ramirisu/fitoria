@@ -13,7 +13,7 @@ using namespace fitoria::web;
 // clang-format off
 //
 // $ ./json
-// $ curl -X POST http://127.0.0.1:8080/api/v1/login -H 'Content-Type: application/json' -d '{"name":"ramirisu","password":"123456"}' --verbose
+// $ curl -X POST http://127.0.0.1:8080/api/v1/login -H 'Content-Type: application/json' -d '{"name":"ramirisu","password":"123456"}' -v
 //
 // curl output:
 // < HTTP/1.1 200 OK

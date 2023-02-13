@@ -11,7 +11,7 @@ using namespace fitoria;
 using namespace fitoria::web;
 
 // $ ./route_parameter
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/david --verbose
+// $ curl -X GET http://127.0.0.1:8080/api/v1/users/david -v
 //
 // curl output:
 // < HTTP/1.1 200 OK
