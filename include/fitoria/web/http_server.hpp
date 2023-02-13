@@ -81,11 +81,8 @@ public:
     template <typename... RouteServices, typename F>
     builder& route(route_builder<std::tuple<RouteServices...>, F> route)
     {
-      auto [method, path, state_maps, service] = route.build(handler());
-
-      if (auto res = router_.try_insert(router_type::route_type(
-              method, std::move(path), std::move(state_maps),
-              std::move(service)));
+      if (auto res
+          = router_.try_insert(router_type::route_type(route.build(handler())));
           !res) {
 #if !FITORIA_NO_EXCEPTIONS
         throw system_error(res.error());

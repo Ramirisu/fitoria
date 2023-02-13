@@ -17,8 +17,9 @@ TEST_SUITE_BEGIN("web.scope");
 
 TEST_CASE("method")
 {
-  auto method
-      = [](auto&& scope) { return std::get<0>(scope.routes()).method(); };
+  auto method = [](auto&& scope) {
+    return std::get<0>(scope.routes()).build().method();
+  };
   CHECK_EQ(method(scope("/api").GET("/", [](int) -> int { return 0; })),
            http::verb::get);
   CHECK_EQ(method(scope("/api").POST("/", [](int) -> int { return 0; })),
@@ -126,9 +127,9 @@ TEST_CASE("middleware & handler")
 
   static_assert(std::tuple_size_v<decltype(services)> == 14);
 
-  auto m = [](auto& route) { return std::get<0>(route); };
-  auto p = [](auto& route) { return std::get<1>(route).pattern(); };
-  auto s = [](auto& route) { return std::get<3>(route)(0); };
+  auto m = [](auto& route) { return route.method(); };
+  auto p = [](auto& route) { return route.matcher().pattern(); };
+  auto s = [](auto& route) { return route.service()(0); };
 
   CHECK_EQ(m(std::get<0>(services)), http::verb::get);
   CHECK_EQ(p(std::get<0>(services)), "/s0/s0h");

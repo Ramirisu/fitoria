@@ -7,6 +7,7 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/web/routable.hpp>
 #include <fitoria/web/router.hpp>
 
 using namespace fitoria;
@@ -26,8 +27,8 @@ TEST_CASE("try_insert")
 
   auto r = [=](http::verb method, std::string path) {
     return router_type::route_type(
-        method, pattern_matcher::from_pattern(std::move(path)).value(), {},
-        [](int) { return 0; });
+        routable(method, pattern_matcher::from_pattern(std::move(path)).value(),
+                 {}, [](int) { return 0; }));
   };
 
   router_type rt;
@@ -64,8 +65,8 @@ TEST_CASE("try_find")
 {
   auto r = [=](http::verb method, std::string path, int exp) {
     return router_type::route_type(
-        method, pattern_matcher::from_pattern(std::move(path)).value(), {},
-        [=](int) -> int { return exp; });
+        routable(method, pattern_matcher::from_pattern(std::move(path)).value(),
+                 {}, [=](int) -> int { return exp; }));
   };
 
   router_type rt;

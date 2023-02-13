@@ -24,45 +24,90 @@ namespace web {
 
 template <typename Request, typename Response>
 class any_routable {
-  http::verb method_;
-  pattern_matcher matcher_;
-  std::vector<state_map> state_maps_;
-  std::function<Response(Request)> service_;
+  class base {
+  public:
+    virtual ~base() = default;
+    virtual auto method() const noexcept -> http::verb = 0;
+    virtual auto matcher() const noexcept -> const pattern_matcher& = 0;
+    virtual auto state_maps() const noexcept
+        -> const std::vector<state_map>& = 0;
+    virtual auto operator()(Request) const -> Response = 0;
+  };
+
+  template <typename Routable>
+  class derived : public base {
+  public:
+    derived(Routable routable)
+        : routable_(routable)
+    {
+    }
+
+    ~derived() override = default;
+
+    auto method() const noexcept -> http::verb override
+    {
+      return routable_.method();
+    }
+
+    auto matcher() const noexcept -> const pattern_matcher& override
+    {
+      return routable_.matcher();
+    }
+
+    auto state_maps() const noexcept -> const std::vector<state_map>& override
+    {
+      return routable_.state_maps();
+    }
+
+    auto operator()(Request req) const -> Response override
+    {
+      return routable_.service()(req);
+    }
+
+  private:
+    Routable routable_;
+  };
 
 public:
-  template <typename Service>
-  any_routable(http::verb method,
-               pattern_matcher matcher,
-               std::vector<state_map> state_maps,
-               Service&& service)
-    requires(!is_specialization_of_v<std::remove_cvref_t<Service>,
-                                     any_routable>)
-      : method_(method)
-      , matcher_(std::move(matcher))
-      , state_maps_(std::move(state_maps))
-      , service_(std::forward<Service>(service))
+  template <typename Routable>
+  explicit any_routable(Routable&& routable)
+    requires(
+        !is_specialization_of_v<std::remove_cvref_t<Routable>, any_routable>)
+      : routable_(
+          std::make_shared<derived<Routable>>(std::forward<Routable>(routable)))
   {
   }
 
+  any_routable(const any_routable&) = default;
+
+  any_routable& operator=(const any_routable&) = default;
+
+  any_routable(any_routable&&) = default;
+
+  any_routable& operator=(any_routable&&) = default;
+
   auto method() const noexcept -> http::verb
   {
-    return method_;
+    return routable_->method();
   }
 
   auto matcher() const noexcept -> const pattern_matcher&
   {
-    return matcher_;
+    return routable_->matcher();
   }
 
   auto state_maps() const noexcept -> const std::vector<state_map>&
   {
-    return state_maps_;
+    return routable_->state_maps();
   }
 
   auto operator()(Request req) const -> Response
   {
-    return service_(req);
+    return (*routable_)(req);
   }
+
+private:
+  std::shared_ptr<base> routable_;
 };
 
 }

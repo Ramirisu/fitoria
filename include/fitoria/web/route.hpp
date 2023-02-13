@@ -12,6 +12,7 @@
 
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/pattern_matcher.hpp>
+#include <fitoria/web/routable.hpp>
 #include <fitoria/web/service.hpp>
 #include <fitoria/web/state_map.hpp>
 
@@ -99,24 +100,20 @@ public:
         std::tuple_cat(std::move(parent_services), services_), handler_);
   }
 
-  auto method() const noexcept
-  {
-    return method_;
-  }
-
-  auto matcher() const noexcept -> const pattern_matcher&
-  {
-    return matcher_;
-  }
-
   template <typename HandlerServiceFactory>
   auto build(HandlerServiceFactory handler_service_factory) const
   {
-    return std::tuple {
-      method_, matcher_, state_maps_,
-      build_service(std::tuple_cat(
-          services_, std::tuple { handler_service_factory, handler_ }))
-    };
+    return routable(
+        method_, matcher_, state_maps_,
+        build_service(std::tuple_cat(
+            services_, std::tuple { handler_service_factory, handler_ })));
+  }
+
+  auto build() const
+  {
+    return routable(
+        method_, matcher_, state_maps_,
+        build_service(std::tuple_cat(services_, std::tuple { handler_ })));
   }
 
 private:
@@ -130,6 +127,12 @@ private:
   static auto build_service(std::tuple<S...> s, std::index_sequence<Is...>)
   {
     return build_service_impl(std::get<sizeof...(S) - Is - 1>(std::move(s))...);
+  }
+
+  template <typename S0>
+  static auto build_service_impl(S0&& s0)
+  {
+    return std::forward<S0>(s0);
   }
 
   template <typename S0, typename S1, typename... S>
