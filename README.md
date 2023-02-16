@@ -8,6 +8,8 @@
 
 **fitoria** is an HTTP web framework built on top of C++20 coroutine.
 
+The library is ***experimental*** and still under development, not recommended for production use.
+
 ## Table of Contents
 
 - [Fitoria](#fitoria)
