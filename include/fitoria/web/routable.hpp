@@ -18,12 +18,12 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Service>
+template <basic_fixed_string Pattern, typename Service>
 class routable {
 public:
   template <typename Service2>
   routable(http::verb method,
-           pattern_matcher matcher,
+           pattern_matcher<Pattern> matcher,
            std::vector<state_map> state_maps,
            Service2&& service)
       : method_(method)
@@ -38,7 +38,7 @@ public:
     return method_;
   }
 
-  auto matcher() const noexcept -> const pattern_matcher&
+  auto matcher() const noexcept -> const pattern_matcher<Pattern>&
   {
     return matcher_;
   }
@@ -55,14 +55,16 @@ public:
 
 private:
   http::verb method_;
-  pattern_matcher matcher_;
+  pattern_matcher<Pattern> matcher_;
   std::vector<state_map> state_maps_;
   Service service_;
 };
 
-template <typename Service>
-routable(http::verb, pattern_matcher, std::vector<state_map>, Service)
-    -> routable<std::decay_t<Service>>;
+template <basic_fixed_string Pattern, typename Service>
+routable(http::verb,
+         pattern_matcher<Pattern>,
+         std::vector<state_map>,
+         Service&&) -> routable<Pattern, std::decay_t<Service>>;
 
 }
 

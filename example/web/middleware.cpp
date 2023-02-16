@@ -83,7 +83,7 @@ int main()
       = http_server::builder()
             .route(
                 // Add a scope
-                scope("/api/v1")
+                scope<"/api/v1">()
                     // Register built-in logger middleware
                     .use(middleware::logger())
 #if !FITORIA_NO_EXCEPTIONS
@@ -100,14 +100,14 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET("/users/{user}",
-                         [](http_request& req) -> lazy<http_response> {
-                           log::debug("user: {}", req.params().get("user"));
+                    .GET<"/users/{user}">(
+                        [](http_request& req) -> lazy<http_response> {
+                          log::debug("user: {}", req.params().get("user"));
 
-                           co_return http_response(http::status::ok)
-                               .set_body(req.params().get("user").value_or(
-                                   "{{unknown}}"));
-                         }))
+                          co_return http_response(http::status::ok)
+                              .set_body(req.params().get("user").value_or(
+                                  "{{unknown}}"));
+                        }))
             .build();
   server //
       .bind("127.0.0.1", 8080)

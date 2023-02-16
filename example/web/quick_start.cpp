@@ -37,8 +37,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(route::GET(
-                "/api/v1/{owner}/{repo}",
+            .route(route::GET<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}", req.params().get("owner"),

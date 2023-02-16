@@ -42,7 +42,7 @@ private:
     auto try_insert(const route_type& route, std::size_t seg_idx)
         -> expected<void, error_code>
     {
-      if (seg_idx == route.matcher().segments().size()) {
+      if (seg_idx == route.segments().size()) {
         if (route_) {
           return unexpected { make_error_code(error::route_already_exists) };
         }
@@ -51,8 +51,8 @@ private:
         return {};
       }
 
-      auto& segment = route.matcher().segments()[seg_idx];
-      if (segment.kind == pattern_matcher::segment_kind::parameterized) {
+      auto& segment = route.segments()[seg_idx];
+      if (segment.kind == segment_kind::parameterized) {
         if (!param_tree_) {
           param_tree_.emplace(std::make_shared<node>());
         }
@@ -62,8 +62,7 @@ private:
       return subtrees_[segment.value].try_insert(route, seg_idx + 1);
     }
 
-    auto try_find(const pattern_matcher::segments_t& segs,
-                  std::size_t seg_idx) const noexcept
+    auto try_find(const segments_t& segs, std::size_t seg_idx) const noexcept
         -> expected<const route_type&, error_code>
     {
       if (seg_idx == segs.size()) {
@@ -107,14 +106,13 @@ public:
   auto try_find(http::verb method, std::string path) const
       -> expected<const route_type&, error_code>
   {
-    return to_expected(pattern_matcher::from_pattern(path),
+    return to_expected(parse_pattern(path),
                        make_error_code(error::route_not_exists))
-        .and_then([&](auto&& pattern) {
+        .and_then([&](auto&& segments) {
           return to_expected(try_find(method),
                              make_error_code(error::route_not_exists))
-              .and_then([&](auto&& node) {
-                return node.try_find(pattern.segments(), 0);
-              });
+              .and_then(
+                  [&](auto&& node) { return node.try_find(segments, 0); });
         });
   }
 

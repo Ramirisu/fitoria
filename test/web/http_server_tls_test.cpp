@@ -26,8 +26,8 @@ namespace {
 
 void configure_server(http_server::builder& builder)
 {
-  builder.route(route::GET(
-      "/api/repos/{repo}", [](http_request& req) -> lazy<http_response> {
+  builder.route(route::GET<"/api/repos/{repo}">(
+      [](http_request& req) -> lazy<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);
         CHECK_EQ(req.params().at("repo"), "fitoria");

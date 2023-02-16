@@ -38,8 +38,8 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::GET("/api/v1/users/{user}",
-                                      api::v1::users::get_user::api))
+                    .route(route::GET<"/api/v1/users/{user}">(
+                        api::v1::users::get_user::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

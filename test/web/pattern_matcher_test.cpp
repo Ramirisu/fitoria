@@ -16,41 +16,40 @@ TEST_SUITE_BEGIN("web.pattern_matcher");
 
 TEST_CASE("escape_segment")
 {
-  CHECK(!pattern_matcher::escape_segment("{"));
-  CHECK(!pattern_matcher::escape_segment("}"));
-  CHECK(!pattern_matcher::escape_segment("}{"));
-  CHECK(!pattern_matcher::escape_segment("{{}"));
-  CHECK(!pattern_matcher::escape_segment("{}{"));
+  CHECK(!escape_segment("{"));
+  CHECK(!escape_segment("}"));
+  CHECK(!escape_segment("}{"));
+  CHECK(!escape_segment("{{}"));
+  CHECK(!escape_segment("{}{"));
 
-  CHECK_EQ(pattern_matcher::escape_segment(""), "");
-  CHECK_EQ(pattern_matcher::escape_segment("{}"), "");
-  CHECK_EQ(pattern_matcher::escape_segment("{abc}"), "abc");
+  CHECK_EQ(escape_segment(""), "");
+  CHECK_EQ(escape_segment("{}"), "");
+  CHECK_EQ(escape_segment("{abc}"), "abc");
 }
 
-TEST_CASE("from_pattern")
+TEST_CASE("parse_pattern")
 {
-  CHECK(!pattern_matcher::from_pattern("/{"));
-  CHECK(!pattern_matcher::from_pattern("/}"));
-  CHECK(!pattern_matcher::from_pattern("{}"));
-  CHECK(!pattern_matcher::from_pattern("/x/{"));
-  CHECK(!pattern_matcher::from_pattern("/x/}"));
-  CHECK(!pattern_matcher::from_pattern("/x/{x}/{"));
-  CHECK(!pattern_matcher::from_pattern("/x/{x}/}"));
-  CHECK(!pattern_matcher::from_pattern("/x/{x}/{{"));
-  CHECK(!pattern_matcher::from_pattern("/x/{x}/}}"));
-  CHECK(!pattern_matcher::from_pattern("/x/{x}/}{"));
+  CHECK(!parse_pattern("/{"));
+  CHECK(!parse_pattern("/}"));
+  CHECK(!parse_pattern("{}"));
+  CHECK(!parse_pattern("/x/{"));
+  CHECK(!parse_pattern("/x/}"));
+  CHECK(!parse_pattern("/x/{x}/{"));
+  CHECK(!parse_pattern("/x/{x}/}"));
+  CHECK(!parse_pattern("/x/{x}/{{"));
+  CHECK(!parse_pattern("/x/{x}/}}"));
+  CHECK(!parse_pattern("/x/{x}/}{"));
 }
 
 TEST_CASE("match")
 {
-  CHECK_EQ(pattern_matcher::from_pattern("").value().match(""), query_map());
-  CHECK_EQ(
-      pattern_matcher::from_pattern("/{1}/2/{3}/4").value().match("/w/x/y/z"),
-      query_map {
-          { "1", "w" },
-          { "3", "y" },
-      });
-  CHECK(!pattern_matcher::from_pattern("/1").value().match(""));
+  CHECK_EQ(pattern_matcher<"">().match(""), query_map());
+  CHECK_EQ(pattern_matcher<"/{1}/2/{3}/4">().match("/w/x/y/z"),
+           query_map {
+               { "1", "w" },
+               { "3", "y" },
+           });
+  CHECK(!pattern_matcher<"/1">().match(""));
 }
 
 TEST_SUITE_END();

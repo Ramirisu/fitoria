@@ -78,8 +78,11 @@ public:
     }
 #endif
 
-    template <typename... RouteServices, typename F>
-    builder& route(route_builder<std::tuple<RouteServices...>, F> route)
+    template <basic_fixed_string RoutePath,
+              typename... RouteServices,
+              typename Handler>
+    builder&
+    route(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> route)
     {
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));
@@ -94,9 +97,9 @@ public:
       return *this;
     }
 
-    template <typename... Services, typename... Routes>
-    builder&
-    route(scope_impl<std::tuple<Services...>, std::tuple<Routes...>> scope)
+    template <basic_fixed_string Path, typename... Services, typename... Routes>
+    builder& route(
+        scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope)
     {
       std::apply(
           [this](auto&&... routes) {
@@ -418,12 +421,12 @@ private:
           .set_body("request path is not found");
     }
 
-    auto request = http_request(
-        std::move(connection_info),
-        route_params(route->matcher().match(req_url->path()).value(),
-                     route->matcher().pattern()),
-        req_url->path(), method, to_query_map(req_url->params()),
-        std::move(fields), std::move(body), route->state_maps());
+    auto request
+        = http_request(std::move(connection_info),
+                       route_params(route->match(req_url->path()).value(),
+                                    std::string(route->pattern())),
+                       req_url->path(), method, to_query_map(req_url->params()),
+                       std::move(fields), std::move(body), route->state_maps());
     auto context = http_context(request);
     co_return co_await route->operator()(context);
   }

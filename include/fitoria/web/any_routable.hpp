@@ -28,7 +28,10 @@ class any_routable {
   public:
     virtual ~base() = default;
     virtual auto method() const noexcept -> http::verb = 0;
-    virtual auto matcher() const noexcept -> const pattern_matcher& = 0;
+    virtual auto pattern() const noexcept -> std::string_view = 0;
+    virtual auto segments() const noexcept -> const segments_t& = 0;
+    virtual auto match(std::string_view) const noexcept -> optional<query_map>
+        = 0;
     virtual auto state_maps() const noexcept
         -> const std::vector<state_map>& = 0;
     virtual auto operator()(Request) const -> Response = 0;
@@ -49,9 +52,20 @@ class any_routable {
       return routable_.method();
     }
 
-    auto matcher() const noexcept -> const pattern_matcher& override
+    auto pattern() const noexcept -> std::string_view override
     {
-      return routable_.matcher();
+      return routable_.matcher().pattern();
+    }
+
+    auto segments() const noexcept -> const segments_t& override
+    {
+      return routable_.matcher().segments();
+    }
+
+    auto match(std::string_view path) const noexcept
+        -> optional<query_map> override
+    {
+      return routable_.matcher().match(path);
     }
 
     auto state_maps() const noexcept -> const std::vector<state_map>& override
@@ -91,9 +105,19 @@ public:
     return routable_->method();
   }
 
-  auto matcher() const noexcept -> const pattern_matcher&
+  auto pattern() const noexcept -> std::string_view
   {
-    return routable_->matcher();
+    return routable_->pattern();
+  }
+
+  auto segments() const noexcept -> const segments_t&
+  {
+    return routable_->segments();
+  }
+
+  auto match(std::string_view path) const noexcept -> optional<query_map>
+  {
+    return routable_->match(path);
   }
 
   auto state_maps() const noexcept -> const std::vector<state_map>&

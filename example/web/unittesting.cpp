@@ -14,8 +14,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::POST(
-                "/api/v1/login",
+            .route(route::POST<"/api/v1/login">(
                 [](http_request& req) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {

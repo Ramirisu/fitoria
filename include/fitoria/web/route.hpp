@@ -10,6 +10,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/fixed_string.hpp>
+
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/pattern_matcher.hpp>
 #include <fitoria/web/routable.hpp>
@@ -23,38 +25,22 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Services, typename Handler>
+template <basic_fixed_string Path, typename Services, typename Handler>
 class route_builder;
 
-template <typename... Services, typename Handler>
-class route_builder<std::tuple<Services...>, Handler> {
+template <basic_fixed_string Path, typename... Services, typename Handler>
+class route_builder<Path, std::tuple<Services...>, Handler> {
   http::verb method_;
-  pattern_matcher matcher_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
 
 public:
   route_builder(http::verb method,
-                std::string pattern,
                 std::vector<state_map> state_maps,
                 std::tuple<Services...> services,
                 Handler handler)
       : method_(method)
-      , matcher_(pattern_matcher::from_pattern(std::move(pattern)).value())
-      , state_maps_(std::move(state_maps))
-      , services_(std::move(services))
-      , handler_(std::move(handler))
-  {
-  }
-
-  route_builder(http::verb method,
-                pattern_matcher matcher,
-                std::vector<state_map> state_maps,
-                std::tuple<Services...> services,
-                Handler handler)
-      : method_(method)
-      , matcher_(std::move(matcher))
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
       , handler_(std::move(handler))
@@ -70,33 +56,32 @@ public:
     }
     state_maps.front()[std::type_index(typeid(State))]
         = std::any(std::forward<State>(state));
-    return route_builder<std::tuple<Services...>, Handler>(
-        method_, matcher_, std::move(state_maps), services_, handler_);
+    return route_builder<Path, std::tuple<Services...>, Handler>(
+        method_, std::move(state_maps), services_, handler_);
   }
 
   template <typename Service>
   auto use(Service&& service) const
   {
-    return route_builder<std::tuple<Services..., std::decay_t<Service>>,
+    return route_builder<Path, std::tuple<Services..., std::decay_t<Service>>,
                          Handler>(
-        method_, matcher_, state_maps_,
+        method_, state_maps_,
         std::tuple_cat(services_,
                        std::tuple { std::forward<Service>(service) }),
         handler_);
   }
 
-  template <typename... ParentServices>
-  auto rebind_parent(std::string parent_path,
-                     state_map parent_state_map,
+  template <basic_fixed_string ParentPath, typename... ParentServices>
+  auto rebind_parent(state_map parent_state_map,
                      std::tuple<ParentServices...> parent_services) const
   {
-    parent_path += matcher_.pattern();
     auto state_maps = state_maps_;
     if (!parent_state_map.empty()) {
       state_maps.push_back(std::move(parent_state_map));
     }
-    return route_builder<std::tuple<ParentServices..., Services...>, Handler>(
-        method_, std::move(parent_path), std::move(state_maps),
+    return route_builder<ParentPath + Path,
+                         std::tuple<ParentServices..., Services...>, Handler>(
+        method_, std::move(state_maps),
         std::tuple_cat(std::move(parent_services), services_), handler_);
   }
 
@@ -104,7 +89,7 @@ public:
   auto build(HandlerServiceFactory handler_service_factory) const
   {
     return routable(
-        method_, matcher_, state_maps_,
+        method_, pattern_matcher<Path>(), state_maps_,
         build_service(std::tuple_cat(
             services_, std::tuple { handler_service_factory, handler_ })));
   }
@@ -112,7 +97,7 @@ public:
   auto build() const
   {
     return routable(
-        method_, matcher_, state_maps_,
+        method_, pattern_matcher<Path>(), state_maps_,
         build_service(std::tuple_cat(services_, std::tuple { handler_ })));
   }
 
@@ -150,60 +135,53 @@ private:
 
 class route {
 public:
-  template <typename Handler>
-  static auto handle(http::verb method, std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto handle(http::verb method, Handler&& handler)
   {
-    return route_builder<std::tuple<>, std::decay_t<Handler>>(
-        method, std::move(path), {}, {}, std::forward<Handler>(handler));
+    return route_builder<Path, std::tuple<>, std::decay_t<Handler>>(
+        method, {}, {}, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto GET(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto GET(Handler&& handler)
   {
-    return handle(http::verb::get, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::get, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto POST(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto POST(Handler&& handler)
   {
-    return handle(http::verb::post, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::post, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto PUT(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto PUT(Handler&& handler)
   {
-    return handle(http::verb::put, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::put, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto PATCH(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto PATCH(Handler&& handler)
   {
-    return handle(http::verb::patch, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::patch, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto DELETE_(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto DELETE_(Handler&& handler)
   {
-    return handle(http::verb::delete_, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::delete_, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto HEAD(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto HEAD(Handler&& handler)
   {
-    return handle(http::verb::head, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::head, std::forward<Handler>(handler));
   }
 
-  template <typename Handler>
-  static auto OPTIONS(std::string path, Handler&& handler)
+  template <basic_fixed_string Path, typename Handler>
+  static auto OPTIONS(Handler&& handler)
   {
-    return handle(http::verb::options, std::move(path),
-                  std::forward<Handler>(handler));
+    return handle<Path>(http::verb::options, std::forward<Handler>(handler));
   }
 };
 }

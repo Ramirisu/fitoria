@@ -69,22 +69,21 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 
 TEST_CASE("connection_info")
 {
-  auto server
-      = http_server::builder()
-            .route(route::GET("/get",
-                              [](http_request& req) -> lazy<http_response> {
-                                CHECK_EQ(req.conn_info().local_addr(),
-                                         net::ip::make_address("127.0.0.1"));
-                                CHECK_EQ(req.conn_info().local_port(), 0);
-                                CHECK_EQ(req.conn_info().remote_addr(),
-                                         net::ip::make_address("127.0.0.1"));
-                                CHECK_EQ(req.conn_info().remote_port(), 0);
-                                CHECK_EQ(req.conn_info().listen_addr(),
-                                         net::ip::make_address("127.0.0.1"));
-                                CHECK_EQ(req.conn_info().listen_port(), 0);
-                                co_return http_response(http::status::ok);
-                              }))
-            .build();
+  auto server = http_server::builder()
+                    .route(route::GET<"/get">(
+                        [](http_request& req) -> lazy<http_response> {
+                          CHECK_EQ(req.conn_info().local_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().local_port(), 0);
+                          CHECK_EQ(req.conn_info().remote_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().remote_port(), 0);
+                          CHECK_EQ(req.conn_info().listen_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().listen_port(), 0);
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
   {
     auto res = server.serve_http_request("/get", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
@@ -95,8 +94,7 @@ TEST_CASE("unittest")
 {
   auto server
       = http_server::builder()
-            .route(route::GET(
-                "/api/v1/users/{user}",
+            .route(route::GET<"/api/v1/users/{user}">(
                 [](http_request& req) -> lazy<http_response> {
                   user_t user;
                   user.name = req.params().get("user").value();
@@ -232,37 +230,33 @@ TEST_CASE("state")
   auto server
       = http_server::builder()
             .route(
-                scope("")
+                scope<"">()
                     .state(shared_resource { "global" })
                     .sub_scope(
-                        scope("/api/v1")
-                            .GET("/global",
-                                 [](http_request& req) -> lazy<http_response> {
-                                   co_return http_response(http::status::ok)
-                                       .set_body(std::string(
-                                           req.state<const shared_resource&>()
-                                               ->value));
-                                 })
+                        scope<"/api/v1">()
+                            .GET<"/global">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                })
                             .state(shared_resource { "scope" })
-                            .GET("/scope",
-                                 [](http_request& req) -> lazy<http_response> {
-                                   co_return http_response(http::status::ok)
-                                       .set_body(std::string(
-                                           req.state<const shared_resource&>()
-                                               ->value));
-                                 })
-                            .route(
-                                route::GET(
-                                    "/route",
-                                    [](http_request& req)
-                                        -> lazy<http_response> {
-                                      co_return http_response(http::status::ok)
-                                          .set_body(std::string(
-                                              req.state<
-                                                     const shared_resource&>()
-                                                  ->value));
-                                    })
-                                    .state(shared_resource { "route" }))))
+                            .GET<"/scope">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                })
+                            .route(route::GET<
+                                       "/route">([](http_request& req)
+                                                     -> lazy<http_response> {
+                                     co_return http_response(http::status::ok)
+                                         .set_body(std::string(
+                                             req.state<const shared_resource&>()
+                                                 ->value));
+                                   }).state(shared_resource { "route" }))))
             .build();
   {
     auto res = server.serve_http_request("/api/v1/global",

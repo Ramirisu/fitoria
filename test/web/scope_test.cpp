@@ -20,21 +20,21 @@ TEST_CASE("method")
   auto method = [](auto&& scope) {
     return std::get<0>(scope.routes()).build().method();
   };
-  CHECK_EQ(method(scope("/api").GET("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().GET<"/">([](int) -> int { return 0; })),
            http::verb::get);
-  CHECK_EQ(method(scope("/api").POST("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().POST<"/">([](int) -> int { return 0; })),
            http::verb::post);
-  CHECK_EQ(method(scope("/api").PUT("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().PUT<"/">([](int) -> int { return 0; })),
            http::verb::put);
-  CHECK_EQ(method(scope("/api").POST("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().POST<"/">([](int) -> int { return 0; })),
            http::verb::post);
-  CHECK_EQ(method(scope("/api").PATCH("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().PATCH<"/">([](int) -> int { return 0; })),
            http::verb::patch);
-  CHECK_EQ(method(scope("/api").DELETE_("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().DELETE_<"/">([](int) -> int { return 0; })),
            http::verb::delete_);
-  CHECK_EQ(method(scope("/api").HEAD("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().HEAD<"/">([](int) -> int { return 0; })),
            http::verb::head);
-  CHECK_EQ(method(scope("/api").OPTIONS("/", [](int) -> int { return 0; })),
+  CHECK_EQ(method(scope<"/api">().OPTIONS<"/">([](int) -> int { return 0; })),
            http::verb::options);
 }
 
@@ -94,32 +94,32 @@ TEST_CASE("middleware & handler")
   auto af = adder(1000);
 
   auto router
-      = scope("/s0")
+      = scope<"/s0">()
             .use(l)
-            .handle(http::verb::get, "/s0h", h)
-            .handle(http::verb::put, "/s0h", h)
+            .handle<"/s0h">(http::verb::get, h)
+            .handle<"/s0h">(http::verb::put, h)
             .sub_scope(
-                scope("/s00")
+                scope<"/s00">()
                     .use(ag)
-                    .handle(http::verb::get, "/s00h", h)
-                    .handle(http::verb::put, "/s00h", h)
-                    .sub_scope(scope("/s000")
-                                   .handle(http::verb::get, "/s000h", h)
-                                   .handle(http::verb::put, "/s000h", h))
-                    .sub_scope(scope("/s001")
-                                   .handle(http::verb::get, "/s001h", h)
-                                   .handle(http::verb::put, "/s001h", h)))
+                    .handle<"/s00h">(http::verb::get, h)
+                    .handle<"/s00h">(http::verb::put, h)
+                    .sub_scope(scope<"/s000">()
+                                   .handle<"/s000h">(http::verb::get, h)
+                                   .handle<"/s000h">(http::verb::put, h))
+                    .sub_scope(scope<"/s001">()
+                                   .handle<"/s001h">(http::verb::get, h)
+                                   .handle<"/s001h">(http::verb::put, h)))
             .sub_scope(
-                scope("/s01")
+                scope<"/s01">()
                     .use(af)
-                    .handle(http::verb::get, "/s01h", h)
-                    .handle(http::verb::put, "/s01h", h)
-                    .sub_scope(scope("/s010")
-                                   .handle(http::verb::get, "/s010h", h)
-                                   .handle(http::verb::put, "/s010h", h))
-                    .sub_scope(scope("/s011")
-                                   .handle(http::verb::get, "/s011h", h)
-                                   .handle(http::verb::put, "/s011h", h)));
+                    .handle<"/s01h">(http::verb::get, h)
+                    .handle<"/s01h">(http::verb::put, h)
+                    .sub_scope(scope<"/s010">()
+                                   .handle<"/s010h">(http::verb::get, h)
+                                   .handle<"/s010h">(http::verb::put, h))
+                    .sub_scope(scope<"/s011">()
+                                   .handle<"/s011h">(http::verb::get, h)
+                                   .handle<"/s011h">(http::verb::put, h)));
 
   auto services = std::apply(
       [](auto&&... routes) { return std::tuple { routes.build(adder(0))... }; },

@@ -19,65 +19,59 @@ namespace {
 
 using router_type = router<int, int>;
 
+template <basic_fixed_string Path>
+auto r(http::verb method, int value = 0)
+{
+  return router_type::route_type(routable(method, pattern_matcher<Path>(), {},
+                                          [=](int) { return value; }));
+}
 }
 
 TEST_CASE("try_insert")
 {
   using exp_t = expected<void, error>;
 
-  auto r = [=](http::verb method, std::string path) {
-    return router_type::route_type(
-        routable(method, pattern_matcher::from_pattern(std::move(path)).value(),
-                 {}, [](int) { return 0; }));
-  };
-
   router_type rt;
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "")),
+  CHECK_EQ(rt.try_insert(r<"">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/")),
+  CHECK_EQ(rt.try_insert(r<"/">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "//")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "//")),
+  CHECK_EQ(rt.try_insert(r<"//">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"//">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api")),
+  CHECK_EQ(rt.try_insert(r<"/api">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::put, "/api")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::put, "/api")),
+  CHECK_EQ(rt.try_insert(r<"/api">(http::verb::put)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api">(http::verb::put)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/")),
+  CHECK_EQ(rt.try_insert(r<"/api/">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api/">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api//")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api//")),
+  CHECK_EQ(rt.try_insert(r<"/api//">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api//">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x0}")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x1}")),
+  CHECK_EQ(rt.try_insert(r<"/api/{x0}">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api/{x1}">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x0}/{y0}")), exp_t());
-  CHECK_EQ(rt.try_insert(r(http::verb::get, "/api/{x1}/{y1}")),
+  CHECK_EQ(rt.try_insert(r<"/api/{x0}/{y0}">(http::verb::get)), exp_t());
+  CHECK_EQ(rt.try_insert(r<"/api/{x1}/{y1}">(http::verb::get)),
            exp_t(unexpect, error::route_already_exists));
 }
 
 TEST_CASE("try_find")
 {
-  auto r = [=](http::verb method, std::string path, int exp) {
-    return router_type::route_type(
-        routable(method, pattern_matcher::from_pattern(std::move(path)).value(),
-                 {}, [=](int) -> int { return exp; }));
-  };
-
   router_type rt;
-  rt.try_insert(r(http::verb::get, "/api/v1/x", 10));
-  rt.try_insert(r(http::verb::put, "/api/v1/x", 11));
-  rt.try_insert(r(http::verb::get, "/api/v1/{x}", 12));
-  rt.try_insert(r(http::verb::put, "/api/v1/{x}", 13));
-  rt.try_insert(r(http::verb::get, "/api/v1/x/y", 20));
-  rt.try_insert(r(http::verb::put, "/api/v1/x/y", 21));
-  rt.try_insert(r(http::verb::get, "/api/v1/{x}/{y}", 22));
-  rt.try_insert(r(http::verb::put, "/api/v1/{x}/{y}", 23));
+  rt.try_insert(r<"/api/v1/x">(http::verb::get, 10));
+  rt.try_insert(r<"/api/v1/x">(http::verb::put, 11));
+  rt.try_insert(r<"/api/v1/{x}">(http::verb::get, 12));
+  rt.try_insert(r<"/api/v1/{x}">(http::verb::put, 13));
+  rt.try_insert(r<"/api/v1/x/y">(http::verb::get, 20));
+  rt.try_insert(r<"/api/v1/x/y">(http::verb::put, 21));
+  rt.try_insert(r<"/api/v1/{x}/{y}">(http::verb::get, 22));
+  rt.try_insert(r<"/api/v1/{x}/{y}">(http::verb::put, 23));
 
   CHECK_EQ(rt.try_find(http::verb::get, ""),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
