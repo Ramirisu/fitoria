@@ -37,11 +37,11 @@ jobs:
 
       - name: Install dependencies on windows
         if: startsWith(matrix.os_cxx.os, 'windows')
-        shell: bash
+        shell: pwsh
         env:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
-          mkdir -p ${{ github.workspace }}/vcpkg_cache
+          New-Item -ItemType "directory" -Path ${{ github.workspace }}/vcpkg_cache
           choco install ninja cmake
           ninja --version
           cmake --version
