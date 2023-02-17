@@ -621,10 +621,10 @@ Dependencies
 | `boost::beast` | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
 |  `boost::url`  | Internal url parsing               |                                     |     required      |
 | `boost::json`  | JSON serialization/deserialization |           `fitoria::json`           |     required      |
-|     `zlib`     | Built-in middleware gzip           |                none                 |     optional      |
+|     `zlib`     | Built-in middleware gzip           |                                     |     optional      |
 |     `fmt`      | Formatting                         |           `fitoria::fmt`            |     optional      |
-|   `OpenSSL`    | Secure networking                  |                none                 |     optional      |
-|   `doctest`    | Unit testing                       |                none                 |     optional      |
+|   `OpenSSL`    | Secure networking                  |                                     |     optional      |
+|   `doctest`    | Unit testing                       |                                     |     optional      |
 
 CMake
 
