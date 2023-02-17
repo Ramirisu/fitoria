@@ -1,5 +1,6 @@
 fitoria_add_test(NAME as_json_test SRCS as_json_test.cpp)
 fitoria_add_test(NAME as_form_test SRCS as_form_test.cpp)
+fitoria_add_test(NAME compile_time_path_checker_test SRCS compile_time_path_checker_test.cpp)
 fitoria_add_test(NAME http_fields_test SRCS http_fields_test.cpp)
 fitoria_add_test(NAME http_response_test SRCS http_response_test.cpp)
 fitoria_add_test(NAME http_server_test SRCS http_server_test.cpp)
