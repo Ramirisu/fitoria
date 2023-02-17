@@ -27,8 +27,9 @@ inline std::uint16_t generate_port()
   return ++port;
 }
 
-inline std::string
-to_local_url(urls::scheme scheme, std::uint16_t port, std::string_view path)
+inline std::string to_local_url(boost::urls::scheme scheme,
+                                std::uint16_t port,
+                                std::string_view path)
 {
   return fmt::vformat("{}://{}:{}{}",
                       fmt::make_format_args(std::string_view(to_string(scheme)),

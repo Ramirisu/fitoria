@@ -55,8 +55,8 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = http_client::GET(
-                 to_local_url(urls::scheme::https, port, "/api/repos/fitoria"))
+  auto res = http_client::GET(to_local_url(boost::urls::scheme::https, port,
+                                           "/api/repos/fitoria"))
                  .set_field(http::field::content_type,
                             http::fields::content_type::plaintext())
                  .set_body("hello world")

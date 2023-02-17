@@ -194,7 +194,7 @@ public:
 
   http_response serve_http_request(std::string_view path, http_request request)
   {
-    urls::url url;
+    boost::urls::url url;
     url.set_path(path);
     url.set_query(request.query().to_string());
 
@@ -405,7 +405,7 @@ private:
                                  http_fields fields,
                                  std::string body) const
   {
-    auto req_url = urls::parse_origin_form(target);
+    auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
           .set_field(http::field::content_type,
@@ -431,7 +431,7 @@ private:
     co_return co_await route->operator()(context);
   }
 
-  static query_map to_query_map(urls::params_view params)
+  static query_map to_query_map(boost::urls::params_view params)
   {
     query_map query;
     for (auto param : params) {

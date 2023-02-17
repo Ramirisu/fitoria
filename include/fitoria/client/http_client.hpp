@@ -246,7 +246,7 @@ private:
   static expected<resource, error_code> parse_uri(std::string_view url)
   {
     auto encoded_url = encode_whitespace(url); // FIXME:
-    auto res = urls::parse_uri(encoded_url);
+    auto res = boost::urls::parse_uri(encoded_url);
     if (!res) {
       return unexpected { res.error() };
     }
@@ -254,10 +254,10 @@ private:
     auto port_number = res->port_number();
     if (port_number == 0) {
       switch (res->scheme_id()) {
-      case urls::scheme::https:
+      case boost::urls::scheme::https:
         port_number = 443;
         break;
-      case urls::scheme::http:
+      case boost::urls::scheme::http:
       default:
         port_number = 80;
         break;
@@ -435,7 +435,7 @@ private:
   static std::string get_encoded_target(std::string_view path,
                                         std::string_view query_string)
   {
-    urls::url url;
+    boost::urls::url url;
     url.set_path(path);
     url.set_query(query_string);
     return std::string(url.encoded_target());

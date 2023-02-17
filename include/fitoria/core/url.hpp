@@ -12,10 +12,4 @@
 
 #include <boost/url.hpp>
 
-FITORIA_NAMESPACE_BEGIN
-
-namespace urls = boost::urls;
-
-FITORIA_NAMESPACE_END
-
 #endif

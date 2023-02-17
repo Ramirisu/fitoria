@@ -22,12 +22,12 @@ namespace web {
 
 inline expected<query_map, error_code> as_form(std::string_view text)
 {
-  auto res = urls::parse_query(text);
+  auto res = boost::urls::parse_query(text);
   if (!res) {
     return unexpected { res.error() };
   }
 
-  auto params = static_cast<urls::params_view>(res.value());
+  auto params = static_cast<boost::urls::params_view>(res.value());
 
   query_map map;
   for (auto it = params.begin(); it != params.end(); ++it) {
