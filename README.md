@@ -20,6 +20,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [HTTP Client](#http-client)
     - [HTTP Server](#http-server-1)
       - [Method](#method)
+      - [Path](#path)
       - [Route Parameters](#route-parameters)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
@@ -120,6 +121,21 @@ int main()
       .bind("127.0.0.1", 8080)
       .run();
 }
+
+```
+
+#### Path
+
+Support static path and path with parameters. Performs **compile-time validation** for path.
+
+```cpp
+
+.route::GET<"/api/v1/get">(get) // static
+.route::GET<"/api/v1/get/{param}">(get) // path parameter
+
+.route::GET<"/api/v1/{">(get) // error: static_assert failed: 'invalid path for route'
+.route::GET<"/api/v1/}">(get) // error: static_assert failed: 'invalid path for route'
+.route::GET<"/api/v1/{param}x">(get) // error: static_assert failed: 'invalid path for route'
 
 ```
 
