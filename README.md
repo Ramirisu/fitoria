@@ -52,8 +52,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(route::GET(
-                "/api/v1/{owner}/{repo}",
+            .route(route::GET<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}", req.params().get("owner"),
@@ -98,24 +97,24 @@ int main()
 {
   auto server = http_server::builder()
                     // Single route by using `route`
-                    .route(route::handle(http::verb::get, "/", get))
-                    .route(route::GET("/get", get))
-                    .route(route::POST("/post", post))
-                    .route(route::PUT("/put", put))
-                    .route(route::PATCH("/patch", patch))
-                    .route(route::DELETE_("/delete", delete_))
-                    .route(route::HEAD("/head", head))
-                    .route(route::OPTIONS("/options", options))
+                    .route(route::handle<"/">(http::verb::get, get))
+                    .route(route::GET<"/get">(get))
+                    .route(route::POST<"/post">(post))
+                    .route(route::PUT<"/put">(put))
+                    .route(route::PATCH<"/patch">(patch))
+                    .route(route::DELETE_<"/delete">(delete_))
+                    .route(route::HEAD<"/head">(head))
+                    .route(route::OPTIONS<"/options">(options))
                     // Grouping routes by using `scope`
-                    .route(scope("/api/v1")
-                               .handle(http::verb::get, "/", get)
-                               .GET("/get", get)
-                               .POST("/post", post)
-                               .PUT("/put", put)
-                               .PATCH("/patch", patch)
-                               .DELETE_("/delete", delete_)
-                               .HEAD("/head", head)
-                               .OPTIONS("/options", options))
+                    .route(scope<"/api/v1">()
+                               .handle<"/">(http::verb::get, get)
+                               .GET<"/get">(get)
+                               .POST<"/post">(post)
+                               .PUT<"/put">(put)
+                               .PATCH<"/patch">(patch)
+                               .DELETE_<"/delete">(delete_)
+                               .HEAD<"/head">(head)
+                               .OPTIONS<"/options">(options))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -150,8 +149,8 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::GET("/api/v1/users/{user}",
-                                      api::v1::users::get_user::api))
+                    .route(route::GET<"/api/v1/users/{user}">(
+                        api::v1::users::get_user::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -187,7 +186,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::GET("/api/v1/users", api::v1::users::get_user::api))
+            .route(route::GET<"/api/v1/users">(api::v1::users::get_user::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -224,7 +223,7 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::POST("/api/v1/login", api::v1::login::api))
+                    .route(route::POST<"/api/v1/login">(api::v1::login::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -306,7 +305,7 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::POST("/api/v1/login", api::v1::login::api))
+                    .route(route::POST<"/api/v1/login">(api::v1::login::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -323,46 +322,44 @@ Configure nested `route`s by using `scope`.
 
 ```cpp
 
-void configure_application(http_server::builder& builder)
-{
-  builder.route(
-      // Global scope
-      scope("")
-          // Register a global middleware for all handlers
-          .use(middleware::logger())
-          // Create a sub-scope "/api/v1" under global scope
-          .sub_scope(scope("/api/v1")
-                         // Register a middleware for this scope
-                         .use(middleware::gzip())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              [](http_request& req) -> lazy<http_response> {
-                                log::debug("route: {}", req.params().path());
-
-                                co_return http_response(http::status::ok);
-                              }))
-          // Create a sub-scope "/api/v2" under global scope
-          .sub_scope(scope("/api/v2")
-                         // Register a middleware for this scope
-                         .use(middleware::deflate())
-                         // Register a route for this scope
-                         .GET("/users/{user}",
-                              [](http_request& req) -> lazy<http_response> {
-                                log::debug("params: {}", req.params().path());
-
-                                co_return http_response(http::status::ok);
-                              })));
-}
-
 int main()
 {
   log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
-  auto server = http_server::builder()
-                    // Use a configure function to setup server configuration
-                    .configure(configure_application)
-                    .build();
+  auto server
+      = http_server::builder()
+            // Use a configure function to setup server configuration
+            .route(
+                // Global scope
+                scope<"">()
+                    // Register a global middleware for all handlers
+                    .use(middleware::logger())
+                    // Create a sub-scope "/api/v1" under global scope
+                    .sub_scope(
+                        scope<"/api/v1">()
+                            // Register a middleware for this scope
+                            .use(middleware::gzip())
+                            // Register a route for this scope
+                            .GET<"/users/{user}">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  log::debug("route: {}", req.params().path());
+
+                                  co_return http_response(http::status::ok);
+                                }))
+                    // Create a sub-scope "/api/v2" under global scope
+                    .sub_scope(
+                        scope<"/api/v2">()
+                            // Register a middleware for this scope
+                            .use(middleware::deflate())
+                            // Register a route for this scope
+                            .GET<"/users/{user}">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  log::debug("params: {}", req.params().path());
+
+                                  co_return http_response(http::status::ok);
+                                })))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
@@ -444,7 +441,7 @@ int main()
       = http_server::builder()
             .route(
                 // Add a scope
-                scope("/api/v1")
+                scope<"/api/v1">()
                     // Register built-in logger middleware
                     .use(middleware::logger())
 #if !FITORIA_NO_EXCEPTIONS
@@ -461,14 +458,14 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET("/users/{user}",
-                         [](http_request& req) -> lazy<http_response> {
-                           log::debug("user: {}", req.params().get("user"));
+                    .GET<"/users/{user}">(
+                        [](http_request& req) -> lazy<http_response> {
+                          log::debug("user: {}", req.params().get("user"));
 
-                           co_return http_response(http::status::ok)
-                               .set_body(req.params().get("user").value_or(
-                                   "{{unknown}}"));
-                         }))
+                          co_return http_response(http::status::ok)
+                              .set_body(req.params().get("user").value_or(
+                                  "{{unknown}}"));
+                        }))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -520,8 +517,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::POST(
-                "/api/v1/login",
+            .route(route::POST<"/api/v1/login">(
                 [](http_request& req) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
