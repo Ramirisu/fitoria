@@ -130,18 +130,18 @@ Support static path and path with parameters. Performs **compile-time validation
 
 ```cpp
 
-.route::GET<"/api/v1/get">(get) // static
-.route::GET<"/api/v1/get/{param}">(get) // path parameter
+route::GET<"/api/v1/get">(get) // static
+route::GET<"/api/v1/get/{param}">(get) // path parameter
 
-.route::GET<"/api/v1/{">(get) // error: static_assert failed: 'invalid path for route'
-.route::GET<"/api/v1/}">(get) // error: static_assert failed: 'invalid path for route'
-.route::GET<"/api/v1/{param}x">(get) // error: static_assert failed: 'invalid path for route'
+route::GET<"/api/v1/{">(get) // error: static_assert failed: 'invalid path for route'
+route::GET<"/api/v1/}">(get) // error: static_assert failed: 'invalid path for route'
+route::GET<"/api/v1/{param}x">(get) // error: static_assert failed: 'invalid path for route'
 
 ```
 
 #### Route Parameters
 
-Use `http_request::route_params()` to access the route parameters.
+Use `http_request::params()` to access the route parameters.
 
 [Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp)
 
