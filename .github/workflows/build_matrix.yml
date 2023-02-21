@@ -81,7 +81,7 @@ jobs:
           VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           mkdir -p ${{ github.workspace }}/vcpkg_cache
-          brew install cmake ninja
+          brew install cmake ninja pkg-config
           ninja --version
           cmake --version
           vcpkg install boost-asio:x64-osx
