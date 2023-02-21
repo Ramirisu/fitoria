@@ -61,14 +61,14 @@ void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
   jv = { { "msg", out.msg } };
 }
 
-auto api(const http_request& req) -> lazy<http_response>
+auto api(const http_request& req, std::string body) -> lazy<http_response>
 {
   if (auto ct = req.fields().get(http::field::content_type);
       ct != http::fields::content_type::json()) {
     co_return http_response(http::status::bad_request)
         .set_json(output { .msg = "unexpected Content-Type" });
   }
-  auto user = as_json<user_t>(req.body());
+  auto user = as_json<user_t>(body);
   if (!user) {
     co_return http_response(http::status::bad_request)
         .set_json(output { .msg = user.error().message() });

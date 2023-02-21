@@ -12,8 +12,10 @@
 #include <doctest/doctest.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <set>
+#include <span>
 #include <type_traits>
 
 template <typename L, typename R, typename Comparator = std::equal_to<>>
@@ -39,6 +41,12 @@ bool range_in_set(std::pair<Iter, Iter> iters,
   }
 
   return set.empty();
+}
+
+std::vector<std::byte> to_bytes(std::string_view str)
+{
+  auto s = std::as_bytes(std::span(str.begin(), str.end()));
+  return { s.begin(), s.end() };
 }
 
 #endif

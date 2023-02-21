@@ -15,6 +15,7 @@
 
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/http.hpp>
+#include <fitoria/web/http_body.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route_params.hpp>
@@ -28,6 +29,7 @@ class http_request {
 public:
   http_request(http::verb method)
       : method_(method)
+      , body_(http_request_body::new_vector_body({}))
   {
   }
 
@@ -37,7 +39,7 @@ public:
                http::verb method,
                query_map query,
                http_fields fields,
-               std::string body,
+               http_request_body body,
                const std::vector<state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , params_(std::move(params))
@@ -119,41 +121,19 @@ public:
     return *this;
   }
 
-  std::string& body() noexcept
+  http_request_body& body() noexcept
   {
     return body_;
   }
 
-  const std::string& body() const noexcept
+  const http_request_body& body() const noexcept
   {
     return body_;
   }
 
-  http_request& set_body(std::string body)
+  http_request& set_body(http_request_body body)
   {
     body_ = std::move(body);
-    return *this;
-  }
-
-  template <typename T = json::value>
-  http_request& set_json(const T& obj)
-  {
-    if constexpr (std::is_same_v<T, json::value>) {
-      fields_.set(http::field::content_type,
-                  http::fields::content_type::json());
-      body_ = json::serialize(obj);
-    } else {
-      set_json(json::value_from(obj));
-    }
-    return *this;
-  }
-
-  http_request& prepare_payload()
-  {
-    if (!body().empty() || method_ == http::verb::options
-        || method_ == http::verb::post || method_ == http::verb::put) {
-      fields_.set(http::field::content_length, std::to_string(body().size()));
-    }
     return *this;
   }
 
@@ -182,7 +162,7 @@ private:
   http::verb method_;
   query_map query_;
   http_fields fields_;
-  std::string body_;
+  http_request_body body_;
   optional<const std::vector<state_map>&> state_maps_;
 };
 

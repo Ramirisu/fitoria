@@ -31,14 +31,15 @@ public:
   auto operator()(http_context& c) const -> lazy<http_response>
   {
     if (c.request().fields().get(http::field::content_encoding) == "deflate") {
-      if (auto plain
-          = detail::deflate_decompress<std::string>(net::const_buffer(
-              c.request().body().data(), c.request().body().size()));
+      auto compressed = co_await c.request().body().read_all();
+      if (auto plain = detail::deflate_decompress<std::vector<std::byte>>(
+              net::const_buffer(compressed->data(), compressed->size()));
           plain) {
         c.request().fields().erase(http::field::content_encoding);
         c.request().fields().set(http::field::content_length,
                                  std::to_string(plain->size()));
-        c.request().set_body(std::move(*plain));
+        c.request().set_body(
+            http_request_body::new_vector_body(std::move(*plain)));
       } else {
         co_return http_response(http::status::bad_request)
             .set_field(http::field::content_type,

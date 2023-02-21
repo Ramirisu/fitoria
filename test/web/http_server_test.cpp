@@ -116,14 +116,13 @@ TEST_CASE("invalid target")
 TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .route(route::POST<"/api/v1/post">(
-                []([[maybe_unused]] http_request& req) -> lazy<http_response> {
-                  CHECK_EQ(req.body(), "text");
-                  co_return http_response(http::status::ok);
-                }))
-            .build();
+  auto server = http_server::builder()
+                    .route(route::POST<"/api/v1/post">(
+                        [](std::string body) -> lazy<http_response> {
+                          CHECK_EQ(body, "text");
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -196,7 +195,7 @@ TEST_CASE("generic request")
             .route(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req, route_params& params, query_map& query,
                     http_fields& fields,
-                    std::string& body) -> lazy<http_response> {
+                    std::string body) -> lazy<http_response> {
                   CHECK_EQ(req.conn_info().local_addr(),
                            net::ip::make_address(server_ip));
                   CHECK_EQ(req.conn_info().remote_addr(),
@@ -243,11 +242,7 @@ TEST_CASE("generic request")
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
-                  auto test_body
-                      = [](auto& body) { CHECK_EQ(body, "happy birthday"); };
-                  test_body(req.body());
-                  test_body(static_cast<const http_request&>(req).body());
-                  test_body(body);
+                  CHECK_EQ(body, "happy birthday");
 
                   co_return http_response(http::status::ok)
                       .insert_field(http::field::user_agent,

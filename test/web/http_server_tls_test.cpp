@@ -27,14 +27,14 @@ namespace {
 void configure_server(http_server::builder& builder)
 {
   builder.route(route::GET<"/api/repos/{repo}">(
-      [](http_request& req) -> lazy<http_response> {
+      [](http_request& req, std::string body) -> lazy<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);
         CHECK_EQ(req.params().at("repo"), "fitoria");
         CHECK_EQ(req.path(), "/api/repos/fitoria");
         CHECK_EQ(req.fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
-        CHECK_EQ(req.body(), "hello world");
+        CHECK_EQ(body, "hello world");
         co_return http_response(http::status::ok);
       }));
 }

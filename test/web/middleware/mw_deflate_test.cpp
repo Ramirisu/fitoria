@@ -99,26 +99,28 @@ TEST_CASE("deflate middleware")
   auto server
       = http_server::builder()
             .route(
-                route::GET<"/get/{no_compression}">([&](http_request& req)
-                                                        -> lazy<http_response> {
-                  CHECK(!req.fields().get(http::field::content_encoding));
-                  CHECK_EQ(*req.fields().get(http::field::content_length),
-                           std::to_string(in.size()));
-                  CHECK_EQ(req.body(), in);
+                route::GET<"/get/{no_compression}">(
+                    [&](const route_params& params, const http_fields& fields,
+                        std::string body) -> lazy<http_response> {
+                      CHECK(!fields.get(http::field::content_encoding));
+                      CHECK_EQ(*fields.get(http::field::content_length),
+                               std::to_string(in.size()));
+                      CHECK_EQ(body, in);
 
-                  auto res
-                      = http_response(http::status::ok).set_body(req.body());
-                  if (req.params().get("no_compression") == "yes") {
-                    res.set_field(http::field::content_encoding,
-                                  http::fields::content_encoding::identity());
-                  }
-                  co_return res;
-                }).use(middleware::deflate()))
+                      auto res = http_response(http::status::ok).set_body(body);
+                      if (params.get("no_compression") == "yes") {
+                        res.set_field(
+                            http::field::content_encoding,
+                            http::fields::content_encoding::identity());
+                      }
+                      co_return res;
+                    })
+                    .use(middleware::deflate()))
             .build();
   {
     auto res = server.serve_http_request(
         "/get/no",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "deflate")
             .set_body(middleware::detail::deflate_compress<std::string>(
@@ -134,7 +136,7 @@ TEST_CASE("deflate middleware")
   {
     auto res = server.serve_http_request(
         "/get/yes",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "deflate")
             .set_body(middleware::detail::deflate_compress<std::string>(
@@ -152,17 +154,17 @@ TEST_CASE("deflate middleware: header vary")
 {
   auto server
       = http_server::builder()
-            .route(scope<"/api">()
-                       .use(middleware::deflate())
-                       .GET<"/get">([&]([[maybe_unused]] http_request& req)
-                                        -> lazy<http_response> {
-                         auto res = http_response(http::status::ok)
-                                        .set_body("hello world");
-                         if (!req.body().empty()) {
-                           res.set_field(http::field::vary, req.body());
-                         }
-                         co_return res;
-                       }))
+            .route(
+                scope<"/api">()
+                    .use(middleware::deflate())
+                    .GET<"/get">([&](std::string body) -> lazy<http_response> {
+                      auto res = http_response(http::status::ok)
+                                     .set_body("hello world");
+                      if (!body.empty()) {
+                        res.set_field(http::field::vary, body);
+                      }
+                      co_return res;
+                    }))
             .build();
 
   struct test_case_t {
@@ -179,7 +181,7 @@ TEST_CASE("deflate middleware: header vary")
   for (auto& test_case : test_cases) {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::accept_encoding, "deflate")
             .set_body(test_case.input)
             .prepare_payload());

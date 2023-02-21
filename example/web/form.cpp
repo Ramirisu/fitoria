@@ -24,13 +24,13 @@ using namespace fitoria::web;
 // clang-format on
 
 namespace api::v1::login {
-auto api(const http_request& req) -> lazy<http_response>
+auto api(const http_request& req, std::string body) -> lazy<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
     co_return http_response(http::status::bad_request);
   }
-  auto user = as_form(req.body());
+  auto user = as_form(body);
   if (!user || user->get("name") != "ramirisu"
       || user->get("password") != "123456") {
     co_return http_response(http::status::unauthorized);

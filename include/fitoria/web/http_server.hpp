@@ -19,6 +19,7 @@
 #include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/mock_http_request.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 
@@ -192,11 +193,11 @@ public:
     co_return;
   }
 
-  http_response serve_http_request(std::string_view path, http_request request)
+  http_response serve_http_request(std::string_view path, mock_http_request req)
   {
     boost::urls::url url;
     url.set_path(path);
-    url.set_query(request.query().to_string());
+    url.set_query(req.query().to_string());
 
     net::io_context ioc;
     auto response = net::co_spawn(
@@ -204,8 +205,10 @@ public:
         do_handler(connection_info { net::ip::make_address("127.0.0.1"), 0,
                                      net::ip::make_address("127.0.0.1"), 0,
                                      net::ip::make_address("127.0.0.1"), 0 },
-                   request.method(), std::string(url.encoded_target()),
-                   request.fields(), std::move(request.body())),
+                   req.method(), std::string(url.encoded_target()),
+                   req.fields(),
+                   http_request_body::new_vector_body(
+                       std::span(req.body().begin(), req.body().end()))),
         net::use_future);
     ioc.run();
     return response.get();
@@ -326,14 +329,16 @@ private:
     net::error_code ec;
 
     for (;;) {
-      http::detail::request_parser<http::detail::string_body> req_parser;
+      http::detail::request_parser<http::detail::vector_body<std::byte>>
+          req_parser;
+      req_parser.body_limit(boost::none);
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
       tie(ec, _) = co_await http::detail::async_read_header(stream, buffer,
                                                             req_parser);
       if (ec) {
-        if (ec != http::detail::error::end_of_stream) {
+        if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
         }
         co_return ec;
@@ -348,7 +353,7 @@ private:
             builder_.client_request_timeout_);
         tie(ec, _) = co_await http::detail::async_write(
             stream,
-            static_cast<http::detail::response<http::detail::string_body>>(
+            static_cast<http::detail::response<http::detail::empty_body>>(
                 http_response(http::status::continue_)));
         if (ec) {
           log::debug("[{}] async_write 100-continue failed: {}", name(),
@@ -357,13 +362,35 @@ private:
         }
       }
 
-      net::get_lowest_layer(stream).expires_after(
-          builder_.client_request_timeout_);
-      tie(ec, _)
-          = co_await http::detail::async_read(stream, buffer, req_parser);
-      if (ec) {
-        log::debug("[{}] async_read failed: {}", name(), ec.message());
-        co_return ec;
+      std::vector<std::byte> chunk;
+      auto on_chunk_header
+          = [&chunk](std::uint64_t size, auto, net::error_code&) {
+              chunk.reserve(size);
+              chunk.clear();
+            };
+      auto on_chunk_body
+          = [&chunk](std::uint64_t remain, auto body, net::error_code& ec) {
+              if (remain == body.size()) {
+                ec = http::error::end_of_chunk;
+              }
+              auto s = std::as_bytes(std::span(body.data(), body.size()));
+              chunk.insert(chunk.end(), s.begin(), s.end());
+
+              return body.size();
+            };
+
+      if (req_parser.chunked()) {
+        req_parser.on_chunk_header(on_chunk_header);
+        req_parser.on_chunk_body(on_chunk_body);
+      } else {
+        net::get_lowest_layer(stream).expires_after(
+            builder_.client_request_timeout_);
+        tie(ec, _)
+            = co_await http::detail::async_read(stream, buffer, req_parser);
+        if (ec) {
+          log::debug("[{}] async_read failed: {}", name(), ec.message());
+          co_return ec;
+        }
       }
 
       auto res = static_cast<
@@ -379,7 +406,11 @@ private:
               net::get_lowest_layer(stream).socket().remote_endpoint().port(),
               listen_ep.address(), listen_ep.port() },
           req.method(), req.target(), to_http_fields(req),
-          std::move(req.body())));
+          req.chunked()
+              ? http_request_body::new_chunk_body(
+                  stream, req_parser, buffer, chunk,
+                  builder_.client_request_timeout_)
+              : http_request_body::new_vector_body(std::move(req.body()))));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
@@ -403,7 +434,7 @@ private:
                                  http::verb method,
                                  std::string target,
                                  http_fields fields,
-                                 std::string body) const
+                                 http_request_body body) const
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
@@ -443,8 +474,8 @@ private:
     return query;
   }
 
-  static http_fields
-  to_http_fields(const http::detail::request<http::detail::string_body>& req)
+  static http_fields to_http_fields(
+      const http::detail::request<http::detail::vector_body<std::byte>>& req)
   {
     http_fields fields;
     for (auto& kv : req.base()) {

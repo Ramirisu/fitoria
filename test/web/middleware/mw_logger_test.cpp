@@ -28,7 +28,7 @@ TEST_CASE("logger middleware")
 
   auto res = server.serve_http_request(
       "/api/get",
-      http_request(http::verb::get)
+      mock_http_request(http::verb::get)
           .set_field(http::field::user_agent, "fitoria"));
   CHECK_EQ(res.status_code(), http::status::ok);
 }

@@ -20,7 +20,7 @@ using boost::beast::http::async_read;
 using boost::beast::http::async_read_header;
 using boost::beast::http::async_write;
 using boost::beast::http::async_write_header;
-using boost::beast::http::error;
+using boost::beast::http::empty_body;
 using boost::beast::http::fields;
 using boost::beast::http::request;
 using boost::beast::http::request_parser;
@@ -28,6 +28,7 @@ using boost::beast::http::request_serializer;
 using boost::beast::http::response;
 using boost::beast::http::string_body;
 using boost::beast::http::to_status_class;
+using boost::beast::http::vector_body;
 }
 
 FITORIA_NAMESPACE_END

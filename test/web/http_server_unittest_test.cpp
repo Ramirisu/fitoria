@@ -14,6 +14,120 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.http_server.unittest");
 
+TEST_CASE("connection_info")
+{
+  auto server = http_server::builder()
+                    .route(route::GET<"/get">(
+                        [](http_request& req) -> lazy<http_response> {
+                          CHECK_EQ(req.conn_info().local_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().local_port(), 0);
+                          CHECK_EQ(req.conn_info().remote_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().remote_port(), 0);
+                          CHECK_EQ(req.conn_info().listen_addr(),
+                                   net::ip::make_address("127.0.0.1"));
+                          CHECK_EQ(req.conn_info().listen_port(), 0);
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+  {
+    auto res
+        = server.serve_http_request("/get", mock_http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+}
+
+TEST_CASE("state")
+{
+  struct shared_resource {
+    std::string_view value;
+  };
+
+  auto server
+      = http_server::builder()
+            .route(
+                scope<"">()
+                    .state(shared_resource { "global" })
+                    .sub_scope(
+                        scope<"/api/v1">()
+                            .GET<"/global">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                })
+                            .state(shared_resource { "scope" })
+                            .GET<"/scope">(
+                                [](http_request& req) -> lazy<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_body(std::string(
+                                          req.state<const shared_resource&>()
+                                              ->value));
+                                })
+                            .route(route::GET<
+                                       "/route">([](http_request& req)
+                                                     -> lazy<http_response> {
+                                     co_return http_response(http::status::ok)
+                                         .set_body(std::string(
+                                             req.state<const shared_resource&>()
+                                                 ->value));
+                                   }).state(shared_resource { "route" }))))
+            .build();
+  {
+    auto res = server.serve_http_request("/api/v1/global",
+                                         mock_http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "global");
+  }
+  {
+    auto res = server.serve_http_request("/api/v1/scope",
+                                         mock_http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "scope");
+  }
+  {
+    auto res = server.serve_http_request("/api/v1/route",
+                                         mock_http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(res.body(), "route");
+  }
+}
+
+TEST_CASE("string extractor")
+{
+  auto server = http_server::builder()
+                    .route(route::POST<"/post">(
+                        [](std::string text) -> lazy<http_response> {
+                          CHECK_EQ(text, "abc");
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+  {
+    auto res = server.serve_http_request(
+        "/post", mock_http_request(http::verb::post).set_body("abc"));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+}
+
+TEST_CASE("bytes extractor")
+{
+  auto server
+      = http_server::builder()
+            .route(route::POST<"/post">(
+                [](std::vector<std::byte> bytes) -> lazy<http_response> {
+                  CHECK_EQ(bytes, to_bytes("abc"));
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+  {
+    auto res = server.serve_http_request(
+        "/post", mock_http_request(http::verb::post).set_body("abc"));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }
+}
+
 namespace {
 
 struct user_t {
@@ -67,35 +181,12 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 
 }
 
-TEST_CASE("connection_info")
-{
-  auto server = http_server::builder()
-                    .route(route::GET<"/get">(
-                        [](http_request& req) -> lazy<http_response> {
-                          CHECK_EQ(req.conn_info().local_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().local_port(), 0);
-                          CHECK_EQ(req.conn_info().remote_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().remote_port(), 0);
-                          CHECK_EQ(req.conn_info().listen_addr(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.conn_info().listen_port(), 0);
-                          co_return http_response(http::status::ok);
-                        }))
-                    .build();
-  {
-    auto res = server.serve_http_request("/get", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }
-}
-
-TEST_CASE("unittest")
+TEST_CASE("json")
 {
   auto server
       = http_server::builder()
             .route(route::GET<"/api/v1/users/{user}">(
-                [](http_request& req) -> lazy<http_response> {
+                [](http_request& req, std::string body) -> lazy<http_response> {
                   user_t user;
                   user.name = req.params().get("user").value();
                   if (auto gender = req.query().get("gender"); gender) {
@@ -119,7 +210,7 @@ TEST_CASE("unittest")
                                                   ct) } });
                   }
                   if (auto msg
-                      = value_to_optional(as_json(req.body()))
+                      = value_to_optional(as_json(body))
                             .and_then([](auto&& jv) -> optional<json::object> {
                               if (jv.is_object()) {
                                 return jv.as_object();
@@ -152,7 +243,7 @@ TEST_CASE("unittest")
   {
     auto res = server.serve_http_request(
         "/api/v1/users/Rina Hidaka",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_query("gender", "female")
             .set_query("birth", "1994/06/15")
             .set_json({ { "message", "happy birthday" } }));
@@ -169,12 +260,12 @@ TEST_CASE("unittest")
   }
   {
     auto res = server.serve_http_request("/api/v1/users",
-                                         http_request(http::verb::get));
+                                         mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::not_found);
   }
   {
     auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
-                                         http_request(http::verb::get));
+                                         mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -184,7 +275,7 @@ TEST_CASE("unittest")
   {
     auto res = server.serve_http_request(
         "/api/v1/users/Rina Hidaka",
-        http_request(http::verb::get).set_query("gender", "female"));
+        mock_http_request(http::verb::get).set_query("gender", "female"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
@@ -193,7 +284,7 @@ TEST_CASE("unittest")
   }
   {
     auto res = server.serve_http_request("/api/v1/users/Rina Hidaka",
-                                         http_request(http::verb::get)
+                                         mock_http_request(http::verb::get)
                                              .set_query("gender", "female")
                                              .set_query("birth", "1994/06/15"));
     CHECK_EQ(res.status_code(), http::status::bad_request);
@@ -208,7 +299,7 @@ TEST_CASE("unittest")
   {
     auto res = server.serve_http_request(
         "/api/v1/users/Rina Hidaka",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_query("gender", "female")
             .set_query("birth", "1994/06/15")
             .set_field(http::field::content_type,
@@ -218,63 +309,6 @@ TEST_CASE("unittest")
              http::fields::content_type::json());
     CHECK_EQ(as_json(res.body()),
              json::value { { "error", "message is not provided" } });
-  }
-}
-
-TEST_CASE("state")
-{
-  struct shared_resource {
-    std::string_view value;
-  };
-
-  auto server
-      = http_server::builder()
-            .route(
-                scope<"">()
-                    .state(shared_resource { "global" })
-                    .sub_scope(
-                        scope<"/api/v1">()
-                            .GET<"/global">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_body(std::string(
-                                          req.state<const shared_resource&>()
-                                              ->value));
-                                })
-                            .state(shared_resource { "scope" })
-                            .GET<"/scope">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_body(std::string(
-                                          req.state<const shared_resource&>()
-                                              ->value));
-                                })
-                            .route(route::GET<
-                                       "/route">([](http_request& req)
-                                                     -> lazy<http_response> {
-                                     co_return http_response(http::status::ok)
-                                         .set_body(std::string(
-                                             req.state<const shared_resource&>()
-                                                 ->value));
-                                   }).state(shared_resource { "route" }))))
-            .build();
-  {
-    auto res = server.serve_http_request("/api/v1/global",
-                                         http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "global");
-  }
-  {
-    auto res = server.serve_http_request("/api/v1/scope",
-                                         http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "scope");
-  }
-  {
-    auto res = server.serve_http_request("/api/v1/route",
-                                         http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "route");
   }
 }
 

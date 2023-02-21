@@ -23,8 +23,8 @@ TEST_CASE("exception_handler middleware")
             .route(
                 scope<"/api">()
                     .use(middleware::exception_handler())
-                    .GET<"/get">([&](http_request& req) -> lazy<http_response> {
-                      if (req.body().ends_with("true")) {
+                    .GET<"/get">([&](std::string body) -> lazy<http_response> {
+                      if (body.ends_with("true")) {
                         throw std::exception();
                       }
                       co_return http_response(http::status::ok);
@@ -32,12 +32,13 @@ TEST_CASE("exception_handler middleware")
             .build();
   {
     auto res = server.serve_http_request(
-        "/api/get", http_request(http::verb::get).set_body("throw: false"));
+        "/api/get",
+        mock_http_request(http::verb::get).set_body("throw: false"));
     CHECK_EQ(res.status_code(), http::status::ok);
   }
   {
     auto res = server.serve_http_request(
-        "/api/get", http_request(http::verb::get).set_body("throw: true"));
+        "/api/get", mock_http_request(http::verb::get).set_body("throw: true"));
     CHECK_EQ(res.status_code(), http::status::internal_server_error);
   }
 }

@@ -27,20 +27,19 @@ TEST_CASE("compression priority: gzip > deflate")
                 scope<"/api">()
                     .use(middleware::deflate())
                     .use(middleware::gzip())
-                    .GET<"/get">([&]([[maybe_unused]] http_request& req)
-                                     -> lazy<http_response> {
-                      CHECK(!req.fields().get(http::field::content_encoding));
-                      CHECK_EQ(*req.fields().get(http::field::content_length),
+                    .GET<"/get">([&](const http_fields& fields,
+                                     std::string body) -> lazy<http_response> {
+                      CHECK(!fields.get(http::field::content_encoding));
+                      CHECK_EQ(*fields.get(http::field::content_length),
                                std::to_string(in.size()));
-                      CHECK_EQ(req.body(), in);
-                      co_return http_response(http::status::ok)
-                          .set_body(req.body());
+                      CHECK_EQ(body, in);
+                      co_return http_response(http::status::ok).set_body(body);
                     }))
             .build();
   {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::detail::gzip_compress<std::string>(
@@ -56,7 +55,7 @@ TEST_CASE("compression priority: gzip > deflate")
   {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::detail::deflate_compress<std::string>(
@@ -82,20 +81,19 @@ TEST_CASE("compression priority: deflate > gzip")
                 scope<"/api">()
                     .use(middleware::gzip())
                     .use(middleware::deflate())
-                    .GET<"/get">([&]([[maybe_unused]] http_request& req)
-                                     -> lazy<http_response> {
-                      CHECK(!req.fields().get(http::field::content_encoding));
-                      CHECK_EQ(*req.fields().get(http::field::content_length),
+                    .GET<"/get">([&](const http_fields& fields,
+                                     std::string body) -> lazy<http_response> {
+                      CHECK(!fields.get(http::field::content_encoding));
+                      CHECK_EQ(*fields.get(http::field::content_length),
                                std::to_string(in.size()));
-                      CHECK_EQ(req.body(), in);
-                      co_return http_response(http::status::ok)
-                          .set_body(req.body());
+                      CHECK_EQ(body, in);
+                      co_return http_response(http::status::ok).set_body(body);
                     }))
             .build();
   {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "gzip")
             .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::detail::gzip_compress<std::string>(
@@ -111,7 +109,7 @@ TEST_CASE("compression priority: deflate > gzip")
   {
     auto res = server.serve_http_request(
         "/api/get",
-        http_request(http::verb::get)
+        mock_http_request(http::verb::get)
             .set_field(http::field::content_encoding, "deflate")
             .set_field(http::field::accept_encoding, "gzip, deflate")
             .set_body(middleware::detail::deflate_compress<std::string>(

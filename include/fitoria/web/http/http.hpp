@@ -20,6 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::http {
 
+using boost::beast::http::error;
 using boost::beast::http::field;
 using boost::beast::http::status;
 using boost::beast::http::status_class;
