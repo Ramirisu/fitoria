@@ -17,7 +17,6 @@
 
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/json.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -90,23 +89,6 @@ struct from_http_request_t {
     }
 
     co_return data;
-  }
-
-  friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-      -> lazy<expected<R, error_code>>
-    requires(is_specialization_of_v<R, json>)
-  {
-    if (req.fields().get(http::field::content_type)
-        != http::fields::content_type::json()) {
-      co_return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    auto str = co_await tag_invoke(from_http_request_t<std::string> {}, req);
-    if (!str) {
-      co_return unexpected { str.error() };
-    }
-
-    co_return as_json<typename R::fitoria_extractor_json_base_type>(*str);
   }
 };
 

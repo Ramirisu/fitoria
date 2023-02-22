@@ -14,6 +14,7 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/web/error.hpp>
+#include <fitoria/web/from_http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -47,6 +48,22 @@ public:
   json(T value)
       : T(std::move(value))
   {
+  }
+
+  friend auto tag_invoke(from_http_request_t<json<T>>, http_request& req)
+      -> lazy<expected<json<T>, error_code>>
+  {
+    if (req.fields().get(http::field::content_type)
+        != http::fields::content_type::json()) {
+      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    auto str = co_await tag_invoke(from_http_request_t<std::string> {}, req);
+    if (!str) {
+      co_return unexpected { str.error() };
+    }
+
+    co_return as_json<T>(*str);
   }
 };
 
