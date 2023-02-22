@@ -40,7 +40,7 @@ The library is ***experimental*** and still under development, not recommended f
 
 #### HTTP Server
 
-[Quick Start Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/quick_start.cpp)
+[Getting Started Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp)
 
 ```cpp
 
@@ -76,7 +76,6 @@ int main()
       // Start the server, `run()` will block current thread.
       .run();
 }
-
 
 ```
 
@@ -220,13 +219,13 @@ Use `as_form()` to parse the url-encoded form body.
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req) -> lazy<http_response>
+auto api(const http_request& req, std::string body) -> lazy<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
     co_return http_response(http::status::bad_request);
   }
-  auto user = as_form(req.body());
+  auto user = as_form(body);
   if (!user || user->get("name") != "ramirisu"
       || user->get("password") != "123456") {
     co_return http_response(http::status::unauthorized);
@@ -267,13 +266,14 @@ struct user_t {
   std::string password;
 };
 
-json::result_for<user_t, json::value>::type
-tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
+boost::json::result_for<user_t, boost::json::value>::type
+tag_invoke(const boost::json::try_value_to_tag<user_t>&,
+           const boost::json::value& jv)
 {
   user_t user;
 
   if (!jv.is_object()) {
-    return make_error_code(json::error::incomplete);
+    return make_error_code(boost::json::error::incomplete);
   }
 
   const auto& obj = jv.get_object();
@@ -285,31 +285,23 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
                     .password = std::string(password->get_string()) };
   }
 
-  return make_error_code(json::error::incomplete);
+  return make_error_code(boost::json::error::incomplete);
 }
 
 struct output {
   std::string msg;
 };
 
-void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
+void tag_invoke(const boost::json::value_from_tag&,
+                boost::json::value& jv,
+                const output& out)
 {
   jv = { { "msg", out.msg } };
 }
 
-auto api(const http_request& req) -> lazy<http_response>
+auto api(json<user_t> user) -> lazy<http_response>
 {
-  if (auto ct = req.fields().get(http::field::content_type);
-      ct != http::fields::content_type::json()) {
-    co_return http_response(http::status::bad_request)
-        .set_json(output { .msg = "unexpected Content-Type" });
-  }
-  auto user = as_json<user_t>(req.body());
-  if (!user) {
-    co_return http_response(http::status::bad_request)
-        .set_json(output { .msg = user.error().message() });
-  }
-  if (user->name != "ramirisu" || user->password != "123456") {
+  if (user.name != "ramirisu" || user.password != "123456") {
     co_return http_response(http::status::unauthorized)
         .set_json(output { .msg = "user name or password is incorrect" });
   }
@@ -523,7 +515,7 @@ int main()
 
 #### Unit Testing
 
-`http::serve_http_request()` can consume the mock `http_request` directly without creating TCP connections. 
+`http::serve_http_request()` can consume the `mock_http_request` directly without creating TCP connections. 
 
 ([Unit Testing Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
 
@@ -534,12 +526,12 @@ int main()
   auto server
       = http_server::builder()
             .route(route::POST<"/api/v1/login">(
-                [](http_request& req) -> lazy<http_response> {
+                [](http_request& req, std::string body) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);
                   }
-                  auto user = as_form(req.body());
+                  auto user = as_form(body);
                   if (!user || user->get("name") != "ramirisu"
                       || user->get("password") != "123456") {
                     co_return http_response(http::status::unauthorized);
@@ -555,7 +547,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request(http::verb::post)
+        mock_http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body("name=ramirisu&password=123456"));
@@ -564,7 +556,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request(http::verb::post)
+        mock_http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=unknown&password=123"));
@@ -573,7 +565,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request(http::verb::post)
+        mock_http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123"));
@@ -582,7 +574,7 @@ int main()
   {
     auto res = server.serve_http_request(
         "/api/v1/login",
-        http_request(http::verb::post)
+        mock_http_request(http::verb::post)
             .set_field(http::field::content_type,
                        http::fields::content_type::form_urlencoded())
             .set_body("name=ramirisu&password=123456"));
@@ -615,16 +607,16 @@ Compiler (C++20 coroutine/concepts)
 
 Dependencies
 
-|    Library     | Usage                              |              Namespace              | required/optional |
-| :------------: | :--------------------------------- | :---------------------------------: | :---------------: |
-| `boost::asio`  | Networking                         |           `fitoria::net`            |     required      |
-| `boost::beast` | HTTP                               | `fitoria::net`<br />`fitoria::http` |     required      |
-|  `boost::url`  | Internal url parsing               |                                     |     required      |
-| `boost::json`  | JSON serialization/deserialization |           `fitoria::json`           |     required      |
-|     `zlib`     | Built-in middleware gzip           |                                     |     optional      |
-|     `fmt`      | Formatting                         |           `fitoria::fmt`            |     optional      |
-|   `OpenSSL`    | Secure networking                  |                                     |     optional      |
-|   `doctest`    | Unit testing                       |                                     |     optional      |
+|    Library     | Usage                              |    Namespace    | required/optional |
+| :------------: | :--------------------------------- | :-------------: | :---------------: |
+| `boost::asio`  | Networking                         | `fitoria::net`  |     required      |
+| `boost::beast` | HTTP                               | `fitoria::http` |     required      |
+|  `boost::url`  | Internal url parsing               |                 |     required      |
+| `boost::json`  | JSON serialization/deserialization |                 |     required      |
+|     `zlib`     | Built-in middleware gzip           |                 |     optional      |
+|     `fmt`      | Formatting                         | `fitoria::fmt`  |     optional      |
+|   `OpenSSL`    | Secure networking                  |                 |     optional      |
+|   `doctest`    | Unit testing                       |                 |     optional      |
 
 CMake
 
