@@ -12,7 +12,6 @@
 
 #include <fitoria/web/any_routable.hpp>
 #include <fitoria/web/as_form.hpp>
-#include <fitoria/web/as_json.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http_context.hpp>

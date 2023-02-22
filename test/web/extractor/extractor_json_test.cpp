@@ -7,12 +7,12 @@
 
 #include <fitoria_test.h>
 
-#include <fitoria/web/as_json.hpp>
+#include <fitoria/web/extractor/json.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.as_json");
+TEST_SUITE_BEGIN("web.extractor.json");
 
 namespace {
 
@@ -46,8 +46,10 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
 
 }
 
-TEST_CASE("body_as_json")
+TEST_CASE("as_json")
 {
+  using extractor::detail::as_json;
+
   const json::value jv = {
     { "name", "Rina Hidaka" },
     { "birth", "1994/06/15" },

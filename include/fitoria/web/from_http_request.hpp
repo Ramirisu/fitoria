@@ -15,6 +15,7 @@
 #include <fitoria/core/lazy.hpp>
 #include <fitoria/core/tag_invoke.hpp>
 
+#include <fitoria/web/extractor/json.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 
@@ -89,6 +90,19 @@ struct from_http_request_t {
     }
 
     co_return data;
+  }
+
+  friend auto tag_invoke(from_http_request_t<R>, http_request& req)
+      -> lazy<expected<R, error_code>>
+    requires(is_specialization_of_v<R, extractor::json>)
+  {
+    auto str = co_await tag_invoke(from_http_request_t<std::string> {}, req);
+    if (!str) {
+      co_return unexpected { str.error() };
+    }
+
+    co_return extractor::detail::as_json<
+        typename R::fitoria_extractor_json_base_type>(*str);
   }
 };
 

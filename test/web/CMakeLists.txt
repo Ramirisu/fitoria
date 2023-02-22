@@ -1,4 +1,3 @@
-fitoria_add_test(NAME as_json_test SRCS as_json_test.cpp)
 fitoria_add_test(NAME as_form_test SRCS as_form_test.cpp)
 fitoria_add_test(NAME compile_time_path_checker_test SRCS compile_time_path_checker_test.cpp)
 fitoria_add_test(NAME http_fields_test SRCS http_fields_test.cpp)
@@ -15,3 +14,4 @@ fitoria_add_test(NAME scope_test SRCS scope_test.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)
+add_subdirectory(extractor)
