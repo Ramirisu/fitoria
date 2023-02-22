@@ -11,10 +11,9 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/format.hpp>
+#include <fitoria/core/http.hpp>
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/utility.hpp>
-
-#include <fitoria/web/http/detail/http.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

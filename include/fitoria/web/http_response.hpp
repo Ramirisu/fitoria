@@ -20,7 +20,8 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_response {
-  using native_response_t = http::detail::response<http::detail::string_body>;
+  using native_response_t
+      = boost::beast::http::response<boost::beast::http::string_body>;
 
 public:
   http_response() = default;

@@ -37,7 +37,7 @@ public:
 
   status_class category() const noexcept
   {
-    return detail::to_status_class(value_);
+    return to_status_class(value_);
   }
 
   optional<status> match(std::initializer_list<status> list)

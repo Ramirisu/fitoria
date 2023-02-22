@@ -329,14 +329,15 @@ private:
     net::error_code ec;
 
     for (;;) {
-      http::detail::request_parser<http::detail::vector_body<std::byte>>
+      boost::beast::http::request_parser<
+          boost::beast::http::vector_body<std::byte>>
           req_parser;
       req_parser.body_limit(boost::none);
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await http::detail::async_read_header(stream, buffer,
-                                                            req_parser);
+      tie(ec, _) = co_await boost::beast::http::async_read_header(
+          stream, buffer, req_parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -351,9 +352,10 @@ private:
           it != req.end() && it->value() == "100-continue") {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await http::detail::async_write(
+        tie(ec, _) = co_await boost::beast::http::async_write(
             stream,
-            static_cast<http::detail::response<http::detail::empty_body>>(
+            static_cast<
+                boost::beast::http::response<boost::beast::http::empty_body>>(
                 http_response(http::status::continue_)));
         if (ec) {
           log::debug("[{}] async_write 100-continue failed: {}", name(),
@@ -385,8 +387,8 @@ private:
       } else {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _)
-            = co_await http::detail::async_read(stream, buffer, req_parser);
+        tie(ec, _) = co_await boost::beast::http::async_read(stream, buffer,
+                                                             req_parser);
         if (ec) {
           log::debug("[{}] async_read failed: {}", name(), ec.message());
           co_return ec;
@@ -394,8 +396,8 @@ private:
       }
 
       auto res = static_cast<
-          http::detail::
-              response<http::detail::string_body>>(co_await do_handler(
+          boost::beast::http::
+              response<boost::beast::http::string_body>>(co_await do_handler(
           connection_info {
               net::get_lowest_layer(stream).socket().local_endpoint().address(),
               net::get_lowest_layer(stream).socket().local_endpoint().port(),
@@ -416,7 +418,8 @@ private:
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await http::detail::async_write(stream, std::move(res));
+      tie(ec, _)
+          = co_await boost::beast::http::async_write(stream, std::move(res));
       if (ec) {
         log::debug("[{}] async_write failed: {}", name(), ec.message());
         co_return ec;
@@ -474,8 +477,9 @@ private:
     return query;
   }
 
-  static http_fields to_http_fields(
-      const http::detail::request<http::detail::vector_body<std::byte>>& req)
+  static http_fields
+  to_http_fields(const boost::beast::http::request<
+                 boost::beast::http::vector_body<std::byte>>& req)
   {
     http_fields fields;
     for (auto& kv : req.base()) {

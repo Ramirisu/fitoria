@@ -77,8 +77,8 @@ namespace request_body {
 
   template <typename Stream>
   class chunk_body : public body_base {
-    using request_parser_type
-        = http::detail::request_parser<http::detail::vector_body<std::byte>>;
+    using request_parser_type = boost::beast::http::request_parser<
+        boost::beast::http::vector_body<std::byte>>;
 
   public:
     chunk_body(Stream& stream,
@@ -110,8 +110,8 @@ namespace request_body {
 
       while (!req_parser_.is_done() && !ec) {
         net::get_lowest_layer(stream_).expires_after(timeout_);
-        tie(ec, _)
-            = co_await http::detail::async_read(stream_, buffer_, req_parser_);
+        tie(ec, _) = co_await boost::beast::http::async_read(stream_, buffer_,
+                                                             req_parser_);
       }
 
       if (ec && ec != http::error::end_of_chunk) {
@@ -181,13 +181,13 @@ public:
   }
 
   template <typename Stream>
-  static auto new_chunk_body(
-      Stream& stream,
-      http::detail::request_parser<http::detail::vector_body<std::byte>>&
-          req_parser,
-      net::flat_buffer& buffer,
-      std::vector<std::byte>& chunk,
-      std::chrono::milliseconds timeout) -> http_request_body
+  static auto
+  new_chunk_body(Stream& stream,
+                 boost::beast::http::request_parser<
+                     boost::beast::http::vector_body<std::byte>>& req_parser,
+                 net::flat_buffer& buffer,
+                 std::vector<std::byte>& chunk,
+                 std::chrono::milliseconds timeout) -> http_request_body
   {
     return http_request_body(std::make_shared<request_body::chunk_body<Stream>>(
         stream, req_parser, buffer, chunk, timeout));
