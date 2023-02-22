@@ -64,7 +64,7 @@ void tag_invoke(const boost::json::value_from_tag&,
   jv = { { "msg", out.msg } };
 }
 
-auto api(extractor::json<user_t> user) -> lazy<http_response>
+auto api(json<user_t> user) -> lazy<http_response>
 {
   if (user.name != "ramirisu" || user.password != "123456") {
     co_return http_response(http::status::unauthorized)

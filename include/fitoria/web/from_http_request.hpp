@@ -15,9 +15,9 @@
 #include <fitoria/core/lazy.hpp>
 #include <fitoria/core/tag_invoke.hpp>
 
-#include <fitoria/web/extractor/json.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/json.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -94,7 +94,7 @@ struct from_http_request_t {
 
   friend auto tag_invoke(from_http_request_t<R>, http_request& req)
       -> lazy<expected<R, error_code>>
-    requires(is_specialization_of_v<R, extractor::json>)
+    requires(is_specialization_of_v<R, json>)
   {
     if (req.fields().get(http::field::content_type)
         != http::fields::content_type::json()) {
@@ -106,8 +106,7 @@ struct from_http_request_t {
       co_return unexpected { str.error() };
     }
 
-    co_return extractor::detail::as_json<
-        typename R::fitoria_extractor_json_base_type>(*str);
+    co_return as_json<typename R::fitoria_extractor_json_base_type>(*str);
   }
 };
 

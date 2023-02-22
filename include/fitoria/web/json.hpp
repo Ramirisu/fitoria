@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_WEB_EXTRACTOR_JSON_HPP
-#define FITORIA_WEB_EXTRACTOR_JSON_HPP
+#ifndef FITORIA_WEB_JSON_HPP
+#define FITORIA_WEB_JSON_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,26 +17,24 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web::extractor {
-namespace detail {
+namespace web {
 
-  template <typename T = boost::json::value>
-  expected<T, error_code> as_json(std::string_view text)
-  {
-    boost::json::error_code ec;
-    auto jv = boost::json::parse(text, ec);
-    if (ec) {
-      return unexpected { ec };
-    }
+template <typename T = boost::json::value>
+expected<T, error_code> as_json(std::string_view text)
+{
+  boost::json::error_code ec;
+  auto jv = boost::json::parse(text, ec);
+  if (ec) {
+    return unexpected { ec };
+  }
 
-    if constexpr (std::is_same_v<T, boost::json::value>) {
-      return jv;
+  if constexpr (std::is_same_v<T, boost::json::value>) {
+    return jv;
+  } else {
+    if (auto res = boost::json::try_value_to<T>(jv); res) {
+      return res.value();
     } else {
-      if (auto res = boost::json::try_value_to<T>(jv); res) {
-        return res.value();
-      } else {
-        return unexpected { res.error() };
-      }
+      return unexpected { res.error() };
     }
   }
 }

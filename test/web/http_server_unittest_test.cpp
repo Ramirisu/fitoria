@@ -178,7 +178,7 @@ TEST_CASE("json")
   auto server
       = http_server::builder()
             .route(route::GET<"/get">(
-                [](extractor::json<user_t> user) -> lazy<http_response> {
+                [](json<user_t> user) -> lazy<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");
                   co_return http_response(http::status::ok).set_json(user);
@@ -193,7 +193,7 @@ TEST_CASE("json")
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
-    CHECK_EQ(extractor::detail::as_json<user_t>(res.body()),
+    CHECK_EQ(as_json<user_t>(res.body()),
              user_t {
                  .name = "Rina Hidaka",
                  .birth = "1994/06/15",
@@ -203,8 +203,8 @@ TEST_CASE("json")
     auto res = server.serve_http_request(
         "/get",
         mock_http_request(http::verb::get)
-            .set_body(boost::json::serialize(
-                { { "name", "Rina Hidaka" }, { "birth", "1994/06/15" } })));
+            .set_body(boost::json::serialize(boost::json::value {
+                { "name", "Rina Hidaka" }, { "birth", "1994/06/15" } })));
     CHECK_EQ(res.status_code(), http::status::bad_request);
   }
   {
