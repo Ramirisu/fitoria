@@ -24,8 +24,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Route Parameters](#route-parameters)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
-      - [Multipart](#multipart)
-      - [JSON](#json)
+      - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
       - [Graceful Shutdown](#graceful-shutdown)
@@ -247,30 +246,40 @@ int main()
 
 ```
 
-#### Multipart
+#### Extractor
 
-TODO:
+Extractors can help user to access information from `http_request`. Users can specify as many extractors as compiler allows per handler. 
 
+Built-in Extractors:
 
-#### JSON
+| Extractor                | Description                                            | Body Extractor |
+| :----------------------- | :----------------------------------------------------- | :------------: |
+| `web::http_request`      | Extract whole `http_request`                           |       no       |
+| `web::route_params`      | Extract route parameters                               |       no       |
+| `web::query_map`         | Extract query string parameters                        |       no       |
+| `web::http_fields`       | Extract fields from request headers                    |       no       |
+| `std::vector<std::byte>` | Extract body as `std::vector<std::byte>`               |      yes       |
+| `std::string`            | Extract body as `std::string`                          |      yes       |
+| `web::json<T>`           | Extract body and parse it into json and convert to `T` |      yes       |
 
-fitoria integrates `boost::json` as the built-in json serializer/deserializer. Use `as_json` to parse the body.
+> Implement `from_http_request` CPO to customize user-defined extractors.
 
-[JSON Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/json.cpp)
+> The body extractor can only be used at most once in the request handlers since it consumes the body.
+
+[Extractor Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp)
 
 ```cpp
 
 namespace api::v1::login {
-struct user_t {
-  std::string name;
+struct secret_t {
   std::string password;
 };
 
-boost::json::result_for<user_t, boost::json::value>::type
-tag_invoke(const boost::json::try_value_to_tag<user_t>&,
+boost::json::result_for<secret_t, boost::json::value>::type
+tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
            const boost::json::value& jv)
 {
-  user_t user;
+  secret_t user;
 
   if (!jv.is_object()) {
     return make_error_code(boost::json::error::incomplete);
@@ -278,43 +287,31 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 
   const auto& obj = jv.get_object();
 
-  auto* name = obj.if_contains("name");
   auto* password = obj.if_contains("password");
-  if (name && password && name->is_string() && password->is_string()) {
-    return user_t { .name = std::string(name->get_string()),
-                    .password = std::string(password->get_string()) };
+  if (password && password->is_string()) {
+    return secret_t { .password = std::string(password->get_string()) };
   }
 
   return make_error_code(boost::json::error::incomplete);
 }
 
-struct output {
-  std::string msg;
-};
-
-void tag_invoke(const boost::json::value_from_tag&,
-                boost::json::value& jv,
-                const output& out)
+auto api(const route_params& params, json<secret_t> secret)
+    -> lazy<http_response>
 {
-  jv = { { "msg", out.msg } };
-}
-
-auto api(json<user_t> user) -> lazy<http_response>
-{
-  if (user.name != "ramirisu" || user.password != "123456") {
+  if (params.get("user") != "ramirisu" || secret.password != "123456") {
     co_return http_response(http::status::unauthorized)
-        .set_json(output { .msg = "user name or password is incorrect" });
+        .set_body("user name or password is incorrect");
   }
-  co_return http_response(http::status::ok)
-      .set_json(output { .msg = "login succeeded" });
+  co_return http_response(http::status::ok).set_body("login succeeded");
 }
 }
 
 int main()
 {
-  auto server = http_server::builder()
-                    .route(route::POST<"/api/v1/login">(api::v1::login::api))
-                    .build();
+  auto server
+      = http_server::builder()
+            .route(route::POST<"/api/v1/login/{user}">(api::v1::login::api))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
