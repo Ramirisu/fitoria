@@ -101,15 +101,15 @@ public:
     return *this;
   }
 
-  template <typename T = json::value>
+  template <typename T = boost::json::value>
   mock_http_request& set_json(const T& obj)
   {
-    if constexpr (std::is_same_v<T, json::value>) {
+    if constexpr (std::is_same_v<T, boost::json::value>) {
       fields_.set(http::field::content_type,
                   http::fields::content_type::json());
-      body_ = json::serialize(obj);
+      body_ = boost::json::serialize(obj);
     } else {
-      set_json(json::value_from(obj));
+      set_json(boost::json::value_from(obj));
     }
     return *this;
   }

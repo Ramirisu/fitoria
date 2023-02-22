@@ -20,19 +20,19 @@ FITORIA_NAMESPACE_BEGIN
 namespace web::extractor {
 namespace detail {
 
-  template <typename T = json::value>
+  template <typename T = boost::json::value>
   expected<T, error_code> as_json(std::string_view text)
   {
-    json::error_code ec;
-    auto jv = json::parse(text, ec);
+    boost::json::error_code ec;
+    auto jv = boost::json::parse(text, ec);
     if (ec) {
       return unexpected { ec };
     }
 
-    if constexpr (std::is_same_v<T, json::value>) {
+    if constexpr (std::is_same_v<T, boost::json::value>) {
       return jv;
     } else {
-      if (auto res = json::try_value_to<T>(jv); res) {
+      if (auto res = boost::json::try_value_to<T>(jv); res) {
         return res.value();
       } else {
         return unexpected { res.error() };

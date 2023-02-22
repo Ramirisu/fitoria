@@ -23,13 +23,14 @@ struct user_t {
   friend bool operator==(const user_t&, const user_t&) = default;
 };
 
-json::result_for<user_t, json::value>::type
-tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
+boost::json::result_for<user_t, boost::json::value>::type
+tag_invoke(const boost::json::try_value_to_tag<user_t>&,
+           const boost::json::value& jv)
 {
   user_t user;
 
   if (!jv.is_object()) {
-    return make_error_code(json::error::incomplete);
+    return make_error_code(boost::json::error::incomplete);
   }
 
   const auto& obj = jv.get_object();
@@ -41,7 +42,7 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
                     .birth = std::string(birth->get_string()) };
   }
 
-  return make_error_code(json::error::incomplete);
+  return make_error_code(boost::json::error::incomplete);
 }
 
 }
@@ -50,24 +51,24 @@ TEST_CASE("as_json")
 {
   using extractor::detail::as_json;
 
-  const json::value jv = {
+  const boost::json::value jv = {
     { "name", "Rina Hidaka" },
     { "birth", "1994/06/15" },
   };
   {
     CHECK_EQ(as_json<user_t>("").error(),
-             make_error_code(json::error::incomplete));
+             make_error_code(boost::json::error::incomplete));
   }
   {
     CHECK_EQ(as_json<user_t>("{").error(),
-             make_error_code(json::error::incomplete));
+             make_error_code(boost::json::error::incomplete));
   }
   {
     CHECK_EQ(as_json<user_t>(R"del({ "name": "Rina Hidaka" })del").error(),
-             make_error_code(json::error::incomplete));
+             make_error_code(boost::json::error::incomplete));
   }
   {
-    auto text = json::serialize(jv);
+    auto text = boost::json::serialize(jv);
     CHECK_EQ(as_json<user_t>(text),
              user_t {
                  .name = "Rina Hidaka",

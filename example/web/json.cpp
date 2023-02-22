@@ -31,13 +31,14 @@ struct user_t {
   std::string password;
 };
 
-json::result_for<user_t, json::value>::type
-tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
+boost::json::result_for<user_t, boost::json::value>::type
+tag_invoke(const boost::json::try_value_to_tag<user_t>&,
+           const boost::json::value& jv)
 {
   user_t user;
 
   if (!jv.is_object()) {
-    return make_error_code(json::error::incomplete);
+    return make_error_code(boost::json::error::incomplete);
   }
 
   const auto& obj = jv.get_object();
@@ -49,14 +50,16 @@ tag_invoke(const json::try_value_to_tag<user_t>&, const json::value& jv)
                     .password = std::string(password->get_string()) };
   }
 
-  return make_error_code(json::error::incomplete);
+  return make_error_code(boost::json::error::incomplete);
 }
 
 struct output {
   std::string msg;
 };
 
-void tag_invoke(const json::value_from_tag&, json::value& jv, const output& out)
+void tag_invoke(const boost::json::value_from_tag&,
+                boost::json::value& jv,
+                const output& out)
 {
   jv = { { "msg", out.msg } };
 }

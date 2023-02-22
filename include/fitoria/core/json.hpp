@@ -12,10 +12,4 @@
 
 #include <boost/json.hpp>
 
-FITORIA_NAMESPACE_BEGIN
-
-namespace json = boost::json;
-
-FITORIA_NAMESPACE_END
-
 #endif
