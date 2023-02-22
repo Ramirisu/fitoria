@@ -22,6 +22,7 @@ enum class error {
   route_parse_error,
   route_already_exists,
   route_not_exists,
+  unexpected_content_type,
 };
 
 class error_category : public std::error_category {
@@ -42,6 +43,8 @@ public:
       return "the route being registered already exists";
     case error::route_not_exists:
       return "the route being searched doesn't exist";
+    case error::unexpected_content_type:
+      return "unexpected Content-Type";
     default:
       break;
     }

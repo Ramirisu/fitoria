@@ -96,6 +96,11 @@ struct from_http_request_t {
       -> lazy<expected<R, error_code>>
     requires(is_specialization_of_v<R, extractor::json>)
   {
+    if (req.fields().get(http::field::content_type)
+        != http::fields::content_type::json()) {
+      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
     auto str = co_await tag_invoke(from_http_request_t<std::string> {}, req);
     if (!str) {
       co_return unexpected { str.error() };

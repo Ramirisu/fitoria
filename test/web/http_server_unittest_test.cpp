@@ -203,6 +203,14 @@ TEST_CASE("json")
     auto res = server.serve_http_request(
         "/get",
         mock_http_request(http::verb::get)
+            .set_body(boost::json::serialize(
+                { { "name", "Rina Hidaka" }, { "birth", "1994/06/15" } })));
+    CHECK_EQ(res.status_code(), http::status::bad_request);
+  }
+  {
+    auto res = server.serve_http_request(
+        "/get",
+        mock_http_request(http::verb::get)
             .set_json({ { "name", "Rina Hidaka" } }));
     CHECK_EQ(res.status_code(), http::status::bad_request);
   }
