@@ -73,15 +73,21 @@ struct from_http_request_t {
       -> lazy<expected<R, error_code>>
     requires(std::same_as<R, std::vector<std::byte>>)
   {
-    co_return (co_await async_read_all<std::vector<std::byte>>(req.body()))
-        .value_or(R());
+    if (auto res = co_await async_read_all<std::vector<std::byte>>(req.body());
+        res) {
+      co_return std::move(*res);
+    }
+    co_return R();
   }
 
   friend auto tag_invoke(from_http_request_t<R>, http_request& req)
       -> lazy<expected<R, error_code>>
     requires(std::same_as<R, std::string>)
   {
-    co_return (co_await async_read_all<std::string>(req.body())).value_or(R());
+    if (auto res = co_await async_read_all<std::string>(req.body()); res) {
+      co_return std::move(*res);
+    }
+    co_return R();
   }
 };
 
