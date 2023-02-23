@@ -29,9 +29,13 @@ TEST_CASE("basic")
   CHECK_EQ(c.fields().get(http::field::content_type),
            http::fields::content_type::plaintext());
 
-  CHECK_EQ(c.body(), "");
-  c.set_body("hello world");
-  CHECK_EQ(c.body(), "hello world");
+  c.set_plaintext("hello world");
+  CHECK_EQ(c.fields().get(http::field::content_type),
+           http::fields::content_type::plaintext());
+
+  c.set_json({ { "msg", "hello world" } });
+  CHECK_EQ(c.fields().get(http::field::content_type),
+           http::fields::content_type::json());
 
   CHECK_EQ(c.request_timeout(), std::chrono::seconds(5));
   c.set_request_timeout(std::chrono::seconds(10));

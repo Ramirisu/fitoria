@@ -57,9 +57,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
 
   auto res = http_client::GET(to_local_url(boost::urls::scheme::https, port,
                                            "/api/repos/fitoria"))
-                 .set_field(http::field::content_type,
-                            http::fields::content_type::plaintext())
-                 .set_body("hello world")
+                 .set_plaintext("hello world")
                  .send(cert::get_client_ssl_ctx(client_ssl_ver))
                  .value();
   CHECK_EQ(res.status_code(), http::status::ok);

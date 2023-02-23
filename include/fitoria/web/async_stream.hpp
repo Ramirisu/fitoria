@@ -29,6 +29,7 @@ namespace web {
 // clang-format off
 template <typename T>
 concept async_readable_stream = requires(T t) {
+  { t.is_chunked() } -> std::same_as<bool>;
   { t.async_read_next() } 
     -> std::same_as<lazy<optional<expected<std::vector<std::byte>, net::error_code>>>>;
 };
@@ -48,6 +49,11 @@ public:
       : data_(std::vector<std::byte>(std::as_bytes(s).begin(),
                                      std::as_bytes(s).end()))
   {
+  }
+
+  auto is_chunked() const noexcept -> bool
+  {
+    return false;
   }
 
   auto async_read_next()
@@ -83,6 +89,11 @@ public:
       , chunk_(chunk)
       , timeout_(timeout)
   {
+  }
+
+  auto is_chunked() const noexcept -> bool
+  {
+    return true;
   }
 
   auto async_read_next()
@@ -122,6 +133,8 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
+    virtual auto clone() const -> std::shared_ptr<base> = 0;
+    virtual auto is_chunked() const noexcept -> bool = 0;
     virtual auto async_read_next()
         -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
         = 0;
@@ -133,6 +146,16 @@ class any_async_readable_stream {
     derived(AsyncReadableStream stream)
         : stream_(std::move(stream))
     {
+    }
+
+    auto clone() const -> std::shared_ptr<base> override
+    {
+      return std::make_shared<derived>(*this);
+    }
+
+    auto is_chunked() const noexcept -> bool override
+    {
+      return stream_.is_chunked();
     }
 
     auto async_read_next() -> lazy<
@@ -154,11 +177,28 @@ public:
   {
   }
 
-  any_async_readable_stream(const any_async_readable_stream&) = delete;
-  any_async_readable_stream& operator=(const any_async_readable_stream&)
-      = delete;
+  any_async_readable_stream(const any_async_readable_stream& other)
+      : stream_(other.stream_->clone())
+  {
+  }
+
+  any_async_readable_stream& operator=(const any_async_readable_stream& other)
+  {
+    if (this != std::addressof(other)) {
+      stream_ = other.stream_->clone();
+    }
+
+    return *this;
+  }
+
   any_async_readable_stream(any_async_readable_stream&&) = default;
+
   any_async_readable_stream& operator=(any_async_readable_stream&&) = default;
+
+  auto is_chunked() const noexcept -> bool
+  {
+    return stream_->is_chunked();
+  }
 
   auto async_read_next()
       -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
@@ -174,7 +214,7 @@ private:
 };
 
 template <typename Container, async_readable_stream AsyncReadableStream>
-auto async_read_all(AsyncReadableStream& stream)
+auto async_read_all(AsyncReadableStream&& stream)
     -> lazy<optional<expected<Container, net::error_code>>>
 {
   Container container;
@@ -197,6 +237,7 @@ auto async_read_all(AsyncReadableStream& stream)
 
   co_return container;
 }
+
 }
 
 FITORIA_NAMESPACE_END

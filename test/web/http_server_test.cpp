@@ -103,7 +103,7 @@ TEST_CASE("invalid target")
     auto res = http_client::GET(
                    to_local_url(boost::urls::scheme::http, port, test_case))
                    .set_field(http::field::connection, "close")
-                   .set_body("text")
+                   .set_plaintext("text")
                    .send()
                    .value();
     CHECK_EQ(res.status_code(), http::status::not_found);
@@ -136,7 +136,7 @@ TEST_CASE("expect: 100-continue")
                  to_local_url(boost::urls::scheme::http, port, "/api/v1/post"))
                  .set_field(http::field::expect, "100-continue")
                  .set_field(http::field::connection, "close")
-                 .set_body("text")
+                 .set_plaintext("text")
                  .send()
                  .value();
   CHECK_EQ(res.status_code(), http::status::ok);
@@ -177,7 +177,7 @@ TEST_CASE("unhandled exception from handler")
   CHECK(!http_client::GET(
              to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
              .set_field(http::field::connection, "close")
-             .set_body("text")
+             .set_plaintext("text")
              .send());
 
   // wait for exception thrown
@@ -271,12 +271,10 @@ TEST_CASE("generic request")
                          "/api/v1/users/Rina Hidaka/filmography/years/2022"))
             .set_query("name", "Rina Hidaka")
             .set_query("birth", "1994/06/15")
-            .set_field(http::field::content_type,
-                       http::fields::content_type::plaintext())
             .set_field(http::field::connection, "close")
             .insert_field(http::field::user_agent, BOOST_BEAST_VERSION_STRING)
             .insert_field(http::field::user_agent, "fitoria")
-            .set_body("happy birthday")
+            .set_plaintext("happy birthday")
             .send()
             .value();
   CHECK_EQ(res.status_code(), http::status::ok);
@@ -284,6 +282,70 @@ TEST_CASE("generic request")
       res.fields().equal_range(http::field::user_agent),
       [](auto&& p) { return p->second; },
       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING, "fitoria" }));
+}
+
+namespace {
+template <std::size_t ChunkSize>
+class test_async_readable_chunk_stream {
+public:
+  test_async_readable_chunk_stream(std::string_view data)
+      : data_(data)
+  {
+  }
+
+  auto is_chunked() const noexcept
+  {
+    return true;
+  }
+
+  auto async_read_next()
+      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+  {
+    if (written >= data_.size()) {
+      co_return nullopt;
+    }
+
+    const auto chunk_size = std::min(ChunkSize, data_.size() - written);
+    auto sv = data_.substr(written, chunk_size);
+    written += chunk_size;
+    co_return to_bytes(sv);
+  }
+
+private:
+  std::string_view data_;
+  std::size_t written = 0;
+};
+}
+
+TEST_CASE("request with chunked transfer-encoding")
+{
+  const auto input = std::string_view("abcdefghijklmnopqrstuvwxyz");
+
+  const auto port = generate_port();
+  auto server = http_server::builder()
+                    .route(route::POST<"/post">(
+                        [&](std::string data) -> lazy<http_response> {
+                          CHECK_EQ(data, input);
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto res
+      = http_client::POST(
+            to_local_url(boost::urls::scheme::http, port, "/post"))
+            .set_field(http::field::connection, "close")
+            .set_readable_stream(test_async_readable_chunk_stream<5>(input))
+            .send()
+            .value();
+  CHECK_EQ(res.status_code(), http::status::ok);
 }
 
 TEST_CASE("response status only")
