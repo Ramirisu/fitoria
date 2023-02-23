@@ -193,16 +193,20 @@ TEST_CASE("generic request")
   auto server
       = http_server::builder()
             .route(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
-                [=](http_request& req, route_params& params, query_map& query,
-                    http_fields& fields,
+                [=](http_request& req, const connection_info& conn_info,
+                    route_params& params, query_map& query, http_fields& fields,
                     std::string body) -> lazy<http_response> {
-                  CHECK_EQ(req.conn_info().local_addr(),
-                           net::ip::make_address(server_ip));
-                  CHECK_EQ(req.conn_info().remote_addr(),
-                           net::ip::make_address(server_ip));
-                  CHECK_EQ(req.conn_info().listen_addr(),
-                           net::ip::make_address(server_ip));
-                  CHECK_EQ(req.conn_info().listen_port(), port);
+                  auto test_conn_info = [=](auto& conn_info) {
+                    CHECK_EQ(conn_info.local_addr(),
+                             net::ip::make_address(server_ip));
+                    CHECK_EQ(conn_info.remote_addr(),
+                             net::ip::make_address(server_ip));
+                    CHECK_EQ(conn_info.listen_addr(),
+                             net::ip::make_address(server_ip));
+                    CHECK_EQ(conn_info.listen_port(), port);
+                  };
+                  test_conn_info(req.conn_info());
+                  test_conn_info(conn_info);
 
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),

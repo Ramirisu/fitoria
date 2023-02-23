@@ -255,6 +255,7 @@ Built-in Extractors:
 | Extractor                | Description                                            | Body Extractor |
 | :----------------------- | :----------------------------------------------------- | :------------: |
 | `web::http_request`      | Extract whole `http_request`                           |       no       |
+| `web::connection_info`   | Extract connection info                                |       no       |
 | `web::route_params`      | Extract route parameters                               |       no       |
 | `web::query_map`         | Extract query string parameters                        |       no       |
 | `web::http_fields`       | Extract fields from request headers                    |       no       |
@@ -295,9 +296,13 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
   return make_error_code(boost::json::error::incomplete);
 }
 
-auto api(const route_params& params, json<secret_t> secret)
-    -> lazy<http_response>
+auto api(const connection_info& conn_info,
+         const route_params& params,
+         json<secret_t> secret) -> lazy<http_response>
 {
+  std::cout << fmt::format("listen addr {}:{}\n",
+                           conn_info.listen_addr().to_string(),
+                           conn_info.listen_port());
   if (params.get("user") != "ramirisu" || secret.password != "123456") {
     co_return http_response(http::status::unauthorized)
         .set_body("user name or password is incorrect");

@@ -5,7 +5,9 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria/web.hpp>
+#include <fitoria/fitoria.hpp>
+
+#include <iostream>
 
 using namespace fitoria;
 using namespace fitoria::web;
@@ -35,9 +37,13 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
   return make_error_code(boost::json::error::incomplete);
 }
 
-auto api(const route_params& params, json<secret_t> secret)
-    -> lazy<http_response>
+auto api(const connection_info& conn_info,
+         const route_params& params,
+         json<secret_t> secret) -> lazy<http_response>
 {
+  std::cout << fmt::format("listen addr {}:{}\n",
+                           conn_info.listen_addr().to_string(),
+                           conn_info.listen_port());
   if (params.get("user") != "ramirisu" || secret.password != "123456") {
     co_return http_response(http::status::unauthorized)
         .set_body("user name or password is incorrect");

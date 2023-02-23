@@ -43,6 +43,13 @@ struct from_http_request_t {
 
   friend auto tag_invoke(from_http_request_t<R>, http_request& req)
       -> lazy<expected<R, error_code>>
+    requires(uncvref_same_as<R, connection_info>)
+  {
+    co_return req.conn_info();
+  }
+
+  friend auto tag_invoke(from_http_request_t<R>, http_request& req)
+      -> lazy<expected<R, error_code>>
     requires(uncvref_same_as<R, route_params>)
   {
     co_return req.params();
