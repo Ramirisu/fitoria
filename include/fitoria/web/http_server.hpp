@@ -207,7 +207,7 @@ public:
                                      net::ip::make_address("127.0.0.1"), 0 },
                    req.method(), std::string(url.encoded_target()),
                    req.fields(),
-                   http_request_body::new_vector_body(
+                   async_readable_vector_stream(
                        std::span(req.body().begin(), req.body().end()))),
         net::use_future);
     ioc.run();
@@ -409,10 +409,11 @@ private:
               listen_ep.address(), listen_ep.port() },
           req.method(), req.target(), to_http_fields(req),
           req.chunked()
-              ? http_request_body::new_chunk_body(
-                  stream, req_parser, buffer, chunk,
-                  builder_.client_request_timeout_)
-              : http_request_body::new_vector_body(std::move(req.body()))));
+              ? any_async_readable_stream(
+                  async_readable_chunk_stream(stream, req_parser, buffer, chunk,
+                                              builder_.client_request_timeout_))
+              : any_async_readable_stream(
+                  async_readable_vector_stream(std::move(req.body())))));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 
@@ -437,7 +438,7 @@ private:
                                  http::verb method,
                                  std::string target,
                                  http_fields fields,
-                                 http_request_body body) const
+                                 any_async_readable_stream body) const
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {

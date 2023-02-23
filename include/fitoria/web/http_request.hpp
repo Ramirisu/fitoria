@@ -13,9 +13,9 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
+#include <fitoria/web/async_stream.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/http.hpp>
-#include <fitoria/web/http_body.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route_params.hpp>
@@ -29,7 +29,7 @@ class http_request {
 public:
   http_request(http::verb method)
       : method_(method)
-      , body_(http_request_body::new_vector_body({}))
+      , body_(async_readable_vector_stream())
   {
   }
 
@@ -39,7 +39,7 @@ public:
                http::verb method,
                query_map query,
                http_fields fields,
-               http_request_body body,
+               any_async_readable_stream body,
                const std::vector<state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , params_(std::move(params))
@@ -121,17 +121,17 @@ public:
     return *this;
   }
 
-  http_request_body& body() noexcept
+  any_async_readable_stream& body() noexcept
   {
     return body_;
   }
 
-  const http_request_body& body() const noexcept
+  const any_async_readable_stream& body() const noexcept
   {
     return body_;
   }
 
-  http_request& set_body(http_request_body body)
+  http_request& set_body(any_async_readable_stream body)
   {
     body_ = std::move(body);
     return *this;
@@ -162,7 +162,7 @@ private:
   http::verb method_;
   query_map query_;
   http_fields fields_;
-  http_request_body body_;
+  any_async_readable_stream body_;
   optional<const std::vector<state_map>&> state_maps_;
 };
 

@@ -40,8 +40,7 @@ public:
         c.request().fields().erase(http::field::content_encoding);
         c.request().fields().set(http::field::content_length,
                                  std::to_string(plain->size()));
-        c.request().set_body(
-            http_request_body::new_vector_body(std::move(*plain)));
+        c.request().set_body(async_readable_vector_stream(std::move(*plain)));
       } else {
         co_return http_response(http::status::bad_request)
             .set_field(http::field::content_type,
