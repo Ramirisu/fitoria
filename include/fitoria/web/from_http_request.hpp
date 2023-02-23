@@ -73,29 +73,15 @@ struct from_http_request_t {
       -> lazy<expected<R, error_code>>
     requires(std::same_as<R, std::vector<std::byte>>)
   {
-    co_return co_await req.body().read_all();
+    co_return (co_await async_read_all<std::vector<std::byte>>(req.body()))
+        .value_or(R());
   }
 
   friend auto tag_invoke(from_http_request_t<R>, http_request& req)
       -> lazy<expected<R, error_code>>
     requires(std::same_as<R, std::string>)
   {
-    auto chunk = co_await req.body().read_next();
-    if (!chunk) {
-      co_return unexpected { chunk.error() };
-    }
-
-    std::string data;
-    while (chunk) {
-      data.append(reinterpret_cast<const char*>(chunk->data()), chunk->size());
-      chunk = co_await req.body().read_next();
-    }
-
-    if (!chunk && chunk.error() != http::error::end_of_stream) {
-      co_return unexpected { chunk.error() };
-    }
-
-    co_return data;
+    co_return (co_await async_read_all<std::string>(req.body())).value_or(R());
   }
 };
 

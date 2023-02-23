@@ -17,6 +17,7 @@
 
 #include <fitoria/web/http/http.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <span>
 #include <vector>
@@ -28,8 +29,8 @@ namespace web {
 // clang-format off
 template <typename T>
 concept async_readable_stream = requires(T t) {
-  { t.read_next() } -> std::same_as<lazy<expected<std::vector<std::byte>, net::error_code>>>;
-  { t.read_all() } -> std::same_as<lazy<expected<std::vector<std::byte>, net::error_code>>>;
+  { t.async_read_next() } 
+    -> std::same_as<lazy<optional<expected<std::vector<std::byte>, net::error_code>>>>;
 };
 // clang-format on
 
@@ -49,20 +50,16 @@ public:
   {
   }
 
-  auto read_next() -> lazy<expected<std::vector<std::byte>, net::error_code>>
+  auto async_read_next()
+      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {
-    if (data_) {
-      auto data = std::move(*data_);
-      data_.reset();
-      co_return data;
-    }
-
-    co_return unexpected { net::error_code(http::error::end_of_stream) };
-  }
-
-  auto read_all() -> lazy<expected<std::vector<std::byte>, net::error_code>>
-  {
-    return read_next();
+    co_return data_.and_then(
+        [this](auto& data)
+            -> optional<expected<std::vector<std::byte>, net::error_code>> {
+          auto moved = std::move(data);
+          data_.reset();
+          return moved;
+        });
   }
 
 private:
@@ -88,13 +85,14 @@ public:
   {
   }
 
-  auto read_next() -> lazy<expected<std::vector<std::byte>, net::error_code>>
+  auto async_read_next()
+      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {
     using std::tie;
     auto _ = std::ignore;
 
     if (req_parser_.is_done()) {
-      co_return unexpected { make_error_code(http::error::end_of_stream) };
+      co_return nullopt;
     }
 
     net::error_code ec;
@@ -112,26 +110,6 @@ public:
     co_return std::move(chunk_);
   }
 
-  auto read_all() -> lazy<expected<std::vector<std::byte>, net::error_code>>
-  {
-    auto chunk = co_await read_next();
-    if (!chunk) {
-      co_return chunk;
-    }
-
-    std::vector<std::byte> data;
-    while (chunk) {
-      data.insert(data.end(), chunk->begin(), chunk->end());
-      chunk = co_await read_next();
-    }
-
-    if (!chunk && chunk.error() != http::error::end_of_stream) {
-      co_return chunk;
-    }
-
-    co_return data;
-  }
-
 private:
   Stream& stream_;
   request_parser_type& req_parser_;
@@ -144,43 +122,35 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
-    virtual auto read_next()
-        -> lazy<expected<std::vector<std::byte>, net::error_code>>
-        = 0;
-    virtual auto read_all()
-        -> lazy<expected<std::vector<std::byte>, net::error_code>>
+    virtual auto async_read_next()
+        -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
         = 0;
   };
 
-  template <typename StreamBody>
+  template <typename AsyncReadableStream>
   class derived : public base {
   public:
-    derived(StreamBody body)
-        : stream_(std::move(body))
+    derived(AsyncReadableStream stream)
+        : stream_(std::move(stream))
     {
     }
 
-    auto read_next()
-        -> lazy<expected<std::vector<std::byte>, net::error_code>> override
+    auto async_read_next() -> lazy<
+        optional<expected<std::vector<std::byte>, net::error_code>>> override
     {
-      return stream_.read_next();
-    }
-
-    auto read_all()
-        -> lazy<expected<std::vector<std::byte>, net::error_code>> override
-    {
-      return stream_.read_all();
+      return stream_.async_read_next();
     }
 
   private:
-    StreamBody stream_;
+    AsyncReadableStream stream_;
   };
 
 public:
   template <async_readable_stream AsyncReadableStream>
-  any_async_readable_stream(AsyncReadableStream body)
+  any_async_readable_stream(AsyncReadableStream stream)
     requires(!uncvref_same_as<AsyncReadableStream, any_async_readable_stream>)
-      : stream_(std::make_shared<derived<AsyncReadableStream>>(std::move(body)))
+      : stream_(
+          std::make_shared<derived<AsyncReadableStream>>(std::move(stream)))
   {
   }
 
@@ -190,14 +160,10 @@ public:
   any_async_readable_stream(any_async_readable_stream&&) = default;
   any_async_readable_stream& operator=(any_async_readable_stream&&) = default;
 
-  auto read_next() -> lazy<expected<std::vector<std::byte>, net::error_code>>
+  auto async_read_next()
+      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {
-    return stream_->read_next();
-  }
-
-  auto read_all() -> lazy<expected<std::vector<std::byte>, net::error_code>>
-  {
-    return stream_->read_all();
+    return stream_->async_read_next();
   }
 
 private:
@@ -206,6 +172,31 @@ private:
   // using unique_ptr causes segmentation fault during destruction
   std::shared_ptr<base> stream_;
 };
+
+template <typename Container, async_readable_stream AsyncReadableStream>
+auto async_read_all(AsyncReadableStream& stream)
+    -> lazy<optional<expected<Container, net::error_code>>>
+{
+  Container container;
+
+  auto next_chunk = co_await stream.async_read_next();
+  if (!next_chunk) {
+    co_return nullopt;
+  }
+
+  do {
+    if (!next_chunk.value()) {
+      co_return unexpected { next_chunk.value().error() };
+    }
+    const auto offset = container.size();
+    container.resize(offset + next_chunk.value()->size());
+    std::copy(next_chunk.value()->begin(), next_chunk.value()->end(),
+              std::as_writable_bytes(std::span(container)).begin() + offset);
+    next_chunk = co_await stream.async_read_next();
+  } while (next_chunk);
+
+  co_return container;
+}
 }
 
 FITORIA_NAMESPACE_END

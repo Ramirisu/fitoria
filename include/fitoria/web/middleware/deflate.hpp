@@ -31,20 +31,27 @@ public:
   auto operator()(http_context& c) const -> lazy<http_response>
   {
     if (c.request().fields().get(http::field::content_encoding) == "deflate") {
-      auto compressed = co_await c.request().body().read_all();
-      if (auto plain = detail::deflate_decompress<std::vector<std::byte>>(
-              net::const_buffer(compressed->data(), compressed->size()));
-          plain) {
-        c.request().fields().erase(http::field::content_encoding);
-        c.request().fields().set(http::field::content_length,
-                                 std::to_string(plain->size()));
-        c.request().set_body(async_readable_vector_stream(std::move(*plain)));
-      } else {
+      auto compressed
+          = co_await async_read_all<std::vector<std::byte>>(c.request().body());
+      if (!compressed) {
         co_return http_response(http::status::bad_request)
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body("request body is not a valid deflate stream");
       }
+      auto plain = detail::deflate_decompress<std::vector<std::byte>>(
+          net::const_buffer((*compressed)->data(), (*compressed)->size()));
+      if (!plain) {
+        co_return http_response(http::status::bad_request)
+            .set_field(http::field::content_type,
+                       http::fields::content_type::plaintext())
+            .set_body("request body is not a valid deflate stream");
+      }
+
+      c.request().fields().erase(http::field::content_encoding);
+      c.request().fields().set(http::field::content_length,
+                               std::to_string(plain->size()));
+      c.request().set_body(async_readable_vector_stream(std::move(*plain)));
     }
 
     auto res = co_await next_(c);

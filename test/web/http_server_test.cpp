@@ -247,6 +247,8 @@ TEST_CASE("generic request")
                                                    "fitoria" }));
 
                   CHECK_EQ(body, "happy birthday");
+                  CHECK(!(co_await req.body().async_read_next()));
+                  CHECK(!(co_await async_read_all<std::string>(req.body())));
 
                   co_return http_response(http::status::ok)
                       .insert_field(http::field::user_agent,
