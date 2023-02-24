@@ -186,7 +186,7 @@ public:
   }
 
   template <async_readable_stream AsyncReadableStream>
-  http_client& set_readable_stream(AsyncReadableStream&& stream)
+  http_client& set_stream(AsyncReadableStream&& stream)
   {
     body_.emplace(std::forward<AsyncReadableStream>(stream));
     return *this;

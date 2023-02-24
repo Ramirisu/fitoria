@@ -338,13 +338,12 @@ TEST_CASE("request with chunked transfer-encoding")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::POST(
-            to_local_url(boost::urls::scheme::http, port, "/post"))
-            .set_field(http::field::connection, "close")
-            .set_readable_stream(test_async_readable_chunk_stream<5>(input))
-            .send()
-            .value();
+  auto res = http_client::POST(
+                 to_local_url(boost::urls::scheme::http, port, "/post"))
+                 .set_field(http::field::connection, "close")
+                 .set_stream(test_async_readable_chunk_stream<5>(input))
+                 .send()
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
