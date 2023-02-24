@@ -159,10 +159,9 @@ public:
   }
 
   template <std::size_t N>
-  http_client& set_body(std::span<const std::byte, N> bytes)
+  http_client& set_raw(std::span<const std::byte, N> bytes)
   {
-    body_.emplace(
-        any_async_readable_stream(async_readable_vector_stream(bytes)));
+    body_.emplace(async_readable_vector_stream(bytes));
     return *this;
   }
 
@@ -170,7 +169,7 @@ public:
   {
     set_field(http::field::content_type,
               http::fields::content_type::plaintext());
-    return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
+    return set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
   template <typename T = boost::json::value>
@@ -179,7 +178,7 @@ public:
     if constexpr (std::is_same_v<T, boost::json::value>) {
       set_field(http::field::content_type, http::fields::content_type::json());
       auto s = boost::json::serialize(obj);
-      set_body(std::as_bytes(std::span(s.begin(), s.end())));
+      set_raw(std::as_bytes(std::span(s.begin(), s.end())));
     } else {
       set_json(boost::json::value_from(obj));
     }
