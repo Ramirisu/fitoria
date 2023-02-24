@@ -109,8 +109,12 @@ expected<R, error_code> gzip_compress(net::const_buffer in)
   stream.opaque = Z_NULL;
   stream.next_in = static_cast<unsigned char*>(const_cast<void*>(in.data()));
   stream.avail_in = static_cast<unsigned int>(in.size());
-  if (auto err = ::deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED,
-                                15 + gzip_flag, 9, Z_DEFAULT_STRATEGY);
+  if (auto err = ::deflateInit2(&stream,
+                                Z_BEST_COMPRESSION,
+                                Z_DEFLATED,
+                                15 + gzip_flag,
+                                9,
+                                Z_DEFAULT_STRATEGY);
       err < 0) {
     ::deflateEnd(&stream);
     return unexpected { make_error_code(to_net_zlib_error(err)) };

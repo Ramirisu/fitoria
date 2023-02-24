@@ -202,10 +202,14 @@ public:
     net::io_context ioc;
     auto response = net::co_spawn(
         ioc,
-        do_handler(connection_info { net::ip::make_address("127.0.0.1"), 0,
-                                     net::ip::make_address("127.0.0.1"), 0,
-                                     net::ip::make_address("127.0.0.1"), 0 },
-                   req.method(), std::string(url.encoded_target()),
+        do_handler(connection_info { net::ip::make_address("127.0.0.1"),
+                                     0,
+                                     net::ip::make_address("127.0.0.1"),
+                                     0,
+                                     net::ip::make_address("127.0.0.1"),
+                                     0 },
+                   req.method(),
+                   std::string(url.encoded_target()),
                    req.fields(),
                    async_readable_vector_stream(
                        std::span(req.body().begin(), req.body().end()))),
@@ -359,8 +363,8 @@ private:
                                    static_cast<response<empty_body>>(
                                        http_response(http::status::continue_)));
         if (ec) {
-          log::debug("[{}] async_write 100-continue failed: {}", name(),
-                     ec.message());
+          log::debug(
+              "[{}] async_write 100-continue failed: {}", name(), ec.message());
           co_return ec;
         }
       }
@@ -388,8 +392,8 @@ private:
       } else {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await boost::beast::http::async_read(stream, buffer,
-                                                             req_parser);
+        tie(ec, _) = co_await boost::beast::http::async_read(
+            stream, buffer, req_parser);
         if (ec) {
           log::debug("[{}] async_read failed: {}", name(), ec.message());
           co_return ec;
@@ -405,11 +409,17 @@ private:
                   .remote_endpoint()
                   .address(),
               net::get_lowest_layer(stream).socket().remote_endpoint().port(),
-              listen_ep.address(), listen_ep.port() },
-          req.method(), req.target(), to_http_fields(req),
+              listen_ep.address(),
+              listen_ep.port() },
+          req.method(),
+          req.target(),
+          to_http_fields(req),
           req.chunked()
               ? any_async_readable_stream(
-                  async_readable_chunk_stream(stream, req_parser, buffer, chunk,
+                  async_readable_chunk_stream(stream,
+                                              req_parser,
+                                              buffer,
+                                              chunk,
                                               builder_.client_request_timeout_))
               : any_async_readable_stream(
                   async_readable_vector_stream(std::move(req.body())))));
@@ -458,8 +468,12 @@ private:
         = http_request(std::move(connection_info),
                        route_params(route->match(req_url->path()).value(),
                                     std::string(route->pattern())),
-                       req_url->path(), method, to_query_map(req_url->params()),
-                       std::move(fields), std::move(body), route->state_maps());
+                       req_url->path(),
+                       method,
+                       to_query_map(req_url->params()),
+                       std::move(fields),
+                       std::move(body),
+                       route->state_maps());
     auto context = http_context(request);
     co_return co_await route->operator()(context);
   }

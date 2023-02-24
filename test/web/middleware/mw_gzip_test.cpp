@@ -104,24 +104,25 @@ TEST_CASE("gzip middleware")
 
   auto server
       = http_server::builder()
-            .route(
-                route::GET<"/get/{no_compression}">(
-                    [&](const route_params& params, const http_fields& fields,
-                        std::string body) -> lazy<http_response> {
-                      CHECK(!fields.get(http::field::content_encoding));
-                      CHECK_EQ(*fields.get(http::field::content_length),
-                               std::to_string(in.size()));
-                      CHECK_EQ(body, in);
+            .route(route::GET<"/get/{no_compression}">(
+                       [&](const route_params& params,
+                           const http_fields& fields,
+                           std::string body) -> lazy<http_response> {
+                         CHECK(!fields.get(http::field::content_encoding));
+                         CHECK_EQ(*fields.get(http::field::content_length),
+                                  std::to_string(in.size()));
+                         CHECK_EQ(body, in);
 
-                      auto res = http_response(http::status::ok).set_body(body);
-                      if (params.get("no_compression") == "yes") {
-                        res.set_field(
-                            http::field::content_encoding,
-                            http::fields::content_encoding::identity());
-                      }
-                      co_return res;
-                    })
-                    .use(middleware::gzip()))
+                         auto res
+                             = http_response(http::status::ok).set_body(body);
+                         if (params.get("no_compression") == "yes") {
+                           res.set_field(
+                               http::field::content_encoding,
+                               http::fields::content_encoding::identity());
+                         }
+                         co_return res;
+                       })
+                       .use(middleware::gzip()))
             .build();
   {
     auto res = server.serve_http_request(

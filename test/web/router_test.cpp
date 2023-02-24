@@ -22,8 +22,8 @@ using router_type = router<int, int>;
 template <basic_fixed_string Path>
 auto r(http::verb method, int value = 0)
 {
-  return router_type::route_type(routable(method, pattern_matcher<Path>(), {},
-                                          [=](int) { return value; }));
+  return router_type::route_type(routable(
+      method, pattern_matcher<Path>(), {}, [=](int) { return value; }));
 }
 }
 

@@ -48,7 +48,8 @@ public:
   template <typename Service>
   auto use(Service&& service) const
   {
-    return scope_impl<Path, std::tuple<Services..., std::decay_t<Service>>,
+    return scope_impl<Path,
+                      std::tuple<Services..., std::decay_t<Service>>,
                       std::tuple<Routes...>>(
         state_map_,
         std::tuple_cat(services_,
@@ -64,7 +65,8 @@ public:
   {
     auto r2 = r.template rebind_parent<Path>(state_map_, services_);
 
-    return scope_impl<Path, std::tuple<Services...>,
+    return scope_impl<Path,
+                      std::tuple<Services...>,
                       std::tuple<Routes..., decltype(r2)>> {
       state_map_,
       services_,
@@ -137,7 +139,8 @@ public:
         },
         child.routes());
 
-    return scope_impl<Path, std::tuple<Services...>,
+    return scope_impl<Path,
+                      std::tuple<Services...>,
                       decltype(std::tuple_cat(routes_, std::move(routes)))> {
       state_map_,
       services_,

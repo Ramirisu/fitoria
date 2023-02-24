@@ -40,7 +40,8 @@ int main()
             .route(route::GET<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
-                  log::debug("owner: {}, repo: {}", req.params().get("owner"),
+                  log::debug("owner: {}, repo: {}",
+                             req.params().get("owner"),
                              req.params().get("repo"));
 
                   co_return http_response(http::status::ok)
@@ -54,7 +55,8 @@ int main()
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
       // Start to listen to port 8443 with SSL enabled
-      .bind_ssl("127.0.0.1", 8443,
+      .bind_ssl("127.0.0.1",
+                8443,
                 cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
 #endif
       // Start the server, `run()` will block current thread.

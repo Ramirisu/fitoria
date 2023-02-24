@@ -110,8 +110,8 @@ public:
 
     while (!req_parser_.is_done() && !ec) {
       net::get_lowest_layer(stream_).expires_after(timeout_);
-      tie(ec, _) = co_await boost::beast::http::async_read(stream_, buffer_,
-                                                           req_parser_);
+      tie(ec, _) = co_await boost::beast::http::async_read(
+          stream_, buffer_, req_parser_);
     }
 
     if (ec && ec != http::error::end_of_chunk) {
@@ -230,7 +230,8 @@ auto async_read_all(AsyncReadableStream&& stream)
     }
     const auto offset = container.size();
     container.resize(offset + next_chunk.value()->size());
-    std::copy(next_chunk.value()->begin(), next_chunk.value()->end(),
+    std::copy(next_chunk.value()->begin(),
+              next_chunk.value()->end(),
               std::as_writable_bytes(std::span(container)).begin() + offset);
     next_chunk = co_await stream.async_read_next();
   } while (next_chunk);

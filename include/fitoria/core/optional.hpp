@@ -151,8 +151,8 @@ public:
                               Args&&... args)
     requires(std::is_constructible_v<T, std::initializer_list<U>&, Args && ...>)
   {
-    std::construct_at(std::addressof(this->val_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
     this->has_ = true;
   }
 
@@ -594,8 +594,8 @@ public:
       this->has_ = false;
     }
 
-    std::construct_at(std::addressof(this->val_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
     this->has_ = true;
     return this->val_;
   }
@@ -1222,8 +1222,8 @@ template <typename T, typename U, typename... Args>
 constexpr optional<T> make_optional(std::initializer_list<U> ilist,
                                     Args&&... args)
 {
-  return optional<T>(std::in_place, std::move(ilist),
-                     std::forward<Args>(args)...);
+  return optional<T>(
+      std::in_place, std::move(ilist), std::forward<Args>(args)...);
 }
 
 template <typename T>

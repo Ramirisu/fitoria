@@ -51,8 +51,10 @@ public:
                         fmt::make_format_args(std::forward<Args>(args)...));
 
 #if defined(__cpp_lib_source_location)
-    msg += fmt::format(" [{}:{}:{}]\n", get_file_name(loc.file_name()),
-                       loc.line(), loc.column());
+    msg += fmt::format(" [{}:{}:{}]\n",
+                       get_file_name(loc.file_name()),
+                       loc.line(),
+                       loc.column());
 #endif
 
     writer_->write(std::move(msg));

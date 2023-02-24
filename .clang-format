@@ -6,5 +6,6 @@ ColumnLimit: 80
 AlignAfterOpenBracket: Align
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
 BinPackParameters: false
 IndentRequires: true

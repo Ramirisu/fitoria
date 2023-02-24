@@ -100,7 +100,9 @@ struct FITORIA_NAMESPACE::fmt::
               FormatContext& ctx) const
   {
     FITORIA_NAMESPACE::fmt::format_to(
-        ctx.out(), "HTTP/{} {}\n", to_string(res.version()),
+        ctx.out(),
+        "HTTP/{} {}\n",
+        to_string(res.version()),
         std::string_view(obsolete_reason(res.status_code().value())));
     for (auto& [name, value] : res.fields()) {
       FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{}: {}\n", name, value);

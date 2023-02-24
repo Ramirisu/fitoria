@@ -293,7 +293,8 @@ private:
       }
     }
 
-    return resource { std::string(res->host()), port_number,
+    return resource { std::string(res->host()),
+                      port_number,
                       std::string(res->path()) };
   }
 
@@ -579,7 +580,8 @@ private:
     auto data = co_await body.async_read_next();
     while (data) {
       if (!*data) {
-        log::debug("[{}] async_read_next failed: {}", name(),
+        log::debug("[{}] async_read_next failed: {}",
+                   name(),
                    (*data).error().message());
         co_return unexpected { (*data).error() };
       }

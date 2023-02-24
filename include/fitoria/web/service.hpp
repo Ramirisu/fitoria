@@ -22,7 +22,8 @@ struct make_service_t {
   constexpr auto operator()(Factory&& factory, Next&& next) const
       noexcept(is_nothrow_tag_invocable_v<make_service_t, Factory, Next>)
   {
-    return tag_invoke(make_service_t {}, std::forward<Factory>(factory),
+    return tag_invoke(make_service_t {},
+                      std::forward<Factory>(factory),
                       std::forward<Next>(next));
   }
 };

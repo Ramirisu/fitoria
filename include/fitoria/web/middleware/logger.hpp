@@ -38,8 +38,10 @@ public:
 
     log::info("[fitoria.middleware.logger] {} {} {} {} {}B {} {:%T}s",
               c.request().conn_info().remote_addr().to_string(),
-              std::string(to_string(c.request().method())), c.request().path(),
-              res.status_code(), res.body().size(),
+              std::string(to_string(c.request().method())),
+              c.request().path(),
+              res.status_code(),
+              res.body().size(),
               c.request().fields().get(http::field::user_agent).value_or(""),
               std::chrono::floor<std::chrono::microseconds>(clock_t::now()
                                                             - start_time));

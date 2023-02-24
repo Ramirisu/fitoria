@@ -51,8 +51,9 @@ inline std::string_view to_string(level lv)
 inline level to_level(std::string_view sv)
 {
   std::string lower(sv.size(), '\0');
-  std::transform(sv.begin(), sv.end(), lower.begin(),
-                 [](char c) { return static_cast<char>(std::tolower(c)); });
+  std::transform(sv.begin(), sv.end(), lower.begin(), [](char c) {
+    return static_cast<char>(std::tolower(c));
+  });
   if (lower == "debug") {
     return level::debug;
   }

@@ -193,8 +193,11 @@ TEST_CASE("generic request")
   auto server
       = http_server::builder()
             .route(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
-                [=](http_request& req, const connection_info& conn_info,
-                    route_params& params, query_map& query, http_fields& fields,
+                [=](http_request& req,
+                    const connection_info& conn_info,
+                    route_params& params,
+                    query_map& query,
+                    http_fields& fields,
                     std::string body) -> lazy<http_response> {
                   auto test_conn_info = [=](auto& conn_info) {
                     CHECK_EQ(conn_info.local_addr(),
@@ -267,7 +270,8 @@ TEST_CASE("generic request")
 
   auto res
       = http_client::GET(
-            to_local_url(boost::urls::scheme::http, port,
+            to_local_url(boost::urls::scheme::http,
+                         port,
                          "/api/v1/users/Rina Hidaka/filmography/years/2022"))
             .set_query("name", "Rina Hidaka")
             .set_query("birth", "1994/06/15")

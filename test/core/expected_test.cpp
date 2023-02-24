@@ -1343,13 +1343,17 @@ TEST_CASE("and_then")
       return expected<void, int>();
     };
     using ft = decltype(f);
-    assert_is_same<fn_and_then<ft>::fn, expected<void, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<void, int>&,
                    expected<void, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<void, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<void, int>&,
                    expected<void, int>>();
-    assert_is_same<fn_and_then<ft>::fn, expected<void, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<void, int>,
                    expected<void, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<void, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<void, int>,
                    expected<void, int>>();
     SUBCASE("")
     {
@@ -1404,13 +1408,17 @@ TEST_CASE("and_then")
     auto f
         = [](int i) -> expected<std::string, int> { return std::to_string(i); };
     using ft = decltype(f);
-    assert_is_same<fn_and_then<ft>::fn, expected<int, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<int, int>&,
                    expected<std::string, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<int, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<int, int>&,
                    expected<std::string, int>>();
-    assert_is_same<fn_and_then<ft>::fn, expected<int, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<int, int>,
                    expected<std::string, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<int, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<int, int>,
                    expected<std::string, int>>();
     {
       auto e = expected<int, int>(unexpect, 1);
@@ -1450,13 +1458,17 @@ TEST_CASE("and_then")
     auto f
         = [](int& i) -> expected<int&, int> { return expected<int&, int>(i); };
     using ft = decltype(f);
-    assert_is_same<fn_and_then<ft>::fn, expected<int&, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<int&, int>&,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_and_then<ft>::fn, expected<int&, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   expected<int&, int>,
                    expected<int&, int>>();
-    assert_is_same<fn_and_then<ft>::fn, const expected<int&, int>,
+    assert_is_same<fn_and_then<ft>::fn,
+                   const expected<int&, int>,
                    expected<int&, int>>();
     SUBCASE("")
     {
@@ -1516,13 +1528,17 @@ TEST_CASE("or_else")
       return expected<void, int>(unexpect, i + 1);
     };
     using ft = decltype(f);
-    assert_is_same<fn_or_else<ft>::fn, expected<void, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<void, int>&,
                    expected<void, int>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<void, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<void, int>&,
                    expected<void, int>>();
-    assert_is_same<fn_or_else<ft>::fn, expected<void, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<void, int>,
                    expected<void, int>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<void, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<void, int>,
                    expected<void, int>>();
     {
       auto e = expected<void, int>(unexpect, 1);
@@ -1562,13 +1578,17 @@ TEST_CASE("or_else")
       return expected<int, std::string>(unexpect, std::to_string(i));
     };
     using ft = decltype(f);
-    assert_is_same<fn_or_else<ft>::fn, expected<int, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<int, int>&,
                    expected<int, std::string>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<int, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<int, int>&,
                    expected<int, std::string>>();
-    assert_is_same<fn_or_else<ft>::fn, expected<int, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<int, int>,
                    expected<int, std::string>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<int, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<int, int>,
                    expected<int, std::string>>();
     {
       auto e = expected<int, int>(unexpect, 1);
@@ -1609,13 +1629,17 @@ TEST_CASE("or_else")
     auto f
         = [&](int) -> expected<int&, int> { return expected<int&, int>(val2); };
     using ft = decltype(f);
-    assert_is_same<fn_or_else<ft>::fn, expected<int&, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<int&, int>&,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_or_else<ft>::fn, expected<int&, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   expected<int&, int>,
                    expected<int&, int>>();
-    assert_is_same<fn_or_else<ft>::fn, const expected<int&, int>,
+    assert_is_same<fn_or_else<ft>::fn,
+                   const expected<int&, int>,
                    expected<int&, int>>();
     SUBCASE("")
     {
@@ -1682,13 +1706,17 @@ TEST_CASE("transform")
     int val = 0;
     auto f = [&]() -> int { return ++val; };
     using ft = decltype(f);
-    assert_is_same<fn_transform<ft>::fn, expected<void, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<void, int>&,
                    expected<int, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<void, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<void, int>&,
                    expected<int, int>>();
-    assert_is_same<fn_transform<ft>::fn, expected<void, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<void, int>,
                    expected<int, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<void, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<void, int>,
                    expected<int, int>>();
     SUBCASE("")
     {
@@ -1742,13 +1770,17 @@ TEST_CASE("transform")
   {
     auto f = [](int i) -> std::string { return std::to_string(i); };
     using ft = decltype(f);
-    assert_is_same<fn_transform<ft>::fn, expected<int, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<int, int>&,
                    expected<std::string, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<int, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<int, int>&,
                    expected<std::string, int>>();
-    assert_is_same<fn_transform<ft>::fn, expected<int, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<int, int>,
                    expected<std::string, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<int, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<int, int>,
                    expected<std::string, int>>();
     {
       auto e = expected<int, int>(unexpect, 1);
@@ -1787,13 +1819,17 @@ TEST_CASE("transform")
     int val = 0;
     auto f = [](int& i) -> int& { return i; };
     using ft = decltype(f);
-    assert_is_same<fn_transform<ft>::fn, expected<int&, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<int&, int>&,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<int&, int>&,
                    expected<int&, int>>();
-    assert_is_same<fn_transform<ft>::fn, expected<int&, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   expected<int&, int>,
                    expected<int&, int>>();
-    assert_is_same<fn_transform<ft>::fn, const expected<int&, int>,
+    assert_is_same<fn_transform<ft>::fn,
+                   const expected<int&, int>,
                    expected<int&, int>>();
     SUBCASE("")
     {
@@ -1851,13 +1887,17 @@ TEST_CASE("transform_error")
   {
     auto f = [](int i) -> std::string { return std::to_string(i); };
     using ft = decltype(f);
-    assert_is_same<fn_transform_error<ft>::fn, expected<void, int>&,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   expected<void, int>&,
                    expected<void, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, const expected<void, int>&,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   const expected<void, int>&,
                    expected<void, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, expected<void, int>,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   expected<void, int>,
                    expected<void, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, const expected<void, int>,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   const expected<void, int>,
                    expected<void, std::string>>();
     {
       auto e = expected<void, int>(unexpect, 1);
@@ -1896,13 +1936,17 @@ TEST_CASE("transform_error")
     int val = 0;
     auto f = [&](int i) -> std::string { return std::to_string(i); };
     using ft = decltype(f);
-    assert_is_same<fn_transform_error<ft>::fn, expected<int&, int>&,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   expected<int&, int>&,
                    expected<int&, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, const expected<int&, int>&,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   const expected<int&, int>&,
                    expected<int&, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, expected<int&, int>,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   expected<int&, int>,
                    expected<int&, std::string>>();
-    assert_is_same<fn_transform_error<ft>::fn, const expected<int&, int>,
+    assert_is_same<fn_transform_error<ft>::fn,
+                   const expected<int&, int>,
                    expected<int&, std::string>>();
     SUBCASE("")
     {

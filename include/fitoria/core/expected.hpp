@@ -372,8 +372,8 @@ public:
                               Args&&... args)
     requires(std::is_constructible_v<T, std::initializer_list<U>&, Args...>)
   {
-    std::construct_at(std::addressof(this->val_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
     this->has_ = true;
   }
 
@@ -391,8 +391,8 @@ public:
                               Args&&... args)
     requires(std::is_constructible_v<E, std::initializer_list<U>&, Args...>)
   {
-    std::construct_at(std::addressof(this->err_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->err_), ilist, std::forward<Args>(args)...);
     this->has_ = false;
   }
 
@@ -957,8 +957,8 @@ public:
       std::destroy_at(std::addressof(this->err_));
     }
 
-    std::construct_at(std::addressof(this->val_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
     this->has_ = true;
     return this->val_;
   }
@@ -1190,8 +1190,8 @@ public:
                               Args&&... args)
     requires(std::is_constructible_v<E, std::initializer_list<U>&, Args...>)
   {
-    std::construct_at(std::addressof(this->err_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->err_), ilist, std::forward<Args>(args)...);
     this->has_ = false;
   }
 
@@ -1798,8 +1798,8 @@ public:
                               Args&&... args)
     requires(std::is_constructible_v<E, std::initializer_list<U>&, Args...>)
   {
-    std::construct_at(std::addressof(this->err_), ilist,
-                      std::forward<Args>(args)...);
+    std::construct_at(
+        std::addressof(this->err_), ilist, std::forward<Args>(args)...);
     this->has_ = false;
   }
 

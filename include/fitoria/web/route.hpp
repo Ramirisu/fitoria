@@ -67,9 +67,11 @@ public:
   template <typename Service>
   auto use(Service&& service) const
   {
-    return route_builder<Path, std::tuple<Services..., std::decay_t<Service>>,
+    return route_builder<Path,
+                         std::tuple<Services..., std::decay_t<Service>>,
                          Handler>(
-        method_, state_maps_,
+        method_,
+        state_maps_,
         std::tuple_cat(services_,
                        std::tuple { std::forward<Service>(service) }),
         handler_);
@@ -84,16 +86,21 @@ public:
       state_maps.push_back(std::move(parent_state_map));
     }
     return route_builder<ParentPath + Path,
-                         std::tuple<ParentServices..., Services...>, Handler>(
-        method_, std::move(state_maps),
-        std::tuple_cat(std::move(parent_services), services_), handler_);
+                         std::tuple<ParentServices..., Services...>,
+                         Handler>(
+        method_,
+        std::move(state_maps),
+        std::tuple_cat(std::move(parent_services), services_),
+        handler_);
   }
 
   template <typename HandlerServiceFactory>
   auto build(HandlerServiceFactory handler_service_factory) const
   {
     return routable(
-        method_, pattern_matcher<Path>(), state_maps_,
+        method_,
+        pattern_matcher<Path>(),
+        state_maps_,
         build_service(std::tuple_cat(
             services_, std::tuple { handler_service_factory, handler_ })));
   }
@@ -101,7 +108,9 @@ public:
   auto build() const
   {
     return routable(
-        method_, pattern_matcher<Path>(), state_maps_,
+        method_,
+        pattern_matcher<Path>(),
+        state_maps_,
         build_service(std::tuple_cat(services_, std::tuple { handler_ })));
   }
 

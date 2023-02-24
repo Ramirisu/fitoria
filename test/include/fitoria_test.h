@@ -23,8 +23,8 @@ bool range_equal(const L& lhs,
                  const R& rhs,
                  Comparator comparator = Comparator())
 {
-  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
-                    std::move(comparator));
+  return std::equal(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::move(comparator));
 }
 
 template <typename Iter, typename Projection, typename T>
