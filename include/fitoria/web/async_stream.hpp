@@ -170,10 +170,10 @@ class any_async_readable_stream {
 
 public:
   template <async_readable_stream AsyncReadableStream>
-  any_async_readable_stream(AsyncReadableStream stream)
+  any_async_readable_stream(AsyncReadableStream&& stream)
     requires(!uncvref_same_as<AsyncReadableStream, any_async_readable_stream>)
-      : stream_(
-          std::make_shared<derived<AsyncReadableStream>>(std::move(stream)))
+      : stream_(std::make_shared<derived<std::decay_t<AsyncReadableStream>>>(
+          std::forward<AsyncReadableStream>(stream)))
   {
   }
 

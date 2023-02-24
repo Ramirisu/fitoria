@@ -41,7 +41,7 @@ class any_routable {
   class derived : public base {
   public:
     derived(Routable routable)
-        : routable_(routable)
+        : routable_(std::move(routable))
     {
     }
 
@@ -87,8 +87,8 @@ public:
   explicit any_routable(Routable&& routable)
     requires(
         !is_specialization_of_v<std::remove_cvref_t<Routable>, any_routable>)
-      : routable_(
-          std::make_shared<derived<Routable>>(std::forward<Routable>(routable)))
+      : routable_(std::make_shared<derived<std::decay_t<Routable>>>(
+          std::forward<Routable>(routable)))
   {
   }
 
