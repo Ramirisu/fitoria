@@ -43,8 +43,6 @@ expected<T, error_code> as_json(std::string_view text)
 template <typename T>
 class json : public T {
 public:
-  using fitoria_extractor_json_base_type = T;
-
   json(T value)
       : T(std::move(value))
   {
@@ -58,12 +56,16 @@ public:
       co_return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
-    auto str = co_await tag_invoke(from_http_request_t<std::string> {}, req);
-    if (!str) {
-      co_return unexpected { str.error() };
+    auto str = co_await async_read_all<std::string>(req.body());
+    if (str) {
+      if (*str) {
+        co_return as_json<T>(**str);
+      }
+
+      co_return unexpected { (*str).error() };
     }
 
-    co_return as_json<T>(*str);
+    co_return as_json<T>("");
   }
 };
 
