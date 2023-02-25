@@ -209,10 +209,7 @@ public:
       return unexpected { resource_.error() };
     }
 
-    net::io_context ioc;
-    auto fut = net::co_spawn(ioc, do_session(), net::use_future);
-    ioc.run();
-    return fut.get();
+    return net::sync_wait(do_session());
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
@@ -223,11 +220,7 @@ public:
       return unexpected { resource_.error() };
     }
 
-    net::io_context ioc;
-    auto fut
-        = net::co_spawn(ioc, do_session(std::move(ssl_ctx)), net::use_future);
-    ioc.run();
-    return fut.get();
+    return net::sync_wait(do_session(std::move(ssl_ctx)));
   }
 #endif
 

@@ -114,10 +114,7 @@ TEST_CASE("async_send")
   auto async_send
       = [](std::string_view url) -> expected<http_response, error_code> {
     auto c = http_client(http::verb::get, url);
-    net::io_context ioc;
-    auto res = net::co_spawn(ioc, c.async_send(), net::use_future);
-    ioc.run();
-    return res.get();
+    return net::sync_wait(c.async_send());
   };
 
   SUBCASE("ok")
@@ -135,11 +132,7 @@ TEST_CASE("async_send")
       = [](std::string_view url,
            net::ssl::context ssl_ctx) -> expected<http_response, error_code> {
     auto c = http_client(http::verb::get, url);
-    net::io_context ioc;
-    auto res
-        = net::co_spawn(ioc, c.async_send(std::move(ssl_ctx)), net::use_future);
-    ioc.run();
-    return res.get();
+    return net::sync_wait(c.async_send(std::move(ssl_ctx)));
   };
 
   auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);

@@ -199,9 +199,7 @@ public:
     url.set_path(path);
     url.set_query(req.query().to_string());
 
-    net::io_context ioc;
-    auto response = net::co_spawn(
-        ioc,
+    return net::sync_wait(
         do_handler(connection_info { net::ip::make_address("127.0.0.1"),
                                      0,
                                      net::ip::make_address("127.0.0.1"),
@@ -212,10 +210,7 @@ public:
                    std::string(url.encoded_target()),
                    req.fields(),
                    async_readable_vector_stream(
-                       std::span(req.body().begin(), req.body().end()))),
-        net::use_future);
-    ioc.run();
-    return response.get();
+                       std::span(req.body().begin(), req.body().end()))));
   }
 
 private:

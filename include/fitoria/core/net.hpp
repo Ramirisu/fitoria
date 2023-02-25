@@ -57,6 +57,15 @@ using tcp_stream
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 #endif
 
+template <typename Awaitable>
+auto sync_wait(Awaitable&& awaitable)
+{
+  io_context ioc;
+  auto fut = co_spawn(ioc, std::forward<Awaitable>(awaitable), use_future);
+  ioc.run();
+  return fut.get();
+}
+
 namespace zlib {
   using boost::beast::zlib::deflate_stream;
   using boost::beast::zlib::deflate_upper_bound;
@@ -65,7 +74,6 @@ namespace zlib {
   using boost::beast::zlib::inflate_stream;
   using boost::beast::zlib::z_params;
 }
-
 }
 
 FITORIA_NAMESPACE_END
