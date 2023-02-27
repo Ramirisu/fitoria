@@ -72,63 +72,6 @@ private:
   optional<std::vector<std::byte>> data_;
 };
 
-template <typename Stream>
-class async_readable_chunk_stream {
-  using request_parser_type = boost::beast::http::request_parser<
-      boost::beast::http::vector_body<std::byte>>;
-
-public:
-  async_readable_chunk_stream(Stream& stream,
-                              request_parser_type& req_parser,
-                              net::flat_buffer& buffer,
-                              std::vector<std::byte>& chunk,
-                              std::chrono::milliseconds timeout)
-      : stream_(stream)
-      , req_parser_(req_parser)
-      , buffer_(buffer)
-      , chunk_(chunk)
-      , timeout_(timeout)
-  {
-  }
-
-  auto is_chunked() const noexcept -> bool
-  {
-    return true;
-  }
-
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
-  {
-    using std::tie;
-    auto _ = std::ignore;
-
-    if (req_parser_.is_done()) {
-      co_return nullopt;
-    }
-
-    net::error_code ec;
-
-    while (!req_parser_.is_done() && !ec) {
-      net::get_lowest_layer(stream_).expires_after(timeout_);
-      tie(ec, _) = co_await boost::beast::http::async_read(
-          stream_, buffer_, req_parser_);
-    }
-
-    if (ec && ec != http::error::end_of_chunk) {
-      co_return unexpected { ec };
-    }
-
-    co_return std::move(chunk_);
-  }
-
-private:
-  Stream& stream_;
-  request_parser_type& req_parser_;
-  net::flat_buffer& buffer_;
-  std::vector<std::byte>& chunk_;
-  std::chrono::milliseconds timeout_;
-};
-
 class any_async_readable_stream {
   class base {
   public:

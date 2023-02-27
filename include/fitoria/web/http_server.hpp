@@ -16,6 +16,7 @@
 
 #include <fitoria/log.hpp>
 
+#include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -409,15 +410,17 @@ private:
           req.method(),
           req.target(),
           to_http_fields(req),
-          req.chunked()
-              ? any_async_readable_stream(
-                  async_readable_chunk_stream(stream,
-                                              req_parser,
-                                              buffer,
-                                              chunk,
-                                              builder_.client_request_timeout_))
-              : any_async_readable_stream(
-                  async_readable_vector_stream(std::move(req.body())))));
+          [&]() -> any_async_readable_stream {
+            if (req.chunked()) {
+              return async_message_parser_stream(
+                  stream,
+                  req_parser,
+                  buffer,
+                  chunk,
+                  builder_.client_request_timeout_);
+            }
+            return async_readable_vector_stream(std::move(req.body()));
+          }()));
       res.keep_alive(keep_alive);
       res.prepare_payload();
 

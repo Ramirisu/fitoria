@@ -33,7 +33,6 @@ namespace client {
 namespace http = web::http;
 
 using web::any_async_readable_stream;
-using web::async_readable_chunk_stream;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
 using web::http_fields;
