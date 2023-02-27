@@ -182,6 +182,38 @@ auto async_read_all(AsyncReadableStream&& stream)
   co_return container;
 }
 
+template <typename AsyncWriteStream, async_readable_stream AsyncReadableStream>
+auto async_write_each_chunk(AsyncWriteStream&& to,
+                            AsyncReadableStream&& from,
+                            std::chrono::milliseconds timeout)
+    -> lazy<expected<void, net::error_code>>
+{
+  using boost::beast::http::make_chunk;
+  using boost::beast::http::make_chunk_last;
+  auto _ = std::ignore;
+
+  net::error_code ec;
+
+  auto chunk = co_await from.async_read_next();
+  while (chunk) {
+    if (!*chunk) {
+      co_return unexpected { (*chunk).error() };
+    }
+    net::get_lowest_layer(to).expires_after(timeout);
+    tie(ec, _) = co_await async_write(
+        to, make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())));
+    if (ec) {
+      co_return unexpected { ec };
+    }
+    chunk = co_await from.async_read_next();
+  }
+  tie(ec, _) = co_await async_write(to, make_chunk_last());
+  if (ec) {
+    co_return unexpected { ec };
+  }
+
+  co_return expected<void, net::error_code>();
+}
 }
 
 FITORIA_NAMESPACE_END

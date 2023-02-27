@@ -397,23 +397,17 @@ private:
     using std::tie;
     auto _ = std::ignore;
 
-    if (body_) {
-      if (body_->is_chunked()) {
-        if (auto res = co_await do_send_req_with_chunk_body(stream); !res) {
-          co_return unexpected { res.error() };
-        } else if (*res) {
-          co_return **res;
-        }
-      } else {
-        if (auto res = co_await do_send_req_with_body(stream); !res) {
-          co_return unexpected { res.error() };
-        } else if (*res) {
-          co_return **res;
-        }
+    if (body_ && body_->is_chunked()) {
+      if (auto res = co_await do_send_req_with_chunk_body(stream); !res) {
+        co_return unexpected { res.error() };
+      } else if (*res) {
+        co_return **res;
       }
     } else {
-      if (auto res = co_await do_send_req_with_empty_body(stream); !res) {
+      if (auto res = co_await do_send_req_with_vector_body(stream); !res) {
         co_return unexpected { res.error() };
+      } else if (*res) {
+        co_return **res;
       }
     }
 
@@ -432,34 +426,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_send_req_with_empty_body(Stream& stream) const
-      -> lazy<expected<void, error_code>>
-  {
-    using boost::beast::http::empty_body;
-    using boost::beast::http::request;
-    using std::tie;
-    auto _ = std::ignore;
-
-    request<empty_body> req(
-        method_, get_encoded_target(resource_->path, query_.to_string()), 11);
-    prepare_fields(req, fields_, false);
-    req.set(http::field::host, resource_->host);
-    req.prepare_payload();
-
-    net::error_code ec;
-
-    net::get_lowest_layer(stream).expires_after(request_timeout_);
-    tie(ec, _) = co_await async_write(stream, req);
-    if (ec) {
-      log::debug("[{}] async_write failed: {}", name(), ec.message());
-      co_return unexpected { ec };
-    }
-
-    co_return expected<void, error_code>();
-  }
-
-  template <typename Stream>
-  auto do_send_req_with_body(Stream& stream) const -> lazy<expected<
+  auto do_send_req_with_vector_body(Stream& stream) const -> lazy<expected<
       optional<boost::beast::http::response<boost::beast::http::string_body>>,
       error_code>>
   {
@@ -477,13 +444,15 @@ private:
         method_, get_encoded_target(resource_->path, query_.to_string()), 11);
     prepare_fields(req, fields_, use_expect);
     req.set(http::field::host, resource_->host);
-    auto data = co_await web::async_read_all<std::vector<std::byte>>(
-        any_async_readable_stream { *body_ });
-    if (data) {
-      if (!*data) {
-        co_return unexpected { (*data).error() };
+    if (body_) {
+      auto data = co_await web::async_read_all<std::vector<std::byte>>(
+          any_async_readable_stream { *body_ });
+      if (data) {
+        if (!*data) {
+          co_return unexpected { (*data).error() };
+        }
+        req.body() = std::move(**data);
       }
-      req.body() = std::move(**data);
     }
     req.prepare_payload();
 
@@ -527,8 +496,6 @@ private:
       error_code>>
   {
     using boost::beast::http::empty_body;
-    using boost::beast::http::make_chunk;
-    using boost::beast::http::make_chunk_last;
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
     using boost::beast::http::response;
@@ -568,29 +535,12 @@ private:
       }
     }
 
-    auto body = any_async_readable_stream { *body_ };
-    auto data = co_await body.async_read_next();
-    while (data) {
-      if (!*data) {
-        log::debug("[{}] async_read_next failed: {}",
-                   name(),
-                   (*data).error().message());
-        co_return unexpected { (*data).error() };
-      }
-      net::get_lowest_layer(stream).expires_after(request_timeout_);
-      tie(ec, _) = co_await async_write(
-          stream,
-          make_chunk(net::const_buffer((*data)->data(), (*data)->size())));
-      if (ec) {
-        log::debug("[{}] async_write failed: {}", name(), ec.message());
-        co_return unexpected { ec };
-      }
-      data = co_await body.async_read_next();
-    }
-    tie(ec, _) = co_await async_write(stream, make_chunk_last());
-    if (ec) {
-      log::debug("[{}] async_write failed: {}", name(), ec.message());
-      co_return unexpected { ec };
+    if (auto res = co_await web::async_write_each_chunk(
+            stream, any_async_readable_stream { *body_ }, request_timeout_);
+        !res) {
+      log::debug(
+          "[{}] async_write_each_chunk failed: {}", name(), ec.message());
+      co_return unexpected { res.error() };
     }
 
     co_return nullopt;
