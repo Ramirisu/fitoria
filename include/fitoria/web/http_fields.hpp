@@ -182,6 +182,26 @@ public:
     return map_.cend();
   }
 
+  template <bool IsRequest, typename Body, typename Fields>
+  static auto
+  from(const boost::beast::http::message<IsRequest, Body, Fields>& msg)
+      -> http_fields
+  {
+    http_fields fields;
+    for (auto& kv : msg.base()) {
+      fields.insert(kv.name(), kv.value());
+    }
+    return fields;
+  }
+
+  template <bool IsRequest, typename Body, typename Fields>
+  void to(boost::beast::http::message<IsRequest, Body, Fields>& msg) const
+  {
+    for (auto& [name, value] : map_) {
+      msg.insert(name, value);
+    }
+  }
+
 private:
   static void canonicalize_field_name(std::string& name) noexcept
   {

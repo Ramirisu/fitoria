@@ -12,6 +12,7 @@
 
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
+#include <fitoria/core/url.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -172,10 +173,21 @@ public:
 
   friend bool operator==(const query_map&, const query_map&) = default;
 
+  static query_map from(boost::urls::params_view params)
+  {
+    query_map query;
+    for (auto param : params) {
+      if (param.has_value) {
+        query[param.key] = param.value;
+      }
+    }
+
+    return query;
+  }
+
 private:
   map_type map_;
 };
-
 }
 
 FITORIA_NAMESPACE_END

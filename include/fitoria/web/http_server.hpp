@@ -406,7 +406,7 @@ private:
               listen_ep.port() },
           req.method(),
           req.target(),
-          to_http_fields(req),
+          http_fields::from(req),
           [&]() -> any_async_readable_stream {
             if (req.chunked()) {
               return async_message_parser_stream(
@@ -421,7 +421,7 @@ private:
       auto& body = res.body();
       if (body.is_chunked()) {
         auto r = response<empty_body>(res.status_code().value(), 11);
-        prepare_fields(r, res.fields());
+        res.fields().to(r);
         r.keep_alive(keep_alive);
         r.chunked(true);
 
@@ -447,7 +447,7 @@ private:
       } else {
         auto r
             = response<vector_body<std::byte>>(res.status_code().value(), 11);
-        prepare_fields(r, res.fields());
+        res.fields().to(r);
         auto data = co_await web::async_read_all<std::vector<std::byte>>(body);
         if (data) {
           if (!*data) {
@@ -499,45 +499,12 @@ private:
                                     std::string(route->pattern())),
                        req_url->path(),
                        method,
-                       to_query_map(req_url->params()),
+                       query_map::from(req_url->params()),
                        std::move(fields),
                        std::move(body),
                        route->state_maps());
     auto context = http_context(request);
     co_return co_await route->operator()(context);
-  }
-
-  static query_map to_query_map(boost::urls::params_view params)
-  {
-    query_map query;
-    for (auto param : params) {
-      if (param.has_value) {
-        query[param.key] = param.value;
-      }
-    }
-
-    return query;
-  }
-
-  static http_fields
-  to_http_fields(const boost::beast::http::request<
-                 boost::beast::http::vector_body<std::byte>>& req)
-  {
-    http_fields fields;
-    for (auto& kv : req.base()) {
-      fields.insert(kv.name(), kv.value());
-    }
-    return fields;
-  }
-
-  template <bool IsRequest, class Body, class Fields>
-  static void
-  prepare_fields(boost::beast::http::message<IsRequest, Body, Fields>& req,
-                 const http_fields& fields)
-  {
-    for (auto& [name, value] : fields) {
-      req.insert(name, value);
-    }
   }
 
   static const char* name() noexcept

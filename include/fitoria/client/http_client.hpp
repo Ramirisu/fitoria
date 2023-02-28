@@ -420,8 +420,8 @@ private:
     bool use_expect = fields_.get(http::field::expect) == "100-continue";
 
     request<vector_body<std::byte>> req(
-        method_, get_encoded_target(resource_->path, query_.to_string()), 11);
-    prepare_fields(req, fields_, use_expect);
+        method_, encoded_target(resource_->path, query_.to_string()), 11);
+    fields_.to(req);
     req.set(http::field::host, resource_->host);
     if (body_) {
       auto data = co_await web::async_read_all<std::vector<std::byte>>(
@@ -485,8 +485,8 @@ private:
     bool use_expect = fields_.get(http::field::expect) == "100-continue";
 
     request<empty_body> req(
-        method_, get_encoded_target(resource_->path, query_.to_string()), 11);
-    prepare_fields(req, fields_, use_expect);
+        method_, encoded_target(resource_->path, query_.to_string()), 11);
+    fields_.to(req);
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
@@ -525,26 +525,13 @@ private:
     co_return nullopt;
   }
 
-  static std::string get_encoded_target(std::string_view path,
-                                        std::string_view query_string)
+  static std::string encoded_target(std::string_view path,
+                                    std::string_view query_string)
   {
     boost::urls::url url;
     url.set_path(path);
     url.set_query(query_string);
     return std::string(url.encoded_target());
-  }
-
-  template <bool IsRequest, class Body, class Fields>
-  static void
-  prepare_fields(boost::beast::http::message<IsRequest, Body, Fields>& req,
-                 const http_fields& fields,
-                 bool use_expect)
-  {
-    for (auto& [name, value] : fields) {
-      if (name != to_string(http::field::expect) || use_expect) {
-        req.insert(name, value);
-      }
-    }
   }
 
   expected<resource, error_code> resource_;
