@@ -160,7 +160,7 @@ public:
   template <std::size_t N>
   http_client& set_raw(std::span<const std::byte, N> bytes)
   {
-    body_.emplace(async_readable_vector_stream(bytes));
+    body_ = async_readable_vector_stream(bytes);
     return *this;
   }
 
@@ -187,7 +187,7 @@ public:
   template <async_readable_stream AsyncReadableStream>
   http_client& set_stream(AsyncReadableStream&& stream)
   {
-    body_.emplace(std::forward<AsyncReadableStream>(stream));
+    body_ = std::forward<AsyncReadableStream>(stream);
     return *this;
   }
 
@@ -376,7 +376,7 @@ private:
     using std::tie;
     auto _ = std::ignore;
 
-    if (body_ && body_->is_chunked()) {
+    if (body_.is_chunked()) {
       if (auto res = co_await do_send_req_with_chunk_body(stream); !res) {
         co_return unexpected { res.error() };
       } else if (*res) {
@@ -423,15 +423,13 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     fields_.to(req);
     req.set(http::field::host, resource_->host);
-    if (body_) {
-      auto data = co_await web::async_read_all<std::vector<std::byte>>(
-          any_async_readable_stream { *body_ });
-      if (data) {
-        if (!*data) {
-          co_return unexpected { (*data).error() };
-        }
-        req.body() = std::move(**data);
+    if (auto data = co_await web::async_read_all<std::vector<std::byte>>(
+            any_async_readable_stream { body_ });
+        data) {
+      if (!*data) {
+        co_return unexpected { (*data).error() };
       }
+      req.body() = std::move(**data);
     }
     req.prepare_payload();
 
@@ -515,7 +513,7 @@ private:
     }
 
     if (auto res = co_await web::async_write_each_chunk(
-            stream, any_async_readable_stream { *body_ }, request_timeout_);
+            stream, any_async_readable_stream { body_ }, request_timeout_);
         !res) {
       log::debug(
           "[{}] async_write_each_chunk failed: {}", name(), ec.message());
@@ -538,7 +536,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
-  optional<any_async_readable_stream> body_;
+  any_async_readable_stream body_ { async_readable_vector_stream() };
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
 }
