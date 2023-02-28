@@ -54,10 +54,11 @@ TEST_CASE("builder")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::GET(to_local_url(boost::urls::scheme::http, port, "/api"))
-            .send()
-            .value();
+  auto res = net::sync_wait(
+                 http_client::GET(
+                     to_local_url(boost::urls::scheme::http, port, "/api"))
+                     .async_send())
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
@@ -100,11 +101,12 @@ TEST_CASE("invalid target")
   };
 
   for (auto& test_case : test_cases) {
-    auto res = http_client::GET(
-                   to_local_url(boost::urls::scheme::http, port, test_case))
-                   .set_field(http::field::connection, "close")
-                   .set_plaintext("text")
-                   .send()
+    auto res = net::sync_wait(
+                   http_client::GET(
+                       to_local_url(boost::urls::scheme::http, port, test_case))
+                       .set_field(http::field::connection, "close")
+                       .set_plaintext("text")
+                       .async_send())
                    .value();
     CHECK_EQ(res.status_code(), http::status::not_found);
     CHECK_EQ(res.fields().get(http::field::content_type),
@@ -132,13 +134,15 @@ TEST_CASE("expect: 100-continue")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = http_client::POST(
-                 to_local_url(boost::urls::scheme::http, port, "/api/v1/post"))
-                 .set_field(http::field::expect, "100-continue")
-                 .set_field(http::field::connection, "close")
-                 .set_plaintext("text")
-                 .send()
-                 .value();
+  auto res
+      = net::sync_wait(
+            http_client::POST(
+                to_local_url(boost::urls::scheme::http, port, "/api/v1/post"))
+                .set_field(http::field::expect, "100-continue")
+                .set_field(http::field::connection, "close")
+                .set_plaintext("text")
+                .async_send())
+            .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
@@ -174,11 +178,12 @@ TEST_CASE("unhandled exception from handler")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  CHECK(!http_client::GET(
-             to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
-             .set_field(http::field::connection, "close")
-             .set_plaintext("text")
-             .send());
+  CHECK(!net::sync_wait(
+      http_client::GET(
+          to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
+          .set_field(http::field::connection, "close")
+          .set_plaintext("text")
+          .async_send()));
 
   // wait for exception thrown
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -268,19 +273,21 @@ TEST_CASE("generic request")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::GET(
-            to_local_url(boost::urls::scheme::http,
+  auto res = net::sync_wait(
+                 http_client::GET(
+                     to_local_url(
+                         boost::urls::scheme::http,
                          port,
                          "/api/v1/users/Rina Hidaka/filmography/years/2022"))
-            .set_query("name", "Rina Hidaka")
-            .set_query("birth", "1994/06/15")
-            .set_field(http::field::connection, "close")
-            .insert_field(http::field::user_agent, BOOST_BEAST_VERSION_STRING)
-            .insert_field(http::field::user_agent, "fitoria")
-            .set_plaintext("happy birthday")
-            .send()
-            .value();
+                     .set_query("name", "Rina Hidaka")
+                     .set_query("birth", "1994/06/15")
+                     .set_field(http::field::connection, "close")
+                     .insert_field(http::field::user_agent,
+                                   BOOST_BEAST_VERSION_STRING)
+                     .insert_field(http::field::user_agent, "fitoria")
+                     .set_plaintext("happy birthday")
+                     .async_send())
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK(range_in_set(
       res.fields().equal_range(http::field::user_agent),
@@ -347,11 +354,12 @@ TEST_CASE("request with chunked transfer-encoding")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = http_client::POST(
-                 to_local_url(boost::urls::scheme::http, port, "/post"))
-                 .set_field(http::field::connection, "close")
-                 .set_stream(test_async_readable_chunk_stream<5>(input))
-                 .send()
+  auto res = net::sync_wait(
+                 http_client::POST(
+                     to_local_url(boost::urls::scheme::http, port, "/post"))
+                     .set_field(http::field::connection, "close")
+                     .set_stream(test_async_readable_chunk_stream<5>(input))
+                     .async_send())
                  .value();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
@@ -375,11 +383,12 @@ TEST_CASE("response status only")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::GET(to_local_url(boost::urls::scheme::http, port, "/api"))
-            .set_field(http::field::connection, "close")
-            .send()
-            .value();
+  auto res = net::sync_wait(
+                 http_client::GET(
+                     to_local_url(boost::urls::scheme::http, port, "/api"))
+                     .set_field(http::field::connection, "close")
+                     .async_send())
+                 .value();
   CHECK_EQ(res.status_code(), http::status::accepted);
   CHECK_EQ(res.fields().get(http::field::connection), "close");
   CHECK_EQ(res.fields().get(http::field::content_length), "0");
@@ -406,11 +415,12 @@ TEST_CASE("response with plain text")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::GET(to_local_url(boost::urls::scheme::http, port, "/api"))
-            .set_field(http::field::connection, "close")
-            .send()
-            .value();
+  auto res = net::sync_wait(
+                 http_client::GET(
+                     to_local_url(boost::urls::scheme::http, port, "/api"))
+                     .set_field(http::field::connection, "close")
+                     .async_send())
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(res.fields().get(http::field::connection), "close");
   CHECK_EQ(res.fields().get(http::field::content_type),
@@ -441,11 +451,12 @@ TEST_CASE("response with stream")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = http_client::GET(to_local_url(boost::urls::scheme::http, port, "/api"))
-            .set_field(http::field::connection, "close")
-            .send()
-            .value();
+  auto res = net::sync_wait(
+                 http_client::GET(
+                     to_local_url(boost::urls::scheme::http, port, "/api"))
+                     .set_field(http::field::connection, "close")
+                     .async_send())
+                 .value();
   CHECK_EQ(res.status_code(), http::status::ok);
   CHECK_EQ(res.body(), input);
 }

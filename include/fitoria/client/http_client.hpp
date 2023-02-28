@@ -202,27 +202,6 @@ public:
     return *this;
   }
 
-  auto send() const -> expected<http_response, error_code>
-  {
-    if (!resource_) {
-      return unexpected { resource_.error() };
-    }
-
-    return net::sync_wait(do_session());
-  }
-
-#if defined(FITORIA_HAS_OPENSSL)
-  auto send(net::ssl::context ssl_ctx) const
-      -> expected<http_response, error_code>
-  {
-    if (!resource_) {
-      return unexpected { resource_.error() };
-    }
-
-    return net::sync_wait(do_session(std::move(ssl_ctx)));
-  }
-#endif
-
   auto async_send() const -> lazy<expected<http_response, error_code>>
   {
     if (!resource_) {

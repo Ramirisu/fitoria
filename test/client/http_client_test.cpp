@@ -79,75 +79,32 @@ TEST_CASE("methods")
   }
 }
 
-TEST_CASE("send")
+TEST_CASE("async_send")
 {
-  SUBCASE("ok")
   {
-    auto res
-        = http_client(http::verb::get, "http://httpbin.org/get").send().value();
-    CHECK_EQ(res.status_code().value(), http::status::ok);
-  }
-  SUBCASE("parse url error")
-  {
-    CHECK(!http_client(http::verb::get, "").send());
-  }
-#if defined(FITORIA_HAS_OPENSSL)
-  auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
-  ssl_ctx.set_verify_mode(net::ssl::verify_peer);
-  cacert::add_builtin_cacerts(ssl_ctx);
-  SUBCASE("ok")
-  {
-    auto res = http_client(http::verb::get, "https://httpbin.org/get")
-                   .send(std::move(ssl_ctx))
+    auto res = net::sync_wait(
+                   http_client::GET("http://httpbin.org/get").async_send())
                    .value();
     CHECK_EQ(res.status_code().value(), http::status::ok);
   }
-  SUBCASE("parse url error")
   {
-    CHECK(!http_client(http::verb::get, "").send(std::move(ssl_ctx)));
-  }
-#endif
-}
-
-TEST_CASE("async_send")
-{
-  auto async_send
-      = [](std::string_view url) -> expected<http_response, error_code> {
-    auto c = http_client(http::verb::get, url);
-    return net::sync_wait(c.async_send());
-  };
-
-  SUBCASE("ok")
-  {
-    auto res = async_send("http://httpbin.org/get").value();
-    CHECK_EQ(res.status_code().value(), http::status::ok);
-  }
-  SUBCASE("parse url error")
-  {
-    CHECK(!async_send(""));
+    CHECK(!net::sync_wait(http_client::GET("").async_send()));
   }
 #if defined(FITORIA_HAS_OPENSSL)
-
-  auto async_send_ssl
-      = [](std::string_view url,
-           net::ssl::context ssl_ctx) -> expected<http_response, error_code> {
-    auto c = http_client(http::verb::get, url);
-    return net::sync_wait(c.async_send(std::move(ssl_ctx)));
+  auto get_certs = []() {
+    auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
+    ssl_ctx.set_verify_mode(net::ssl::verify_peer);
+    cacert::add_builtin_cacerts(ssl_ctx);
+    return ssl_ctx;
   };
-
-  auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
-  ssl_ctx.set_verify_mode(net::ssl::verify_peer);
-  cacert::add_builtin_cacerts(ssl_ctx);
-
-  SUBCASE("ok")
   {
-    auto res
-        = async_send_ssl("https://httpbin.org/get", std::move(ssl_ctx)).value();
+    auto res = net::sync_wait(http_client::GET("https://httpbin.org/get")
+                                  .async_send(get_certs()))
+                   .value();
     CHECK_EQ(res.status_code().value(), http::status::ok);
   }
-  SUBCASE("parse url error")
   {
-    CHECK(!async_send_ssl("", std::move(ssl_ctx)));
+    CHECK(!net::sync_wait(http_client::GET("").async_send(get_certs())));
   }
 #endif
 }
@@ -155,7 +112,9 @@ TEST_CASE("async_send")
 TEST_CASE("format response")
 {
   auto res
-      = http_client(http::verb::get, "http://httpbin.org/get").send().value();
+      = net::sync_wait(
+            http_client(http::verb::get, "http://httpbin.org/get").async_send())
+            .value();
   CHECK_EQ(res.status_code().value(), http::status::ok);
 
   auto contains = [](std::string_view str, std::string_view substr) {
