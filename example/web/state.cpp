@@ -76,7 +76,7 @@ namespace get {
     }
 
     if (auto value = (*cache)->get(*key); value) {
-      co_return http_response(http::status::ok).set_body(*value);
+      co_return http_response(http::status::ok).set_plaintext(*value);
     } else {
       co_return http_response(http::status::not_found);
     }

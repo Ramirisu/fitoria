@@ -26,10 +26,8 @@ int main()
                     co_return http_response(http::status::unauthorized);
                   }
                   co_return http_response(http::status::ok)
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body(fmt::format("{}, login succeeded",
-                                            user->get("name")));
+                      .set_plaintext(fmt::format("{}, login succeeded",
+                                                 user->get("name")));
                 }))
             .build();
 
@@ -70,6 +68,7 @@ int main()
     FITORIA_ASSERT(res.status_code() == http::status::ok);
     FITORIA_ASSERT(res.fields().get(http::field::content_type)
                    == http::fields::content_type::plaintext());
-    FITORIA_ASSERT(res.body() == "ramirisu, login succeeded");
+    FITORIA_ASSERT(net::sync_wait(res.as_string())
+                   == "ramirisu, login succeeded");
   }
 }

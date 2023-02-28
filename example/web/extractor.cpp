@@ -46,9 +46,9 @@ auto api(const connection_info& conn_info,
                            conn_info.listen_port());
   if (params.get("user") != "ramirisu" || secret.password != "123456") {
     co_return http_response(http::status::unauthorized)
-        .set_body("user name or password is incorrect");
+        .set_plaintext("user name or password is incorrect");
   }
-  co_return http_response(http::status::ok).set_body("login succeeded");
+  co_return http_response(http::status::ok).set_plaintext("login succeeded");
 }
 }
 

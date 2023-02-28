@@ -325,7 +325,6 @@ private:
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
-    using boost::beast::http::string_body;
     using boost::beast::http::vector_body;
     using std::tie;
     auto _ = std::ignore;
@@ -354,10 +353,8 @@ private:
           it != req.end() && it->value() == "100-continue") {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _)
-            = co_await async_write(stream,
-                                   static_cast<response<empty_body>>(
-                                       http_response(http::status::continue_)));
+        tie(ec, _) = co_await async_write(
+            stream, response<empty_body>(http::status::continue_, 11));
         if (ec) {
           log::debug(
               "[{}] async_write 100-continue failed: {}", name(), ec.message());
@@ -396,7 +393,7 @@ private:
         }
       }
 
-      auto res = static_cast<response<string_body>>(co_await do_handler(
+      auto res = co_await do_handler(
           connection_info {
               net::get_lowest_layer(stream).socket().local_endpoint().address(),
               net::get_lowest_layer(stream).socket().local_endpoint().port(),
@@ -420,16 +417,54 @@ private:
                   builder_.client_request_timeout_);
             }
             return async_readable_vector_stream(std::move(req.body()));
-          }()));
-      res.keep_alive(keep_alive);
-      res.prepare_payload();
+          }());
+      auto& body = res.body();
+      if (body.is_chunked()) {
+        auto r = response<empty_body>(res.status_code().value(), 11);
+        prepare_fields(r, res.fields());
+        r.keep_alive(keep_alive);
+        r.chunked(true);
 
-      net::get_lowest_layer(stream).expires_after(
-          builder_.client_request_timeout_);
-      tie(ec, _) = co_await async_write(stream, std::move(res));
-      if (ec) {
-        log::debug("[{}] async_write failed: {}", name(), ec.message());
-        co_return ec;
+        auto r_serializer
+            = boost::beast::http::response_serializer<empty_body>(r);
+
+        net::get_lowest_layer(stream).expires_after(
+            builder_.client_request_timeout_);
+        tie(ec, _) = co_await async_write_header(stream, r_serializer);
+        if (ec) {
+          log::debug(
+              "[{}] async_write_header failed: {}", name(), ec.message());
+          co_return ec;
+        }
+
+        if (auto exp = co_await web::async_write_each_chunk(
+                stream, body, builder_.client_request_timeout_);
+            !exp) {
+          log::debug(
+              "[{}] async_write_each_chunk failed: {}", name(), ec.message());
+          co_return exp.error();
+        }
+      } else {
+        auto r
+            = response<vector_body<std::byte>>(res.status_code().value(), 11);
+        prepare_fields(r, res.fields());
+        auto data = co_await web::async_read_all<std::vector<std::byte>>(body);
+        if (data) {
+          if (!*data) {
+            co_return (*data).error();
+          }
+          r.body() = std::move(**data);
+        }
+        r.keep_alive(keep_alive);
+        r.prepare_payload();
+
+        net::get_lowest_layer(stream).expires_after(
+            builder_.client_request_timeout_);
+        tie(ec, _) = co_await async_write(stream, std::move(r));
+        if (ec) {
+          log::debug("[{}] async_write failed: {}", name(), ec.message());
+          co_return ec;
+        }
       }
 
       if (!keep_alive) {
@@ -449,17 +484,13 @@ private:
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
-          .set_body("request target is invalid");
+          .set_plaintext("request target is invalid");
     }
 
     auto route = builder_.router_.try_find(method, req_url.value().path());
     if (!route) {
       co_return http_response(http::status::not_found)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
-          .set_body("request path is not found");
+          .set_plaintext("request path is not found");
     }
 
     auto request
@@ -497,6 +528,16 @@ private:
       fields.insert(kv.name(), kv.value());
     }
     return fields;
+  }
+
+  template <bool IsRequest, class Body, class Fields>
+  static void
+  prepare_fields(boost::beast::http::message<IsRequest, Body, Fields>& req,
+                 const http_fields& fields)
+  {
+    for (auto& [name, value] : fields) {
+      req.insert(name, value);
+    }
   }
 
   static const char* name() noexcept

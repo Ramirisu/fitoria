@@ -45,6 +45,15 @@ public:
     return true;
   }
 
+  auto size_hint() const noexcept -> optional<std::size_t>
+  {
+    if (auto length = msg_parser_.content_length(); length) {
+      return *length;
+    }
+
+    return nullopt;
+  }
+
   auto async_read_next()
       -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {

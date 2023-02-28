@@ -11,34 +11,14 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
-#include <fitoria/core/json.hpp>
 
+#include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/from_http_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
-
-template <typename T = boost::json::value>
-expected<T, error_code> as_json(std::string_view text)
-{
-  boost::json::error_code ec;
-  auto jv = boost::json::parse(text, ec);
-  if (ec) {
-    return unexpected { ec };
-  }
-
-  if constexpr (std::is_same_v<T, boost::json::value>) {
-    return jv;
-  } else {
-    if (auto res = boost::json::try_value_to<T>(jv); res) {
-      return res.value();
-    } else {
-      return unexpected { res.error() };
-    }
-  }
-}
 
 template <typename T>
 class json : public T {
@@ -59,13 +39,13 @@ public:
     auto str = co_await async_read_all<std::string>(req.body());
     if (str) {
       if (*str) {
-        co_return as_json<T>(**str);
+        co_return detail::as_json<T>(**str);
       }
 
       co_return unexpected { (*str).error() };
     }
 
-    co_return as_json<T>("");
+    co_return detail::as_json<T>("");
   }
 };
 

@@ -90,12 +90,6 @@ int main()
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
 #endif
-                    // Register built-in deflate middleware
-                    .use(middleware::deflate())
-#if defined(FITORIA_HAS_ZLIB)
-                    // Register built-in gzip middleware
-                    .use(middleware::gzip())
-#endif
                     // Register a custom middleware for this group
                     .use(my_log(log::level::info))
                     // Register a route
@@ -105,7 +99,7 @@ int main()
                           log::debug("user: {}", req.params().get("user"));
 
                           co_return http_response(http::status::ok)
-                              .set_body(req.params().get("user").value_or(
+                              .set_plaintext(req.params().get("user").value_or(
                                   "{{unknown}}"));
                         }))
             .build();

@@ -54,44 +54,44 @@ TEST_CASE("state")
                             .GET<"/global">(
                                 [](http_request& req) -> lazy<http_response> {
                                   co_return http_response(http::status::ok)
-                                      .set_body(std::string(
+                                      .set_plaintext(
                                           req.state<const shared_resource&>()
-                                              ->value));
+                                              ->value);
                                 })
                             .state(shared_resource { "scope" })
                             .GET<"/scope">(
                                 [](http_request& req) -> lazy<http_response> {
                                   co_return http_response(http::status::ok)
-                                      .set_body(std::string(
+                                      .set_plaintext(
                                           req.state<const shared_resource&>()
-                                              ->value));
+                                              ->value);
                                 })
                             .route(route::GET<
                                        "/route">([](http_request& req)
                                                      -> lazy<http_response> {
                                      co_return http_response(http::status::ok)
-                                         .set_body(std::string(
+                                         .set_plaintext(
                                              req.state<const shared_resource&>()
-                                                 ->value));
+                                                 ->value);
                                    }).state(shared_resource { "route" }))))
             .build();
   {
     auto res = server.serve_http_request("/api/v1/global",
                                          mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "global");
+    CHECK_EQ(net::sync_wait(res.as_string()), "global");
   }
   {
     auto res = server.serve_http_request("/api/v1/scope",
                                          mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "scope");
+    CHECK_EQ(net::sync_wait(res.as_string()), "scope");
   }
   {
     auto res = server.serve_http_request("/api/v1/route",
                                          mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.body(), "route");
+    CHECK_EQ(net::sync_wait(res.as_string()), "route");
   }
 }
 
@@ -193,7 +193,7 @@ TEST_CASE("json")
     CHECK_EQ(res.status_code(), http::status::ok);
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::json());
-    CHECK_EQ(as_json<user_t>(res.body()),
+    CHECK_EQ(net::sync_wait(res.as_json<user_t>()),
              user_t {
                  .name = "Rina Hidaka",
                  .birth = "1994/06/15",

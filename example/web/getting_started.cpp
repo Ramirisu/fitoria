@@ -35,21 +35,18 @@ int main()
   log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
-  auto server
-      = http_server::builder()
-            .route(route::GET<"/api/v1/{owner}/{repo}">(
-                [](http_request& req) -> lazy<http_response> {
-                  log::debug("route: {}", req.params().path());
-                  log::debug("owner: {}, repo: {}",
-                             req.params().get("owner"),
-                             req.params().get("repo"));
+  auto server = http_server::builder()
+                    .route(route::GET<"/api/v1/{owner}/{repo}">(
+                        [](http_request& req) -> lazy<http_response> {
+                          log::debug("route: {}", req.params().path());
+                          log::debug("owner: {}, repo: {}",
+                                     req.params().get("owner"),
+                                     req.params().get("repo"));
 
-                  co_return http_response(http::status::ok)
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body("quick start");
-                }))
-            .build();
+                          co_return http_response(http::status::ok)
+                              .set_plaintext("getting started");
+                        }))
+                    .build();
   server
       // Start to listen to port 8080
       .bind("127.0.0.1", 8080)

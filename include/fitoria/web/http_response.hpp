@@ -10,8 +10,9 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/json.hpp>
-
+#include <fitoria/web/async_stream.hpp>
+#include <fitoria/web/detail/as_json.hpp>
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 
@@ -20,24 +21,12 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_response {
-  using native_response_t
-      = boost::beast::http::response<boost::beast::http::string_body>;
-
 public:
   http_response() = default;
 
   explicit http_response(http::status_code status_code)
       : status_code_(status_code)
   {
-  }
-
-  explicit http_response(native_response_t native)
-      : status_code_(native.result())
-  {
-    for (auto& field : native) {
-      insert_field(field.name(), field.value());
-    }
-    set_body(std::move(native.body()));
   }
 
   http::status_code status_code() const noexcept
@@ -85,63 +74,82 @@ public:
     return *this;
   }
 
-  std::string& body() noexcept
+  any_async_readable_stream& body() noexcept
   {
     return body_;
   }
 
-  const std::string& body() const noexcept
+  const any_async_readable_stream& body() const noexcept
   {
     return body_;
   }
 
-  http_response& set_body(std::string body)
+  lazy<expected<std::string, net::error_code>> as_string()
   {
-    body_ = std::move(body);
+    if (auto str = co_await async_read_all<std::string>(body()); str) {
+      co_return *str;
+    }
+
+    co_return std::string();
+  }
+
+  template <typename T = boost::json::value>
+  lazy<expected<T, net::error_code>> as_json()
+  {
+    if (fields().get(http::field::content_type)
+        != http::fields::content_type::json()) {
+      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    }
+
+    if (auto str = co_await async_read_all<std::string>(body()); str) {
+      if (*str) {
+        co_return detail::as_json<T>(**str);
+      }
+
+      co_return unexpected { (*str).error() };
+    }
+
+    co_return detail::as_json<T>("");
+  }
+
+  template <std::size_t N>
+  http_response& set_raw(std::span<const std::byte, N> bytes)
+  {
+    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
     return *this;
+  }
+
+  http_response& set_plaintext(std::string_view sv)
+  {
+    set_field(http::field::content_type,
+              http::fields::content_type::plaintext());
+    return set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
   template <typename T = boost::json::value>
   http_response& set_json(const T& obj)
   {
     if constexpr (std::is_same_v<T, boost::json::value>) {
-      fields_.set(http::field::content_type,
-                  http::fields::content_type::json());
-      body_ = boost::json::serialize(obj);
+      set_field(http::field::content_type, http::fields::content_type::json());
+      auto s = boost::json::serialize(obj);
+      set_raw(std::as_bytes(std::span(s.begin(), s.end())));
     } else {
       set_json(boost::json::value_from(obj));
     }
     return *this;
   }
 
-  operator native_response_t() const&
+  template <async_readable_stream AsyncReadableStream>
+  http_response& set_stream(AsyncReadableStream&& stream)
   {
-    native_response_t res;
-    res.result(status_code_.value());
-    for (auto&& fields : fields_) {
-      res.insert(fields.first, fields.second);
-    }
-    res.body() = body();
-
-    return res;
-  }
-
-  operator native_response_t() &&
-  {
-    native_response_t res;
-    res.result(status_code_.value());
-    for (auto&& fields : fields_) {
-      res.insert(fields.first, fields.second);
-    }
-    res.body() = std::move(body());
-
-    return res;
+    body_ = std::forward<AsyncReadableStream>(stream);
+    return *this;
   }
 
 private:
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  std::string body_;
+  any_async_readable_stream body_ { async_readable_vector_stream() };
 };
 
 }

@@ -302,6 +302,11 @@ public:
     return true;
   }
 
+  auto size_hint() const noexcept -> optional<std::size_t>
+  {
+    return data_.size();
+  }
+
   auto async_read_next()
       -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {
@@ -328,7 +333,7 @@ TEST_CASE("request with chunked transfer-encoding")
   const auto port = generate_port();
   auto server = http_server::builder()
                     .route(route::POST<"/post">(
-                        [&](std::string data) -> lazy<http_response> {
+                        [input](std::string data) -> lazy<http_response> {
                           CHECK_EQ(data, input);
                           co_return http_response(http::status::ok);
                         }))
@@ -389,9 +394,7 @@ TEST_CASE("response with plain text")
             .route(route::GET<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body("plain text");
+                      .set_plaintext("plain text");
                 }))
             .build();
   server.bind(server_ip, port);
@@ -413,6 +416,38 @@ TEST_CASE("response with plain text")
   CHECK_EQ(res.fields().get(http::field::content_type),
            http::fields::content_type::plaintext());
   CHECK_EQ(res.body(), "plain text");
+}
+
+TEST_CASE("response with stream")
+{
+  const auto input = std::string_view("abcdefghijklmnopqrstuvwxyz");
+
+  const auto port = generate_port();
+  auto server
+      = http_server::builder()
+            .route(route::GET<"/api">(
+                [input](
+                    [[maybe_unused]] http_request& req) -> lazy<http_response> {
+                  co_return http_response(http::status::ok)
+                      .set_stream(test_async_readable_chunk_stream<5>(input));
+                }))
+            .build();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  auto res
+      = http_client::GET(to_local_url(boost::urls::scheme::http, port, "/api"))
+            .set_field(http::field::connection, "close")
+            .send()
+            .value();
+  CHECK_EQ(res.status_code(), http::status::ok);
+  CHECK_EQ(res.body(), input);
 }
 
 TEST_SUITE_END();

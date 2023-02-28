@@ -30,6 +30,7 @@ namespace web {
 template <typename T>
 concept async_readable_stream = requires(T t) {
   { t.is_chunked() } -> std::same_as<bool>;
+  { t.size_hint() } -> std::same_as<optional<std::size_t>>;
   { t.async_read_next() } 
     -> std::same_as<lazy<optional<expected<std::vector<std::byte>, net::error_code>>>>;
 };
@@ -56,6 +57,11 @@ public:
     return false;
   }
 
+  auto size_hint() const noexcept -> optional<std::size_t>
+  {
+    return data_.transform([](auto& data) { return data.size(); });
+  }
+
   auto async_read_next()
       -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
   {
@@ -78,6 +84,7 @@ class any_async_readable_stream {
     virtual ~base() = default;
     virtual auto clone() const -> std::shared_ptr<base> = 0;
     virtual auto is_chunked() const noexcept -> bool = 0;
+    virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
     virtual auto async_read_next()
         -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
         = 0;
@@ -99,6 +106,11 @@ class any_async_readable_stream {
     auto is_chunked() const noexcept -> bool override
     {
       return stream_.is_chunked();
+    }
+
+    auto size_hint() const noexcept -> optional<std::size_t> override
+    {
+      return stream_.size_hint();
     }
 
     auto async_read_next() -> lazy<
@@ -141,6 +153,11 @@ public:
   auto is_chunked() const noexcept -> bool
   {
     return stream_->is_chunked();
+  }
+
+  auto size_hint() const noexcept -> optional<std::size_t>
+  {
+    return stream_->size_hint();
   }
 
   auto async_read_next()
