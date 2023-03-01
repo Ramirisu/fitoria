@@ -82,7 +82,6 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
-    virtual auto clone() const -> std::shared_ptr<base> = 0;
     virtual auto is_chunked() const noexcept -> bool = 0;
     virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
     virtual auto async_read_next()
@@ -96,11 +95,6 @@ class any_async_readable_stream {
     derived(AsyncReadableStream stream)
         : stream_(std::move(stream))
     {
-    }
-
-    auto clone() const -> std::shared_ptr<base> override
-    {
-      return std::make_shared<derived>(*this);
     }
 
     auto is_chunked() const noexcept -> bool override
@@ -132,19 +126,10 @@ public:
   {
   }
 
-  any_async_readable_stream(const any_async_readable_stream& other)
-      : stream_(other.stream_->clone())
-  {
-  }
+  any_async_readable_stream(const any_async_readable_stream&) = delete;
 
-  any_async_readable_stream& operator=(const any_async_readable_stream& other)
-  {
-    if (this != std::addressof(other)) {
-      stream_ = other.stream_->clone();
-    }
-
-    return *this;
-  }
+  any_async_readable_stream& operator=(const any_async_readable_stream&)
+      = delete;
 
   any_async_readable_stream(any_async_readable_stream&&) = default;
 

@@ -29,15 +29,29 @@ public:
   {
   }
 
+  http_response(const http_response&) = delete;
+
+  http_response& operator=(const http_response&) = delete;
+
+  http_response(http_response&&) = default;
+
+  http_response& operator=(http_response&&) = default;
+
   http::status_code status_code() const noexcept
   {
     return status_code_;
   }
 
-  http_response& set_status_code(http::status_code status_code) noexcept
+  http_response& set_status_code(http::status_code status_code) & noexcept
   {
     status_code_ = status_code;
     return *this;
+  }
+
+  http_response&& set_status_code(http::status_code status_code) && noexcept
+  {
+    status_code_ = status_code;
+    return std::move(*this);
   }
 
   http_fields& fields() noexcept
@@ -50,28 +64,52 @@ public:
     return fields_;
   }
 
-  http_response& set_field(std::string name, std::string_view value)
+  http_response& set_field(std::string name, std::string_view value) &
   {
     fields_.set(std::move(name), value);
     return *this;
   }
 
-  http_response& set_field(http::field name, std::string_view value)
+  http_response&& set_field(std::string name, std::string_view value) &&
+  {
+    fields_.set(std::move(name), value);
+    return std::move(*this);
+  }
+
+  http_response& set_field(http::field name, std::string_view value) &
   {
     fields_.set(name, value);
     return *this;
   }
 
-  http_response& insert_field(std::string name, std::string_view value)
+  http_response&& set_field(http::field name, std::string_view value) &&
+  {
+    fields_.set(name, value);
+    return std::move(*this);
+  }
+
+  http_response& insert_field(std::string name, std::string_view value) &
   {
     fields_.insert(std::move(name), value);
     return *this;
   }
 
-  http_response& insert_field(http::field name, std::string_view value)
+  http_response&& insert_field(std::string name, std::string_view value) &&
+  {
+    fields_.insert(std::move(name), value);
+    return std::move(*this);
+  }
+
+  http_response& insert_field(http::field name, std::string_view value) &
   {
     fields_.insert(name, value);
     return *this;
+  }
+
+  http_response&& insert_field(http::field name, std::string_view value) &&
+  {
+    fields_.insert(name, value);
+    return std::move(*this);
   }
 
   any_async_readable_stream& body() noexcept
@@ -113,21 +151,37 @@ public:
   }
 
   template <std::size_t N>
-  http_response& set_raw(std::span<const std::byte, N> bytes)
+  http_response& set_raw(std::span<const std::byte, N> bytes) &
   {
     body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
     return *this;
   }
 
-  http_response& set_plaintext(std::string_view sv)
+  template <std::size_t N>
+  http_response&& set_raw(std::span<const std::byte, N> bytes) &&
+  {
+    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
+    return std::move(*this);
+  }
+
+  http_response& set_plaintext(std::string_view sv) &
   {
     set_field(http::field::content_type,
               http::fields::content_type::plaintext());
-    return set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
+    set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
+    return *this;
+  }
+
+  http_response&& set_plaintext(std::string_view sv) &&
+  {
+    set_field(http::field::content_type,
+              http::fields::content_type::plaintext());
+    set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
+    return std::move(*this);
   }
 
   template <typename T = boost::json::value>
-  http_response& set_json(const T& obj)
+  http_response& set_json(const T& obj) &
   {
     if constexpr (std::is_same_v<T, boost::json::value>) {
       set_field(http::field::content_type, http::fields::content_type::json());
@@ -139,11 +193,31 @@ public:
     return *this;
   }
 
+  template <typename T = boost::json::value>
+  http_response&& set_json(const T& obj) &&
+  {
+    if constexpr (std::is_same_v<T, boost::json::value>) {
+      set_field(http::field::content_type, http::fields::content_type::json());
+      auto s = boost::json::serialize(obj);
+      set_raw(std::as_bytes(std::span(s.begin(), s.end())));
+    } else {
+      set_json(boost::json::value_from(obj));
+    }
+    return std::move(*this);
+  }
+
   template <async_readable_stream AsyncReadableStream>
-  http_response& set_stream(AsyncReadableStream&& stream)
+  http_response& set_stream(AsyncReadableStream&& stream) &
   {
     body_ = std::forward<AsyncReadableStream>(stream);
     return *this;
+  }
+
+  template <async_readable_stream AsyncReadableStream>
+  http_response&& set_stream(AsyncReadableStream&& stream) &&
+  {
+    body_ = std::forward<AsyncReadableStream>(stream);
+    return std::move(*this);
   }
 
 private:

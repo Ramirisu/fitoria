@@ -202,7 +202,7 @@ public:
     return *this;
   }
 
-  auto async_send() const -> lazy<expected<http_response, error_code>>
+  auto async_send() -> lazy<expected<http_response, error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -212,7 +212,7 @@ public:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto async_send(net::ssl::context ssl_ctx) const
+  auto async_send(net::ssl::context ssl_ctx)
       -> lazy<expected<http_response, error_code>>
   {
     if (!resource_) {
@@ -282,7 +282,7 @@ private:
     co_return results;
   }
 
-  auto do_session() const -> lazy<expected<http_response, error_code>>
+  auto do_session() -> lazy<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -313,7 +313,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(net::ssl::context ssl_ctx) const
+  auto do_session(net::ssl::context ssl_ctx)
       -> lazy<expected<http_response, error_code>>
   {
     using std::tie;
@@ -367,7 +367,7 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_send_recv(Stream& stream) const -> lazy<
+  auto do_send_recv(Stream& stream) -> lazy<
       expected<boost::beast::http::response<boost::beast::http::string_body>,
                error_code>>
   {
@@ -405,7 +405,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_send_req_with_vector_body(Stream& stream) const -> lazy<expected<
+  auto do_send_req_with_vector_body(Stream& stream) -> lazy<expected<
       optional<boost::beast::http::response<boost::beast::http::string_body>>,
       error_code>>
   {
@@ -423,8 +423,7 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     fields_.to(req);
     req.set(http::field::host, resource_->host);
-    if (auto data = co_await web::async_read_all<std::vector<std::byte>>(
-            any_async_readable_stream { body_ });
+    if (auto data = co_await web::async_read_all<std::vector<std::byte>>(body_);
         data) {
       if (!*data) {
         co_return unexpected { (*data).error() };
@@ -468,7 +467,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_send_req_with_chunk_body(Stream& stream) const -> lazy<expected<
+  auto do_send_req_with_chunk_body(Stream& stream) -> lazy<expected<
       optional<boost::beast::http::response<boost::beast::http::string_body>>,
       error_code>>
   {
@@ -512,8 +511,8 @@ private:
       }
     }
 
-    if (auto res = co_await web::async_write_each_chunk(
-            stream, any_async_readable_stream { body_ }, request_timeout_);
+    if (auto res
+        = co_await web::async_write_each_chunk(stream, body_, request_timeout_);
         !res) {
       log::debug(
           "[{}] async_write_each_chunk failed: {}", name(), ec.message());
