@@ -57,6 +57,18 @@ using tcp_stream
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 #endif
 
+template <typename Stream>
+auto get_local_endpoint(Stream& stream)
+{
+  return net::get_lowest_layer(stream).socket().local_endpoint();
+}
+
+template <typename Stream>
+auto get_remote_endpoint(Stream& stream)
+{
+  return net::get_lowest_layer(stream).socket().remote_endpoint();
+}
+
 template <typename Awaitable>
 auto sync_wait(Awaitable&& awaitable)
 {

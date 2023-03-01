@@ -381,19 +381,12 @@ private:
       }
 
       auto res = co_await do_handler(
-          connection_info {
-              net::get_lowest_layer(*stream)
-                  .socket()
-                  .local_endpoint()
-                  .address(),
-              net::get_lowest_layer(*stream).socket().local_endpoint().port(),
-              net::get_lowest_layer(*stream)
-                  .socket()
-                  .remote_endpoint()
-                  .address(),
-              net::get_lowest_layer(*stream).socket().remote_endpoint().port(),
-              listen_ep.address(),
-              listen_ep.port() },
+          connection_info { net::get_local_endpoint(*stream).address(),
+                            net::get_local_endpoint(*stream).port(),
+                            net::get_remote_endpoint(*stream).address(),
+                            net::get_remote_endpoint(*stream).port(),
+                            listen_ep.address(),
+                            listen_ep.port() },
           method,
           std::move(target),
           std::move(fields),
