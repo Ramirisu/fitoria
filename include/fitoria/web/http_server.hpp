@@ -329,16 +329,17 @@ private:
     using std::tie;
     auto _ = std::ignore;
 
-    net::flat_buffer buffer;
     net::error_code ec;
 
     for (;;) {
-      request_parser<vector_body<std::byte>> req_parser;
-      req_parser.body_limit(boost::none);
+      net::flat_buffer buffer;
+      auto req_parser
+          = std::make_unique<request_parser<vector_body<std::byte>>>();
+      req_parser->body_limit(boost::none);
 
       net::get_lowest_layer(stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await async_read_header(stream, buffer, req_parser);
+      tie(ec, _) = co_await async_read_header(stream, buffer, *req_parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -346,11 +347,14 @@ private:
         co_return ec;
       }
 
-      auto& req = req_parser.get();
-      bool keep_alive = req.keep_alive();
+      bool keep_alive = req_parser->get().keep_alive();
+      auto method = req_parser->get().method();
+      auto target = std::string(req_parser->get().target());
+      auto fields = http_fields::from(req_parser->get());
+      bool chunked = req_parser->get().chunked();
 
-      if (auto it = req.find(http::field::expect);
-          it != req.end() && it->value() == "100-continue") {
+      if (auto it = req_parser->get().find(http::field::expect);
+          it != req_parser->get().end() && it->value() == "100-continue") {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
         tie(ec, _) = co_await async_write(
@@ -362,31 +366,11 @@ private:
         }
       }
 
-      std::vector<std::byte> chunk;
-      auto on_chunk_header
-          = [&chunk](std::uint64_t size, auto, net::error_code&) {
-              chunk.reserve(size);
-              chunk.clear();
-            };
-      auto on_chunk_body
-          = [&chunk](std::uint64_t remain, auto body, net::error_code& ec) {
-              if (remain == body.size()) {
-                ec = http::error::end_of_chunk;
-              }
-              auto s = std::as_bytes(std::span(body.data(), body.size()));
-              chunk.insert(chunk.end(), s.begin(), s.end());
-
-              return body.size();
-            };
-
-      if (req_parser.chunked()) {
-        req_parser.on_chunk_header(on_chunk_header);
-        req_parser.on_chunk_body(on_chunk_body);
-      } else {
+      if (!chunked) {
         net::get_lowest_layer(stream).expires_after(
             builder_.client_request_timeout_);
         tie(ec, _) = co_await boost::beast::http::async_read(
-            stream, buffer, req_parser);
+            stream, buffer, *req_parser);
         if (ec) {
           log::debug("[{}] async_read failed: {}", name(), ec.message());
           co_return ec;
@@ -404,19 +388,19 @@ private:
               net::get_lowest_layer(stream).socket().remote_endpoint().port(),
               listen_ep.address(),
               listen_ep.port() },
-          req.method(),
-          req.target(),
-          http_fields::from(req),
+          method,
+          std::move(target),
+          std::move(fields),
           [&]() -> any_async_readable_stream {
-            if (req.chunked()) {
+            if (chunked) {
               return async_message_parser_stream(
                   stream,
-                  req_parser,
-                  buffer,
-                  chunk,
+                  std::move(req_parser),
+                  std::move(buffer),
                   builder_.client_request_timeout_);
             }
-            return async_readable_vector_stream(std::move(req.body()));
+            return async_readable_vector_stream(
+                std::move(req_parser->get().body()));
           }());
       auto& body = res.body();
       if (body.is_chunked()) {
