@@ -247,9 +247,11 @@ private:
         continue;
       }
 
-      net::co_spawn(acceptor.get_executor(),
-                    do_session(net::tcp_stream(std::move(socket)), endpoint),
-                    builder_.exception_handler_);
+      net::co_spawn(
+          acceptor.get_executor(),
+          do_session(std::make_shared<net::tcp_stream>(std::move(socket)),
+                     endpoint),
+          builder_.exception_handler_);
     }
   }
 
@@ -267,15 +269,16 @@ private:
         continue;
       }
 
-      net::co_spawn(
-          acceptor.get_executor(),
-          do_session(net::ssl_stream(std::move(socket), ssl_ctx), endpoint),
-          builder_.exception_handler_);
+      net::co_spawn(acceptor.get_executor(),
+                    do_session(std::make_shared<net::ssl_stream>(
+                                   std::move(socket), ssl_ctx),
+                               endpoint),
+                    builder_.exception_handler_);
     }
   }
 #endif
 
-  lazy<void> do_session(net::tcp_stream stream,
+  lazy<void> do_session(std::shared_ptr<net::tcp_stream> stream,
                         net::ip::tcp::endpoint listen_ep) const
   {
     auto ec = co_await do_session_impl(stream, std::move(listen_ep));
@@ -284,20 +287,20 @@ private:
       co_return;
     }
 
-    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
+    stream->socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  lazy<void> do_session(net::ssl_stream stream,
+  lazy<void> do_session(std::shared_ptr<net::ssl_stream> stream,
                         net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
 
     net::error_code ec;
 
-    net::get_lowest_layer(stream).expires_after(
+    net::get_lowest_layer(*stream).expires_after(
         builder_.client_request_timeout_);
-    tie(ec) = co_await stream.async_handshake(net::ssl::stream_base::server);
+    tie(ec) = co_await stream->async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       builder_.handle_network_error(ec);
@@ -309,7 +312,7 @@ private:
       co_return;
     }
 
-    tie(ec) = co_await stream.async_shutdown();
+    tie(ec) = co_await stream->async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
       builder_.handle_network_error(ec);
@@ -319,7 +322,7 @@ private:
 #endif
 
   template <typename Stream>
-  lazy<net::error_code> do_session_impl(Stream& stream,
+  lazy<net::error_code> do_session_impl(std::shared_ptr<Stream> stream,
                                         net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::empty_body;
@@ -337,9 +340,9 @@ private:
           = std::make_unique<request_parser<vector_body<std::byte>>>();
       req_parser->body_limit(boost::none);
 
-      net::get_lowest_layer(stream).expires_after(
+      net::get_lowest_layer(*stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await async_read_header(stream, buffer, *req_parser);
+      tie(ec, _) = co_await async_read_header(*stream, buffer, *req_parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -355,10 +358,10 @@ private:
 
       if (auto it = req_parser->get().find(http::field::expect);
           it != req_parser->get().end() && it->value() == "100-continue") {
-        net::get_lowest_layer(stream).expires_after(
+        net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
         tie(ec, _) = co_await async_write(
-            stream, response<empty_body>(http::status::continue_, 11));
+            *stream, response<empty_body>(http::status::continue_, 11));
         if (ec) {
           log::debug(
               "[{}] async_write 100-continue failed: {}", name(), ec.message());
@@ -367,10 +370,10 @@ private:
       }
 
       if (!chunked) {
-        net::get_lowest_layer(stream).expires_after(
+        net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
         tie(ec, _) = co_await boost::beast::http::async_read(
-            stream, buffer, *req_parser);
+            *stream, buffer, *req_parser);
         if (ec) {
           log::debug("[{}] async_read failed: {}", name(), ec.message());
           co_return ec;
@@ -379,13 +382,16 @@ private:
 
       auto res = co_await do_handler(
           connection_info {
-              net::get_lowest_layer(stream).socket().local_endpoint().address(),
-              net::get_lowest_layer(stream).socket().local_endpoint().port(),
-              net::get_lowest_layer(stream)
+              net::get_lowest_layer(*stream)
+                  .socket()
+                  .local_endpoint()
+                  .address(),
+              net::get_lowest_layer(*stream).socket().local_endpoint().port(),
+              net::get_lowest_layer(*stream)
                   .socket()
                   .remote_endpoint()
                   .address(),
-              net::get_lowest_layer(stream).socket().remote_endpoint().port(),
+              net::get_lowest_layer(*stream).socket().remote_endpoint().port(),
               listen_ep.address(),
               listen_ep.port() },
           method,
@@ -412,17 +418,17 @@ private:
         auto r_serializer
             = boost::beast::http::response_serializer<empty_body>(r);
 
-        net::get_lowest_layer(stream).expires_after(
+        net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write_header(stream, r_serializer);
+        tie(ec, _) = co_await async_write_header(*stream, r_serializer);
         if (ec) {
           log::debug(
               "[{}] async_write_header failed: {}", name(), ec.message());
           co_return ec;
         }
 
-        if (auto exp = co_await web::async_write_each_chunk(
-                stream, body, builder_.client_request_timeout_);
+        if (auto exp = co_await async_write_each_chunk(
+                *stream, body, builder_.client_request_timeout_);
             !exp) {
           log::debug(
               "[{}] async_write_each_chunk failed: {}", name(), ec.message());
@@ -432,7 +438,7 @@ private:
         auto r
             = response<vector_body<std::byte>>(res.status_code().value(), 11);
         res.fields().to(r);
-        auto data = co_await web::async_read_all<std::vector<std::byte>>(body);
+        auto data = co_await async_read_all<std::vector<std::byte>>(body);
         if (data) {
           if (!*data) {
             co_return (*data).error();
@@ -442,9 +448,9 @@ private:
         r.keep_alive(keep_alive);
         r.prepare_payload();
 
-        net::get_lowest_layer(stream).expires_after(
+        net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write(stream, std::move(r));
+        tie(ec, _) = co_await async_write(*stream, std::move(r));
         if (ec) {
           log::debug("[{}] async_write failed: {}", name(), ec.message());
           co_return ec;

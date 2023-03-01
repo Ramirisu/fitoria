@@ -97,7 +97,7 @@ class async_message_parser_stream {
   };
 
 public:
-  async_message_parser_stream(Stream& stream,
+  async_message_parser_stream(std::shared_ptr<Stream> stream,
                               std::unique_ptr<MessageParser> parser,
                               net::flat_buffer buffer,
                               std::chrono::milliseconds timeout)
@@ -135,9 +135,9 @@ public:
     net::error_code ec;
 
     while (!impl_->parser().is_done() && !ec) {
-      net::get_lowest_layer(stream_).expires_after(timeout_);
+      net::get_lowest_layer(*stream_).expires_after(timeout_);
       tie(ec, _) = co_await boost::beast::http::async_read(
-          stream_, impl_->buffer(), impl_->parser());
+          *stream_, impl_->buffer(), impl_->parser());
     }
 
     if (ec && ec != http::error::end_of_chunk) {
@@ -148,7 +148,7 @@ public:
   }
 
 private:
-  Stream& stream_;
+  std::shared_ptr<Stream> stream_;
   std::unique_ptr<impl> impl_;
   std::chrono::milliseconds timeout_;
 };
