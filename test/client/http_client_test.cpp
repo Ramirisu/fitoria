@@ -109,24 +109,4 @@ TEST_CASE("async_send")
 #endif
 }
 
-TEST_CASE("format response")
-{
-  auto res
-      = net::sync_wait(
-            http_client(http::verb::get, "http://httpbin.org/get").async_send())
-            .value();
-  CHECK_EQ(res.status_code().value(), http::status::ok);
-
-  auto contains = [](std::string_view str, std::string_view substr) {
-    return str.find(substr) != std::string_view::npos;
-  };
-
-  auto str = fmt::format("{}", res);
-  CHECK(str.starts_with("HTTP/1.1 OK\n"));
-  CHECK(contains(str, "Connection: keep-alive\n"));
-  CHECK(contains(str, "Content-Type: application/json\n"));
-  CHECK(contains(str, "\"Host\": \"httpbin.org\","));
-  CHECK(contains(str, "\"url\": \"http://httpbin.org/get\""));
-}
-
 TEST_SUITE_END();

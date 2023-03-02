@@ -29,6 +29,21 @@ public:
   {
   }
 
+  http_response(http::status_code status_code, http_fields fields)
+      : status_code_(status_code)
+      , fields_(std::move(fields))
+  {
+  }
+
+  http_response(http::status_code status_code,
+                http_fields fields,
+                any_async_readable_stream body)
+      : status_code_(status_code)
+      , fields_(std::move(fields))
+      , body_(std::move(body))
+  {
+  }
+
   http_response(const http_response&) = delete;
 
   http_response& operator=(const http_response&) = delete;

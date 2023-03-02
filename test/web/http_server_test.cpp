@@ -54,12 +54,16 @@ TEST_CASE("builder")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::GET(
-                     to_local_url(boost::urls::scheme::http, port, "/api"))
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::GET(
+                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+      },
+      net::use_future);
 }
 
 TEST_CASE("duplicate route")
@@ -101,17 +105,23 @@ TEST_CASE("invalid target")
   };
 
   for (auto& test_case : test_cases) {
-    auto res = net::sync_wait(
-                   http_client::GET(
-                       to_local_url(boost::urls::scheme::http, port, test_case))
-                       .set_field(http::field::connection, "close")
-                       .set_plaintext("text")
-                       .async_send())
-                   .value();
-    CHECK_EQ(res.status_code(), http::status::not_found);
-    CHECK_EQ(res.fields().get(http::field::content_type),
-             http::fields::content_type::plaintext());
-    CHECK_EQ(res.body(), "request path is not found");
+    net::co_spawn(
+        ioc,
+        [&]() -> lazy<void> {
+          auto res
+              = (co_await http_client::GET(
+                     to_local_url(boost::urls::scheme::http, port, test_case))
+                     .set_field(http::field::connection, "close")
+                     .set_plaintext("text")
+                     .async_send())
+                    .value();
+          CHECK_EQ(res.status_code(), http::status::not_found);
+          CHECK_EQ(res.fields().get(http::field::content_type),
+                   http::fields::content_type::plaintext());
+          CHECK_EQ(co_await res.as_string(), "request path is not found");
+        },
+        net::use_future)
+        .get();
   }
 }
 
@@ -134,16 +144,20 @@ TEST_CASE("expect: 100-continue")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res
-      = net::sync_wait(
-            http_client::POST(
-                to_local_url(boost::urls::scheme::http, port, "/api/v1/post"))
-                .set_field(http::field::expect, "100-continue")
-                .set_field(http::field::connection, "close")
-                .set_plaintext("text")
-                .async_send())
-            .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::POST(
+                        to_local_url(
+                            boost::urls::scheme::http, port, "/api/v1/post"))
+                        .set_field(http::field::expect, "100-continue")
+                        .set_field(http::field::connection, "close")
+                        .set_plaintext("text")
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+      },
+      net::use_future);
 }
 
 #if !FITORIA_NO_EXCEPTIONS
@@ -178,12 +192,18 @@ TEST_CASE("unhandled exception from handler")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  CHECK(!net::sync_wait(
-      http_client::GET(
-          to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
-          .set_field(http::field::connection, "close")
-          .set_plaintext("text")
-          .async_send()));
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        CHECK(
+            !(co_await http_client::GET(
+                  to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
+                  .set_field(http::field::connection, "close")
+                  .set_plaintext("text")
+                  .async_send()));
+      },
+      net::use_future)
+      .get();
 
   // wait for exception thrown
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -273,26 +293,32 @@ TEST_CASE("generic request")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::GET(
-                     to_local_url(
-                         boost::urls::scheme::http,
-                         port,
-                         "/api/v1/users/Rina Hidaka/filmography/years/2022"))
-                     .set_query("name", "Rina Hidaka")
-                     .set_query("birth", "1994/06/15")
-                     .set_field(http::field::connection, "close")
-                     .insert_field(http::field::user_agent,
-                                   BOOST_BEAST_VERSION_STRING)
-                     .insert_field(http::field::user_agent, "fitoria")
-                     .set_plaintext("happy birthday")
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK(range_in_set(
-      res.fields().equal_range(http::field::user_agent),
-      [](auto&& p) { return p->second; },
-      std::set<std::string_view> { BOOST_BEAST_VERSION_STRING, "fitoria" }));
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::GET(
+                        to_local_url(
+                            boost::urls::scheme::http,
+                            port,
+                            "/api/v1/users/Rina Hidaka/filmography/years/2022"))
+                        .set_query("name", "Rina Hidaka")
+                        .set_query("birth", "1994/06/15")
+                        .set_field(http::field::connection, "close")
+                        .insert_field(http::field::user_agent,
+                                      BOOST_BEAST_VERSION_STRING)
+                        .insert_field(http::field::user_agent, "fitoria")
+                        .set_plaintext("happy birthday")
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK(range_in_set(
+            res.fields().equal_range(http::field::user_agent),
+            [](auto&& p) { return p->second; },
+            std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
+                                         "fitoria" }));
+      },
+      net::use_future)
+      .get();
 }
 
 namespace {
@@ -354,14 +380,19 @@ TEST_CASE("request with chunked transfer-encoding")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::POST(
-                     to_local_url(boost::urls::scheme::http, port, "/post"))
-                     .set_field(http::field::connection, "close")
-                     .set_stream(test_async_readable_chunk_stream<5>(input))
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::POST(
+                        to_local_url(boost::urls::scheme::http, port, "/post"))
+                        .set_field(http::field::connection, "close")
+                        .set_stream(test_async_readable_chunk_stream<5>(input))
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+      },
+      net::use_future)
+      .get();
 }
 
 TEST_CASE("response status only")
@@ -383,16 +414,21 @@ TEST_CASE("response status only")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::GET(
-                     to_local_url(boost::urls::scheme::http, port, "/api"))
-                     .set_field(http::field::connection, "close")
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::accepted);
-  CHECK_EQ(res.fields().get(http::field::connection), "close");
-  CHECK_EQ(res.fields().get(http::field::content_length), "0");
-  CHECK_EQ(res.body(), "");
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::GET(
+                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        .set_field(http::field::connection, "close")
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::accepted);
+        CHECK_EQ(res.fields().get(http::field::connection), "close");
+        CHECK_EQ(res.fields().get(http::field::content_length), "0");
+        CHECK_EQ(co_await res.as_string(), "");
+      },
+      net::use_future)
+      .get();
 }
 
 TEST_CASE("response with plain text")
@@ -415,17 +451,22 @@ TEST_CASE("response with plain text")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::GET(
-                     to_local_url(boost::urls::scheme::http, port, "/api"))
-                     .set_field(http::field::connection, "close")
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.fields().get(http::field::connection), "close");
-  CHECK_EQ(res.fields().get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(res.body(), "plain text");
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::GET(
+                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        .set_field(http::field::connection, "close")
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(res.fields().get(http::field::connection), "close");
+        CHECK_EQ(res.fields().get(http::field::content_type),
+                 http::fields::content_type::plaintext());
+        CHECK_EQ(co_await res.as_string(), "plain text");
+      },
+      net::use_future)
+      .get();
 }
 
 TEST_CASE("response with stream")
@@ -451,14 +492,19 @@ TEST_CASE("response with stream")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  auto res = net::sync_wait(
-                 http_client::GET(
-                     to_local_url(boost::urls::scheme::http, port, "/api"))
-                     .set_field(http::field::connection, "close")
-                     .async_send())
-                 .value();
-  CHECK_EQ(res.status_code(), http::status::ok);
-  CHECK_EQ(res.body(), input);
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res = (co_await http_client::GET(
+                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        .set_field(http::field::connection, "close")
+                        .async_send())
+                       .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(co_await res.as_string(), input);
+      },
+      net::use_future)
+      .get();
 }
 
 TEST_SUITE_END();

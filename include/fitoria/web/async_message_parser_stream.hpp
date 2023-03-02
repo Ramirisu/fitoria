@@ -101,7 +101,7 @@ public:
                               std::unique_ptr<MessageParser> parser,
                               net::flat_buffer buffer,
                               std::chrono::milliseconds timeout)
-      : stream_(stream)
+      : stream_(std::move(stream))
       , impl_(std::make_unique<impl>(std::move(parser), std::move(buffer)))
       , timeout_(timeout)
 

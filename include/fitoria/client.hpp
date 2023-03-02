@@ -5,12 +5,11 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef FITORIA_FITORIA_HPP
-#define FITORIA_FITORIA_HPP
+#ifndef FITORIA_CLIENT_HPP
+#define FITORIA_CLIENT_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/client/http_client.hpp>
-#include <fitoria/client/http_response.hpp>
 
 #endif
