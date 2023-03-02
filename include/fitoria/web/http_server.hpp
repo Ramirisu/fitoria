@@ -194,24 +194,24 @@ public:
     co_return;
   }
 
-  http_response serve_http_request(std::string_view path, mock_http_request req)
+  lazy<http_response> async_serve_request(std::string_view path,
+                                          mock_http_request req)
   {
     boost::urls::url url;
     url.set_path(path);
     url.set_query(req.query().to_string());
 
-    return net::sync_wait(
-        do_handler(connection_info { net::ip::make_address("127.0.0.1"),
-                                     0,
-                                     net::ip::make_address("127.0.0.1"),
-                                     0,
-                                     net::ip::make_address("127.0.0.1"),
-                                     0 },
-                   req.method(),
-                   std::string(url.encoded_target()),
-                   req.fields(),
-                   async_readable_vector_stream(
-                       std::span(req.body().begin(), req.body().end()))));
+    return do_handler(connection_info { net::ip::make_address("127.0.0.1"),
+                                        0,
+                                        net::ip::make_address("127.0.0.1"),
+                                        0,
+                                        net::ip::make_address("127.0.0.1"),
+                                        0 },
+                      req.method(),
+                      std::string(url.encoded_target()),
+                      req.fields(),
+                      async_readable_vector_stream(
+                          std::span(req.body().begin(), req.body().end())));
   }
 
 private:

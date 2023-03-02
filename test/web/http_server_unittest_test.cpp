@@ -31,11 +31,12 @@ TEST_CASE("connection_info")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  {
-    auto res
-        = server.serve_http_request("/get", mock_http_request(http::verb::get));
+
+  net::sync_wait([&]() -> lazy<void> {
+    auto res = co_await server.async_serve_request(
+        "/get", mock_http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
-  }
+  }());
 }
 
 TEST_CASE("state")
@@ -75,24 +76,27 @@ TEST_CASE("state")
                                                  ->value);
                                    }).state(shared_resource { "route" }))))
             .build();
-  {
-    auto res = server.serve_http_request("/api/v1/global",
-                                         mock_http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(net::sync_wait(res.as_string()), "global");
-  }
-  {
-    auto res = server.serve_http_request("/api/v1/scope",
-                                         mock_http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(net::sync_wait(res.as_string()), "scope");
-  }
-  {
-    auto res = server.serve_http_request("/api/v1/route",
-                                         mock_http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(net::sync_wait(res.as_string()), "route");
-  }
+
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/global", mock_http_request(http::verb::get));
+      CHECK_EQ(res.status_code(), http::status::ok);
+      CHECK_EQ(co_await res.as_string(), "global");
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/scope", mock_http_request(http::verb::get));
+      CHECK_EQ(res.status_code(), http::status::ok);
+      CHECK_EQ(co_await res.as_string(), "scope");
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/route", mock_http_request(http::verb::get));
+      CHECK_EQ(res.status_code(), http::status::ok);
+      CHECK_EQ(co_await res.as_string(), "route");
+    }
+  }());
 }
 
 TEST_CASE("string extractor")
@@ -104,11 +108,14 @@ TEST_CASE("string extractor")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  {
-    auto res = server.serve_http_request(
-        "/post", mock_http_request(http::verb::post).set_body("abc"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }
+
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/post", mock_http_request(http::verb::post).set_body("abc"));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
 }
 
 TEST_CASE("bytes extractor")
@@ -121,15 +128,16 @@ TEST_CASE("bytes extractor")
                   co_return http_response(http::status::ok);
                 }))
             .build();
-  {
-    auto res = server.serve_http_request(
-        "/post", mock_http_request(http::verb::post).set_body("abc"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/post", mock_http_request(http::verb::post).set_body("abc"));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
 }
 
 namespace {
-
 struct user_t {
   std::string name;
   std::string birth;
@@ -184,36 +192,36 @@ TEST_CASE("json")
                   co_return http_response(http::status::ok).set_json(user);
                 }))
             .build();
-  {
-    auto res = server.serve_http_request(
-        "/get",
-        mock_http_request(http::verb::get)
-            .set_json(
-                { { "name", "Rina Hidaka" }, { "birth", "1994/06/15" } }));
-    CHECK_EQ(res.status_code(), http::status::ok);
-    CHECK_EQ(res.fields().get(http::field::content_type),
-             http::fields::content_type::json());
-    CHECK_EQ(net::sync_wait(res.as_json<user_t>()),
-             user_t {
-                 .name = "Rina Hidaka",
-                 .birth = "1994/06/15",
-             });
-  }
-  {
-    auto res = server.serve_http_request(
-        "/get",
-        mock_http_request(http::verb::get)
-            .set_body(boost::json::serialize(boost::json::value {
-                { "name", "Rina Hidaka" }, { "birth", "1994/06/15" } })));
-    CHECK_EQ(res.status_code(), http::status::bad_request);
-  }
-  {
-    auto res = server.serve_http_request(
-        "/get",
-        mock_http_request(http::verb::get)
-            .set_json({ { "name", "Rina Hidaka" } }));
-    CHECK_EQ(res.status_code(), http::status::bad_request);
-  }
+
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      const auto user = user_t {
+        .name = "Rina Hidaka",
+        .birth = "1994/06/15",
+      };
+      auto res = co_await server.async_serve_request(
+          "/get", mock_http_request(http::verb::get).set_json(user));
+      CHECK_EQ(res.status_code(), http::status::ok);
+      CHECK_EQ(res.fields().get(http::field::content_type),
+               http::fields::content_type::json());
+      CHECK_EQ(co_await res.as_json<user_t>(), user);
+    }
+    {
+      const auto json = boost::json::value { { "name", "Rina Hidaka" },
+                                             { "birth", "1994/06/15" } };
+      auto res = co_await server.async_serve_request(
+          "/get",
+          mock_http_request(http::verb::get)
+              .set_body(boost::json::serialize(json)));
+      CHECK_EQ(res.status_code(), http::status::bad_request);
+    }
+    {
+      const auto json = boost::json::value { { "name", "Rina Hidaka" } };
+      auto res = co_await server.async_serve_request(
+          "/get", mock_http_request(http::verb::get).set_json(json));
+      CHECK_EQ(res.status_code(), http::status::bad_request);
+    }
+  }());
 }
 
 TEST_SUITE_END();

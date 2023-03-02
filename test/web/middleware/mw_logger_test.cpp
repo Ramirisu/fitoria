@@ -26,11 +26,15 @@ TEST_CASE("logger middleware")
                        }))
             .build();
 
-  auto res = server.serve_http_request(
-      "/api/get",
-      mock_http_request(http::verb::get)
-          .set_field(http::field::user_agent, "fitoria"));
-  CHECK_EQ(res.status_code(), http::status::ok);
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/get",
+          mock_http_request(http::verb::get)
+              .set_field(http::field::user_agent, "fitoria"));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
 }
 
 TEST_SUITE_END();

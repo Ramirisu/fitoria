@@ -30,17 +30,21 @@ TEST_CASE("exception_handler middleware")
                       co_return http_response(http::status::ok);
                     }))
             .build();
-  {
-    auto res = server.serve_http_request(
-        "/api/get",
-        mock_http_request(http::verb::get).set_body("throw: false"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }
-  {
-    auto res = server.serve_http_request(
-        "/api/get", mock_http_request(http::verb::get).set_body("throw: true"));
-    CHECK_EQ(res.status_code(), http::status::internal_server_error);
-  }
+
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/get",
+          mock_http_request(http::verb::get).set_body("throw: false"));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/get",
+          mock_http_request(http::verb::get).set_body("throw: true"));
+      CHECK_EQ(res.status_code(), http::status::internal_server_error);
+    }
+  }());
 }
 
 #endif
