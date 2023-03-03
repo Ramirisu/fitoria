@@ -17,7 +17,7 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/service.hpp>
+#include <fitoria/web/middleware_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -26,7 +26,7 @@ namespace web::middleware {
 #if !FITORIA_NO_EXCEPTIONS
 
 template <typename Next>
-class exception_handler_service {
+class exception_handler_middleware {
   friend class exception_handler;
 
 public:
@@ -44,7 +44,7 @@ public:
 
 private:
   template <typename Next2>
-  exception_handler_service(Next2&& next)
+  exception_handler_middleware(Next2&& next)
       : next_(std::forward<Next2>(next))
   {
   }
@@ -53,21 +53,23 @@ private:
 };
 
 template <typename Next>
-exception_handler_service(Next&&)
-    -> exception_handler_service<std::decay_t<Next>>;
+exception_handler_middleware(Next&&)
+    -> exception_handler_middleware<std::decay_t<Next>>;
 
 class exception_handler {
-  template <typename Next>
-  auto new_service(Next&& next) const
-  {
-    return exception_handler_service(std::forward<Next>(next));
-  }
-
 public:
   template <uncvref_same_as<exception_handler> Self, typename Next>
-  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
+  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_middleware_impl(
+        std::forward<Next>(next));
+  }
+
+private:
+  template <typename Next>
+  auto new_middleware_impl(Next&& next) const
+  {
+    return exception_handler_middleware(std::forward<Next>(next));
   }
 };
 

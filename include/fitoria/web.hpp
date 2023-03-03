@@ -22,12 +22,12 @@
 #include <fitoria/web/json.hpp>
 #include <fitoria/web/middleware/exception_handler.hpp>
 #include <fitoria/web/middleware/logger.hpp>
+#include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/route_params.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
-#include <fitoria/web/service.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #endif

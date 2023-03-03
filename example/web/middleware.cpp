@@ -25,7 +25,7 @@ using namespace fitoria::web;
 // clang-format on
 
 template <typename Next>
-class my_log_service {
+class my_log_middleware {
   friend class my_log;
 
 public:
@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  my_log_service(Next next, log::level lv)
+  my_log_middleware(Next next, log::level lv)
       : next_(std::move(next))
       , lv_(lv)
   {
@@ -59,16 +59,17 @@ public:
   }
 
   template <uncvref_same_as<my_log> Self, typename Next>
-  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
+  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_middleware_impl(
+        std::forward<Next>(next));
   }
 
 private:
   template <typename Next>
-  auto new_service(Next&& next) const
+  auto new_middleware_impl(Next&& next) const
   {
-    return my_log_service(std::move(next), lv_);
+    return my_log_middleware(std::move(next), lv_);
   }
 
   log::level lv_;

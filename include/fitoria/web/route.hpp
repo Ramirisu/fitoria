@@ -14,9 +14,9 @@
 
 #include <fitoria/web/compile_time_path_checker.hpp>
 #include <fitoria/web/http/http.hpp>
+#include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/pattern_matcher.hpp>
 #include <fitoria/web/routable.hpp>
-#include <fitoria/web/service.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #include <string>
@@ -136,7 +136,7 @@ private:
   template <typename S0, typename S1, typename... S>
   static auto build_service_impl(S0&& s0, S1&& s1, S&&... s)
   {
-    auto service = make_service(std::forward<S1>(s1), std::forward<S0>(s0));
+    auto service = new_middleware(std::forward<S1>(s1), std::forward<S0>(s0));
 
     if constexpr (sizeof...(S) > 0) {
       return build_service_impl(std::move(service), std::forward<S>(s)...);

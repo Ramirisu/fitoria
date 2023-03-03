@@ -17,14 +17,14 @@
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/service.hpp>
+#include <fitoria/web/middleware_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware {
 
 template <typename Next>
-class logger_service {
+class logger_middleware {
   friend class logger;
 
 public:
@@ -51,7 +51,7 @@ public:
 
 private:
   template <typename Next2>
-  logger_service(Next2&& next)
+  logger_middleware(Next2&& next)
       : next_(std::forward<Next2>(next))
   {
   }
@@ -60,20 +60,22 @@ private:
 };
 
 template <typename Next>
-logger_service(Next&&) -> logger_service<std::decay_t<Next>>;
+logger_middleware(Next&&) -> logger_middleware<std::decay_t<Next>>;
 
 class logger {
-  template <typename Next>
-  auto new_service(Next&& next) const
-  {
-    return logger_service(std::forward<Next>(next));
-  }
-
 public:
   template <uncvref_same_as<logger> Self, typename Next>
-  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
+  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_middleware_impl(
+        std::forward<Next>(next));
+  }
+
+private:
+  template <typename Next>
+  auto new_middleware_impl(Next&& next) const
+  {
+    return logger_middleware(std::forward<Next>(next));
   }
 };
 }

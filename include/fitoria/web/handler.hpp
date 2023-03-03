@@ -18,17 +18,17 @@
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/service.hpp>
+#include <fitoria/web/middleware_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
 template <typename Next, typename Args>
-class handler_service;
+class handler_middleware;
 
 template <typename Next, typename... Args>
-class handler_service<Next, std::tuple<Args...>> {
+class handler_middleware<Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
@@ -67,7 +67,7 @@ private:
   }
 
   template <typename Next2>
-  handler_service(Next2&& next)
+  handler_middleware(Next2&& next)
       : next_(std::forward<Next2>(next))
   {
   }
@@ -76,19 +76,21 @@ private:
 };
 
 class handler {
-  template <typename Next>
-  auto new_service(Next&& next) const
+public:
+  template <uncvref_same_as<handler> Self, typename Next>
+  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
-    return handler_service<std::decay_t<Next>,
-                           typename function_traits<Next>::args_type>(
+    return std::forward<Self>(self).new_middleware_impl(
         std::forward<Next>(next));
   }
 
-public:
-  template <uncvref_same_as<handler> Self, typename Next>
-  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
+private:
+  template <typename Next>
+  auto new_middleware_impl(Next&& next) const
   {
-    return std::forward<Self>(self).new_service(std::forward<Next>(next));
+    return handler_middleware<std::decay_t<Next>,
+                              typename function_traits<Next>::args_type>(
+        std::forward<Next>(next));
   }
 };
 }

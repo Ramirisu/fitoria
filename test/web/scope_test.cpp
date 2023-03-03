@@ -7,8 +7,8 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/scope.hpp>
-#include <fitoria/web/service.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
@@ -39,7 +39,7 @@ TEST_CASE("method")
 }
 
 template <typename Next>
-class adder_service {
+class adder_middleware {
   friend class adder;
 
 public:
@@ -50,7 +50,7 @@ public:
 
 private:
   template <typename Next2>
-  adder_service(Next2&& next, int value)
+  adder_middleware(Next2&& next, int value)
       : next_(std::forward<Next2>(next))
       , value_(value)
   {
@@ -61,7 +61,7 @@ private:
 };
 
 template <typename Next>
-adder_service(Next&&, int) -> adder_service<std::decay_t<Next>>;
+adder_middleware(Next&&, int) -> adder_middleware<std::decay_t<Next>>;
 
 class adder {
 public:
@@ -71,16 +71,17 @@ public:
   }
 
   template <uncvref_same_as<adder> Self, typename Next>
-  friend constexpr auto tag_invoke(make_service_t, Self&& self, Next&& next)
+  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_service(std::forward<Next>(next));
+    return std::forward<Self>(self).new_middleware_impl(
+        std::forward<Next>(next));
   }
 
 private:
   template <typename Next>
-  auto new_service(Next&& next) const
+  auto new_middleware_impl(Next&& next) const
   {
-    return adder_service(std::forward<Next>(next), value_);
+    return adder_middleware(std::forward<Next>(next), value_);
   }
 
   int value_;
