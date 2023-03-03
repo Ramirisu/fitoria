@@ -55,13 +55,14 @@ int main()
             .route(route::GET<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
-                  log::debug("owner: {}, repo: {}", req.params().get("owner"),
+                  log::debug("owner: {}, repo: {}",
+                             req.params().get("owner"),
                              req.params().get("repo"));
 
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
-                      .set_body("quick start");
+                      .set_body("getting started");
                 }))
             .build();
   server
@@ -69,7 +70,8 @@ int main()
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
       // Start to listen to port 8443 with SSL enabled
-      .bind_ssl("127.0.0.1", 8443,
+      .bind_ssl("127.0.0.1",
+                8443,
                 cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
 #endif
       // Start the server, `run()` will block current thread.
@@ -305,9 +307,14 @@ auto api(const connection_info& conn_info,
                            conn_info.listen_port());
   if (params.get("user") != "ramirisu" || secret.password != "123456") {
     co_return http_response(http::status::unauthorized)
+        .set_field(http::field::content_type,
+                   http::fields::content_type::plaintext())
         .set_body("user name or password is incorrect");
   }
-  co_return http_response(http::status::ok).set_body("login succeeded");
+  co_return http_response(http::status::ok)
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body("login succeeded");
 }
 }
 
@@ -348,8 +355,6 @@ int main()
                     // Create a sub-scope "/api/v1" under global scope
                     .sub_scope(
                         scope<"/api/v1">()
-                            // Register a middleware for this scope
-                            .use(middleware::gzip())
                             // Register a route for this scope
                             .GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
@@ -360,8 +365,6 @@ int main()
                     // Create a sub-scope "/api/v2" under global scope
                     .sub_scope(
                         scope<"/api/v2">()
-                            // Register a middleware for this scope
-                            .use(middleware::deflate())
                             // Register a route for this scope
                             .GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
@@ -387,8 +390,6 @@ fitoria provides following build-in middlewares:
 
 * `middleware::logger`
 * `middleware::exception_handler`
-* `middleware::deflate`
-* `middleware::gzip`
 
 ```cpp
 
@@ -458,24 +459,20 @@ int main()
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
 #endif
-                    // Register built-in deflate middleware
-                    .use(middleware::deflate())
-#if defined(FITORIA_HAS_ZLIB)
-                    // Register built-in gzip middleware
-                    .use(middleware::gzip())
-#endif
                     // Register a custom middleware for this group
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET<"/users/{user}">(
-                        [](http_request& req) -> lazy<http_response> {
-                          log::debug("user: {}", req.params().get("user"));
+                    .GET<"/users/{user}">([](http_request& req)
+                                              -> lazy<http_response> {
+                      log::debug("user: {}", req.params().get("user"));
 
-                          co_return http_response(http::status::ok)
-                              .set_body(req.params().get("user").value_or(
-                                  "{{unknown}}"));
-                        }))
+                      co_return http_response(http::status::ok)
+                          .set_field(http::field::content_type,
+                                     http::fields::content_type::plaintext())
+                          .set_body(
+                              req.params().get("user").value_or("{{unknown}}"));
+                    }))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -517,7 +514,7 @@ int main()
 
 #### Unit Testing
 
-`http::serve_http_request()` can consume the `mock_http_request` directly without creating TCP connections. 
+`http::async_serve_request()` can consume the `http_request` directly without creating TCP connections. 
 
 ([Unit Testing Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
 
@@ -546,45 +543,47 @@ int main()
                 }))
             .build();
 
-  {
-    auto res = server.serve_http_request(
-        "/api/v1/login",
-        mock_http_request(http::verb::post)
-            .set_field(http::field::content_type,
-                       http::fields::content_type::plaintext())
-            .set_body("name=ramirisu&password=123456"));
-    FITORIA_ASSERT(res.status_code() == http::status::bad_request);
-  }
-  {
-    auto res = server.serve_http_request(
-        "/api/v1/login",
-        mock_http_request(http::verb::post)
-            .set_field(http::field::content_type,
-                       http::fields::content_type::form_urlencoded())
-            .set_body("name=unknown&password=123"));
-    FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
-  }
-  {
-    auto res = server.serve_http_request(
-        "/api/v1/login",
-        mock_http_request(http::verb::post)
-            .set_field(http::field::content_type,
-                       http::fields::content_type::form_urlencoded())
-            .set_body("name=ramirisu&password=123"));
-    FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
-  }
-  {
-    auto res = server.serve_http_request(
-        "/api/v1/login",
-        mock_http_request(http::verb::post)
-            .set_field(http::field::content_type,
-                       http::fields::content_type::form_urlencoded())
-            .set_body("name=ramirisu&password=123456"));
-    FITORIA_ASSERT(res.status_code() == http::status::ok);
-    FITORIA_ASSERT(res.fields().get(http::field::content_type)
-                   == http::fields::content_type::plaintext());
-    FITORIA_ASSERT(res.body() == "ramirisu, login succeeded");
-  }
+  net::sync_wait([&]() -> lazy<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/login",
+          http_request(http::verb::post)
+              .set_field(http::field::content_type,
+                         http::fields::content_type::plaintext())
+              .set_body("name=ramirisu&password=123456"));
+      FITORIA_ASSERT(res.status_code() == http::status::bad_request);
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/login",
+          http_request(http::verb::post)
+              .set_field(http::field::content_type,
+                         http::fields::content_type::form_urlencoded())
+              .set_body("name=unknown&password=123"));
+      FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/login",
+          http_request(http::verb::post)
+              .set_field(http::field::content_type,
+                         http::fields::content_type::form_urlencoded())
+              .set_body("name=ramirisu&password=123"));
+      FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+    }
+    {
+      auto res = co_await server.async_serve_request(
+          "/api/v1/login",
+          http_request(http::verb::post)
+              .set_field(http::field::content_type,
+                         http::fields::content_type::form_urlencoded())
+              .set_body("name=ramirisu&password=123456"));
+      FITORIA_ASSERT(res.status_code() == http::status::ok);
+      FITORIA_ASSERT(res.fields().get(http::field::content_type)
+                     == http::fields::content_type::plaintext());
+      FITORIA_ASSERT((co_await res.as_string()) == "ramirisu, login succeeded");
+    }
+  }());
 }
 
 ```
