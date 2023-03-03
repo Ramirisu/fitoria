@@ -34,7 +34,7 @@ TEST_CASE("connection_info")
 
   net::sync_wait([&]() -> lazy<void> {
     auto res = co_await server.async_serve_request(
-        "/get", mock_http_request(http::verb::get));
+        "/get", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
@@ -52,26 +52,33 @@ TEST_CASE("state")
                     .state(shared_resource { "global" })
                     .sub_scope(
                         scope<"/api/v1">()
-                            .GET<"/global">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_plaintext(
-                                          req.state<const shared_resource&>()
-                                              ->value);
-                                })
+                            .GET<"/global">([](http_request& req)
+                                                -> lazy<http_response> {
+                              co_return http_response(http::status::ok)
+                                  .set_field(
+                                      http::field::content_type,
+                                      http::fields::content_type::plaintext())
+                                  .set_body(req.state<const shared_resource&>()
+                                                ->value);
+                            })
                             .state(shared_resource { "scope" })
-                            .GET<"/scope">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  co_return http_response(http::status::ok)
-                                      .set_plaintext(
-                                          req.state<const shared_resource&>()
-                                              ->value);
-                                })
+                            .GET<"/scope">([](http_request& req)
+                                               -> lazy<http_response> {
+                              co_return http_response(http::status::ok)
+                                  .set_field(
+                                      http::field::content_type,
+                                      http::fields::content_type::plaintext())
+                                  .set_body(req.state<const shared_resource&>()
+                                                ->value);
+                            })
                             .route(route::GET<
                                        "/route">([](http_request& req)
                                                      -> lazy<http_response> {
                                      co_return http_response(http::status::ok)
-                                         .set_plaintext(
+                                         .set_field(http::field::content_type,
+                                                    http::fields::content_type::
+                                                        plaintext())
+                                         .set_body(
                                              req.state<const shared_resource&>()
                                                  ->value);
                                    }).state(shared_resource { "route" }))))
@@ -80,19 +87,19 @@ TEST_CASE("state")
   net::sync_wait([&]() -> lazy<void> {
     {
       auto res = co_await server.async_serve_request(
-          "/api/v1/global", mock_http_request(http::verb::get));
+          "/api/v1/global", http_request(http::verb::get));
       CHECK_EQ(res.status_code(), http::status::ok);
       CHECK_EQ(co_await res.as_string(), "global");
     }
     {
       auto res = co_await server.async_serve_request(
-          "/api/v1/scope", mock_http_request(http::verb::get));
+          "/api/v1/scope", http_request(http::verb::get));
       CHECK_EQ(res.status_code(), http::status::ok);
       CHECK_EQ(co_await res.as_string(), "scope");
     }
     {
       auto res = co_await server.async_serve_request(
-          "/api/v1/route", mock_http_request(http::verb::get));
+          "/api/v1/route", http_request(http::verb::get));
       CHECK_EQ(res.status_code(), http::status::ok);
       CHECK_EQ(co_await res.as_string(), "route");
     }
@@ -112,7 +119,7 @@ TEST_CASE("string extractor")
   net::sync_wait([&]() -> lazy<void> {
     {
       auto res = co_await server.async_serve_request(
-          "/post", mock_http_request(http::verb::post).set_body("abc"));
+          "/post", http_request(http::verb::post).set_body("abc"));
       CHECK_EQ(res.status_code(), http::status::ok);
     }
   }());
@@ -131,7 +138,7 @@ TEST_CASE("bytes extractor")
   net::sync_wait([&]() -> lazy<void> {
     {
       auto res = co_await server.async_serve_request(
-          "/post", mock_http_request(http::verb::post).set_body("abc"));
+          "/post", http_request(http::verb::post).set_body("abc"));
       CHECK_EQ(res.status_code(), http::status::ok);
     }
   }());
@@ -200,7 +207,7 @@ TEST_CASE("json")
         .birth = "1994/06/15",
       };
       auto res = co_await server.async_serve_request(
-          "/get", mock_http_request(http::verb::get).set_json(user));
+          "/get", http_request(http::verb::get).set_json(user));
       CHECK_EQ(res.status_code(), http::status::ok);
       CHECK_EQ(res.fields().get(http::field::content_type),
                http::fields::content_type::json());
@@ -211,14 +218,13 @@ TEST_CASE("json")
                                              { "birth", "1994/06/15" } };
       auto res = co_await server.async_serve_request(
           "/get",
-          mock_http_request(http::verb::get)
-              .set_body(boost::json::serialize(json)));
+          http_request(http::verb::get).set_body(boost::json::serialize(json)));
       CHECK_EQ(res.status_code(), http::status::bad_request);
     }
     {
       const auto json = boost::json::value { { "name", "Rina Hidaka" } };
       auto res = co_await server.async_serve_request(
-          "/get", mock_http_request(http::verb::get).set_json(json));
+          "/get", http_request(http::verb::get).set_json(json));
       CHECK_EQ(res.status_code(), http::status::bad_request);
     }
   }());

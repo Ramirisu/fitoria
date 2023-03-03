@@ -439,7 +439,9 @@ TEST_CASE("response with plain text")
             .route(route::GET<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)
-                      .set_plaintext("plain text");
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body("plain text");
                 }))
             .build();
   server.bind(server_ip, port);

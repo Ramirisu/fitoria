@@ -20,7 +20,6 @@
 #include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>
-#include <fitoria/web/mock_http_request.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 
@@ -195,7 +194,7 @@ public:
   }
 
   lazy<http_response> async_serve_request(std::string_view path,
-                                          mock_http_request req)
+                                          http_request req)
   {
     boost::urls::url url;
     url.set_path(path);
@@ -209,9 +208,8 @@ public:
                                         0 },
                       req.method(),
                       std::string(url.encoded_target()),
-                      req.fields(),
-                      async_readable_vector_stream(
-                          std::span(req.body().begin(), req.body().end())));
+                      std::move(req.fields()),
+                      std::move(req.body()));
   }
 
 private:
@@ -467,13 +465,17 @@ private:
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
       co_return http_response(http::status::bad_request)
-          .set_plaintext("request target is invalid");
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body("request target is invalid");
     }
 
     auto route = builder_.router_.try_find(method, req_url.value().path());
     if (!route) {
       co_return http_response(http::status::not_found)
-          .set_plaintext("request path is not found");
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body("request path is not found");
     }
 
     auto request

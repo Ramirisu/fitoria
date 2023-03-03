@@ -76,7 +76,10 @@ namespace get {
     }
 
     if (auto value = (*cache)->get(*key); value) {
-      co_return http_response(http::status::ok).set_plaintext(*value);
+      co_return http_response(http::status::ok)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body(*value);
     } else {
       co_return http_response(http::status::not_found);
     }

@@ -30,7 +30,7 @@ TEST_CASE("logger middleware")
     {
       auto res = co_await server.async_serve_request(
           "/api/get",
-          mock_http_request(http::verb::get)
+          http_request(http::verb::get)
               .set_field(http::field::user_agent, "fitoria"));
       CHECK_EQ(res.status_code(), http::status::ok);
     }

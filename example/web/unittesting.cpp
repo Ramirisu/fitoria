@@ -26,8 +26,10 @@ int main()
                     co_return http_response(http::status::unauthorized);
                   }
                   co_return http_response(http::status::ok)
-                      .set_plaintext(fmt::format("{}, login succeeded",
-                                                 user->get("name")));
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body(fmt::format("{}, login succeeded",
+                                            user->get("name")));
                 }))
             .build();
 
@@ -35,7 +37,7 @@ int main()
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",
-          mock_http_request(http::verb::post)
+          http_request(http::verb::post)
               .set_field(http::field::content_type,
                          http::fields::content_type::plaintext())
               .set_body("name=ramirisu&password=123456"));
@@ -44,7 +46,7 @@ int main()
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",
-          mock_http_request(http::verb::post)
+          http_request(http::verb::post)
               .set_field(http::field::content_type,
                          http::fields::content_type::form_urlencoded())
               .set_body("name=unknown&password=123"));
@@ -53,7 +55,7 @@ int main()
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",
-          mock_http_request(http::verb::post)
+          http_request(http::verb::post)
               .set_field(http::field::content_type,
                          http::fields::content_type::form_urlencoded())
               .set_body("name=ramirisu&password=123"));
@@ -62,7 +64,7 @@ int main()
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",
-          mock_http_request(http::verb::post)
+          http_request(http::verb::post)
               .set_field(http::field::content_type,
                          http::fields::content_type::form_urlencoded())
               .set_body("name=ramirisu&password=123456"));

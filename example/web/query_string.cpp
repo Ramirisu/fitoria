@@ -29,7 +29,9 @@ auto api(const http_request& req) -> lazy<http_response>
   }
 
   co_return http_response(http::status::ok)
-      .set_plaintext(fmt::format("user: {}", user.value()));
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body(fmt::format("user: {}", user.value()));
 }
 }
 

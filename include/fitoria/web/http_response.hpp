@@ -166,32 +166,28 @@ public:
   }
 
   template <std::size_t N>
-  http_response& set_raw(std::span<const std::byte, N> bytes) &
+  http_response& set_body(std::span<const std::byte, N> bytes) &
   {
     body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
     return *this;
   }
 
   template <std::size_t N>
-  http_response&& set_raw(std::span<const std::byte, N> bytes) &&
+  http_response&& set_body(std::span<const std::byte, N> bytes) &&
   {
     body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
     return std::move(*this);
   }
 
-  http_response& set_plaintext(std::string_view sv) &
+  http_response& set_body(std::string_view sv) &
   {
-    set_field(http::field::content_type,
-              http::fields::content_type::plaintext());
-    set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
+    set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return *this;
   }
 
-  http_response&& set_plaintext(std::string_view sv) &&
+  http_response&& set_body(std::string_view sv) &&
   {
-    set_field(http::field::content_type,
-              http::fields::content_type::plaintext());
-    set_raw(std::as_bytes(std::span(sv.begin(), sv.end())));
+    set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return std::move(*this);
   }
 
@@ -201,7 +197,7 @@ public:
     if constexpr (std::is_same_v<T, boost::json::value>) {
       set_field(http::field::content_type, http::fields::content_type::json());
       auto s = boost::json::serialize(obj);
-      set_raw(std::as_bytes(std::span(s.begin(), s.end())));
+      set_body(std::as_bytes(std::span(s.begin(), s.end())));
     } else {
       set_json(boost::json::value_from(obj));
     }
@@ -214,7 +210,7 @@ public:
     if constexpr (std::is_same_v<T, boost::json::value>) {
       set_field(http::field::content_type, http::fields::content_type::json());
       auto s = boost::json::serialize(obj);
-      set_raw(std::as_bytes(std::span(s.begin(), s.end())));
+      set_body(std::as_bytes(std::span(s.begin(), s.end())));
     } else {
       set_json(boost::json::value_from(obj));
     }
