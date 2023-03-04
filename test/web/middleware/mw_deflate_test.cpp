@@ -28,7 +28,7 @@ TEST_CASE("async_inflate_stream: in > out")
       0x0e, 0x09, 0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00
     };
 
-    auto out = co_await async_read_all<std::string>(
+    auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
 
@@ -44,7 +44,7 @@ TEST_CASE("async_inflate_stream: in < out")
     const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
                                                 0x23, 0x19, 0x00, 0x00 };
 
-    auto out = co_await async_read_all<std::string>(
+    auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
 
@@ -58,7 +58,7 @@ TEST_CASE("async_inflate_stream: empty stream")
   net::sync_wait([]() -> lazy<void> {
     const auto in = std::vector<std::uint8_t> {};
 
-    auto out = co_await async_read_all<std::string>(
+    auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
             async_readable_vector_stream()));
     CHECK(out);
@@ -71,7 +71,7 @@ TEST_CASE("async_inflate_stream: invalid deflate stream")
   net::sync_wait([]() -> lazy<void> {
     const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
-    auto out = co_await async_read_all<std::string>(
+    auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
     CHECK(out);
@@ -85,7 +85,7 @@ TEST_CASE("async_deflate_stream")
     const auto in = std::string_view(
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-    auto out = co_await async_read_all<std::string>(
+    auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
             middleware::detail::async_deflate_stream(
                 async_readable_vector_stream(
@@ -97,7 +97,7 @@ TEST_CASE("async_deflate_stream")
 TEST_CASE("async_deflate_stream: empty stream")
 {
   net::sync_wait([]() -> lazy<void> {
-    auto out = co_await async_read_all<std::vector<std::uint8_t>>(
+    auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
             async_readable_vector_stream()));
     CHECK(out);
@@ -193,7 +193,7 @@ TEST_CASE("deflate middleware")
       } else {
         CHECK_EQ(res.fields().get(http::field::content_encoding),
                  http::fields::content_encoding::deflate());
-        CHECK_EQ(co_await async_read_all<std::string>(
+        CHECK_EQ(co_await async_read_all_as<std::string>(
                      middleware::detail::async_inflate_stream(
                          std::move(res.body()))),
                  plain);

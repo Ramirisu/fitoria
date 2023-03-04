@@ -36,7 +36,7 @@ concept async_readable_stream = requires(T t) {
 // clang-format on
 
 template <typename Container, async_readable_stream AsyncReadableStream>
-auto async_read_all(AsyncReadableStream&& stream)
+auto async_read_all_as(AsyncReadableStream&& stream)
     -> lazy<optional<expected<Container, net::error_code>>>
 {
   Container container;

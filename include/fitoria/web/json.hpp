@@ -36,7 +36,7 @@ public:
       co_return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
-    auto str = co_await async_read_all<std::string>(req.body());
+    auto str = co_await async_read_all_as<std::string>(req.body());
     if (str) {
       if (*str) {
         co_return detail::as_json<T>(**str);

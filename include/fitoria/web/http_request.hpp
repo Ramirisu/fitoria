@@ -183,7 +183,7 @@ public:
 
   lazy<expected<std::string, net::error_code>> as_string()
   {
-    if (auto str = co_await async_read_all<std::string>(body()); str) {
+    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
       co_return *str;
     }
 
@@ -198,7 +198,7 @@ public:
       co_return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
-    if (auto str = co_await async_read_all<std::string>(body()); str) {
+    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
       if (*str) {
         co_return detail::as_json<T>(**str);
       }

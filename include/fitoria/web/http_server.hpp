@@ -429,7 +429,7 @@ private:
         auto r
             = response<vector_body<std::byte>>(res.status_code().value(), 11);
         res.fields().to(r);
-        auto data = co_await async_read_all<std::vector<std::byte>>(body);
+        auto data = co_await async_read_all_as<std::vector<std::byte>>(body);
         if (data) {
           if (!*data) {
             co_return (*data).error();

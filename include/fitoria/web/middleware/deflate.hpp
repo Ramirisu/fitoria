@@ -34,7 +34,7 @@ public:
       if (stream.is_chunked()) {
         c.request().set_stream(std::move(stream));
       } else {
-        auto data = co_await async_read_all<std::vector<std::byte>>(stream);
+        auto data = co_await async_read_all_as<std::vector<std::byte>>(stream);
         if (!data || !*data) {
           co_return http_response(http::status::bad_request)
               .set_field(http::field::content_type,
@@ -64,7 +64,7 @@ public:
       if (stream.is_chunked()) {
         res.set_stream(std::move(stream));
       } else {
-        auto data = co_await async_read_all<std::vector<std::byte>>(stream);
+        auto data = co_await async_read_all_as<std::vector<std::byte>>(stream);
         if (!data || !*data) {
           co_return http_response(http::status::internal_server_error)
               .set_field(http::field::content_type,

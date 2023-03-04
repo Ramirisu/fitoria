@@ -436,7 +436,8 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     fields_.to(req);
     req.set(http::field::host, resource_->host);
-    if (auto data = co_await web::async_read_all<std::vector<std::byte>>(body_);
+    if (auto data
+        = co_await web::async_read_all_as<std::vector<std::byte>>(body_);
         data) {
       if (!*data) {
         co_return unexpected { (*data).error() };
