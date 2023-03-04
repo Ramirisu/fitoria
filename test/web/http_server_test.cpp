@@ -9,6 +9,7 @@
 
 #include <fitoria_certificate.h>
 #include <fitoria_http_server_utils.h>
+#include <fitoria_test_utils.h>
 
 #include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
@@ -319,44 +320,6 @@ TEST_CASE("generic request")
       },
       net::use_future)
       .get();
-}
-
-namespace {
-template <std::size_t ChunkSize>
-class test_async_readable_chunk_stream {
-public:
-  test_async_readable_chunk_stream(std::string_view data)
-      : data_(data)
-  {
-  }
-
-  auto is_chunked() const noexcept
-  {
-    return true;
-  }
-
-  auto size_hint() const noexcept -> optional<std::size_t>
-  {
-    return data_.size();
-  }
-
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
-  {
-    if (written >= data_.size()) {
-      co_return nullopt;
-    }
-
-    const auto chunk_size = std::min(ChunkSize, data_.size() - written);
-    auto sv = data_.substr(written, chunk_size);
-    written += chunk_size;
-    co_return to_bytes(sv);
-  }
-
-private:
-  std::string_view data_;
-  std::size_t written = 0;
-};
 }
 
 TEST_CASE("request with chunked transfer-encoding")

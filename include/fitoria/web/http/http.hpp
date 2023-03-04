@@ -106,6 +106,11 @@ namespace fields {
     {
       return "identity";
     }
+
+    inline std::string_view deflate() noexcept
+    {
+      return "deflate";
+    }
   }
 
   namespace authorization {

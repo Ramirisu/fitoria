@@ -7,6 +7,8 @@
 
 #include <fitoria_test.h>
 
+#include <fitoria_test_utils.h>
+
 #include <fitoria/web.hpp>
 
 using namespace fitoria;

@@ -20,6 +20,7 @@
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_server.hpp>
 #include <fitoria/web/json.hpp>
+#include <fitoria/web/middleware/deflate.hpp>
 #include <fitoria/web/middleware/exception_handler.hpp>
 #include <fitoria/web/middleware/logger.hpp>
 #include <fitoria/web/middleware_concept.hpp>

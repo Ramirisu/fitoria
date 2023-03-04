@@ -78,14 +78,6 @@ auto sync_wait(Awaitable&& awaitable)
   return fut.get();
 }
 
-namespace zlib {
-  using boost::beast::zlib::deflate_stream;
-  using boost::beast::zlib::deflate_upper_bound;
-  using boost::beast::zlib::error;
-  using boost::beast::zlib::Flush;
-  using boost::beast::zlib::inflate_stream;
-  using boost::beast::zlib::z_params;
-}
 }
 
 FITORIA_NAMESPACE_END
