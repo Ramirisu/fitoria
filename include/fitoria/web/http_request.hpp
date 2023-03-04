@@ -13,7 +13,8 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
-#include <fitoria/web/async_stream.hpp>
+#include <fitoria/web/any_async_readable_stream.hpp>
+#include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/http.hpp>

@@ -20,7 +20,8 @@
 #include <fitoria/log/log.hpp>
 
 #include <fitoria/web/async_message_parser_stream.hpp>
-#include <fitoria/web/async_stream.hpp>
+#include <fitoria/web/async_readable_stream_concept.hpp>
+#include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_response.hpp>

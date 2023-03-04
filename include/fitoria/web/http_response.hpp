@@ -10,7 +10,8 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/async_stream.hpp>
+#include <fitoria/web/any_async_readable_stream.hpp>
+#include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
