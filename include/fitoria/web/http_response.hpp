@@ -235,7 +235,7 @@ public:
 private:
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_vector_stream() };
+  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
 };
 
 }

@@ -45,9 +45,6 @@ public:
 
     auto chunk = co_await next_.async_read_next();
     if (!chunk) {
-      if (!eof_) {
-        co_return unexpected { make_error_code(zlib::error::stream_error) };
-      }
       co_return nullopt;
     }
 
@@ -60,7 +57,7 @@ public:
 
     const auto& in = **chunk;
     std::vector<std::byte> out;
-    out.resize(in.size());
+    out.resize(std::max<std::size_t>(in.size(), 16));
 
     zlib::z_params p;
     p.next_in = in.data();
@@ -78,7 +75,6 @@ public:
         co_return unexpected { ec };
       }
       if (p.avail_out > 0) {
-        eof_ = (ec == zlib::error::end_of_stream);
         break;
       }
 
@@ -95,7 +91,6 @@ public:
 private:
   NextLayer next_;
   boost::beast::zlib::inflate_stream inflater_;
-  bool eof_ = false;
 };
 
 template <typename NextLayer>
@@ -126,13 +121,9 @@ public:
   {
     namespace zlib = boost::beast::zlib;
 
-    if (eof_) {
-      co_return nullopt;
-    }
-
     auto chunk = co_await next_.async_read_next();
     if (!chunk) {
-      co_return co_await async_read_next_impl({}, zlib::Flush::finish);
+      co_return nullopt;
     }
 
     if (!*chunk) {
@@ -176,17 +167,12 @@ private:
       p.avail_out = size;
     }
 
-    if (flush == zlib::Flush::finish) {
-      eof_ = true;
-    }
-
     out.resize(out.size() - p.avail_out);
     co_return out;
   }
 
   NextLayer next_;
   boost::beast::zlib::deflate_stream deflater_;
-  bool eof_ = false;
 };
 
 template <typename NextLayer>

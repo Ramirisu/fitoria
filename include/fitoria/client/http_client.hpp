@@ -550,7 +550,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_vector_stream() };
+  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
 }

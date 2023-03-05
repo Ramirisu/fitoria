@@ -53,6 +53,18 @@ TEST_CASE("async_inflate_stream: in < out")
   });
 }
 
+TEST_CASE("async_inflate_stream: eof stream")
+{
+  net::sync_wait([]() -> lazy<void> {
+    const auto in = std::vector<std::uint8_t> {};
+
+    auto out = co_await async_read_all_as<std::string>(
+        middleware::detail::async_inflate_stream(
+            async_readable_vector_stream::eof()));
+    CHECK(!out);
+  });
+}
+
 TEST_CASE("async_inflate_stream: empty stream")
 {
   net::sync_wait([]() -> lazy<void> {
@@ -60,7 +72,7 @@ TEST_CASE("async_inflate_stream: empty stream")
 
     auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
-            async_readable_vector_stream()));
+            async_readable_vector_stream::empty()));
     CHECK(out);
     CHECK(!*out);
   });
@@ -69,7 +81,8 @@ TEST_CASE("async_inflate_stream: empty stream")
 TEST_CASE("async_inflate_stream: invalid deflate stream")
 {
   net::sync_wait([]() -> lazy<void> {
-    const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
+    // RFC-1951: BFINAL 0, BTYPE 11 (reserved)
+    const auto in = std::vector<std::uint8_t> { 0x06 };
 
     auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_inflate_stream(
@@ -94,15 +107,24 @@ TEST_CASE("async_deflate_stream")
   });
 }
 
+TEST_CASE("async_deflate_stream: eof stream")
+{
+  net::sync_wait([]() -> lazy<void> {
+    auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
+        middleware::detail::async_deflate_stream(
+            async_readable_vector_stream::eof()));
+    CHECK(!out);
+  });
+}
+
 TEST_CASE("async_deflate_stream: empty stream")
 {
   net::sync_wait([]() -> lazy<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
-            async_readable_vector_stream()));
+            async_readable_vector_stream::empty()));
     CHECK(out);
-    const auto exp = std::vector<std::uint8_t> { 0x03, 0x00 };
-    CHECK_EQ(*out, exp);
+    CHECK(!*out);
   });
 }
 

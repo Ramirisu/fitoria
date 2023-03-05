@@ -21,8 +21,6 @@ namespace web {
 
 class async_readable_vector_stream {
 public:
-  async_readable_vector_stream() = default;
-
   async_readable_vector_stream(std::vector<std::byte> data)
       : data_(std::move(data))
   {
@@ -57,7 +55,19 @@ public:
         });
   }
 
+  static async_readable_vector_stream eof()
+  {
+    return {};
+  }
+
+  static async_readable_vector_stream empty()
+  {
+    return async_readable_vector_stream(std::vector<std::byte>());
+  }
+
 private:
+  async_readable_vector_stream() = default;
+
   optional<std::vector<std::byte>> data_;
 };
 }

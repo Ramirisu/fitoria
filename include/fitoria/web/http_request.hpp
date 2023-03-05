@@ -31,7 +31,6 @@ class http_request {
 public:
   http_request(http::verb method)
       : method_(method)
-      , body_(async_readable_vector_stream())
   {
   }
 
@@ -300,7 +299,7 @@ private:
   http::verb method_;
   query_map query_;
   http_fields fields_;
-  any_async_readable_stream body_;
+  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
   optional<const std::vector<state_map>&> state_maps_;
 };
 
