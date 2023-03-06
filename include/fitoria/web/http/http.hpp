@@ -111,6 +111,11 @@ namespace fields {
     {
       return "deflate";
     }
+
+    inline std::string_view gzip() noexcept
+    {
+      return "gzip";
+    }
   }
 
   namespace authorization {
