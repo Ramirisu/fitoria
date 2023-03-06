@@ -391,6 +391,7 @@ fitoria provides following build-in middlewares:
 * `middleware::logger`
 * `middleware::exception_handler`
 * `middleware::deflate`
+* `middleware::gzip`
 
 > Implement `new_middleware` CPO to define custom middlewares.
 
