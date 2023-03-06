@@ -29,7 +29,8 @@ class deflate_middleware {
 public:
   auto operator()(http_context& c) const -> lazy<http_response>
   {
-    if (c.request().fields().get(http::field::content_encoding) == "deflate") {
+    if (c.request().fields().get(http::field::content_encoding)
+        == http::fields::content_encoding::deflate()) {
       auto stream = detail::async_inflate_stream(std::move(c.request().body()));
       if (stream.is_chunked()) {
         c.request().set_stream(std::move(stream));
@@ -58,8 +59,9 @@ public:
       co_return res;
     }
 
-    if (auto ac = c.request().fields().get(http::field::accept_encoding);
-        ac && ac->find("deflate") != std::string::npos) {
+    if (auto ac = c.request().fields().get(http::field::accept_encoding); ac
+        && ac->find(http::fields::content_encoding::deflate())
+            != std::string::npos) {
       auto stream = detail::async_deflate_stream(std::move(res.body()));
       if (stream.is_chunked()) {
         res.set_stream(std::move(stream));

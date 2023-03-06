@@ -47,7 +47,6 @@ public:
     if (!chunk) {
       co_return nullopt;
     }
-
     if (!*chunk) {
       co_return unexpected { (*chunk).error() };
     }
@@ -125,7 +124,6 @@ public:
     if (!chunk) {
       co_return nullopt;
     }
-
     if (!*chunk) {
       co_return unexpected { (*chunk).error() };
     }
@@ -133,16 +131,7 @@ public:
       co_return unexpected { make_error_code(zlib::error::stream_error) };
     }
 
-    co_return co_await async_read_next_impl(**chunk, zlib::Flush::sync);
-  }
-
-private:
-  auto async_read_next_impl(const std::vector<std::byte>& in,
-                            boost::beast::zlib::Flush flush)
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
-  {
-    namespace zlib = boost::beast::zlib;
-
+    const auto& in = **chunk;
     std::vector<std::byte> out;
     out.resize(std::max<std::size_t>(in.size(), 16));
 
@@ -154,7 +143,7 @@ private:
 
     while (true) {
       net::error_code ec;
-      deflater_.write(p, flush, ec);
+      deflater_.write(p, zlib::Flush::sync, ec);
       FITORIA_ASSERT(ec != zlib::error::stream_error);
 
       if (p.avail_out > 0) {
@@ -171,6 +160,7 @@ private:
     co_return out;
   }
 
+private:
   NextLayer next_;
   boost::beast::zlib::deflate_stream deflater_;
 };
