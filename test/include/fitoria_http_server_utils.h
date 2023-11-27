@@ -31,10 +31,9 @@ inline std::string to_local_url(boost::urls::scheme scheme,
                                 std::uint16_t port,
                                 std::string_view path)
 {
-  return fmt::vformat(
-      "{}://{}:{}{}",
-      fmt::make_format_args(
-          std::string_view(to_string(scheme)), localhost, port, path));
+  auto scheme_str = std::string_view(to_string(scheme));
+  return fmt::vformat("{}://{}:{}{}",
+                      fmt::make_format_args(scheme_str, localhost, port, path));
 }
 
 template <typename F>

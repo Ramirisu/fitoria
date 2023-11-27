@@ -48,7 +48,7 @@ public:
                                       std::chrono::system_clock::now()),
                                   to_string(lv));
     msg += fmt::vformat(std::forward<Format>(fmt),
-                        fmt::make_format_args(std::forward<Args>(args)...));
+                        fmt::make_format_args(args...));
 
 #if defined(__cpp_lib_source_location)
     msg += fmt::format(" [{}:{}:{}]\n",
