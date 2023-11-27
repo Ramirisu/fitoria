@@ -29,7 +29,7 @@ endif()
 detect_std_format()
 message(
   STATUS
-  "[fitoria] [dep.lib] std.format = ${FITORIA_CXX_COMPILER_HAS_STD_FORMAT}")
+    "[fitoria] [dep.lib] std.format = ${FITORIA_CXX_COMPILER_HAS_STD_FORMAT}")
 
 if(NOT FITORIA_CXX_COMPILER_HAS_STD_FORMAT)
   message(STATUS "[fitoria] [dep.lib] try to find fmt")
@@ -64,8 +64,8 @@ if(NOT FITORIA_DISABLE_OPENSSL)
 endif()
 
 # [dep.lib] boost
-message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.81.0")
-find_package(Boost 1.81.0 REQUIRED json url)
+message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.83.0")
+find_package(Boost 1.83.0 REQUIRED json url)
 message(STATUS "[fitoria] [dep.lib] Boost found = ${BOOST_FOUND}")
 
 add_library(fitoria INTERFACE)
@@ -73,7 +73,7 @@ add_library(fitoria::fitoria ALIAS fitoria)
 target_link_libraries(fitoria INTERFACE Boost::json Boost::url)
 target_link_directories(fitoria INTERFACE ${Boost_LIBRARY_DIRS})
 target_include_directories(fitoria INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${Boost_INCLUDE_DIRS})
+                                             ${Boost_INCLUDE_DIRS})
 
 if(FITORIA_USE_FMT)
   target_link_libraries(fitoria INTERFACE fmt::fmt)
