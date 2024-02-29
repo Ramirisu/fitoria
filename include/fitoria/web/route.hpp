@@ -99,7 +99,7 @@ public:
   {
     return routable(
         method_,
-        pattern_matcher<Path>(),
+        pattern_matcher(Path),
         state_maps_,
         build_service(std::tuple_cat(
             services_, std::tuple { handler_service_factory, handler_ })));
@@ -109,7 +109,7 @@ public:
   {
     return routable(
         method_,
-        pattern_matcher<Path>(),
+        pattern_matcher(Path),
         state_maps_,
         build_service(std::tuple_cat(services_, std::tuple { handler_ })));
   }

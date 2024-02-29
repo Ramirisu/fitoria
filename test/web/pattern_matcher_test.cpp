@@ -43,13 +43,13 @@ TEST_CASE("parse_pattern")
 
 TEST_CASE("match")
 {
-  CHECK_EQ(pattern_matcher<"">().match(""), query_map());
-  CHECK_EQ(pattern_matcher<"/{1}/2/{3}/4">().match("/w/x/y/z"),
+  CHECK_EQ(pattern_matcher("").match(""), query_map());
+  CHECK_EQ(pattern_matcher("/{1}/2/{3}/4").match("/w/x/y/z"),
            query_map {
                { "1", "w" },
                { "3", "y" },
            });
-  CHECK(!pattern_matcher<"/1">().match(""));
+  CHECK(!pattern_matcher("/1").match(""));
 }
 
 TEST_SUITE_END();

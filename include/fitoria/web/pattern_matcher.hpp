@@ -93,17 +93,17 @@ inline auto parse_pattern(std::string_view pattern) -> optional<segments_t>
   return segments;
 }
 
-template <basic_fixed_string Pattern>
 class pattern_matcher {
 public:
-  pattern_matcher()
-      : segments_(parse_pattern(Pattern).value())
+  pattern_matcher(std::string_view pattern)
+      : pattern_(std::string(pattern))
+      , segments_(parse_pattern(pattern).value())
   {
   }
 
   auto pattern() const noexcept -> std::string_view
   {
-    return Pattern;
+    return pattern_;
   }
 
   auto segments() const noexcept -> const segments_t&
@@ -142,6 +142,7 @@ public:
   }
 
 private:
+  std::string pattern_;
   segments_t segments_;
 };
 }
