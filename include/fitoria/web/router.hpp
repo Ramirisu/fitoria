@@ -23,7 +23,6 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
