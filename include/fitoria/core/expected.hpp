@@ -4,6 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#pragma once
 
 #ifndef FITORIA_CORE_EXPECTED_HPP
 #define FITORIA_CORE_EXPECTED_HPP
@@ -281,8 +282,8 @@ public:
   = default;
 
   constexpr expected(expected&& other) noexcept(
-      std::is_nothrow_move_constructible_v<T>&&
-          std::is_nothrow_move_constructible_v<E>)
+      std::is_nothrow_move_constructible_v<T>
+      && std::is_nothrow_move_constructible_v<E>)
     requires(!(std::is_trivially_move_constructible_v<T>
                && std::is_trivially_move_constructible_v<E>)
              && std::is_move_constructible_v<T>
@@ -463,10 +464,10 @@ public:
   = default;
 
   constexpr expected& operator=(expected&& other) noexcept(
-      std::is_nothrow_move_constructible_v<T>&&
-          std::is_nothrow_move_assignable_v<T>&&
-              std::is_nothrow_move_constructible_v<E>&&
-                  std::is_nothrow_move_assignable_v<E>)
+      std::is_nothrow_move_constructible_v<T>
+      && std::is_nothrow_move_assignable_v<T>
+      && std::is_nothrow_move_constructible_v<E>
+      && std::is_nothrow_move_assignable_v<E>)
     requires(!(std::is_trivially_move_assignable_v<T>
                && std::is_trivially_move_assignable_v<E>)
              && std::is_move_constructible_v<T> && std::is_move_assignable_v<T>
@@ -748,8 +749,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto and_then(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto and_then(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cvref_t<std::invoke_result_t<F, T>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
@@ -776,8 +777,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto or_else(F&& f) &
-        requires(std::is_copy_constructible_v<T>)
+  constexpr auto or_else(F&& f) &
+    requires(std::is_copy_constructible_v<T>)
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, E&>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
@@ -804,8 +805,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto or_else(F&& f) &&
-        requires(std::is_move_constructible_v<T>)
+  constexpr auto or_else(F&& f) &&
+    requires(std::is_move_constructible_v<T>)
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, E>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
@@ -832,8 +833,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &
-        requires(std::is_copy_constructible_v<E>)
+  constexpr auto transform(F&& f) &
+    requires(std::is_copy_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
@@ -856,8 +857,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto transform(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
     if (has_value()) {
@@ -882,8 +883,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform_error(F&& f) &
-        requires(std::is_copy_constructible_v<T>)
+  constexpr auto transform_error(F&& f) &
+    requires(std::is_copy_constructible_v<T>)
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E&>>;
     if (has_value()) {
@@ -906,8 +907,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform_error(F&& f) &&
-        requires(std::is_move_constructible_v<T>)
+  constexpr auto transform_error(F&& f) &&
+    requires(std::is_move_constructible_v<T>)
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E>>;
     if (has_value()) {
@@ -963,10 +964,10 @@ public:
     return this->val_;
   }
 
-  void swap(expected& other) noexcept(
-      std::is_nothrow_move_constructible_v<T>&& std::is_nothrow_swappable_v<T>&&
-          std::is_nothrow_move_constructible_v<E>&&
-              std::is_nothrow_swappable_v<E>)
+  void swap(expected& other) noexcept(std::is_nothrow_move_constructible_v<T>
+                                      && std::is_nothrow_swappable_v<T>
+                                      && std::is_nothrow_move_constructible_v<E>
+                                      && std::is_nothrow_swappable_v<E>)
     requires(std::is_swappable_v<T> && std::is_swappable_v<E>
              && std::is_move_constructible_v<T>
              && std::is_move_constructible_v<E>
@@ -1233,8 +1234,8 @@ public:
   = default;
 
   constexpr expected&
-  operator=(expected&& other) noexcept(std::is_nothrow_move_constructible_v<E>&&
-                                           std::is_nothrow_move_assignable_v<E>)
+  operator=(expected&& other) noexcept(std::is_nothrow_move_constructible_v<E>
+                                       && std::is_nothrow_move_assignable_v<E>)
     requires(!std::is_trivially_move_assignable_v<E>
              && std::is_move_constructible_v<E> && std::is_move_assignable_v<E>)
   {
@@ -1405,8 +1406,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto and_then(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto and_then(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cvref_t<std::invoke_result_t<F>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
@@ -1485,8 +1486,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &
-        requires(std::is_copy_constructible_v<E>)
+  constexpr auto transform(F&& f) &
+    requires(std::is_copy_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F>>;
     if (has_value()) {
@@ -1509,8 +1510,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto transform(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F>>;
     if (has_value()) {
@@ -1586,8 +1587,8 @@ public:
     }
   }
 
-  void swap(expected& other) noexcept(
-      std::is_nothrow_move_constructible_v<E>&& std::is_nothrow_swappable_v<E>)
+  void swap(expected& other) noexcept(std::is_nothrow_move_constructible_v<E>
+                                      && std::is_nothrow_swappable_v<E>)
     requires(std::is_swappable_v<E> && std::is_move_constructible_v<E>)
   {
     if (has_value()) {
@@ -1844,8 +1845,8 @@ public:
   = default;
 
   constexpr expected&
-  operator=(expected&& other) noexcept(std::is_nothrow_move_constructible_v<E>&&
-                                           std::is_nothrow_move_assignable_v<E>)
+  operator=(expected&& other) noexcept(std::is_nothrow_move_constructible_v<E>
+                                       && std::is_nothrow_move_assignable_v<E>)
     requires(!std::is_trivially_move_assignable_v<E>
              && std::is_move_constructible_v<E> && std::is_move_assignable_v<E>)
   {
@@ -2076,8 +2077,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto and_then(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto and_then(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cvref_t<std::invoke_result_t<F, T>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
@@ -2156,8 +2157,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &
-        requires(std::is_copy_constructible_v<E>)
+  constexpr auto transform(F&& f) &
+    requires(std::is_copy_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
@@ -2180,8 +2181,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto transform(F&& f) &&
-        requires(std::is_move_constructible_v<E>)
+  constexpr auto transform(F&& f) &&
+    requires(std::is_move_constructible_v<E>)
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
     if (has_value()) {

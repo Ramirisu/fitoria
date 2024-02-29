@@ -4,6 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
+#pragma once
 
 #ifndef FITORIA_CORE_OPTIONAL_HPP
 #define FITORIA_CORE_OPTIONAL_HPP
@@ -415,8 +416,8 @@ public:
   }
 
   template <typename U>
-      constexpr T value_or(U&& default_value) &&
-        requires(std::is_move_constructible_v<T>)
+  constexpr T value_or(U&& default_value) &&
+    requires(std::is_move_constructible_v<T>)
   {
     if (has_value()) {
       return std::move(this->val_);
@@ -531,8 +532,8 @@ public:
   }
 
   template <typename F>
-      constexpr auto or_else(F&& f) &&
-        requires(std::is_move_constructible_v<T>)
+  constexpr auto or_else(F&& f) &&
+    requires(std::is_move_constructible_v<T>)
   {
     using U = std::remove_cvref_t<std::invoke_result_t<F>>;
     static_assert(std::is_same_v<U, optional>);
@@ -543,8 +544,9 @@ public:
     }
   }
 
-  constexpr void swap(optional& other) noexcept(
-      std::is_nothrow_move_constructible_v<T>&& std::is_nothrow_swappable_v<T>)
+  constexpr void
+  swap(optional& other) noexcept(std::is_nothrow_move_constructible_v<T>
+                                 && std::is_nothrow_swappable_v<T>)
     requires(std::is_move_constructible_v<T>)
   {
     if (has_value()) {
