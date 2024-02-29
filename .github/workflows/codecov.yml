@@ -1,6 +1,10 @@
 name: codecov
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
@@ -16,7 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Cache vcpkg
         id: cache-vcpkg
         uses: actions/cache@v3
@@ -65,7 +69,7 @@ jobs:
 
       - name: Test
         shell: bash
-        working-directory:  ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}/build
         run: ctest --output-on-failure .
 
       - name: Upload code coverage report
