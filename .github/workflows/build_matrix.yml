@@ -21,11 +21,11 @@ jobs:
         disable_openssl: [ON, OFF]
 
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Cache vcpkg
         id: cache-vcpkg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/vcpkg_cache
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/') }}
@@ -114,5 +114,5 @@ jobs:
 
       - name: Test
         shell: bash
-        working-directory:  ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}/build
         run: ctest --output-on-failure .
