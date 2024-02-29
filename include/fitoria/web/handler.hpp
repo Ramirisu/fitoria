@@ -41,9 +41,8 @@ private:
   auto invoke_with_args_expansion(http_context& ctx) const
       -> lazy<http_response>
   {
-    co_return co_await invoke_with_args_expansion_impl<0>(
-        std::tuple { co_await from_http_request_t<Args> {}(
-            static_cast<http_request&>(ctx))... });
+    co_return co_await invoke_with_args_expansion_impl<0>(std::tuple {
+        co_await from_http_request<Args>(static_cast<http_request&>(ctx))... });
   }
 
   template <std::size_t I>

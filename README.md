@@ -265,7 +265,7 @@ Built-in Extractors:
 | `std::string`            | Extract body as `std::string`                          |      yes       |
 | `web::json<T>`           | Extract body and parse it into json and convert to `T` |      yes       |
 
-> Implement `from_http_request` CPO to define custom extractors.
+> Implement `from_http_request_t` CPO to define custom extractors.
 
 > The body extractor can only be used at most once in the request handlers since it consumes the body.
 
@@ -393,7 +393,7 @@ fitoria provides following build-in middlewares:
 * `middleware::deflate`
 * `middleware::gzip`
 
-> Implement `new_middleware` CPO to define custom middlewares.
+> Implement `new_middleware_t` CPO to define custom middlewares.
 
 ```cpp
 
