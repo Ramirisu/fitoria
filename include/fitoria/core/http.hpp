@@ -11,17 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#if defined(FITORIA_CXX_COMPILER_MSVC)
-// boost/asio/buffer.hpp(247): warning C4702: unreachable code
-#pragma warning(push)
-#pragma warning(disable : 4702)
-#endif
-
-#include <boost/beast/http.hpp>
-
-#if defined(FITORIA_CXX_COMPILER_MSVC)
-// boost/asio/buffer.hpp(247): warning C4702: unreachable code
-#pragma warning(pop)
-#endif
+#include <fitoria/core/detail/boost.hpp>
 
 #endif

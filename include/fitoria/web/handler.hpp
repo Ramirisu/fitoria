@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 

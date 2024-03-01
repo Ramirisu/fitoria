@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_CORE_LAZY_HPP
-#define FITORIA_CORE_LAZY_HPP
+#ifndef FITORIA_CORE_DETAIL_BOOST_HPP
+#define FITORIA_CORE_DETAIL_BOOST_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,18 +17,17 @@
 #pragma warning(disable : 4702)
 #endif
 
-#include <boost/asio/awaitable.hpp>
+#include <boost/asio.hpp>
+#include <boost/beast.hpp>
+
+#if defined(FITORIA_HAS_OPENSSL)
+#include <boost/asio/ssl.hpp>
+#include <boost/beast/ssl.hpp>
+#endif
 
 #if defined(FITORIA_CXX_COMPILER_MSVC)
 // boost/asio/buffer.hpp(247): warning C4702: unreachable code
 #pragma warning(pop)
 #endif
-
-FITORIA_NAMESPACE_BEGIN
-
-template <typename R>
-using lazy = boost::asio::awaitable<R>;
-
-FITORIA_NAMESPACE_END
 
 #endif

@@ -13,7 +13,7 @@
 
 #if defined(FITORIA_HAS_ZLIB)
 
-#include <fitoria/core/lazy.hpp>
+#include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/http_context.hpp>

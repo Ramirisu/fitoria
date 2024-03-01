@@ -14,7 +14,6 @@
 #include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
-#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 

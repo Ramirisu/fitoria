@@ -12,7 +12,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
-#include <fitoria/core/lazy.hpp>
 #include <fitoria/core/net.hpp>
 
 #include <fitoria/web/http/http.hpp>

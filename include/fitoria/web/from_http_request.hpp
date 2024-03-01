@@ -13,7 +13,7 @@
 
 #include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
-#include <fitoria/core/lazy.hpp>
+#include <fitoria/core/net.hpp>
 #include <fitoria/core/tag_invoke.hpp>
 
 #include <fitoria/web/http_request.hpp>
