@@ -16,7 +16,32 @@ using namespace fitoria::client;
 
 TEST_SUITE_BEGIN("client.http_client");
 
-TEST_CASE("basic")
+TEST_CASE("resource")
+{
+  SUBCASE("http")
+  {
+    auto c = http_client(http::verb::get, "http://httpbin.org/get");
+    CHECK_EQ(c.host().value(), "httpbin.org");
+    CHECK_EQ(c.port().value(), 80);
+    CHECK_EQ(c.path().value(), "/get");
+  }
+  SUBCASE("https")
+  {
+    auto c = http_client(http::verb::get, "https://httpbin.org/get");
+    CHECK_EQ(c.host().value(), "httpbin.org");
+    CHECK_EQ(c.port().value(), 443);
+    CHECK_EQ(c.path().value(), "/get");
+  }
+  SUBCASE("percentage encoding")
+  {
+    auto c = http_client(http::verb::get, "http://abc/def%20ghi");
+    CHECK_EQ(c.host().value(), "abc");
+    CHECK_EQ(c.port().value(), 80);
+    CHECK_EQ(c.path().value(), "/def ghi");
+  }
+}
+
+TEST_CASE("misc")
 {
   auto c = http_client(http::verb::get, "http://httpbin.org/get");
   CHECK_EQ(c.method(), http::verb::get);

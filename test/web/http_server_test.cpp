@@ -239,13 +239,13 @@ TEST_CASE("generic request")
 
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path(),
-                           "/api/v1/users/Rina Hidaka/filmography/years/2022");
+                           "/api/v1/users/RinaHidaka/filmography/years/2022");
 
                   auto test_params = [](auto& params) {
                     CHECK_EQ(params.path(),
                              "/api/v1/users/{user}/filmography/years/{year}");
 
-                    CHECK_EQ(params.at("user"), "Rina Hidaka");
+                    CHECK_EQ(params.at("user"), "RinaHidaka");
                     CHECK_EQ(params.at("year"), "2022");
                   };
                   test_params(req.params());
@@ -301,7 +301,7 @@ TEST_CASE("generic request")
                         to_local_url(
                             boost::urls::scheme::http,
                             port,
-                            "/api/v1/users/Rina Hidaka/filmography/years/2022"))
+                            "/api/v1/users/RinaHidaka/filmography/years/2022"))
                         .set_query("name", "Rina Hidaka")
                         .set_query("birth", "1994/06/15")
                         .set_field(http::field::connection, "close")

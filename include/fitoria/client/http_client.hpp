@@ -99,6 +99,21 @@ public:
     return http_client(http::verb::options, url);
   }
 
+  expected<std::string, error_code> host() const noexcept
+  {
+    return resource_.transform([](const resource& res) { return res.host; });
+  }
+
+  expected<std::uint16_t, error_code> port() const noexcept
+  {
+    return resource_.transform([](const resource& res) { return res.port; });
+  }
+
+  expected<std::string, error_code> path() const noexcept
+  {
+    return resource_.transform([](const resource& res) { return res.path; });
+  }
+
   query_map& query() noexcept
   {
     return query_;
@@ -232,24 +247,9 @@ public:
   }
 
 private:
-  static std::string encode_whitespace(std::string_view s)
-  {
-    std::string encoded;
-    for (auto& c : s) {
-      if (c == ' ') {
-        encoded += "%20";
-      } else {
-        encoded += c;
-      }
-    }
-
-    return encoded;
-  }
-
   static expected<resource, error_code> parse_uri(std::string_view url)
   {
-    auto encoded_url = encode_whitespace(url); // FIXME:
-    auto res = boost::urls::parse_uri(encoded_url);
+    auto res = boost::urls::parse_uri(url);
     if (!res) {
       return unexpected { res.error() };
     }
