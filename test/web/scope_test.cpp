@@ -17,25 +17,33 @@ TEST_SUITE_BEGIN("web.scope");
 
 TEST_CASE("method")
 {
-  auto method = [](auto&& scope) {
+  auto handler = [](int) -> int { return 0; };
+  auto m = [](auto&& scope) {
     return std::get<0>(scope.routes()).build().method();
   };
-  CHECK_EQ(method(scope<"/api">().GET<"/">([](int) -> int { return 0; })),
+
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::get, handler)),
            http::verb::get);
-  CHECK_EQ(method(scope<"/api">().POST<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::post, handler)),
            http::verb::post);
-  CHECK_EQ(method(scope<"/api">().PUT<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::put, handler)),
            http::verb::put);
-  CHECK_EQ(method(scope<"/api">().POST<"/">([](int) -> int { return 0; })),
-           http::verb::post);
-  CHECK_EQ(method(scope<"/api">().PATCH<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::patch, handler)),
            http::verb::patch);
-  CHECK_EQ(method(scope<"/api">().DELETE_<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::delete_, handler)),
            http::verb::delete_);
-  CHECK_EQ(method(scope<"/api">().HEAD<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::head, handler)),
            http::verb::head);
-  CHECK_EQ(method(scope<"/api">().OPTIONS<"/">([](int) -> int { return 0; })),
+  CHECK_EQ(m(scope<"/api">().handle<"/">(http::verb::options, handler)),
            http::verb::options);
+
+  CHECK_EQ(m(scope<"/api">().GET<"/">(handler)), http::verb::get);
+  CHECK_EQ(m(scope<"/api">().POST<"/">(handler)), http::verb::post);
+  CHECK_EQ(m(scope<"/api">().PUT<"/">(handler)), http::verb::put);
+  CHECK_EQ(m(scope<"/api">().PATCH<"/">(handler)), http::verb::patch);
+  CHECK_EQ(m(scope<"/api">().DELETE_<"/">(handler)), http::verb::delete_);
+  CHECK_EQ(m(scope<"/api">().HEAD<"/">(handler)), http::verb::head);
+  CHECK_EQ(m(scope<"/api">().OPTIONS<"/">(handler)), http::verb::options);
 }
 
 template <typename Next>

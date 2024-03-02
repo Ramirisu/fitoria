@@ -13,34 +13,46 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.route");
 
-TEST_CASE("basic")
+namespace {
+int handler(int)
 {
-  const auto r1
-      = route::handle<"/v1">(http::verb::get, [](int) -> int { return 0; });
+  return 0;
+}
+}
+
+TEST_CASE("method")
+{
+  CHECK_EQ(route::handle<"/">(http::verb::get, handler).build().method(),
+           http::verb::get);
+  CHECK_EQ(route::handle<"/">(http::verb::post, handler).build().method(),
+           http::verb::post);
+  CHECK_EQ(route::handle<"/">(http::verb::put, handler).build().method(),
+           http::verb::put);
+  CHECK_EQ(route::handle<"/">(http::verb::patch, handler).build().method(),
+           http::verb::patch);
+  CHECK_EQ(route::handle<"/">(http::verb::delete_, handler).build().method(),
+           http::verb::delete_);
+  CHECK_EQ(route::handle<"/">(http::verb::options, handler).build().method(),
+           http::verb::options);
+
+  CHECK_EQ(route::GET<"/">(handler).build().method(), http::verb::get);
+  CHECK_EQ(route::POST<"/">(handler).build().method(), http::verb::post);
+  CHECK_EQ(route::PUT<"/">(handler).build().method(), http::verb::put);
+  CHECK_EQ(route::PATCH<"/">(handler).build().method(), http::verb::patch);
+  CHECK_EQ(route::DELETE_<"/">(handler).build().method(), http::verb::delete_);
+  CHECK_EQ(route::HEAD<"/">(handler).build().method(), http::verb::head);
+  CHECK_EQ(route::OPTIONS<"/">(handler).build().method(), http::verb::options);
+}
+
+TEST_CASE("rebind_parent")
+{
+  const auto r1 = route::handle<"/v1">(http::verb::get, handler);
   CHECK_EQ(r1.build().method(), http::verb::get);
   CHECK_EQ(r1.build().matcher().pattern(), "/v1");
 
   auto r2 = r1.rebind_parent<"/api">({}, {});
   CHECK_EQ(r2.build().method(), http::verb::get);
   CHECK_EQ(r2.build().matcher().pattern(), "/api/v1");
-}
-
-TEST_CASE("methods")
-{
-  CHECK_EQ(route::GET<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::get);
-  CHECK_EQ(route::POST<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::post);
-  CHECK_EQ(route::PUT<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::put);
-  CHECK_EQ(route::PATCH<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::patch);
-  CHECK_EQ(route::DELETE_<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::delete_);
-  CHECK_EQ(route::HEAD<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::head);
-  CHECK_EQ(route::OPTIONS<"/">([](int) -> int { return 0; }).build().method(),
-           http::verb::options);
 }
 
 TEST_SUITE_END();
