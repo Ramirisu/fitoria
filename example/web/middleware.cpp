@@ -95,16 +95,17 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET<"/users/{user}">([](http_request& req)
-                                              -> lazy<http_response> {
-                      log::debug("user: {}", req.params().get("user"));
+                    .serve(route::GET<"/users/{user}">(
+                        [](http_request& req) -> lazy<http_response> {
+                          log::debug("user: {}", req.params().get("user"));
 
-                      co_return http_response(http::status::ok)
-                          .set_field(http::field::content_type,
-                                     http::fields::content_type::plaintext())
-                          .set_body(
-                              req.params().get("user").value_or("{{unknown}}"));
-                    }))
+                          co_return http_response(http::status::ok)
+                              .set_field(
+                                  http::field::content_type,
+                                  http::fields::content_type::plaintext())
+                              .set_body(req.params().get("user").value_or(
+                                  "{{unknown}}"));
+                        })))
             .build();
   server //
       .bind("127.0.0.1", 8080)

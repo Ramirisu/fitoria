@@ -62,7 +62,7 @@ public:
             typename... RouteServices,
             typename Handler>
   auto
-  route(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> r) const
+  serve(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> r) const
   {
     auto r2 = r.template rebind_parent<Path>(state_map_, services_);
 
@@ -75,67 +75,12 @@ public:
     };
   }
 
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto handle(http::verb method, Handler&& handler) const
-  {
-    return route(
-        route::handle<RoutePath>(method, std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto any(Handler&& handler) const
-  {
-    return route(route::any<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto GET(Handler&& handler) const
-  {
-    return route(route::GET<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto POST(Handler&& handler) const
-  {
-    return route(route::POST<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto PUT(Handler&& handler) const
-  {
-    return route(route::PUT<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto PATCH(Handler&& handler) const
-  {
-    return route(route::PATCH<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto DELETE_(Handler&& handler) const
-  {
-    return route(route::DELETE_<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto HEAD(Handler&& handler) const
-  {
-    return route(route::HEAD<RoutePath>(std::forward<Handler>(handler)));
-  }
-
-  template <basic_fixed_string RoutePath, typename Handler>
-  auto OPTIONS(Handler&& handler) const
-  {
-    return route(route::OPTIONS<RoutePath>(std::forward<Handler>(handler)));
-  }
-
   template <basic_fixed_string ChildPath,
             typename... ChildServices,
             typename... ChildRoutes>
-  auto sub_scope(scope_impl<ChildPath,
-                            std::tuple<ChildServices...>,
-                            std::tuple<ChildRoutes...>> child) const
+  auto serve(scope_impl<ChildPath,
+                        std::tuple<ChildServices...>,
+                        std::tuple<ChildRoutes...>> child) const
   {
     auto routes = std::apply(
         [this](auto&&... routes_) {

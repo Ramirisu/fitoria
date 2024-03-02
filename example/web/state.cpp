@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-namespace api::v1::cache {
+namespace cache {
 
 class simple_cache {
   using map_type = unordered_string_map<std::string>;
@@ -89,14 +89,15 @@ namespace get {
 
 int main()
 {
-  auto cache = std::make_shared<api::v1::cache::simple_cache_ptr>();
+  auto cache = std::make_shared<cache::simple_cache_ptr>();
 
-  auto server = http_server::builder()
-                    .serve(scope<"/api/v1/cache">()
-                               .state(cache)
-                               .PUT<"/{key}/{value}">(api::v1::cache::put::api)
-                               .GET<"/{key}">(api::v1::cache::get::api))
-                    .build();
+  auto server
+      = http_server::builder()
+            .serve(scope<"/cache">()
+                       .state(cache)
+                       .serve(route::PUT<"/{key}/{value}">(cache::put::api))
+                       .serve(route::GET<"/{key}">(cache::get::api)))
+            .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();

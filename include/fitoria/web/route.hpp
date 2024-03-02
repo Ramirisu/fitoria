@@ -20,7 +20,6 @@
 #include <fitoria/web/routable.hpp>
 #include <fitoria/web/state_map.hpp>
 
-#include <string>
 #include <tuple>
 
 FITORIA_NAMESPACE_BEGIN

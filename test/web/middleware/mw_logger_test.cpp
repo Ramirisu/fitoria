@@ -16,15 +16,15 @@ TEST_SUITE_BEGIN("web.middleware.logger");
 
 TEST_CASE("logger middleware")
 {
-  auto server
-      = http_server::builder()
-            .serve(scope<"/api">()
-                       .use(middleware::logger())
-                       .GET<"/get">([&]([[maybe_unused]] http_request& req)
-                                        -> lazy<http_response> {
-                         co_return http_response(http::status::ok);
-                       }))
-            .build();
+  auto server = http_server::builder()
+                    .serve(scope<"/api">()
+                               .use(middleware::logger())
+                               .serve(route::GET<"/get">(
+                                   [&]([[maybe_unused]] http_request& req)
+                                       -> lazy<http_response> {
+                                     co_return http_response(http::status::ok);
+                                   })))
+                    .build();
 
   net::sync_wait([&]() -> lazy<void> {
     {

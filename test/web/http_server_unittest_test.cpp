@@ -52,28 +52,30 @@ TEST_CASE("state")
             .serve(
                 scope<"">()
                     .state(shared_resource { "global" })
-                    .sub_scope(
+                    .serve(
                         scope<"/api/v1">()
-                            .GET<"/global">([](http_request& req)
-                                                -> lazy<http_response> {
+                            .serve(route::GET<
+                                   "/global">([](http_request& req)
+                                                  -> lazy<http_response> {
                               co_return http_response(http::status::ok)
                                   .set_field(
                                       http::field::content_type,
                                       http::fields::content_type::plaintext())
                                   .set_body(req.state<const shared_resource&>()
                                                 ->value);
-                            })
+                            }))
                             .state(shared_resource { "scope" })
-                            .GET<"/scope">([](http_request& req)
-                                               -> lazy<http_response> {
+                            .serve(route::GET<
+                                   "/scope">([](http_request& req)
+                                                 -> lazy<http_response> {
                               co_return http_response(http::status::ok)
                                   .set_field(
                                       http::field::content_type,
                                       http::fields::content_type::plaintext())
                                   .set_body(req.state<const shared_resource&>()
                                                 ->value);
-                            })
-                            .route(route::GET<
+                            }))
+                            .serve(route::GET<
                                        "/route">([](http_request& req)
                                                      -> lazy<http_response> {
                                      co_return http_response(http::status::ok)

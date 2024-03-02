@@ -63,17 +63,6 @@ int main()
                     .serve(route::HEAD<"/head">(head_handler))
                     .serve(route::OPTIONS<"/options">(options_handler))
                     .serve(route::any<"/any">(any_handler))
-                    // Grouping routes by using `scope`
-                    .serve(scope<"/api/v1">()
-                               .handle<"/">(http::verb::get, get_handler)
-                               .GET<"/get">(get_handler)
-                               .POST<"/post">(post_handler)
-                               .PUT<"/put">(put_handler)
-                               .PATCH<"/patch">(patch_handler)
-                               .DELETE_<"/delete">(delete_handler)
-                               .HEAD<"/head">(head_handler)
-                               .OPTIONS<"/options">(options_handler)
-                               .any<"/any">(any_handler))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

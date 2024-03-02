@@ -88,7 +88,7 @@ TODO:
 
 #### Method
 
-Register methods defined in `http::verb::*` by using `route::handle` and `scope::handle`, or simply use `GET`, `POST`, `PUT`, `PATCH`, `DELETE_`, `HEAD` and `OPTIONS` for convenience. `any` can register a handler to serve any method.
+Register methods defined in `http::verb::*` by using `route::handle`, or simply use `route::GET`, `route::POST`, `route::PUT`, `route::PATCH`, `route::DELETE_`, `route::HEAD` and `route::OPTIONS` for convenience. `route::any` can register a handler to serve any method.
 
 [Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
 
@@ -107,17 +107,6 @@ int main()
                     .serve(route::HEAD<"/head">(head_handler))
                     .serve(route::OPTIONS<"/options">(options_handler))
                     .serve(route::any<"/any">(any_handler))
-                    // Grouping routes by using `scope`
-                    .serve(scope<"/api/v1">()
-                               .handle<"/">(http::verb::get, get_handler)
-                               .GET<"/get">(get_handler)
-                               .POST<"/post">(post_handler)
-                               .PUT<"/put">(put_handler)
-                               .PATCH<"/patch">(patch_handler)
-                               .DELETE_<"/delete">(delete_handler)
-                               .HEAD<"/head">(head_handler)
-                               .OPTIONS<"/options">(options_handler)
-                               .any<"/any">(any_handler))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -355,25 +344,25 @@ int main()
                     // Register a global middleware for all handlers
                     .use(middleware::logger())
                     // Create a sub-scope "/api/v1" under global scope
-                    .sub_scope(
+                    .serve(
                         scope<"/api/v1">()
                             // Register a route for this scope
-                            .GET<"/users/{user}">(
+                            .serve(route::GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
                                   log::debug("route: {}", req.params().path());
 
                                   co_return http_response(http::status::ok);
-                                }))
+                                })))
                     // Create a sub-scope "/api/v2" under global scope
-                    .sub_scope(
+                    .serve(
                         scope<"/api/v2">()
                             // Register a route for this scope
-                            .GET<"/users/{user}">(
+                            .serve(route::GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
                                   log::debug("params: {}", req.params().path());
 
                                   co_return http_response(http::status::ok);
-                                })))
+                                }))))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -470,16 +459,17 @@ int main()
                     .use(my_log(log::level::info))
                     // Register a route
                     // The route is associated with the middleware defined above
-                    .GET<"/users/{user}">([](http_request& req)
-                                              -> lazy<http_response> {
-                      log::debug("user: {}", req.params().get("user"));
+                    .serve(route::GET<"/users/{user}">(
+                        [](http_request& req) -> lazy<http_response> {
+                          log::debug("user: {}", req.params().get("user"));
 
-                      co_return http_response(http::status::ok)
-                          .set_field(http::field::content_type,
-                                     http::fields::content_type::plaintext())
-                          .set_body(
-                              req.params().get("user").value_or("{{unknown}}"));
-                    }))
+                          co_return http_response(http::status::ok)
+                              .set_field(
+                                  http::field::content_type,
+                                  http::fields::content_type::plaintext())
+                              .set_body(req.params().get("user").value_or(
+                                  "{{unknown}}"));
+                        })))
             .build();
   server //
       .bind("127.0.0.1", 8080)

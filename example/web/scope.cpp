@@ -24,25 +24,25 @@ int main()
                     // Register a global middleware for all handlers
                     .use(middleware::logger())
                     // Create a sub-scope "/api/v1" under global scope
-                    .sub_scope(
+                    .serve(
                         scope<"/api/v1">()
                             // Register a route for this scope
-                            .GET<"/users/{user}">(
+                            .serve(route::GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
                                   log::debug("route: {}", req.params().path());
 
                                   co_return http_response(http::status::ok);
-                                }))
+                                })))
                     // Create a sub-scope "/api/v2" under global scope
-                    .sub_scope(
+                    .serve(
                         scope<"/api/v2">()
                             // Register a route for this scope
-                            .GET<"/users/{user}">(
+                            .serve(route::GET<"/users/{user}">(
                                 [](http_request& req) -> lazy<http_response> {
                                   log::debug("params: {}", req.params().path());
 
                                   co_return http_response(http::status::ok);
-                                })))
+                                }))))
             .build();
   server //
       .bind("127.0.0.1", 8080)

@@ -69,17 +69,18 @@ TEST_CASE("builder")
 
 TEST_CASE("duplicate route")
 {
-  CHECK_THROWS_AS(http_server::builder().serve(
-                      scope<"/api/v1">()
-                          .GET<"/xxx">([]([[maybe_unused]] http_request& req)
-                                           -> lazy<http_response> {
-                            co_return http_response(http::status::ok);
-                          })
-                          .GET<"/xxx">([]([[maybe_unused]] http_request& req)
-                                           -> lazy<http_response> {
-                            co_return http_response(http::status::ok);
-                          })),
-                  std::system_error);
+  CHECK_THROWS_AS(
+      http_server::builder().serve(
+          scope<"/api/v1">()
+              .serve(route::GET<"/xxx">([]([[maybe_unused]] http_request& req)
+                                            -> lazy<http_response> {
+                co_return http_response(http::status::ok);
+              }))
+              .serve(route::GET<"/xxx">([]([[maybe_unused]] http_request& req)
+                                            -> lazy<http_response> {
+                co_return http_response(http::status::ok);
+              }))),
+      std::system_error);
 }
 
 TEST_CASE("invalid target")
