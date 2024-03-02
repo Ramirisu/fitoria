@@ -159,6 +159,15 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
+  static auto any(Handler&& handler)
+  {
+    static_assert(compile_time_path_checker::is_valid<Path>(),
+                  "invalid path for route");
+    return route_builder<Path, std::tuple<>, std::decay_t<Handler>>(
+        http::verb::unknown, {}, {}, std::forward<Handler>(handler));
+  }
+
+  template <basic_fixed_string Path, typename Handler>
   static auto GET(Handler&& handler)
   {
 

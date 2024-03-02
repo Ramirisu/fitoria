@@ -83,47 +83,51 @@ public:
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
+  auto any(Handler&& handler) const
+  {
+    return route(route::any<RoutePath>(std::forward<Handler>(handler)));
+  }
+
+  template <basic_fixed_string RoutePath, typename Handler>
   auto GET(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::get, std::forward<Handler>(handler));
+    return route(route::GET<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto POST(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::post, std::forward<Handler>(handler));
+    return route(route::POST<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto PUT(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::put, std::forward<Handler>(handler));
+    return route(route::PUT<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto PATCH(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::patch, std::forward<Handler>(handler));
+    return route(route::PATCH<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto DELETE_(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::delete_,
-                             std::forward<Handler>(handler));
+    return route(route::DELETE_<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto HEAD(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::head, std::forward<Handler>(handler));
+    return route(route::HEAD<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string RoutePath, typename Handler>
   auto OPTIONS(Handler&& handler) const
   {
-    return handle<RoutePath>(http::verb::options,
-                             std::forward<Handler>(handler));
+    return route(route::OPTIONS<RoutePath>(std::forward<Handler>(handler)));
   }
 
   template <basic_fixed_string ChildPath,

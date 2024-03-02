@@ -88,7 +88,7 @@ TODO:
 
 #### Method
 
-Register `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD` and `OPTIONS`.
+Register methods defined in `http::verb::*` by using `route::handle` and `scope::handle`, or simply use `GET`, `POST`, `PUT`, `PATCH`, `DELETE_`, `HEAD` and `OPTIONS` for convenience. `any` can register a handler to serve any method.
 
 [Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
 
@@ -106,6 +106,7 @@ int main()
                     .route(route::DELETE_<"/delete">(delete_))
                     .route(route::HEAD<"/head">(head))
                     .route(route::OPTIONS<"/options">(options))
+                    .route(route::any<"/any">(any))
                     // Grouping routes by using `scope`
                     .route(scope<"/api/v1">()
                                .handle<"/">(http::verb::get, get)
@@ -115,8 +116,8 @@ int main()
                                .PATCH<"/patch">(patch)
                                .DELETE_<"/delete">(delete_)
                                .HEAD<"/head">(head)
-                               .OPTIONS<"/options">(options))
-                    .build();
+                               .OPTIONS<"/options">(options)
+                               .any<"/any">(any))
   server //
       .bind("127.0.0.1", 8080)
       .run();

@@ -42,6 +42,8 @@ TEST_CASE("method")
   CHECK_EQ(route::DELETE_<"/">(handler).build().method(), http::verb::delete_);
   CHECK_EQ(route::HEAD<"/">(handler).build().method(), http::verb::head);
   CHECK_EQ(route::OPTIONS<"/">(handler).build().method(), http::verb::options);
+
+  CHECK_EQ(route::any<"/">(handler).build().method(), http::verb::unknown);
 }
 
 TEST_CASE("rebind_parent")

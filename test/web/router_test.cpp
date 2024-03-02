@@ -76,7 +76,7 @@ TEST_CASE("try_find")
   CHECK_EQ(rt.try_find(http::verb::get, ""),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "a"),
-           fitoria::unexpected { make_error_code(error::route_not_exists) });
+           fitoria::unexpected { make_error_code(error::route_parse_error) });
   CHECK_EQ(rt.try_find(http::verb::get, "/"),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/a"),
@@ -101,6 +101,22 @@ TEST_CASE("try_find")
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/y")->operator()(0), 23);
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/yy")->operator()(0), 22);
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/yy")->operator()(0), 23);
+}
+
+TEST_CASE("fallback to unknown if target method is not found")
+{
+  router_type rt;
+  rt.try_insert(r<"/api/v1/x">(http::verb::get, 0));
+  rt.try_insert(r<"/api/v1/x">(http::verb::unknown, 1));
+  rt.try_insert(r<"/api/v1">(http::verb::post, 10));
+  rt.try_insert(r<"/api/v1">(http::verb::unknown, 11));
+
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->operator()(0), 0);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->operator()(0), 1);
+  CHECK_EQ(rt.try_find(http::verb::post, "/api/v1/x")->operator()(0), 1);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1")->operator()(0), 11);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1")->operator()(0), 11);
+  CHECK_EQ(rt.try_find(http::verb::post, "/api/v1")->operator()(0), 10);
 }
 
 TEST_SUITE_END();

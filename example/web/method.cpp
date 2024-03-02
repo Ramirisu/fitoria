@@ -45,6 +45,11 @@ auto options(http_request&) -> lazy<http_response>
   co_return http_response(http::status::ok);
 }
 
+auto any(http_request&) -> lazy<http_response>
+{
+  co_return http_response(http::status::ok);
+}
+
 int main()
 {
   auto server = http_server::builder()
@@ -57,6 +62,7 @@ int main()
                     .route(route::DELETE_<"/delete">(delete_))
                     .route(route::HEAD<"/head">(head))
                     .route(route::OPTIONS<"/options">(options))
+                    .route(route::any<"/any">(any))
                     // Grouping routes by using `scope`
                     .route(scope<"/api/v1">()
                                .handle<"/">(http::verb::get, get)
@@ -66,7 +72,8 @@ int main()
                                .PATCH<"/patch">(patch)
                                .DELETE_<"/delete">(delete_)
                                .HEAD<"/head">(head)
-                               .OPTIONS<"/options">(options))
+                               .OPTIONS<"/options">(options)
+                               .any<"/any">(any))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

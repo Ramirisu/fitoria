@@ -44,6 +44,8 @@ TEST_CASE("method")
   CHECK_EQ(m(scope<"/api">().DELETE_<"/">(handler)), http::verb::delete_);
   CHECK_EQ(m(scope<"/api">().HEAD<"/">(handler)), http::verb::head);
   CHECK_EQ(m(scope<"/api">().OPTIONS<"/">(handler)), http::verb::options);
+
+  CHECK_EQ(m(scope<"/api">().any<"/">(handler)), http::verb::unknown);
 }
 
 template <typename Next>

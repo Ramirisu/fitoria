@@ -106,24 +106,30 @@ public:
   auto try_find(http::verb method, std::string path) const
       -> expected<const route_type&, error_code>
   {
-    return to_expected(parse_pattern(path),
-                       make_error_code(error::route_not_exists))
-        .and_then([&](auto&& segments) {
-          return to_expected(try_find(method),
-                             make_error_code(error::route_not_exists))
-              .and_then(
-                  [&](auto&& node) { return node.try_find(segments, 0); });
+    return parse_pattern(path).and_then(
+        [&](auto&& segments) -> expected<const route_type&, error_code> {
+          auto find_node
+              = [&](auto&& node) { return node.try_find(segments, 0); };
+          if (auto r = try_find(method).and_then(find_node); r) {
+            return r;
+          }
+          if (auto r = try_find(http::verb::unknown).and_then(find_node); r) {
+            return r;
+          }
+
+          return unexpected { make_error_code(error::route_not_exists) };
         });
   }
 
 private:
-  auto try_find(http::verb method) const noexcept -> optional<const node&>
+  auto try_find(http::verb method) const noexcept
+      -> expected<const node&, error_code>
   {
     if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
       return iter->second;
     }
 
-    return nullopt;
+    return unexpected { make_error_code(error::route_not_exists) };
   }
 
   std::unordered_map<http::verb, node> subtrees_;

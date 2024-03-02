@@ -11,9 +11,11 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/expected.hpp>
 #include <fitoria/core/fixed_string.hpp>
 #include <fitoria/core/optional.hpp>
 
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/query_map.hpp>
 
 #include <set>
@@ -55,14 +57,15 @@ inline auto escape_segment(std::string_view seg) noexcept
   return seg;
 }
 
-inline auto parse_pattern(std::string_view pattern) -> optional<segments_t>
+inline auto parse_pattern(std::string_view pattern)
+    -> expected<segments_t, error_code>
 {
   segments_t segments;
   std::set<std::string_view> used_params;
 
   while (!pattern.empty()) {
     if (!pattern.starts_with('/')) {
-      return nullopt;
+      return unexpected { make_error_code(error::route_parse_error) };
     }
     pattern.remove_prefix(1);
 
@@ -76,13 +79,13 @@ inline auto parse_pattern(std::string_view pattern) -> optional<segments_t>
     }
 
     if (auto escaped = escape_segment(seg); !escaped) {
-      return nullopt;
+      return unexpected { make_error_code(error::route_parse_error) };
     } else {
       auto seg_kind = escaped == seg ? segment_kind::static_
                                      : segment_kind::parameterized;
       if (seg_kind == segment_kind::parameterized) {
         if (used_params.contains(*escaped)) {
-          return nullopt;
+          return unexpected { make_error_code(error::route_parse_error) };
         }
         used_params.insert(*escaped);
       }
