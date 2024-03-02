@@ -83,7 +83,7 @@ public:
               typename... RouteServices,
               typename Handler>
     builder&
-    serve(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> route)
+    serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route)
     {
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));

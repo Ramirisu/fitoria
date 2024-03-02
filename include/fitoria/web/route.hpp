@@ -27,10 +27,10 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 template <basic_fixed_string Path, typename Services, typename Handler>
-class route_builder;
+class route_impl;
 
 template <basic_fixed_string Path, typename... Services, typename Handler>
-class route_builder<Path, std::tuple<Services...>, Handler> {
+class route_impl<Path, std::tuple<Services...>, Handler> {
   http::verb method_;
   std::vector<state_map> state_maps_;
   std::tuple<Services...> services_;
@@ -40,10 +40,10 @@ public:
   static_assert(compile_time_path_checker::is_valid<Path>(),
                 "invalid path for route");
 
-  route_builder(http::verb method,
-                std::vector<state_map> state_maps,
-                std::tuple<Services...> services,
-                Handler handler)
+  route_impl(http::verb method,
+             std::vector<state_map> state_maps,
+             std::tuple<Services...> services,
+             Handler handler)
       : method_(method)
       , state_maps_(std::move(state_maps))
       , services_(std::move(services))
@@ -60,16 +60,16 @@ public:
     }
     state_maps.front()[std::type_index(typeid(State))]
         = std::any(std::forward<State>(state));
-    return route_builder<Path, std::tuple<Services...>, Handler>(
+    return route_impl<Path, std::tuple<Services...>, Handler>(
         method_, std::move(state_maps), services_, handler_);
   }
 
   template <typename Service>
   auto use(Service&& service) const
   {
-    return route_builder<Path,
-                         std::tuple<Services..., std::decay_t<Service>>,
-                         Handler>(
+    return route_impl<Path,
+                      std::tuple<Services..., std::decay_t<Service>>,
+                      Handler>(
         method_,
         state_maps_,
         std::tuple_cat(services_,
@@ -85,9 +85,9 @@ public:
     if (!parent_state_map.empty()) {
       state_maps.push_back(std::move(parent_state_map));
     }
-    return route_builder<ParentPath + Path,
-                         std::tuple<ParentServices..., Services...>,
-                         Handler>(
+    return route_impl<ParentPath + Path,
+                      std::tuple<ParentServices..., Services...>,
+                      Handler>(
         method_,
         std::move(state_maps),
         std::tuple_cat(std::move(parent_services), services_),
@@ -153,7 +153,7 @@ public:
   {
     static_assert(compile_time_path_checker::is_valid<Path>(),
                   "invalid path for route");
-    return route_builder<Path, std::tuple<>, std::decay_t<Handler>>(
+    return route_impl<Path, std::tuple<>, std::decay_t<Handler>>(
         method, {}, {}, std::forward<Handler>(handler));
   }
 
@@ -162,7 +162,7 @@ public:
   {
     static_assert(compile_time_path_checker::is_valid<Path>(),
                   "invalid path for route");
-    return route_builder<Path, std::tuple<>, std::decay_t<Handler>>(
+    return route_impl<Path, std::tuple<>, std::decay_t<Handler>>(
         http::verb::unknown, {}, {}, std::forward<Handler>(handler));
   }
 

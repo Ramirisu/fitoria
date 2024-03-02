@@ -61,17 +61,17 @@ public:
   template <basic_fixed_string RoutePath,
             typename... RouteServices,
             typename Handler>
-  auto
-  serve(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> r) const
+  auto serve(
+      route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route) const
   {
-    auto r2 = r.template rebind_parent<Path>(state_map_, services_);
+    auto new_route = route.template rebind_parent<Path>(state_map_, services_);
 
     return scope_impl<Path,
                       std::tuple<Services...>,
-                      std::tuple<Routes..., decltype(r2)>> {
+                      std::tuple<Routes..., decltype(new_route)>> {
       state_map_,
       services_,
-      std::tuple_cat(routes_, std::tuple { std::move(r2) }),
+      std::tuple_cat(routes_, std::tuple { std::move(new_route) }),
     };
   }
 
