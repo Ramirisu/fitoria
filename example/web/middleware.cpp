@@ -82,7 +82,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(
+            .serve(
                 // Add a scope
                 scope<"/api/v1">()
                     // Register built-in logger middleware

@@ -43,7 +43,7 @@ auto api(const http_request& req, std::string body) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::POST<"/api/v1/login">(api::v1::login::api))
+                    .serve(route::POST<"/api/v1/login">(api::v1::login::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

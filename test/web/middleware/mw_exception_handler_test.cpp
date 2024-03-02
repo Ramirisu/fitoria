@@ -20,7 +20,7 @@ TEST_CASE("exception_handler middleware")
 {
   auto server
       = http_server::builder()
-            .route(
+            .serve(
                 scope<"/api">()
                     .use(middleware::exception_handler())
                     .GET<"/get">([&](std::string body) -> lazy<http_response> {

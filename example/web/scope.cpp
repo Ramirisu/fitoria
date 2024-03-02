@@ -18,7 +18,7 @@ int main()
   auto server
       = http_server::builder()
             // Use a configure function to setup server configuration
-            .route(
+            .serve(
                 // Global scope
                 scope<"">()
                     // Register a global middleware for all handlers

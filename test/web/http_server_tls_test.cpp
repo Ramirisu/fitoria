@@ -26,7 +26,7 @@ namespace {
 
 void configure_server(http_server::builder& builder)
 {
-  builder.route(route::GET<"/api/repos/{repo}">(
+  builder.serve(route::GET<"/api/repos/{repo}">(
       [](http_request& req, std::string body) -> lazy<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);

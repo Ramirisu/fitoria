@@ -38,7 +38,7 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::GET<"/api/v1/users/{user}">(
+                    .serve(route::GET<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();
   server //

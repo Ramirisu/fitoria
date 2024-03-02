@@ -19,7 +19,7 @@ TEST_SUITE_BEGIN("web.http_server.unittest");
 TEST_CASE("connection_info")
 {
   auto server = http_server::builder()
-                    .route(route::GET<"/get">(
+                    .serve(route::GET<"/get">(
                         [](http_request& req) -> lazy<http_response> {
                           CHECK_EQ(req.conn_info().local_addr(),
                                    net::ip::make_address("127.0.0.1"));
@@ -49,7 +49,7 @@ TEST_CASE("state")
 
   auto server
       = http_server::builder()
-            .route(
+            .serve(
                 scope<"">()
                     .state(shared_resource { "global" })
                     .sub_scope(
@@ -111,7 +111,7 @@ TEST_CASE("state")
 TEST_CASE("string extractor")
 {
   auto server = http_server::builder()
-                    .route(route::POST<"/post">(
+                    .serve(route::POST<"/post">(
                         [](std::string text) -> lazy<http_response> {
                           CHECK_EQ(text, "abc");
                           co_return http_response(http::status::ok);
@@ -131,7 +131,7 @@ TEST_CASE("bytes extractor")
 {
   auto server
       = http_server::builder()
-            .route(route::POST<"/post">(
+            .serve(route::POST<"/post">(
                 [](std::vector<std::byte> bytes) -> lazy<http_response> {
                   CHECK_EQ(bytes, to_bytes("abc"));
                   co_return http_response(http::status::ok);
@@ -194,7 +194,7 @@ TEST_CASE("json")
 {
   auto server
       = http_server::builder()
-            .route(route::GET<"/get">(
+            .serve(route::GET<"/get">(
                 [](json<user_t> user) -> lazy<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");

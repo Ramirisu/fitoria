@@ -52,7 +52,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(route::GET<"/api/v1/{owner}/{repo}">(
+            .serve(route::GET<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}",
@@ -98,17 +98,17 @@ int main()
 {
   auto server = http_server::builder()
                     // Single route by using `route`
-                    .route(route::handle<"/">(http::verb::get, get_handler))
-                    .route(route::GET<"/get">(get_handler))
-                    .route(route::POST<"/post">(post_handler))
-                    .route(route::PUT<"/put">(put_handler))
-                    .route(route::PATCH<"/patch">(patch_handler))
-                    .route(route::DELETE_<"/delete">(delete_handler))
-                    .route(route::HEAD<"/head">(head_handler))
-                    .route(route::OPTIONS<"/options">(options_handler))
-                    .route(route::any<"/any">(any_handler))
+                    .serve(route::handle<"/">(http::verb::get, get_handler))
+                    .serve(route::GET<"/get">(get_handler))
+                    .serve(route::POST<"/post">(post_handler))
+                    .serve(route::PUT<"/put">(put_handler))
+                    .serve(route::PATCH<"/patch">(patch_handler))
+                    .serve(route::DELETE_<"/delete">(delete_handler))
+                    .serve(route::HEAD<"/head">(head_handler))
+                    .serve(route::OPTIONS<"/options">(options_handler))
+                    .serve(route::any<"/any">(any_handler))
                     // Grouping routes by using `scope`
-                    .route(scope<"/api/v1">()
+                    .serve(scope<"/api/v1">()
                                .handle<"/">(http::verb::get, get_handler)
                                .GET<"/get">(get_handler)
                                .POST<"/post">(post_handler)
@@ -167,7 +167,7 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::GET<"/api/v1/users/{user}">(
+                    .serve(route::GET<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();
   server //
@@ -204,7 +204,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::GET<"/api/v1/users">(api::v1::users::get_user::api))
+            .serve(route::GET<"/api/v1/users">(api::v1::users::get_user::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -241,7 +241,7 @@ auto api(const http_request& req, std::string body) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .route(route::POST<"/api/v1/login">(api::v1::login::api))
+                    .serve(route::POST<"/api/v1/login">(api::v1::login::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -324,7 +324,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::POST<"/api/v1/login/{user}">(api::v1::login::api))
+            .serve(route::POST<"/api/v1/login/{user}">(api::v1::login::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -349,7 +349,7 @@ int main()
   auto server
       = http_server::builder()
             // Use a configure function to setup server configuration
-            .route(
+            .serve(
                 // Global scope
                 scope<"">()
                     // Register a global middleware for all handlers
@@ -457,7 +457,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .route(
+            .serve(
                 // Add a scope
                 scope<"/api/v1">()
                     // Register built-in logger middleware
@@ -531,7 +531,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .route(route::POST<"/api/v1/login">(
+            .serve(route::POST<"/api/v1/login">(
                 [](http_request& req, std::string body) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {

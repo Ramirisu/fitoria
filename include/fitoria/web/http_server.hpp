@@ -83,7 +83,7 @@ public:
               typename... RouteServices,
               typename Handler>
     builder&
-    route(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> route)
+    serve(route_builder<RoutePath, std::tuple<RouteServices...>, Handler> route)
     {
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));
@@ -99,12 +99,12 @@ public:
     }
 
     template <basic_fixed_string Path, typename... Services, typename... Routes>
-    builder& route(
+    builder& serve(
         scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope)
     {
       std::apply(
           [this](auto&&... routes) {
-            (this->route(std::forward<decltype(routes)>(routes)), ...);
+            (this->serve(std::forward<decltype(routes)>(routes)), ...);
           },
           scope.routes());
 

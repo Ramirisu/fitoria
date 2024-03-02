@@ -41,7 +41,7 @@ TEST_CASE("builder")
               }
             })
 #endif
-            .route(route::GET<"/api">(
+            .serve(route::GET<"/api">(
                 [&]([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok);
                 }))
@@ -69,7 +69,7 @@ TEST_CASE("builder")
 
 TEST_CASE("duplicate route")
 {
-  CHECK_THROWS_AS(http_server::builder().route(
+  CHECK_THROWS_AS(http_server::builder().serve(
                       scope<"/api/v1">()
                           .GET<"/xxx">([]([[maybe_unused]] http_request& req)
                                            -> lazy<http_response> {
@@ -87,7 +87,7 @@ TEST_CASE("invalid target")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET<"/api/v1/users/{user}">(
+            .serve(route::GET<"/api/v1/users/{user}">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok);
                 }))
@@ -130,7 +130,7 @@ TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .route(route::POST<"/api/v1/post">(
+                    .serve(route::POST<"/api/v1/post">(
                         [](std::string body) -> lazy<http_response> {
                           CHECK_EQ(body, "text");
                           co_return http_response(http::status::ok);
@@ -178,7 +178,7 @@ TEST_CASE("unhandled exception from handler")
                 }
               }
             })
-            .route(route::GET<"/api/v1/get">(
+            .serve(route::GET<"/api/v1/get">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   throw std::exception();
                   co_return http_response(http::status::ok);
@@ -218,7 +218,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
+            .serve(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
                     const connection_info& conn_info,
                     route_params& params,
@@ -328,7 +328,7 @@ TEST_CASE("request with chunked transfer-encoding")
 
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .route(route::POST<"/post">(
+                    .serve(route::POST<"/post">(
                         [input](std::string data) -> lazy<http_response> {
                           CHECK_EQ(data, input);
                           co_return http_response(http::status::ok);
@@ -363,7 +363,7 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET<"/api">(
+            .serve(route::GET<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::accepted);
                 }))
@@ -399,7 +399,7 @@ TEST_CASE("response with plain text")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET<"/api">(
+            .serve(route::GET<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
@@ -441,7 +441,7 @@ TEST_CASE("response with stream")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .route(route::GET<"/api">(
+            .serve(route::GET<"/api">(
                 [input](
                     [[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)

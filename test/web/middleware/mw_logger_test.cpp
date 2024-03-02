@@ -18,7 +18,7 @@ TEST_CASE("logger middleware")
 {
   auto server
       = http_server::builder()
-            .route(scope<"/api">()
+            .serve(scope<"/api">()
                        .use(middleware::logger())
                        .GET<"/get">([&]([[maybe_unused]] http_request& req)
                                         -> lazy<http_response> {

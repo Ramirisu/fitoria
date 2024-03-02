@@ -92,7 +92,7 @@ int main()
   auto cache = std::make_shared<api::v1::cache::simple_cache_ptr>();
 
   auto server = http_server::builder()
-                    .route(scope<"/api/v1/cache">()
+                    .serve(scope<"/api/v1/cache">()
                                .state(cache)
                                .PUT<"/{key}/{value}">(api::v1::cache::put::api)
                                .GET<"/{key}">(api::v1::cache::get::api))
