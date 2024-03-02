@@ -88,11 +88,7 @@ public:
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));
           !res) {
-#if !FITORIA_NO_EXCEPTIONS
-        throw system_error(res.error());
-#else
-        std::terminate();
-#endif
+        FITORIA_THROW(system_error(res.error()));
       }
 
       return *this;

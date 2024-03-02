@@ -28,11 +28,14 @@
 #define FITORIA_TRY try
 #define FITORIA_CATCH(...) catch (__VA_ARGS__)
 #define FITORIA_RETHROW() throw
+#define FITORIA_THROW(ex) throw ex
 #else
+#include <exception>
 #define FITORIA_NO_EXCEPTIONS 1
 #define FITORIA_TRY
 #define FITORIA_CATCH(...) if (true) { } else
 #define FITORIA_RETHROW() ((void)0)
+#define FITORIA_THROW(ex) std::terminate()
 #endif
 // clang-format on
 

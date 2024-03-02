@@ -451,10 +451,8 @@ int main()
                 scope<"/api/v1">()
                     // Register built-in logger middleware
                     .use(middleware::logger())
-#if !FITORIA_NO_EXCEPTIONS
                     // Register built-in exception_handler middleware
                     .use(middleware::exception_handler())
-#endif
                     // Register a custom middleware for this group
                     .use(my_log(log::level::info))
                     // Register a route

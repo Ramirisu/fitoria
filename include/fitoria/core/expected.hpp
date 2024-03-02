@@ -18,9 +18,6 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
-#if !FITORIA_NO_EXCEPTIONS
-#include <exception>
-#endif
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -603,11 +600,7 @@ public:
   constexpr T& value() &
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(error());
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(error()));
     }
 
     return this->val_;
@@ -616,11 +609,7 @@ public:
   constexpr const T& value() const&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(error());
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(error()));
     }
 
     return this->val_;
@@ -629,11 +618,7 @@ public:
   constexpr T&& value() &&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(std::move(error()));
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(std::move(error())));
     }
 
     return std::move(this->val_);
@@ -642,11 +627,7 @@ public:
   constexpr const T&& value() const&&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(std::move(error()));
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(std::move(error())));
     }
 
     return std::move(this->val_);
@@ -1312,22 +1293,14 @@ public:
   constexpr void value() const&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(error());
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(error()));
     }
   }
 
   constexpr void value() &&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(std::move(error()));
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(std::move(error())));
     }
   }
 
@@ -1956,11 +1929,7 @@ public:
   constexpr T& value() const&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(error());
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(error()));
     }
 
     return *this->valptr_;
@@ -1969,11 +1938,7 @@ public:
   constexpr T&& value() const&&
   {
     if (!has_value()) {
-#if !FITORIA_NO_EXCEPTIONS
-      throw bad_expected_access(std::move(error()));
-#else
-      std::terminate();
-#endif
+      FITORIA_THROW(bad_expected_access(std::move(error())));
     }
 
     return std::forward<T>(*this->valptr_);

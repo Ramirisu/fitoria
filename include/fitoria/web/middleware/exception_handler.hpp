@@ -24,8 +24,6 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware {
 
-#if !FITORIA_NO_EXCEPTIONS
-
 template <typename Next>
 class exception_handler_middleware {
   friend class exception_handler;
@@ -33,9 +31,12 @@ class exception_handler_middleware {
 public:
   auto operator()(http_context& c) const -> lazy<http_response>
   {
-    try {
+    FITORIA_TRY
+    {
       co_return co_await next_(c);
-    } catch (const std::exception& ex) {
+    }
+    FITORIA_CATCH(const std::exception& ex)
+    {
       log::error("[fitoria.middleware.exception_handler] exception: {}",
                  ex.what());
     }
@@ -73,8 +74,6 @@ private:
     return exception_handler_middleware(std::forward<Next>(next));
   }
 };
-
-#endif
 
 }
 
