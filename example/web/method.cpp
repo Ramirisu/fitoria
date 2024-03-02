@@ -10,42 +10,42 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto get(http_request&) -> lazy<http_response>
+auto get_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto post(http_request&) -> lazy<http_response>
+auto post_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto put(http_request&) -> lazy<http_response>
+auto put_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto patch(http_request&) -> lazy<http_response>
+auto patch_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto delete_(http_request&) -> lazy<http_response>
+auto delete_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto head(http_request&) -> lazy<http_response>
+auto head_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto options(http_request&) -> lazy<http_response>
+auto options_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto any(http_request&) -> lazy<http_response>
+auto any_handler(http_request&) -> lazy<http_response>
 {
   co_return http_response(http::status::ok);
 }
@@ -54,26 +54,26 @@ int main()
 {
   auto server = http_server::builder()
                     // Single route by using `route`
-                    .route(route::handle<"/">(http::verb::get, get))
-                    .route(route::GET<"/get">(get))
-                    .route(route::POST<"/post">(post))
-                    .route(route::PUT<"/put">(put))
-                    .route(route::PATCH<"/patch">(patch))
-                    .route(route::DELETE_<"/delete">(delete_))
-                    .route(route::HEAD<"/head">(head))
-                    .route(route::OPTIONS<"/options">(options))
-                    .route(route::any<"/any">(any))
+                    .route(route::handle<"/">(http::verb::get, get_handler))
+                    .route(route::GET<"/get">(get_handler))
+                    .route(route::POST<"/post">(post_handler))
+                    .route(route::PUT<"/put">(put_handler))
+                    .route(route::PATCH<"/patch">(patch_handler))
+                    .route(route::DELETE_<"/delete">(delete_handler))
+                    .route(route::HEAD<"/head">(head_handler))
+                    .route(route::OPTIONS<"/options">(options_handler))
+                    .route(route::any<"/any">(any_handler))
                     // Grouping routes by using `scope`
                     .route(scope<"/api/v1">()
-                               .handle<"/">(http::verb::get, get)
-                               .GET<"/get">(get)
-                               .POST<"/post">(post)
-                               .PUT<"/put">(put)
-                               .PATCH<"/patch">(patch)
-                               .DELETE_<"/delete">(delete_)
-                               .HEAD<"/head">(head)
-                               .OPTIONS<"/options">(options)
-                               .any<"/any">(any))
+                               .handle<"/">(http::verb::get, get_handler)
+                               .GET<"/get">(get_handler)
+                               .POST<"/post">(post_handler)
+                               .PUT<"/put">(put_handler)
+                               .PATCH<"/patch">(patch_handler)
+                               .DELETE_<"/delete">(delete_handler)
+                               .HEAD<"/head">(head_handler)
+                               .OPTIONS<"/options">(options_handler)
+                               .any<"/any">(any_handler))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
