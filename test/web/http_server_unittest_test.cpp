@@ -50,7 +50,7 @@ TEST_CASE("state")
   auto server
       = http_server::builder()
             .serve(
-                scope<"">()
+                scope<>()
                     .state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()

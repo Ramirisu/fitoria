@@ -104,7 +104,7 @@ public:
   }
 };
 
-template <basic_fixed_string Path>
+template <basic_fixed_string Path = "">
 inline auto scope()
 {
   static_assert(compile_time_path_checker::is_valid<Path>(),

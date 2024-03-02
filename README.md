@@ -340,7 +340,7 @@ int main()
             // Use a configure function to setup server configuration
             .serve(
                 // Global scope
-                scope<"">()
+                scope<>()
                     // Register a global middleware for all handlers
                     .use(middleware::logger())
                     // Create a sub-scope "/api/v1" under global scope
