@@ -27,6 +27,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
+      - [Shared State](#shared-state)
       - [Graceful Shutdown](#graceful-shutdown)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
@@ -455,6 +456,32 @@ int main()
 }
 
 ```
+
+#### Shared State
+
+Using `scope::state(State&&)` to configure shared states between `route`s under the same `scope`.
+
+([State Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
+
+```cpp
+
+int main()
+{
+  auto cache = std::make_shared<cache::simple_cache_ptr>();
+
+  auto server = http_server::builder()
+                    .serve(scope<"/cache">()
+                               .state(cache)
+                               .serve(route::PUT<"/{key}/{value}">(cache::put))
+                               .serve(route::GET<"/{key}">(cache::get)))
+                    .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+}
+
+```
+
 #### Graceful Shutdown
 
 Use `net::signal_set` to handle signals to shutdown the server gracefully.

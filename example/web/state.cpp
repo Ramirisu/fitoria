@@ -41,63 +41,60 @@ private:
 
 using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
-namespace put {
-  auto api(const http_request& req) -> lazy<http_response>
-  {
-    auto key = req.params().get("key");
-    auto value = req.params().get("value");
-    if (!key || !value) {
-      co_return http_response(http::status::bad_request);
-    }
+auto put(const http_request& req) -> lazy<http_response>
+{
+  auto key = req.params().get("key");
+  auto value = req.params().get("value");
+  if (!key || !value) {
+    co_return http_response(http::status::bad_request);
+  }
 
-    auto cache = req.state<simple_cache_ptr>();
-    if (!cache) {
-      co_return http_response(http::status::internal_server_error);
-    }
+  auto cache = req.state<simple_cache_ptr>();
+  if (!cache) {
+    co_return http_response(http::status::internal_server_error);
+  }
 
-    if ((*cache)->put(*key, *value)) {
-      co_return http_response(http::status::created);
-    } else {
-      co_return http_response(http::status::accepted);
-    }
+  if ((*cache)->put(*key, *value)) {
+    co_return http_response(http::status::created);
+  } else {
+    co_return http_response(http::status::accepted);
   }
 }
-namespace get {
-  auto api(const http_request& req) -> lazy<http_response>
-  {
-    auto key = req.params().get("key");
-    if (!key) {
-      co_return http_response(http::status::bad_request);
-    }
 
-    auto cache = req.state<simple_cache_ptr>();
-    if (!cache) {
-      co_return http_response(http::status::internal_server_error);
-    }
+auto get(const http_request& req) -> lazy<http_response>
+{
+  auto key = req.params().get("key");
+  if (!key) {
+    co_return http_response(http::status::bad_request);
+  }
 
-    if (auto value = (*cache)->get(*key); value) {
-      co_return http_response(http::status::ok)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
-          .set_body(*value);
-    } else {
-      co_return http_response(http::status::not_found);
-    }
+  auto cache = req.state<simple_cache_ptr>();
+  if (!cache) {
+    co_return http_response(http::status::internal_server_error);
+  }
+
+  if (auto value = (*cache)->get(*key); value) {
+    co_return http_response(http::status::ok)
+        .set_field(http::field::content_type,
+                   http::fields::content_type::plaintext())
+        .set_body(*value);
+  } else {
+    co_return http_response(http::status::not_found);
   }
 }
+
 }
 
 int main()
 {
   auto cache = std::make_shared<cache::simple_cache_ptr>();
 
-  auto server
-      = http_server::builder()
-            .serve(scope<"/cache">()
-                       .state(cache)
-                       .serve(route::PUT<"/{key}/{value}">(cache::put::api))
-                       .serve(route::GET<"/{key}">(cache::get::api)))
-            .build();
+  auto server = http_server::builder()
+                    .serve(scope<"/cache">()
+                               .state(cache)
+                               .serve(route::PUT<"/{key}/{value}">(cache::put))
+                               .serve(route::GET<"/{key}">(cache::get)))
+                    .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
