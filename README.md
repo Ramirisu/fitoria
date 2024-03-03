@@ -324,7 +324,7 @@ int main()
 
 #### Scope
 
-Configure nested `route`s by using `scope`.
+Grouping `route`s by `scope`.
 
 [Scope Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
 
@@ -332,37 +332,17 @@ Configure nested `route`s by using `scope`.
 
 int main()
 {
-  log::global_logger() = log::stdout_logger();
-  log::global_logger()->set_log_level(log::level::debug);
-
   auto server
       = http_server::builder()
-            // Use a configure function to setup server configuration
             .serve(
-                // Global scope
                 scope<>()
-                    // Register a global middleware for all handlers
                     .use(middleware::logger())
-                    // Create a sub-scope "/api/v1" under global scope
-                    .serve(
-                        scope<"/api/v1">()
-                            // Register a route for this scope
-                            .serve(route::GET<"/users/{user}">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  log::debug("route: {}", req.params().path());
-
-                                  co_return http_response(http::status::ok);
-                                })))
-                    // Create a sub-scope "/api/v2" under global scope
-                    .serve(
-                        scope<"/api/v2">()
-                            // Register a route for this scope
-                            .serve(route::GET<"/users/{user}">(
-                                [](http_request& req) -> lazy<http_response> {
-                                  log::debug("params: {}", req.params().path());
-
-                                  co_return http_response(http::status::ok);
-                                }))))
+                    .serve(scope<"/api/v1">()
+                               .serve(route::POST<"/register">(api::v1::reg))
+                               .serve(route::POST<"/login">(api::v1::login)))
+                    .serve(scope<"/api/v2">()
+                               .serve(route::POST<"/register">(api::v2::reg))
+                               .serve(route::POST<"/login">(api::v2::login))))
             .build();
   server //
       .bind("127.0.0.1", 8080)
