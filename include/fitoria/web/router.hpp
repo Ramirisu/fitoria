@@ -21,7 +21,6 @@
 #include <fitoria/web/pattern_matcher.hpp>
 
 #include <memory>
-#include <string>
 #include <string_view>
 #include <unordered_map>
 
@@ -34,107 +33,92 @@ class router {
 public:
   using route_type = any_routable<Request, Response>;
 
-private:
   class node {
-    friend class router;
+    std::unordered_map<http::verb, route_type> routes_;
+    unordered_string_map<node> static_subnodes_;
+    std::shared_ptr<node> param_subnode_;
 
-  private:
-    auto try_insert(const route_type& route, std::size_t seg_idx)
+    auto try_insert(const route_type& route, segments_t::size_type seg_index)
         -> expected<void, error_code>
     {
-      if (seg_idx == route.segments().size()) {
-        if (route_) {
-          return unexpected { make_error_code(error::route_already_exists) };
+      if (seg_index == route.segments().size()) {
+        if (auto [_, ok] = routes_.insert({ route.method(), route }); ok) {
+          return {};
         }
-
-        route_.emplace(route);
-        return {};
+        return unexpected { make_error_code(error::route_already_exists) };
       }
 
-      auto& segment = route.segments()[seg_idx];
-      if (segment.kind == segment_kind::parameterized) {
-        if (!param_tree_) {
-          param_tree_.emplace(std::make_shared<node>());
+      auto& seg = route.segments()[seg_index];
+      if (seg.kind == segment_kind::parameterized) {
+        if (!param_subnode_) {
+          param_subnode_ = std::make_unique<node>();
         }
-        return param_tree_.value()->try_insert(route, seg_idx + 1);
+        return param_subnode_->try_insert(route, seg_index + 1);
       }
 
-      return subtrees_[segment.value].try_insert(route, seg_idx + 1);
+      return static_subnodes_[seg.value].try_insert(route, seg_index + 1);
     }
 
-    auto try_find(const segments_t& segs, std::size_t seg_idx) const noexcept
+    auto try_find(http::verb method,
+                  const segments_t& segs,
+                  segments_t::size_type seg_index) const
         -> expected<const route_type&, error_code>
     {
-      if (seg_idx == segs.size()) {
-        return to_expected(optional<const route_type&>(route_),
-                           make_error_code(error::route_not_exists));
+      if (seg_index == segs.size()) {
+        if (auto it = routes_.find(method); it != routes_.end()) {
+          return it->second;
+        }
+        if (auto it = routes_.find(http::verb::unknown); it != routes_.end()) {
+          return it->second;
+        }
+        return unexpected { make_error_code(error::route_not_exists) };
       }
 
-      return to_expected(try_find_subtrees(segs[seg_idx].value),
-                         make_error_code(error::route_not_exists))
-          .and_then(
-              [&](auto&& node) { return node.try_find(segs, seg_idx + 1); })
-          .or_else([&](auto&& error) {
-            return to_expected(param_tree_, error)
-                .and_then([&](auto&& node_ptr) {
-                  return node_ptr->try_find(segs, seg_idx + 1);
-                });
+      if (auto it = static_subnodes_.find(segs[seg_index].value);
+          it != static_subnodes_.end()) {
+          if (auto result = it->second.try_find(method, segs, seg_index + 1);
+              result) {
+          return result;
+        }
+      }
+
+      if (param_subnode_) {
+        return param_subnode_->try_find(method, segs, seg_index + 1);
+      }
+
+      return unexpected { make_error_code(error::route_not_exists) };
+    }
+
+  public:
+    auto try_insert(const route_type& route) -> expected<void, error_code>
+    {
+      return try_insert(route, 0);
+    }
+
+    auto try_find(http::verb method, std::string_view path) const
+        -> expected<const route_type&, error_code>
+    {
+      return parse_pattern(path).and_then(
+          [&](auto&& segs) -> expected<const route_type&, error_code> {
+            return try_find(method, segs, 0);
           });
     }
-
-    auto try_find_subtrees(std::string_view segment) const noexcept
-        -> optional<const node&>
-    {
-      if (auto iter = subtrees_.find(segment); iter != subtrees_.end()) {
-        return iter->second;
-      }
-
-      return nullopt;
-    }
-
-    optional<route_type> route_;
-    unordered_string_map<node> subtrees_;
-    optional<std::shared_ptr<node>> param_tree_;
   };
+
+  node root_;
 
 public:
   auto try_insert(const route_type& route) -> expected<void, error_code>
   {
-    return subtrees_[route.method()].try_insert(route, 0);
+    return root_.try_insert(route);
   }
 
-  auto try_find(http::verb method, std::string path) const
+  auto try_find(http::verb method, std::string_view path) const
       -> expected<const route_type&, error_code>
   {
-    return parse_pattern(path).and_then(
-        [&](auto&& segments) -> expected<const route_type&, error_code> {
-          auto find_node
-              = [&](auto&& node) { return node.try_find(segments, 0); };
-          if (auto r = try_find(method).and_then(find_node); r) {
-            return r;
-          }
-          if (auto r = try_find(http::verb::unknown).and_then(find_node); r) {
-            return r;
-          }
-
-          return unexpected { make_error_code(error::route_not_exists) };
-        });
+    return root_.try_find(method, path);
   }
-
-private:
-  auto try_find(http::verb method) const noexcept
-      -> expected<const node&, error_code>
-  {
-    if (auto iter = subtrees_.find(method); iter != subtrees_.end()) {
-      return iter->second;
-    }
-
-    return unexpected { make_error_code(error::route_not_exists) };
-  }
-
-  std::unordered_map<http::verb, node> subtrees_;
 };
-
 }
 
 FITORIA_NAMESPACE_END
