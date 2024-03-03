@@ -11,8 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/expected_ext.hpp>
-#include <fitoria/core/optional_ext.hpp>
 #include <fitoria/core/unordered_string_map.hpp>
 
 #include <fitoria/web/any_routable.hpp>
@@ -21,7 +19,6 @@
 #include <fitoria/web/pattern_matcher.hpp>
 
 #include <memory>
-#include <string_view>
 #include <unordered_map>
 
 FITORIA_NAMESPACE_BEGIN
@@ -76,8 +73,8 @@ public:
 
       if (auto it = static_subnodes_.find(segs[seg_index].value);
           it != static_subnodes_.end()) {
-          if (auto result = it->second.try_find(method, segs, seg_index + 1);
-              result) {
+        if (auto result = it->second.try_find(method, segs, seg_index + 1);
+            result) {
           return result;
         }
       }

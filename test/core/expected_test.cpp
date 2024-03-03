@@ -8,7 +8,6 @@
 #include <fitoria_test.h>
 
 #include <fitoria/core/expected.hpp>
-#include <fitoria/core/expected_ext.hpp>
 
 #include <cstring>
 
@@ -2155,77 +2154,6 @@ TEST_CASE("format")
     CHECK_EQ(fmt::format("{}", expected<const int&, int>(val)), "0");
     CHECK_EQ(fmt::format("{}", expected<const int&, int>(unexpect)),
              "{unexpected}");
-  }
-}
-
-TEST_CASE("to_expected")
-{
-  const int err = 1;
-  {
-    auto o = optional<void>();
-    CHECK_EQ(to_expected(o, err), expected<void, int>(unexpect, 1));
-  }
-  {
-    auto o = optional<void>(std::in_place);
-    CHECK_EQ(to_expected(o, err), expected<void, int>());
-  }
-  {
-    const auto o = optional<void>();
-    CHECK_EQ(to_expected(o, err), expected<void, int>(unexpect, 1));
-  }
-  {
-    const auto o = optional<void>(std::in_place);
-    CHECK_EQ(to_expected(o, err), expected<void, int>());
-  }
-  {
-    auto o = optional<void>();
-    CHECK_EQ(to_expected(std::move(o), err), expected<void, int>(unexpect, 1));
-  }
-  {
-    auto o = optional<void>(std::in_place);
-    CHECK_EQ(to_expected(std::move(o), err), expected<void, int>());
-  }
-  {
-    const auto o = optional<void>();
-    CHECK_EQ(to_expected(std::move(o), err), expected<void, int>(unexpect, 1));
-  }
-  {
-    const auto o = optional<void>(std::in_place);
-    CHECK_EQ(to_expected(std::move(o), err), expected<void, int>());
-  }
-  {
-    auto o = optional<std::string>();
-    CHECK_EQ(to_expected(o, err), expected<std::string, int>(unexpect, 1));
-  }
-  {
-    auto o = optional<std::string>("0");
-    CHECK_EQ(to_expected(o, err), expected<std::string, int>("0"));
-  }
-  {
-    const auto o = optional<std::string>();
-    CHECK_EQ(to_expected(o, err), expected<std::string, int>(unexpect, 1));
-  }
-  {
-    const auto o = optional<std::string>("0");
-    CHECK_EQ(to_expected(o, err), expected<std::string, int>("0"));
-  }
-  {
-    auto o = optional<std::string>();
-    CHECK_EQ(to_expected(std::move(o), err),
-             expected<std::string, int>(unexpect, 1));
-  }
-  {
-    auto o = optional<std::string>("0");
-    CHECK_EQ(to_expected(std::move(o), err), expected<std::string, int>("0"));
-  }
-  {
-    const auto o = optional<std::string>();
-    CHECK_EQ(to_expected(std::move(o), err),
-             expected<std::string, int>(unexpect, 1));
-  }
-  {
-    const auto o = optional<std::string>("0");
-    CHECK_EQ(to_expected(std::move(o), err), expected<std::string, int>("0"));
   }
 }
 
