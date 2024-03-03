@@ -20,8 +20,8 @@ using namespace fitoria::web;
 // <
 // user: ramirisu
 
-namespace api::v1::users::get_user {
-auto api(const http_request& req) -> lazy<http_response>
+namespace api::v1::users {
+auto get_user(const http_request& req) -> lazy<http_response>
 {
   auto user = req.query().get("user");
   if (!user) {
@@ -39,7 +39,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/users">(api::v1::users::get_user::api))
+            .serve(route::GET<"/api/v1/users">(api::v1::users::get_user))
             .build();
   server //
       .bind("127.0.0.1", 8080)
