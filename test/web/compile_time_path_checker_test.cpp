@@ -13,23 +13,31 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("web.compile_time_path_checker");
 
-TEST_CASE("is_valid")
+TEST_CASE("is_valid_scope")
 {
-  static_assert(compile_time_path_checker::is_valid<"">());
-  static_assert(compile_time_path_checker::is_valid<"/">());
-  static_assert(compile_time_path_checker::is_valid<"///">());
-  static_assert(compile_time_path_checker::is_valid<"/abc/{abc}">());
-  static_assert(compile_time_path_checker::is_valid<"/abc/{abcd}/xyz/{xyz}">());
-  static_assert(!compile_time_path_checker::is_valid<"{">());
-  static_assert(!compile_time_path_checker::is_valid<"}">());
-  static_assert(!compile_time_path_checker::is_valid<"/{}">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc">());
-  static_assert(!compile_time_path_checker::is_valid<"/abc}">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc}}">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc}xyz">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc}/{abc}">());
-  static_assert(!compile_time_path_checker::is_valid<"/{abc}/xyz/{abc}/abc">());
+  using ctpc = compile_time_path_checker;
+
+  static_assert(ctpc::is_valid_scope<"">());
+  static_assert(ctpc::is_valid_scope<"/">());
+  static_assert(ctpc::is_valid_scope<"///">());
+  static_assert(ctpc::is_valid_scope<"/abc/{abc}">());
+  static_assert(ctpc::is_valid_scope<"/abc/{abcd}/xyz/{xyz}">());
+  static_assert(ctpc::is_valid_scope<"/%00/%FF/%9A">());
+  static_assert(ctpc::is_valid_scope<"/abcdefghijklmnopqrstuvwxyz">());
+  static_assert(ctpc::is_valid_scope<"/ABCDEFGHIJKLMNOPQRSTUVWXYZ">());
+  static_assert(ctpc::is_valid_scope<"/0123456789-._~">());
+  static_assert(ctpc::is_valid_scope<"/!$&'()*+,;=">());
+  static_assert(!ctpc::is_valid_scope<"{">());
+  static_assert(!ctpc::is_valid_scope<"}">());
+  static_assert(!ctpc::is_valid_scope<"/{}">());
+  static_assert(!ctpc::is_valid_scope<"/{abc">());
+  static_assert(!ctpc::is_valid_scope<"/abc}">());
+  static_assert(!ctpc::is_valid_scope<"/{abc">());
+  static_assert(!ctpc::is_valid_scope<"/{abc}}">());
+  static_assert(!ctpc::is_valid_scope<"/{abc}xyz">());
+  static_assert(!ctpc::is_valid_scope<"/{abc}/{abc}">());
+  static_assert(!ctpc::is_valid_scope<"/{abc}/xyz/{abc}/abc">());
+  static_assert(!ctpc::is_valid_scope<"/%GC">());
 }
 
 TEST_SUITE_END();

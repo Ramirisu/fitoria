@@ -37,7 +37,7 @@ class route_impl<Path, std::tuple<Services...>, Handler> {
   Handler handler_;
 
 public:
-  static_assert(compile_time_path_checker::is_valid<Path>(),
+  static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                 "invalid path for route");
 
   route_impl(http::verb method,
@@ -151,7 +151,7 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto handle(http::verb method, Handler&& handler)
   {
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return route_impl<Path, std::tuple<>, std::decay_t<Handler>>(
         method, {}, {}, std::forward<Handler>(handler));
@@ -160,7 +160,7 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto any(Handler&& handler)
   {
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return route_impl<Path, std::tuple<>, std::decay_t<Handler>>(
         http::verb::unknown, {}, {}, std::forward<Handler>(handler));
@@ -170,7 +170,7 @@ public:
   static auto GET(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::get, std::forward<Handler>(handler));
   }
@@ -179,7 +179,7 @@ public:
   static auto POST(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::post, std::forward<Handler>(handler));
   }
@@ -188,7 +188,7 @@ public:
   static auto PUT(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::put, std::forward<Handler>(handler));
   }
@@ -197,7 +197,7 @@ public:
   static auto PATCH(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::patch, std::forward<Handler>(handler));
   }
@@ -206,7 +206,7 @@ public:
   static auto DELETE_(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::delete_, std::forward<Handler>(handler));
   }
@@ -215,7 +215,7 @@ public:
   static auto HEAD(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::head, std::forward<Handler>(handler));
   }
@@ -224,7 +224,7 @@ public:
   static auto OPTIONS(Handler&& handler)
   {
 
-    static_assert(compile_time_path_checker::is_valid<Path>(),
+    static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::options, std::forward<Handler>(handler));
   }

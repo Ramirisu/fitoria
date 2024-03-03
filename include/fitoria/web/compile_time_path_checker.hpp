@@ -22,7 +22,7 @@ namespace web {
 class compile_time_path_checker {
 public:
   template <basic_fixed_string Pattern>
-  static consteval bool is_valid()
+  static consteval bool is_valid_scope()
   {
     std::vector<std::string_view> used_param;
     auto it = Pattern.begin();
@@ -59,7 +59,7 @@ private:
         return false;
       }
       while (it != end && *it != '}') {
-        if (!on_text(it)) {
+        if (!on_pchar(it, end)) {
           return false;
         }
       }
@@ -75,7 +75,7 @@ private:
       ++it;
     } else {
       while (it != end && *it != '/') {
-        if (!on_text(it)) {
+        if (!on_pchar(it, end)) {
           return false;
         }
       }
@@ -84,14 +84,51 @@ private:
     return true;
   }
 
-  static consteval bool on_text(auto& it)
+  static consteval bool on_pchar(auto& it, const auto end)
   {
-    if (*it == '/' || *it == '{' || *it == '}') {
+    if (is_unreserved(*it) || is_sub_delims(*it) || *it == ':' || *it == '@') {
+      ++it;
+      return true;
+    }
+
+    if (*it == '%' && on_pct_encoded(it, end)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  static consteval bool on_pct_encoded(auto& it, const auto end)
+  {
+    ++it; // '%'
+    if (it == end || !is_hex(*it)) {
       return false;
     }
     ++it;
-
+    if (it == end || !is_hex(*it)) {
+      return false;
+    }
+    ++it;
     return true;
+  }
+
+  static consteval bool is_unreserved(char c)
+  {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+        || (c >= '0' && c <= '9') || c == '-' || c == '.' || c == '_'
+        || c == '~';
+  }
+
+  static consteval bool is_sub_delims(char c)
+  {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')'
+        || c == '*' || c == '+' || c == ',' || c == ';' || c == '=';
+  }
+
+  static consteval bool is_hex(char c)
+  {
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
+        || (c >= 'A' && c <= 'F');
   }
 };
 }
