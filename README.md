@@ -404,7 +404,7 @@ public:
   }
 
   template <uncvref_same_as<my_log> Self, typename Next>
-  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  friend auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
     return std::forward<Self>(self).new_middleware_impl(
         std::forward<Next>(next));
@@ -420,36 +420,28 @@ private:
   log::level lv_;
 };
 
+auto get_user(http_request& req) -> lazy<http_response>
+{
+  log::debug("user: {}", req.params().get("user"));
+
+  co_return http_response(http::status::ok)
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body(req.params().get("user").value_or("{{unknown}}"));
+}
+
 int main()
 {
   log::global_logger() = log::stdout_logger();
   log::global_logger()->set_log_level(log::level::debug);
 
-  auto server
-      = http_server::builder()
-            .serve(
-                // Add a scope
-                scope<"/api/v1">()
-                    // Register built-in logger middleware
-                    .use(middleware::logger())
-                    // Register built-in exception_handler middleware
-                    .use(middleware::exception_handler())
-                    // Register a custom middleware for this group
-                    .use(my_log(log::level::info))
-                    // Register a route
-                    // The route is associated with the middleware defined above
-                    .serve(route::GET<"/users/{user}">(
-                        [](http_request& req) -> lazy<http_response> {
-                          log::debug("user: {}", req.params().get("user"));
-
-                          co_return http_response(http::status::ok)
-                              .set_field(
-                                  http::field::content_type,
-                                  http::fields::content_type::plaintext())
-                              .set_body(req.params().get("user").value_or(
-                                  "{{unknown}}"));
-                        })))
-            .build();
+  auto server = http_server::builder()
+                    .serve(scope<"/api/v1">()
+                               .use(middleware::logger())
+                               .use(middleware::exception_handler())
+                               .use(my_log(log::level::info))
+                               .serve(route::GET<"/users/{user}">(get_user)))
+                    .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
