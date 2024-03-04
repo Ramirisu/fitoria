@@ -64,37 +64,37 @@ public:
   {
   }
 
-  static http_client GET(std::string_view url)
+  static http_client get(std::string_view url)
   {
     return http_client(http::verb::get, url);
   }
 
-  static http_client POST(std::string_view url)
+  static http_client post(std::string_view url)
   {
     return http_client(http::verb::post, url);
   }
 
-  static http_client PUT(std::string_view url)
+  static http_client put(std::string_view url)
   {
     return http_client(http::verb::put, url);
   }
 
-  static http_client PATCH(std::string_view url)
+  static http_client patch(std::string_view url)
   {
     return http_client(http::verb::patch, url);
   }
 
-  static http_client DELETE_(std::string_view url)
+  static http_client delete_(std::string_view url)
   {
     return http_client(http::verb::delete_, url);
   }
 
-  static http_client HEAD(std::string_view url)
+  static http_client head(std::string_view url)
   {
     return http_client(http::verb::head, url);
   }
 
-  static http_client OPTIONS(std::string_view url)
+  static http_client options(std::string_view url)
   {
     return http_client(http::verb::options, url);
   }

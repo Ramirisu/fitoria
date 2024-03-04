@@ -92,8 +92,8 @@ int main()
   auto server = http_server::builder()
                     .serve(scope<"/cache">()
                                .state(cache)
-                               .serve(route::PUT<"/{key}/{value}">(cache::put))
-                               .serve(route::GET<"/{key}">(cache::get)))
+                               .serve(route::put<"/{key}/{value}">(cache::put))
+                               .serve(route::get<"/{key}">(cache::get)))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

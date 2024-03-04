@@ -41,7 +41,7 @@ TEST_CASE("builder")
               }
             })
 #endif
-            .serve(route::GET<"/api">(
+            .serve(route::get<"/api">(
                 [&]([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok);
                 }))
@@ -58,7 +58,7 @@ TEST_CASE("builder")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::GET(
+        auto res = (co_await http_client::get(
                         to_local_url(boost::urls::scheme::http, port, "/api"))
                         .async_send())
                        .value();
@@ -72,11 +72,11 @@ TEST_CASE("duplicate route")
   CHECK_THROWS_AS(
       http_server::builder().serve(
           scope<"/api/v1">()
-              .serve(route::GET<"/xxx">([]([[maybe_unused]] http_request& req)
+              .serve(route::get<"/xxx">([]([[maybe_unused]] http_request& req)
                                             -> lazy<http_response> {
                 co_return http_response(http::status::ok);
               }))
-              .serve(route::GET<"/xxx">([]([[maybe_unused]] http_request& req)
+              .serve(route::get<"/xxx">([]([[maybe_unused]] http_request& req)
                                             -> lazy<http_response> {
                 co_return http_response(http::status::ok);
               }))),
@@ -88,7 +88,7 @@ TEST_CASE("invalid target")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/users/{user}">(
+            .serve(route::get<"/api/v1/users/{user}">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok);
                 }))
@@ -111,7 +111,7 @@ TEST_CASE("invalid target")
         ioc,
         [&]() -> lazy<void> {
           auto res
-              = (co_await http_client::GET(
+              = (co_await http_client::get(
                      to_local_url(boost::urls::scheme::http, port, test_case))
                      .set_field(http::field::connection, "close")
                      .set_plaintext("text")
@@ -131,7 +131,7 @@ TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .serve(route::POST<"/api/v1/post">(
+                    .serve(route::post<"/api/v1/post">(
                         [](std::string body) -> lazy<http_response> {
                           CHECK_EQ(body, "text");
                           co_return http_response(http::status::ok);
@@ -149,7 +149,7 @@ TEST_CASE("expect: 100-continue")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::POST(
+        auto res = (co_await http_client::post(
                         to_local_url(
                             boost::urls::scheme::http, port, "/api/v1/post"))
                         .set_field(http::field::expect, "100-continue")
@@ -179,7 +179,7 @@ TEST_CASE("unhandled exception from handler")
                 }
               }
             })
-            .serve(route::GET<"/api/v1/get">(
+            .serve(route::get<"/api/v1/get">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   throw std::exception();
                   co_return http_response(http::status::ok);
@@ -198,7 +198,7 @@ TEST_CASE("unhandled exception from handler")
       ioc,
       [&]() -> lazy<void> {
         CHECK(
-            !(co_await http_client::GET(
+            !(co_await http_client::get(
                   to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
                   .set_field(http::field::connection, "close")
                   .set_plaintext("text")
@@ -219,7 +219,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/users/{user}/filmography/years/{year}">(
+            .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
                     const connection_info& conn_info,
                     route_params& params,
@@ -298,7 +298,7 @@ TEST_CASE("generic request")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::GET(
+        auto res = (co_await http_client::get(
                         to_local_url(
                             boost::urls::scheme::http,
                             port,
@@ -329,7 +329,7 @@ TEST_CASE("request with chunked transfer-encoding")
 
   const auto port = generate_port();
   auto server = http_server::builder()
-                    .serve(route::POST<"/post">(
+                    .serve(route::post<"/post">(
                         [input](std::string data) -> lazy<http_response> {
                           CHECK_EQ(data, input);
                           co_return http_response(http::status::ok);
@@ -347,7 +347,7 @@ TEST_CASE("request with chunked transfer-encoding")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::POST(
+        auto res = (co_await http_client::post(
                         to_local_url(boost::urls::scheme::http, port, "/post"))
                         .set_field(http::field::connection, "close")
                         .set_stream(test_async_readable_chunk_stream<5>(input))
@@ -364,7 +364,7 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api">(
+            .serve(route::get<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::accepted);
                 }))
@@ -381,7 +381,7 @@ TEST_CASE("response status only")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::GET(
+        auto res = (co_await http_client::get(
                         to_local_url(boost::urls::scheme::http, port, "/api"))
                         .set_field(http::field::connection, "close")
                         .async_send())
@@ -400,7 +400,7 @@ TEST_CASE("response with plain text")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api">(
+            .serve(route::get<"/api">(
                 []([[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
@@ -420,7 +420,7 @@ TEST_CASE("response with plain text")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::GET(
+        auto res = (co_await http_client::get(
                         to_local_url(boost::urls::scheme::http, port, "/api"))
                         .set_field(http::field::connection, "close")
                         .async_send())
@@ -442,7 +442,7 @@ TEST_CASE("response with stream")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api">(
+            .serve(route::get<"/api">(
                 [input](
                     [[maybe_unused]] http_request& req) -> lazy<http_response> {
                   co_return http_response(http::status::ok)
@@ -461,7 +461,7 @@ TEST_CASE("response with stream")
   net::co_spawn(
       ioc,
       [&]() -> lazy<void> {
-        auto res = (co_await http_client::GET(
+        auto res = (co_await http_client::get(
                         to_local_url(boost::urls::scheme::http, port, "/api"))
                         .set_field(http::field::connection, "close")
                         .async_send())

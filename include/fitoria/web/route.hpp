@@ -167,7 +167,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto GET(Handler&& handler)
+  static auto get(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -176,7 +176,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto POST(Handler&& handler)
+  static auto post(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -185,7 +185,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto PUT(Handler&& handler)
+  static auto put(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -194,7 +194,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto PATCH(Handler&& handler)
+  static auto patch(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -203,7 +203,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto DELETE_(Handler&& handler)
+  static auto delete_(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -212,7 +212,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto HEAD(Handler&& handler)
+  static auto head(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),
@@ -221,7 +221,7 @@ public:
   }
 
   template <basic_fixed_string Path, typename Handler>
-  static auto OPTIONS(Handler&& handler)
+  static auto options(Handler&& handler)
   {
 
     static_assert(compile_time_path_checker::is_valid_scope<Path>(),

@@ -25,17 +25,17 @@ TEST_CASE("method")
   CHECK_EQ(
       m(scope<"/api">().serve(route::handle<"/">(http::verb::get, handler))),
       http::verb::get);
-  CHECK_EQ(m(scope<"/api">().serve(route::GET<"/">(handler))), http::verb::get);
-  CHECK_EQ(m(scope<"/api">().serve(route::POST<"/">(handler))),
+  CHECK_EQ(m(scope<"/api">().serve(route::get<"/">(handler))), http::verb::get);
+  CHECK_EQ(m(scope<"/api">().serve(route::post<"/">(handler))),
            http::verb::post);
-  CHECK_EQ(m(scope<"/api">().serve(route::PUT<"/">(handler))), http::verb::put);
-  CHECK_EQ(m(scope<"/api">().serve(route::PATCH<"/">(handler))),
+  CHECK_EQ(m(scope<"/api">().serve(route::put<"/">(handler))), http::verb::put);
+  CHECK_EQ(m(scope<"/api">().serve(route::patch<"/">(handler))),
            http::verb::patch);
-  CHECK_EQ(m(scope<"/api">().serve(route::DELETE_<"/">(handler))),
+  CHECK_EQ(m(scope<"/api">().serve(route::delete_<"/">(handler))),
            http::verb::delete_);
-  CHECK_EQ(m(scope<"/api">().serve(route::HEAD<"/">(handler))),
+  CHECK_EQ(m(scope<"/api">().serve(route::head<"/">(handler))),
            http::verb::head);
-  CHECK_EQ(m(scope<"/api">().serve(route::OPTIONS<"/">(handler))),
+  CHECK_EQ(m(scope<"/api">().serve(route::options<"/">(handler))),
            http::verb::options);
   CHECK_EQ(m(scope<"/api">().serve(route::any<"/">(handler))),
            http::verb::unknown);
@@ -99,28 +99,28 @@ TEST_CASE("middleware & handler")
 
   auto router = scope<"/s0">()
                     .use(l)
-                    .serve(route::GET<"/s0h">(h))
-                    .serve(route::PUT<"/s0h">(h))
+                    .serve(route::get<"/s0h">(h))
+                    .serve(route::put<"/s0h">(h))
                     .serve(scope<"/s00">()
                                .use(ag)
-                               .serve(route::GET<"/s00h">(h))
-                               .serve(route::PUT<"/s00h">(h))
+                               .serve(route::get<"/s00h">(h))
+                               .serve(route::put<"/s00h">(h))
                                .serve(scope<"/s000">()
-                                          .serve(route::GET<"/s000h">(h))
-                                          .serve(route::PUT<"/s000h">(h)))
+                                          .serve(route::get<"/s000h">(h))
+                                          .serve(route::put<"/s000h">(h)))
                                .serve(scope<"/s001">()
-                                          .serve(route::GET<"/s001h">(h))
-                                          .serve(route::PUT<"/s001h">(h))))
+                                          .serve(route::get<"/s001h">(h))
+                                          .serve(route::put<"/s001h">(h))))
                     .serve(scope<"/s01">()
                                .use(af)
-                               .serve(route::GET<"/s01h">(h))
-                               .serve(route::PUT<"/s01h">(h))
+                               .serve(route::get<"/s01h">(h))
+                               .serve(route::put<"/s01h">(h))
                                .serve(scope<"/s010">()
-                                          .serve(route::GET<"/s010h">(h))
-                                          .serve(route::PUT<"/s010h">(h)))
+                                          .serve(route::get<"/s010h">(h))
+                                          .serve(route::put<"/s010h">(h)))
                                .serve(scope<"/s011">()
-                                          .serve(route::GET<"/s011h">(h))
-                                          .serve(route::PUT<"/s011h">(h))));
+                                          .serve(route::get<"/s011h">(h))
+                                          .serve(route::put<"/s011h">(h))));
 
   auto services = std::apply(
       [](auto&&... routes) { return std::tuple { routes.build(adder(0))... }; },

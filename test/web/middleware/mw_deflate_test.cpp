@@ -143,7 +143,7 @@ TEST_CASE("deflate middleware")
 
   auto server
       = http_server::builder()
-            .serve(route::GET<"/get/{set_identity}/{chunked}/{empty_body}">(
+            .serve(route::get<"/get/{set_identity}/{chunked}/{empty_body}">(
                        [&](const http_request& req,
                            const route_params& params,
                            const http_fields& fields,
@@ -243,7 +243,7 @@ TEST_CASE("deflate middleware: header vary")
   auto server
       = http_server::builder()
             .serve(
-                route::GET<"/get">([&](std::string body)
+                route::get<"/get">([&](std::string body)
                                        -> lazy<http_response> {
                   auto res
                       = http_response(http::status::ok).set_body("hello world");

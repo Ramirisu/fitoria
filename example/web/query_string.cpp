@@ -39,7 +39,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/users">(api::v1::users::get_user))
+            .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
             .build();
   server //
       .bind("127.0.0.1", 8080)

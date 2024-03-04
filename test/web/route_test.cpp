@@ -35,13 +35,13 @@ TEST_CASE("method")
   CHECK_EQ(route::handle<"/">(http::verb::options, handler).build().method(),
            http::verb::options);
 
-  CHECK_EQ(route::GET<"/">(handler).build().method(), http::verb::get);
-  CHECK_EQ(route::POST<"/">(handler).build().method(), http::verb::post);
-  CHECK_EQ(route::PUT<"/">(handler).build().method(), http::verb::put);
-  CHECK_EQ(route::PATCH<"/">(handler).build().method(), http::verb::patch);
-  CHECK_EQ(route::DELETE_<"/">(handler).build().method(), http::verb::delete_);
-  CHECK_EQ(route::HEAD<"/">(handler).build().method(), http::verb::head);
-  CHECK_EQ(route::OPTIONS<"/">(handler).build().method(), http::verb::options);
+  CHECK_EQ(route::get<"/">(handler).build().method(), http::verb::get);
+  CHECK_EQ(route::post<"/">(handler).build().method(), http::verb::post);
+  CHECK_EQ(route::put<"/">(handler).build().method(), http::verb::put);
+  CHECK_EQ(route::patch<"/">(handler).build().method(), http::verb::patch);
+  CHECK_EQ(route::delete_<"/">(handler).build().method(), http::verb::delete_);
+  CHECK_EQ(route::head<"/">(handler).build().method(), http::verb::head);
+  CHECK_EQ(route::options<"/">(handler).build().method(), http::verb::options);
 
   CHECK_EQ(route::any<"/">(handler).build().method(), http::verb::unknown);
 }

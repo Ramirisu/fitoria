@@ -53,7 +53,7 @@ int main()
 
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/{owner}/{repo}">(
+            .serve(route::get<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> lazy<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}",
@@ -89,7 +89,7 @@ TODO:
 
 #### Method
 
-Register methods defined in `http::verb::*` by using `route::handle`, or simply use `route::GET`, `route::POST`, `route::PUT`, `route::PATCH`, `route::DELETE_`, `route::HEAD` and `route::OPTIONS` for convenience. `route::any` can register a handler to serve any method.
+Register methods defined in `http::verb::*` by using `route::handle`, or simply use `route::get`, `route::post`, `route::put`, `route::patch`, `route::delete_`, `route::head` and `route::options` for convenience. `route::any` can register a handler to serve any method.
 
 [Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
 
@@ -100,13 +100,13 @@ int main()
   auto server = http_server::builder()
                     // Single route by using `route`
                     .serve(route::handle<"/">(http::verb::get, get_handler))
-                    .serve(route::GET<"/get">(get_handler))
-                    .serve(route::POST<"/post">(post_handler))
-                    .serve(route::PUT<"/put">(put_handler))
-                    .serve(route::PATCH<"/patch">(patch_handler))
-                    .serve(route::DELETE_<"/delete">(delete_handler))
-                    .serve(route::HEAD<"/head">(head_handler))
-                    .serve(route::OPTIONS<"/options">(options_handler))
+                    .serve(route::get<"/get">(get_handler))
+                    .serve(route::post<"/post">(post_handler))
+                    .serve(route::put<"/put">(put_handler))
+                    .serve(route::patch<"/patch">(patch_handler))
+                    .serve(route::delete_<"/delete">(delete_handler))
+                    .serve(route::head<"/head">(head_handler))
+                    .serve(route::options<"/options">(options_handler))
                     .serve(route::any<"/any">(any_handler))
                     .build();
   server //
@@ -122,12 +122,12 @@ Support static path and path with parameters. Perform **compile-time validation*
 
 ```cpp
 
-route::GET<"/api/v1/get">(handler) // static
-route::GET<"/api/v1/get/{param}">(handler) // path parameter
+route::get<"/api/v1/get">(handler) // static
+route::get<"/api/v1/get/{param}">(handler) // path parameter
 
-route::GET<"/api/v1/{">(handler) // error: static_assert failed: 'invalid path for route'
-route::GET<"/api/v1/}">(handler) // error: static_assert failed: 'invalid path for route'
-route::GET<"/api/v1/{param}x">(handler) // error: static_assert failed: 'invalid path for route'
+route::get<"/api/v1/{">(handler) // error: static_assert failed: 'invalid path for route'
+route::get<"/api/v1/}">(handler) // error: static_assert failed: 'invalid path for route'
+route::get<"/api/v1/{param}x">(handler) // error: static_assert failed: 'invalid path for route'
 
 ```
 
@@ -157,7 +157,7 @@ auto api(const http_request& req) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .serve(route::GET<"/api/v1/users/{user}">(
+                    .serve(route::get<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();
   server //
@@ -194,7 +194,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::GET<"/api/v1/users">(api::v1::users::get_user))
+            .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -231,7 +231,7 @@ auto api(const http_request& req, std::string body) -> lazy<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    .serve(route::POST<"/api/v1/login">(api::v1::login::api))
+                    .serve(route::post<"/api/v1/login">(api::v1::login::api))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -314,7 +314,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::POST<"/api/v1/login/{user}">(api::v1::login::api))
+            .serve(route::post<"/api/v1/login/{user}">(api::v1::login::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -339,11 +339,11 @@ int main()
                 scope<>()
                     .use(middleware::logger())
                     .serve(scope<"/api/v1">()
-                               .serve(route::POST<"/register">(api::v1::reg))
-                               .serve(route::POST<"/login">(api::v1::login)))
+                               .serve(route::post<"/register">(api::v1::reg))
+                               .serve(route::post<"/login">(api::v1::login)))
                     .serve(scope<"/api/v2">()
-                               .serve(route::POST<"/register">(api::v2::reg))
-                               .serve(route::POST<"/login">(api::v2::login))))
+                               .serve(route::post<"/register">(api::v2::reg))
+                               .serve(route::post<"/login">(api::v2::login))))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -440,7 +440,7 @@ int main()
                                .use(middleware::logger())
                                .use(middleware::exception_handler())
                                .use(my_log(log::level::info))
-                               .serve(route::GET<"/users/{user}">(get_user)))
+                               .serve(route::get<"/users/{user}">(get_user)))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -464,8 +464,8 @@ int main()
   auto server = http_server::builder()
                     .serve(scope<"/cache">()
                                .state(cache)
-                               .serve(route::PUT<"/{key}/{value}">(cache::put))
-                               .serve(route::GET<"/{key}">(cache::get)))
+                               .serve(route::put<"/{key}/{value}">(cache::put))
+                               .serve(route::get<"/{key}">(cache::get)))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -518,7 +518,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::POST<"/api/v1/login">(
+            .serve(route::post<"/api/v1/login">(
                 [](http_request& req, std::string body) -> lazy<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {

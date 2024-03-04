@@ -26,7 +26,7 @@ namespace {
 
 void configure_server(http_server::builder& builder)
 {
-  builder.serve(route::GET<"/api/repos/{repo}">(
+  builder.serve(route::get<"/api/repos/{repo}">(
       [](http_request& req, std::string body) -> lazy<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);
@@ -59,7 +59,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
       ioc,
       [&]() -> lazy<void> {
         auto res
-            = (co_await http_client::GET(
+            = (co_await http_client::get(
                    to_local_url(
                        boost::urls::scheme::https, port, "/api/repos/fitoria"))
                    .set_plaintext("hello world")

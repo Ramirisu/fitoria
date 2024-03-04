@@ -95,7 +95,7 @@ int main()
                                .use(middleware::logger())
                                .use(middleware::exception_handler())
                                .use(my_log(log::level::info))
-                               .serve(route::GET<"/users/{user}">(get_user)))
+                               .serve(route::get<"/users/{user}">(get_user)))
                     .build();
   server //
       .bind("127.0.0.1", 8080)

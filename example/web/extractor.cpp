@@ -61,7 +61,7 @@ int main()
 {
   auto server
       = http_server::builder()
-            .serve(route::POST<"/api/v1/login/{user}">(api::v1::login::api))
+            .serve(route::post<"/api/v1/login/{user}">(api::v1::login::api))
             .build();
   server //
       .bind("127.0.0.1", 8080)

@@ -19,7 +19,7 @@ TEST_SUITE_BEGIN("web.http_server.unittest");
 TEST_CASE("connection_info")
 {
   auto server = http_server::builder()
-                    .serve(route::GET<"/get">(
+                    .serve(route::get<"/get">(
                         [](http_request& req) -> lazy<http_response> {
                           CHECK_EQ(req.conn_info().local_addr(),
                                    net::ip::make_address("127.0.0.1"));
@@ -54,7 +54,7 @@ TEST_CASE("state")
                     .state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()
-                            .serve(route::GET<
+                            .serve(route::get<
                                    "/global">([](http_request& req)
                                                   -> lazy<http_response> {
                               co_return http_response(http::status::ok)
@@ -65,7 +65,7 @@ TEST_CASE("state")
                                                 ->value);
                             }))
                             .state(shared_resource { "scope" })
-                            .serve(route::GET<
+                            .serve(route::get<
                                    "/scope">([](http_request& req)
                                                  -> lazy<http_response> {
                               co_return http_response(http::status::ok)
@@ -75,7 +75,7 @@ TEST_CASE("state")
                                   .set_body(req.state<const shared_resource&>()
                                                 ->value);
                             }))
-                            .serve(route::GET<
+                            .serve(route::get<
                                        "/route">([](http_request& req)
                                                      -> lazy<http_response> {
                                      co_return http_response(http::status::ok)
@@ -113,7 +113,7 @@ TEST_CASE("state")
 TEST_CASE("string extractor")
 {
   auto server = http_server::builder()
-                    .serve(route::POST<"/post">(
+                    .serve(route::post<"/post">(
                         [](std::string text) -> lazy<http_response> {
                           CHECK_EQ(text, "abc");
                           co_return http_response(http::status::ok);
@@ -133,7 +133,7 @@ TEST_CASE("bytes extractor")
 {
   auto server
       = http_server::builder()
-            .serve(route::POST<"/post">(
+            .serve(route::post<"/post">(
                 [](std::vector<std::byte> bytes) -> lazy<http_response> {
                   CHECK_EQ(bytes, to_bytes("abc"));
                   co_return http_response(http::status::ok);
@@ -196,7 +196,7 @@ TEST_CASE("json")
 {
   auto server
       = http_server::builder()
-            .serve(route::GET<"/get">(
+            .serve(route::get<"/get">(
                 [](json<user_t> user) -> lazy<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");

@@ -75,31 +75,31 @@ TEST_CASE("misc")
 TEST_CASE("methods")
 {
   {
-    auto c = http_client::GET("http://httpbin.org/get");
+    auto c = http_client::get("http://httpbin.org/get");
     CHECK_EQ(c.method(), http::verb::get);
   }
   {
-    auto c = http_client::POST("http://httpbin.org/get");
+    auto c = http_client::post("http://httpbin.org/post");
     CHECK_EQ(c.method(), http::verb::post);
   }
   {
-    auto c = http_client::PUT("http://httpbin.org/get");
+    auto c = http_client::put("http://httpbin.org/put");
     CHECK_EQ(c.method(), http::verb::put);
   }
   {
-    auto c = http_client::PATCH("http://httpbin.org/get");
+    auto c = http_client::patch("http://httpbin.org/patch");
     CHECK_EQ(c.method(), http::verb::patch);
   }
   {
-    auto c = http_client::DELETE_("http://httpbin.org/get");
+    auto c = http_client::delete_("http://httpbin.org/delete");
     CHECK_EQ(c.method(), http::verb::delete_);
   }
   {
-    auto c = http_client::HEAD("http://httpbin.org/get");
+    auto c = http_client::head("http://httpbin.org/head");
     CHECK_EQ(c.method(), http::verb::head);
   }
   {
-    auto c = http_client::OPTIONS("http://httpbin.org/get");
+    auto c = http_client::options("http://httpbin.org/options");
     CHECK_EQ(c.method(), http::verb::options);
   }
 }
@@ -108,12 +108,12 @@ TEST_CASE("async_send")
 {
   {
     auto res = net::sync_wait(
-                   http_client::GET("http://httpbin.org/get").async_send())
+                   http_client::get("http://httpbin.org/get").async_send())
                    .value();
     CHECK_EQ(res.status_code().value(), http::status::ok);
   }
   {
-    CHECK(!net::sync_wait(http_client::GET("").async_send()));
+    CHECK(!net::sync_wait(http_client::get("").async_send()));
   }
 #if defined(FITORIA_HAS_OPENSSL)
   auto get_certs = []() {
@@ -123,13 +123,13 @@ TEST_CASE("async_send")
     return ssl_ctx;
   };
   {
-    auto res = net::sync_wait(http_client::GET("https://httpbin.org/get")
+    auto res = net::sync_wait(http_client::get("https://httpbin.org/get")
                                   .async_send(get_certs()))
                    .value();
     CHECK_EQ(res.status_code().value(), http::status::ok);
   }
   {
-    CHECK(!net::sync_wait(http_client::GET("").async_send(get_certs())));
+    CHECK(!net::sync_wait(http_client::get("").async_send(get_certs())));
   }
 #endif
 }

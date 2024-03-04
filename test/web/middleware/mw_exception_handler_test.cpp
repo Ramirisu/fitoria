@@ -22,7 +22,7 @@ TEST_CASE("exception_handler middleware")
       = http_server::builder()
             .serve(scope<"/api">()
                        .use(middleware::exception_handler())
-                       .serve(route::GET<"/get">(
+                       .serve(route::get<"/get">(
                            [&](std::string body) -> lazy<http_response> {
                              if (body.ends_with("true")) {
                                throw std::exception();
