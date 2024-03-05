@@ -32,11 +32,11 @@ TEST_CASE("is_valid_scope")
   static_assert(!ctpc::is_valid_scope<"/{}">());
   static_assert(!ctpc::is_valid_scope<"/{abc">());
   static_assert(!ctpc::is_valid_scope<"/abc}">());
-  static_assert(!ctpc::is_valid_scope<"/{abc">());
   static_assert(!ctpc::is_valid_scope<"/{abc}}">());
   static_assert(!ctpc::is_valid_scope<"/{abc}xyz">());
   static_assert(!ctpc::is_valid_scope<"/{abc}/{abc}">());
   static_assert(!ctpc::is_valid_scope<"/{abc}/xyz/{abc}/abc">());
+  static_assert(!ctpc::is_valid_scope<"/{abc/xyz}">());
   static_assert(!ctpc::is_valid_scope<"/%GC">());
 }
 
