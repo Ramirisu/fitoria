@@ -474,16 +474,16 @@ private:
           .set_body("request path is not found");
     }
 
-    auto request
-        = http_request(std::move(connection_info),
-                       route_params(route->match(req_url->path()).value(),
-                                    std::string(route->pattern())),
-                       req_url->path(),
-                       method,
-                       query_map::from(req_url->params()),
-                       std::move(fields),
-                       std::move(body),
-                       route->state_maps());
+    auto request = http_request(
+        std::move(connection_info),
+        route_params(route->matcher().match(req_url->path()).value(),
+                     std::string(route->matcher().pattern())),
+        req_url->path(),
+        method,
+        query_map::from(req_url->params()),
+        std::move(fields),
+        std::move(body),
+        route->state_maps());
     auto context = http_context(request);
     co_return co_await route->operator()(context);
   }

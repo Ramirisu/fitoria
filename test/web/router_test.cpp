@@ -23,7 +23,7 @@ template <basic_fixed_string Path>
 auto r(http::verb method, int value = 0)
 {
   return router_type::route_type(
-      routable(method, pattern_matcher(Path), {}, [=](int) { return value; }));
+      routable(method, path_matcher(Path), {}, [=](int) { return value; }));
 }
 }
 
@@ -86,7 +86,7 @@ TEST_CASE("try_find")
   CHECK_EQ(rt.try_find(http::verb::get, ""),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "a"),
-           fitoria::unexpected { make_error_code(error::route_parse_error) });
+           fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/"),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/a"),

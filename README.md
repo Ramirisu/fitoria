@@ -118,7 +118,7 @@ int main()
 
 #### Path
 
-Support static path and path with parameters. Perform **compile-time validation** for path.
+Support **static path** and **path with parameters**. Perform **compile-time validation** for path.
 
 ```cpp
 

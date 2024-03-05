@@ -20,7 +20,6 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 enum class error {
-  route_parse_error,
   route_already_exists,
   route_not_exists,
   unexpected_content_type,
@@ -38,8 +37,6 @@ public:
   std::string message(int condition) const override
   {
     switch (static_cast<error>(condition)) {
-    case error::route_parse_error:
-      return "the route being parsed is invalid";
     case error::route_already_exists:
       return "the route being registered already exists";
     case error::route_not_exists:

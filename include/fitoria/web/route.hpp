@@ -16,7 +16,7 @@
 #include <fitoria/web/compile_time_path_checker.hpp>
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/middleware_concept.hpp>
-#include <fitoria/web/pattern_matcher.hpp>
+#include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/routable.hpp>
 #include <fitoria/web/state_map.hpp>
 
@@ -99,7 +99,7 @@ public:
   {
     return routable(
         method_,
-        pattern_matcher(Path),
+        path_matcher(Path),
         state_maps_,
         build_service(std::tuple_cat(
             services_, std::tuple { handler_service_factory, handler_ })));
@@ -109,7 +109,7 @@ public:
   {
     return routable(
         method_,
-        pattern_matcher(Path),
+        path_matcher(Path),
         state_maps_,
         build_service(std::tuple_cat(services_, std::tuple { handler_ })));
   }

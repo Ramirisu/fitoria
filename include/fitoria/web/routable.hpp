@@ -12,7 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/pattern_matcher.hpp>
+#include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/state_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -24,7 +24,7 @@ class routable {
 public:
   template <typename Service2>
   routable(http::verb method,
-           pattern_matcher matcher,
+           path_matcher matcher,
            std::vector<state_map> state_maps,
            Service2&& service)
       : method_(method)
@@ -39,7 +39,7 @@ public:
     return method_;
   }
 
-  auto matcher() const noexcept -> const pattern_matcher&
+  auto matcher() const noexcept -> const path_matcher&
   {
     return matcher_;
   }
@@ -56,13 +56,13 @@ public:
 
 private:
   http::verb method_;
-  pattern_matcher matcher_;
+  path_matcher matcher_;
   std::vector<state_map> state_maps_;
   Service service_;
 };
 
 template <typename Service>
-routable(http::verb, pattern_matcher, std::vector<state_map>, Service&&)
+routable(http::verb, path_matcher, std::vector<state_map>, Service&&)
     -> routable<std::decay_t<Service>>;
 
 }
