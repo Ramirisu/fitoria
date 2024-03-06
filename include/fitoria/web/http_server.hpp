@@ -61,14 +61,6 @@ public:
       return *this;
     }
 
-    template <typename F>
-    builder& set_network_error_handler(F&& f)
-      requires std::invocable<F, net::error_code>
-    {
-      network_error_handler_ = std::forward<F>(f);
-      return *this;
-    }
-
 #if !FITORIA_NO_EXCEPTIONS
     template <typename F>
     builder& set_exception_handler(F&& f)
@@ -108,13 +100,6 @@ public:
     }
 
   private:
-    void handle_network_error(net::error_code ec) const
-    {
-      if (network_error_handler_) {
-        network_error_handler_(ec);
-      }
-    }
-
 #if !FITORIA_NO_EXCEPTIONS
     static void default_exception_handler(std::exception_ptr ptr)
     {
@@ -135,7 +120,6 @@ public:
 
     int max_listen_connections_ = net::socket_base::max_listen_connections;
     std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
-    std::function<void(net::error_code)> network_error_handler_;
 #if !FITORIA_NO_EXCEPTIONS
     std::function<void(std::exception_ptr)> exception_handler_
         = default_exception_handler;
@@ -237,7 +221,6 @@ private:
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
-        builder_.handle_network_error(ec);
         continue;
       }
 
@@ -259,7 +242,6 @@ private:
       auto [ec, socket] = co_await acceptor.async_accept();
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
-        builder_.handle_network_error(ec);
         continue;
       }
 
@@ -277,7 +259,6 @@ private:
   {
     auto ec = co_await do_session_impl(stream, std::move(listen_ep));
     if (ec) {
-      builder_.handle_network_error(ec);
       co_return;
     }
 
@@ -297,19 +278,16 @@ private:
     tie(ec) = co_await stream->async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
-      builder_.handle_network_error(ec);
       co_return;
     }
 
     if (ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
-      builder_.handle_network_error(ec);
       co_return;
     }
 
     tie(ec) = co_await stream->async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
-      builder_.handle_network_error(ec);
       co_return;
     }
   }

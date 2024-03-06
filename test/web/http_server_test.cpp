@@ -28,8 +28,6 @@ TEST_CASE("builder")
       = http_server::builder()
             .set_max_listen_connections(2048)
             .set_client_request_timeout(std::chrono::seconds(1))
-            .set_network_error_handler(
-                []([[maybe_unused]] net::error_code ec) {})
 #if !FITORIA_NO_EXCEPTIONS
             .set_exception_handler([](std::exception_ptr ptr) {
               if (!ptr) {
