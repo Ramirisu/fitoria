@@ -606,8 +606,9 @@ Dependencies
 | :------------: | :--------------------------------- | :-------------: | :---------------: |
 | `boost::asio`  | Networking                         | `fitoria::net`  |     required      |
 | `boost::beast` | HTTP                               | `fitoria::http` |     required      |
-|  `boost::url`  | Internal url parsing               |                 |     required      |
+|  `boost::url`  | Url parsing                        |                 |     required      |
 | `boost::json`  | JSON serialization/deserialization |                 |     required      |
+| `boost::regex` | Route parsing                      |                 |     required      |
 |     `zlib`     | Built-in middleware gzip           |                 |     optional      |
 |     `fmt`      | Formatting                         | `fitoria::fmt`  |     optional      |
 |   `OpenSSL`    | Secure networking                  |                 |     optional      |
