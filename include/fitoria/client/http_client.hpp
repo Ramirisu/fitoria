@@ -99,9 +99,10 @@ public:
     return http_client(http::verb::options, url);
   }
 
-  expected<std::string, error_code> host() const noexcept
+  expected<const std::string&, error_code> host() const noexcept
   {
-    return resource_.transform([](const resource& res) { return res.host; });
+    return resource_.transform(
+        [](const resource& res) -> const std::string& { return res.host; });
   }
 
   expected<std::uint16_t, error_code> port() const noexcept
@@ -109,9 +110,10 @@ public:
     return resource_.transform([](const resource& res) { return res.port; });
   }
 
-  expected<std::string, error_code> path() const noexcept
+  expected<const std::string&, error_code> path() const noexcept
   {
-    return resource_.transform([](const resource& res) { return res.path; });
+    return resource_.transform(
+        [](const resource& res) -> const std::string& { return res.path; });
   }
 
   query_map& query() noexcept
@@ -243,7 +245,7 @@ public:
 
   const char* name() const noexcept
   {
-    return "fitoria.http_client";
+    return "fitoria.client.http_client";
   }
 
 private:

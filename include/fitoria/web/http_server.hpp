@@ -444,31 +444,31 @@ private:
           .set_body("request target is invalid");
     }
 
-    auto route = builder_.router_.try_find(method, req_url.value().path());
-    if (!route) {
-      co_return http_response(http::status::not_found)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
-          .set_body("request path is not found");
+    if (auto route = builder_.router_.try_find(method, req_url.value().path());
+        route) {
+      auto request = http_request(
+          std::move(connection_info),
+          route_params(route->matcher().match(req_url->path()).value(),
+                       std::string(route->matcher().pattern())),
+          req_url->path(),
+          method,
+          query_map::from(req_url->params()),
+          std::move(fields),
+          std::move(body),
+          route->state_maps());
+      auto context = http_context(request);
+      co_return co_await route->operator()(context);
     }
 
-    auto request = http_request(
-        std::move(connection_info),
-        route_params(route->matcher().match(req_url->path()).value(),
-                     std::string(route->matcher().pattern())),
-        req_url->path(),
-        method,
-        query_map::from(req_url->params()),
-        std::move(fields),
-        std::move(body),
-        route->state_maps());
-    auto context = http_context(request);
-    co_return co_await route->operator()(context);
+    co_return http_response(http::status::not_found)
+        .set_field(http::field::content_type,
+                   http::fields::content_type::plaintext())
+        .set_body("request path is not found");
   }
 
   static const char* name() noexcept
   {
-    return "fitoria.http_server";
+    return "fitoria.web.http_server";
   }
 
   builder builder_;
