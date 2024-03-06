@@ -17,13 +17,13 @@ message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
 message(STATUS "[fitoria] FITORIA_DISABLE_ZLIB = ${FITORIA_DISABLE_ZLIB}")
 message(STATUS "[fitoria] FITORIA_ENABLE_CODECOV = ${FITORIA_ENABLE_CODECOV}")
 
-include(cmake/fitoria_utils.cmake)
-include(cmake/fitoria_check_compiler_feature.cmake)
-
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
+
+include(cmake/fitoria_utils.cmake)
+include(cmake/fitoria_check_compiler_feature.cmake)
 
 # [dep.lib] std.format
 detect_std_format()

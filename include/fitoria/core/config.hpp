@@ -10,6 +10,7 @@
 #define FITORIA_CORE_CONFIG_HPP
 
 #include <cassert>
+#include <version>
 
 #define FITORIA_NAMESPACE_BEGIN                                                \
   namespace fitoria {                                                          \
