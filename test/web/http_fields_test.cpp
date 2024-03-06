@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.http_fields");
+TEST_SUITE_BEGIN("[fitoria.web.http_fields]");
 
 TEST_CASE("basic")
 {

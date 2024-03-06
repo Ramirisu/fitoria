@@ -14,7 +14,7 @@
 using namespace fitoria::web::http;
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.status_code");
+TEST_SUITE_BEGIN("[fitoria.web.status_code]");
 
 TEST_CASE("value")
 {

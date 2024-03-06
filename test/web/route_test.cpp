@@ -11,7 +11,7 @@
 
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.route");
+TEST_SUITE_BEGIN("[fitoria.web.route]");
 
 namespace {
 int handler(int)

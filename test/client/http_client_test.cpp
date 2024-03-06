@@ -14,7 +14,7 @@
 using namespace fitoria;
 using namespace fitoria::client;
 
-TEST_SUITE_BEGIN("client.http_client");
+TEST_SUITE_BEGIN("[fitoria.client.http_client]");
 
 TEST_CASE("resource")
 {

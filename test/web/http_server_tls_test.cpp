@@ -18,7 +18,7 @@ using namespace fitoria::web;
 using namespace http_server_utils;
 using fitoria::client::http_client;
 
-TEST_SUITE_BEGIN("web.http_server.tls");
+TEST_SUITE_BEGIN("[fitoria.web.http_server.tls]");
 
 #if defined(FITORIA_HAS_OPENSSL)
 

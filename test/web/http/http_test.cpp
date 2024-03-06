@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("web.http");
+TEST_SUITE_BEGIN("[fitoria.web.http]");
 
 TEST_CASE("version")
 {

@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.middleware.logger");
+TEST_SUITE_BEGIN("[fitoria.web.middleware.logger]");
 
 TEST_CASE("logger middleware")
 {

@@ -9,11 +9,13 @@
 
 #include <fitoria/log/log.hpp>
 
+#if !defined(_WIN32)
 #include <cstdlib> // _putenv, setenv
+#endif
 
 using namespace fitoria::log;
 
-TEST_SUITE_BEGIN("log.log");
+TEST_SUITE_BEGIN("[fitoria.log.log]");
 
 namespace {
 

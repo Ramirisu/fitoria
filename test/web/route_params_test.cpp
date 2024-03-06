@@ -11,7 +11,7 @@
 
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.route_params");
+TEST_SUITE_BEGIN("[fitoria.web.route_params]");
 
 TEST_CASE("basic")
 {

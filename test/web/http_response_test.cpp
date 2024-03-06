@@ -11,7 +11,7 @@
 
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.http_response");
+TEST_SUITE_BEGIN("[fitoria.web.http_response]");
 
 TEST_CASE("status_code")
 {

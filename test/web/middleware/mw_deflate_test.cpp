@@ -14,7 +14,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.middleware.deflate");
+TEST_SUITE_BEGIN("[fitoria.web.middleware.deflate]");
 
 TEST_CASE("async_inflate_stream: in > out")
 {

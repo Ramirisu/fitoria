@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.query_map");
+TEST_SUITE_BEGIN("[fitoria.web.query_map]");
 
 TEST_CASE("basic")
 {

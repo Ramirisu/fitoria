@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.middleware.exception_handler");
+TEST_SUITE_BEGIN("[fitoria.web.middleware.exception_handler]");
 
 #if !FITORIA_NO_EXCEPTIONS
 

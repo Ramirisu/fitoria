@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.path_matcher");
+TEST_SUITE_BEGIN("[fitoria.web.path_matcher]");
 
 TEST_CASE("tokens")
 {

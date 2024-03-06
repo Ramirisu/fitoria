@@ -13,7 +13,7 @@ using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::web::detail;
 
-TEST_SUITE_BEGIN("web.json");
+TEST_SUITE_BEGIN("[fitoria.web.json]");
 
 namespace {
 

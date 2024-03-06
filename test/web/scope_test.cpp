@@ -13,7 +13,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.scope");
+TEST_SUITE_BEGIN("[fitoria.web.scope]");
 
 TEST_CASE("method")
 {

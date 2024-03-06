@@ -11,7 +11,7 @@
 
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.compile_time_path_checker");
+TEST_SUITE_BEGIN("[fitoria.web.compile_time_path_checker]");
 
 using ctpc = compile_time_path_checker;
 

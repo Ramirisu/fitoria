@@ -11,7 +11,7 @@
 
 using namespace fitoria::log;
 
-TEST_SUITE_BEGIN("log.level");
+TEST_SUITE_BEGIN("[fitoria.log.log_level]");
 
 TEST_CASE("to_string")
 {

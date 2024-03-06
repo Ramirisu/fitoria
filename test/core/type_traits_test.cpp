@@ -14,7 +14,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("core.type_traits");
+TEST_SUITE_BEGIN("[fitoria.core.type_traits]");
 
 TEST_CASE("is_specialization_of")
 {

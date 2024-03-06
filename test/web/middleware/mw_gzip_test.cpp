@@ -16,7 +16,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.middleware.gzip");
+TEST_SUITE_BEGIN("[fitoria.web.middleware.gzip]");
 
 TEST_CASE("async_gzip_inflate_stream: in > out")
 {

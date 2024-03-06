@@ -11,7 +11,7 @@
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("core.fixed_string");
+TEST_SUITE_BEGIN("[fitoria.core.fixed_string]");
 
 template <basic_fixed_string Pattern>
 struct matcher {

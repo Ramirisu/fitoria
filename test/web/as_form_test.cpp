@@ -12,7 +12,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("web.as_form");
+TEST_SUITE_BEGIN("[fitoria.web.as_form]");
 
 TEST_CASE("as_form")
 {
