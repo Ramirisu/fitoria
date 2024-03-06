@@ -323,6 +323,44 @@ TEST_CASE("generic request")
       .get();
 }
 
+TEST_CASE("request to route accepting wildcard")
+{
+  const auto port = generate_port();
+  auto server = http_server::builder()
+                    .serve(route::get<"/api/v1/#wildcard">(
+                        [=](http_request& req,
+                            route_params& params) -> lazy<http_response> {
+                          CHECK_EQ(req.path(), "/api/v1/any/path");
+                          CHECK_EQ(params.path(), "/api/v1/#wildcard");
+                          CHECK_EQ(params.get("wildcard"), "any/path");
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+  server.bind(server_ip, port);
+  net::io_context ioc;
+  net::co_spawn(
+      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> lazy<void> {
+        auto res
+            = (co_await http_client::get(to_local_url(boost::urls::scheme::http,
+                                                      port,
+                                                      "/api/v1/any/path"))
+                   .set_field(http::field::connection, "close")
+                   .async_send())
+                  .value();
+        CHECK_EQ(res.status_code(), http::status::ok);
+      },
+      net::use_future)
+      .get();
+}
+
 TEST_CASE("request with chunked transfer-encoding")
 {
   const auto input = std::string_view("abcdefghijklmnopqrstuvwxyz");

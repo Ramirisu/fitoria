@@ -31,6 +31,7 @@ public:
   enum class token_kind {
     static_,
     named_param,
+    wildcard,
   };
 
   struct token_t {
@@ -64,7 +65,8 @@ public:
     if (boost::smatch match; boost::regex_match(input, match, regex_)) {
       query_map map;
       for (auto token : tokens_) {
-        if (token.kind == token_kind::named_param) {
+        if (token.kind == token_kind::named_param
+            || token.kind == token_kind::wildcard) {
           map[token.value] = match[token.value].str();
         }
       }
@@ -94,9 +96,20 @@ public:
       curr = prev;
     }
 
-    if (auto suffix = pattern.substr(prev); !suffix.empty()) {
-      tokens.push_back(token_t { .kind = token_kind::static_,
-                                 .value = std::string(pattern.substr(prev)) });
+    if (auto curr = pattern.find('#', prev); curr != std::string_view::npos) {
+      if (curr - prev > 0) {
+        tokens.push_back(token_t {
+            .kind = token_kind::static_,
+            .value = std::string(pattern.substr(prev, curr - prev)) });
+      }
+      tokens.push_back(
+          token_t { .kind = token_kind::wildcard,
+                    .value = std::string(pattern.substr(curr + 1)) });
+    } else {
+      if (auto suffix = pattern.substr(prev); !suffix.empty()) {
+        tokens.push_back(token_t { .kind = token_kind::static_,
+                                   .value = std::string(suffix) });
+      }
     }
 
     return tokens;
@@ -114,6 +127,11 @@ private:
         regex += "(?<";
         regex += token.value;
         regex += ">[^{}/]+)";
+      } else if (token.kind == token_kind::wildcard) {
+        // {name} => (?<name>pattern)
+        regex += "(?<";
+        regex += token.value;
+        regex += ">.+)";
       }
     }
 

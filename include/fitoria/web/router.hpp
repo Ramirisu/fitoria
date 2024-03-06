@@ -36,6 +36,7 @@ public:
     std::unordered_map<http::verb, route_type> routes_;
     std::vector<node> statics_;
     std::shared_ptr<node> params_;
+    std::shared_ptr<node> wildcard_;
 
     auto try_insert(const route_type& route,
                     path_matcher::tokens_t::size_type token_index)
@@ -49,8 +50,11 @@ public:
       if (token.kind == path_matcher::token_kind::static_) {
         return try_insert_static(route, token.value, token_index);
       }
+      if (token.kind == path_matcher::token_kind::named_param) {
+        return try_insert_param(route, token_index);
+      }
 
-      return try_insert_param(route, token_index);
+      return try_insert_wildcard(route, token_index);
     }
 
     auto try_insert_static(const route_type& route,
@@ -93,6 +97,17 @@ public:
       return params_->try_insert(route, token_index + 1);
     }
 
+    auto try_insert_wildcard(const route_type& route,
+                             path_matcher::tokens_t::size_type token_index)
+        -> expected<void, error_code>
+    {
+      if (!wildcard_) {
+        wildcard_ = std::make_shared<node>();
+      }
+
+      return wildcard_->try_insert(route, token_index + 1);
+    }
+
     auto try_insert_route(const route_type& route) -> expected<void, error_code>
     {
       if (auto [_, ok] = routes_.insert({ route.method(), route }); ok) {
@@ -127,6 +142,16 @@ public:
       return unexpected { make_error_code(error::route_not_exists) };
     }
 
+    auto try_find_wildcard(http::verb method) const
+        -> expected<const route_type&, error_code>
+    {
+      if (wildcard_) {
+        return wildcard_->try_find(method, std::string_view());
+      }
+
+      return unexpected { make_error_code(error::route_not_exists) };
+    }
+
   public:
     node() = default;
 
@@ -154,9 +179,9 @@ public:
         return unexpected { make_error_code(error::route_not_exists) };
       }
 
-      return try_find_static(method, path).or_else([&](auto&&) {
-        return try_find_param(method, path);
-      });
+      return try_find_static(method, path)
+          .or_else([&](auto&&) { return try_find_param(method, path); })
+          .or_else([&](auto&&) { return try_find_wildcard(method); });
     }
   };
 

@@ -20,7 +20,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [HTTP Client](#http-client)
     - [HTTP Server](#http-server-1)
       - [Method](#method)
-      - [Path](#path)
+      - [Route](#route)
       - [Route Parameters](#route-parameters)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
@@ -116,20 +116,30 @@ int main()
 
 ```
 
-#### Path
+#### Route
 
-Support **static path** and **path with parameters**. Perform **compile-time validation** for path.
+Support **static path**, **parameterized path** and **wildcard matching**. Perform **compile-time validation** for path.
 
 ```cpp
 
 route::get<"/api/v1/get">(handler) // static
-route::get<"/api/v1/get/{param}">(handler) // path parameter
+route::get<"/api/v1/get/{param}">(handler) // path parameter, `route_params::get("param")`
+route::get<"/api/v1/#any_path">(handler) // wildcard matching, `route_params::get("any_path")`
 
 route::get<"/api/v1/{">(handler) // error: static_assert failed: 'invalid path for route'
 route::get<"/api/v1/}">(handler) // error: static_assert failed: 'invalid path for route'
 route::get<"/api/v1/{param}x">(handler) // error: static_assert failed: 'invalid path for route'
 
 ```
+
+Route 
+
+|     Type      | Priority |         Example         | Format                                                                                   |                                                                                                                   |
+| :-----------: | :------: | :---------------------: | :--------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+|    Static     |    1     | `/api/v1/user/ramirisu` |                                                                                          |                                                                                                                   |
+| Parameterized |    2     |  `/api/v1/user/{user}`  | A name parameter enclosed within `{}`.                                                   | If a request path matches more than one parameterized routes, the one with longer static prefix will be returned. |
+|   Wildcard    |    3     |     `/api/v1/#any`      | A name parameter follow by `#`. Note that wildcard must be the last segment of the path. |                                                                                                                   |
+
 
 #### Route Parameters
 

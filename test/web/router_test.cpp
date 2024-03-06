@@ -82,6 +82,9 @@ TEST_CASE("try_find")
   rt.try_insert(r<"/api/v1/{x}/{y}">(http::verb::get, 111));
   rt.try_insert(r<"/api/v1/{x}/{y}">(http::verb::put, 211));
   rt.try_insert(r<"/api/v1/{x}/{y}">(http::verb::unknown, 911));
+  rt.try_insert(r<"/api/v1/#x">(http::verb::get, 19));
+  rt.try_insert(r<"/api/v1/#x">(http::verb::put, 29));
+  rt.try_insert(r<"/api/v1/#x">(http::verb::unknown, 99));
 
   CHECK_EQ(rt.try_find(http::verb::get, ""),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
@@ -97,9 +100,7 @@ TEST_CASE("try_find")
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1"),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
-  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y/z"),
-           fitoria::unexpected { make_error_code(error::route_not_exists) });
-  CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/x/y/z"),
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v2"),
            fitoria::unexpected { make_error_code(error::route_not_exists) });
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x")->operator()(0), 10);
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x")->operator()(0), 20);
@@ -119,6 +120,9 @@ TEST_CASE("try_find")
   CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/xx/yy")->operator()(0), 111);
   CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/xx/yy")->operator()(0), 211);
   CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/xx/yy")->operator()(0), 911);
+  CHECK_EQ(rt.try_find(http::verb::get, "/api/v1/x/y/z")->operator()(0), 19);
+  CHECK_EQ(rt.try_find(http::verb::put, "/api/v1/x/y/z")->operator()(0), 29);
+  CHECK_EQ(rt.try_find(http::verb::patch, "/api/v1/x/y/z")->operator()(0), 99);
 }
 
 TEST_SUITE_END();

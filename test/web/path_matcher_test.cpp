@@ -23,15 +23,23 @@ TEST_CASE("tokens")
   CHECK_EQ(path_matcher("").tokens(), tokens_t {});
   CHECK_EQ(path_matcher("/w/x/y/z").tokens(),
            tokens_t { token_t { token_kind::static_, "/w/x/y/z" } });
+  CHECK_EQ(path_matcher("/{p1}").tokens(),
+           tokens_t { token_t { token_kind::static_, "/" },
+                      token_t { token_kind::named_param, "p1" } });
   CHECK_EQ(path_matcher("/{p1}/x/{p3}/z").tokens(),
            tokens_t { token_t { token_kind::static_, "/" },
                       token_t { token_kind::named_param, "p1" },
                       token_t { token_kind::static_, "/x/" },
                       token_t { token_kind::named_param, "p3" },
                       token_t { token_kind::static_, "/z" } });
-  CHECK_EQ(path_matcher("/{p1}").tokens(),
+  CHECK_EQ(path_matcher("/w/x/y/z/#abc").tokens(),
+           tokens_t { token_t { token_kind::static_, "/w/x/y/z/" },
+                      token_t { token_kind::wildcard, "abc" } });
+  CHECK_EQ(path_matcher("/{p1}/#abc").tokens(),
            tokens_t { token_t { token_kind::static_, "/" },
-                      token_t { token_kind::named_param, "p1" } });
+                      token_t { token_kind::named_param, "p1" },
+                      token_t { token_kind::static_, "/" },
+                      token_t { token_kind::wildcard, "abc" } });
 }
 
 TEST_CASE("match")
@@ -42,6 +50,12 @@ TEST_CASE("match")
            query_map {
                { "p1", "w" },
                { "p3", "y" },
+           });
+  CHECK_EQ(path_matcher("/{p1}/x/{p3}/z/#wildcard").match("/w/x/y/z/abc"),
+           query_map {
+               { "p1", "w" },
+               { "p3", "y" },
+               { "wildcard", "abc" },
            });
 
   CHECK(!path_matcher("/w").match(""));

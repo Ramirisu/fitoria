@@ -24,15 +24,22 @@ public:
   template <basic_fixed_string Pattern>
   static consteval bool is_valid_scope()
   {
-    return on_path(Pattern.begin(), Pattern.end());
+    return on_path(Pattern.begin(), Pattern.end(), false);
+  }
+
+  template <basic_fixed_string Pattern>
+  static consteval bool is_valid_route()
+  {
+    return on_path(Pattern.begin(), Pattern.end(), true);
   }
 
 private:
-  static consteval bool on_path(auto&& it, const auto last)
+  static consteval bool
+  on_path(auto&& it, const auto last, bool trailing_wildcard)
   {
     std::vector<std::string_view> used_params;
     while (it != last) {
-      if (*it != '/' || !on_segment(it, last, used_params)) {
+      if (*it != '/' || !on_segment(it, last, trailing_wildcard, used_params)) {
         return false;
       }
     }
@@ -42,6 +49,7 @@ private:
 
   static consteval bool on_segment(auto& it,
                                    const auto last,
+                                   bool trailing_wildcard,
                                    std::vector<std::string_view>& used_params)
   {
     ++it; // '/'
@@ -49,17 +57,23 @@ private:
       return true;
     }
 
-    return on_segment_content(it, last, used_params);
+    return on_segment_content(it, last, trailing_wildcard, used_params);
   }
 
-  static consteval bool on_segment_content(
-      auto& it, const auto last, std::vector<std::string_view>& used_params)
+  static consteval bool
+  on_segment_content(auto& it,
+                     const auto last,
+                     bool trailing_wildcard,
+                     std::vector<std::string_view>& used_params)
   {
     if (*it == '{') {
       return on_param(it, last, used_params);
     }
 
     while (it != last && *it != '/') {
+      if (is_wildcard(*it)) {
+        return trailing_wildcard && on_wildcard(it, last, used_params);
+      }
       if (!on_pchar(it, last)) {
         return false;
       }
@@ -75,7 +89,7 @@ private:
     ++it; // '{'
     auto first = it;
     while (it != last && *it != '}') {
-      if (!on_pchar(it, last)) {
+      if (is_wildcard(*it) || !on_pchar(it, last)) {
         return false;
       }
     }
@@ -86,15 +100,28 @@ private:
 
     auto param = std::string_view(first, it);
     ++it; // '}'
-    if (std::any_of(used_params.begin(), used_params.end(), [&](auto& used) {
-          return used == param;
-        })) {
-      return false;
+
+    return try_push(used_params, param);
+  }
+
+  static consteval bool on_wildcard(auto& it,
+                                    const auto last,
+                                    std::vector<std::string_view>& used_params)
+  {
+    ++it; // '#'
+    auto first = it;
+    while (it != last) {
+      if (!on_pchar(it, last)) {
+        return false;
+      }
     }
 
-    used_params.push_back(param);
+    return try_push(used_params, std::string_view(first, it));
+  }
 
-    return true;
+  static consteval bool is_wildcard(char c)
+  {
+    return c == '#';
   }
 
   static consteval bool on_pchar(auto& it, const auto last)
@@ -142,6 +169,20 @@ private:
   {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
         || (c >= 'A' && c <= 'F');
+  }
+
+  static consteval bool try_push(std::vector<std::string_view>& used_params,
+                                 std::string_view param)
+  {
+    if (std::any_of(used_params.begin(),
+                    used_params.end(),
+                    [param](auto& used) { return used == param; })) {
+      return false;
+    }
+
+    used_params.push_back(param);
+
+    return true;
   }
 };
 }
