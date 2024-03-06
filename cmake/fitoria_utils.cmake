@@ -6,11 +6,12 @@ function(fitoria_target_compile_option target_name)
   endif()
 
   if((CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    OR(CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
-    target_compile_options(${target_name} PRIVATE /utf-8 /EHsc /bigobj /W4 /WX)
+     OR (CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
+    target_compile_options(${target_name} PRIVATE /utf-8 /EHsc /bigobj /W4 /WX
+                                                  /JMC)
   else()
     target_compile_options(${target_name} PRIVATE -Wall -Wextra -Werror
-      -pedantic -pedantic-errors)
+                                                  -pedantic -pedantic-errors)
 
     if(FITORIA_ENABLE_CODECOV)
       target_compile_options(${target_name} PRIVATE --coverage)
