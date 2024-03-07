@@ -28,7 +28,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_server {
-  using router_type = router<http_context&, lazy<http_response>>;
+  using router_type = router<http_context&, net::awaitable<http_response>>;
 
 public:
   class builder {
@@ -166,15 +166,15 @@ public:
     ioc.run();
   }
 
-  lazy<void> async_run()
+  net::awaitable<void> async_run()
   {
     log::info("[{}] starting server", name());
     run_impl(co_await net::this_coro::executor);
     co_return;
   }
 
-  lazy<http_response> async_serve_request(std::string_view path,
-                                          http_request req)
+  net::awaitable<http_response> async_serve_request(std::string_view path,
+                                                    http_request req)
   {
     boost::urls::url url;
     url.set_path(path);
@@ -202,7 +202,8 @@ private:
     tasks_.clear();
   }
 
-  lazy<net::acceptor> new_acceptor(net::ip::tcp::endpoint endpoint) const
+  net::awaitable<net::acceptor>
+  new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = net::acceptor(co_await net::this_coro::executor);
 
@@ -213,7 +214,7 @@ private:
     co_return acceptor;
   }
 
-  lazy<void> do_listen(net::ip::tcp::endpoint endpoint) const
+  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -233,8 +234,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  lazy<void> do_listen(net::ip::tcp::endpoint endpoint,
-                       net::ssl::context ssl_ctx) const
+  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
+                                 net::ssl::context ssl_ctx) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -254,8 +255,8 @@ private:
   }
 #endif
 
-  lazy<void> do_session(std::shared_ptr<net::tcp_stream> stream,
-                        net::ip::tcp::endpoint listen_ep) const
+  net::awaitable<void> do_session(std::shared_ptr<net::tcp_stream> stream,
+                                  net::ip::tcp::endpoint listen_ep) const
   {
     auto ec = co_await do_session_impl(stream, std::move(listen_ep));
     if (ec) {
@@ -266,8 +267,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  lazy<void> do_session(std::shared_ptr<net::ssl_stream> stream,
-                        net::ip::tcp::endpoint listen_ep) const
+  net::awaitable<void> do_session(std::shared_ptr<net::ssl_stream> stream,
+                                  net::ip::tcp::endpoint listen_ep) const
   {
     using std::tie;
 
@@ -294,8 +295,9 @@ private:
 #endif
 
   template <typename Stream>
-  lazy<net::error_code> do_session_impl(std::shared_ptr<Stream> stream,
-                                        net::ip::tcp::endpoint listen_ep) const
+  net::awaitable<net::error_code>
+  do_session_impl(std::shared_ptr<Stream> stream,
+                  net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
@@ -430,11 +432,11 @@ private:
     co_return ec;
   }
 
-  lazy<http_response> do_handler(connection_info connection_info,
-                                 http::verb method,
-                                 std::string target,
-                                 http_fields fields,
-                                 any_async_readable_stream body) const
+  net::awaitable<http_response> do_handler(connection_info connection_info,
+                                           http::verb method,
+                                           std::string target,
+                                           http_fields fields,
+                                           any_async_readable_stream body) const
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
@@ -472,7 +474,7 @@ private:
   }
 
   builder builder_;
-  std::vector<lazy<void>> tasks_;
+  std::vector<net::awaitable<void>> tasks_;
 };
 
 }

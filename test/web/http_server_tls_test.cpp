@@ -27,7 +27,7 @@ namespace {
 void configure_server(http_server::builder& builder)
 {
   builder.serve(route::get<"/api/repos/{repo}">(
-      [](http_request& req, std::string body) -> lazy<http_response> {
+      [](http_request& req, std::string body) -> net::awaitable<http_response> {
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);
         CHECK_EQ(req.params().at("repo"), "fitoria");
@@ -49,7 +49,9 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
+      ioc,
+      [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -57,7 +59,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
 
   net::co_spawn(
       ioc,
-      [&]() -> lazy<void> {
+      [&]() -> net::awaitable<void> {
         auto res
             = (co_await http_client::get(
                    to_local_url(

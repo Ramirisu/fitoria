@@ -39,7 +39,7 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
 
 auto api(const connection_info& conn_info,
          const route_params& params,
-         json<secret_t> secret) -> lazy<http_response>
+         json<secret_t> secret) -> net::awaitable<http_response>
 {
   std::cout << fmt::format("listen addr {}:{}\n",
                            conn_info.listen_addr().to_string(),

@@ -20,13 +20,13 @@ TEST_CASE("std::string")
 {
   auto server = http_server::builder()
                     .serve(route::post<"/post">(
-                        [](std::string text) -> lazy<http_response> {
+                        [](std::string text) -> net::awaitable<http_response> {
                           CHECK_EQ(text, "abc");
                           co_return http_response(http::status::ok);
                         }))
                     .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/post", http_request(http::verb::post).set_body("abc"));
@@ -39,13 +39,13 @@ TEST_CASE("std::vector<std::byte>")
 {
   auto server
       = http_server::builder()
-            .serve(route::post<"/post">(
-                [](std::vector<std::byte> bytes) -> lazy<http_response> {
-                  CHECK_EQ(bytes, to_bytes("abc"));
-                  co_return http_response(http::status::ok);
-                }))
+            .serve(route::post<"/post">([](std::vector<std::byte> bytes)
+                                            -> net::awaitable<http_response> {
+              CHECK_EQ(bytes, to_bytes("abc"));
+              co_return http_response(http::status::ok);
+            }))
             .build();
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/post", http_request(http::verb::post).set_body("abc"));
@@ -103,14 +103,14 @@ TEST_CASE("json<T>")
   auto server
       = http_server::builder()
             .serve(route::get<"/get">(
-                [](json<user_t> user) -> lazy<http_response> {
+                [](json<user_t> user) -> net::awaitable<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");
                   co_return http_response(http::status::ok).set_json(user);
                 }))
             .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       const auto user = user_t {
         .name = "Rina Hidaka",

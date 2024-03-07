@@ -31,7 +31,7 @@ class logger_middleware {
 public:
   using clock_t = std::chrono::system_clock;
 
-  auto operator()(http_context& c) const -> lazy<http_response>
+  auto operator()(http_context& c) const -> net::awaitable<http_response>
   {
     auto start_time = clock_t::now();
 

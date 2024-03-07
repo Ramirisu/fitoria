@@ -23,8 +23,8 @@ class any_async_readable_stream {
     virtual ~base() = default;
     virtual auto is_chunked() const noexcept -> bool = 0;
     virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
-    virtual auto async_read_next()
-        -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+    virtual auto async_read_next() -> net::awaitable<
+        optional<expected<std::vector<std::byte>, net::error_code>>>
         = 0;
   };
 
@@ -46,7 +46,7 @@ class any_async_readable_stream {
       return stream_.size_hint();
     }
 
-    auto async_read_next() -> lazy<
+    auto async_read_next() -> net::awaitable<
         optional<expected<std::vector<std::byte>, net::error_code>>> override
     {
       return stream_.async_read_next();
@@ -84,8 +84,8 @@ public:
     return stream_->size_hint();
   }
 
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, net::error_code>>>
   {
     return stream_->async_read_next();
   }

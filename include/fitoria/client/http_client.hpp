@@ -222,7 +222,7 @@ public:
     return *this;
   }
 
-  auto async_send() -> lazy<expected<http_response, error_code>>
+  auto async_send() -> net::awaitable<expected<http_response, error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -233,7 +233,7 @@ public:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto async_send(net::ssl::context ssl_ctx)
-      -> lazy<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -274,7 +274,8 @@ private:
                       std::string(res->path()) };
   }
 
-  auto do_resolve() const -> lazy<expected<net::resolver_results, error_code>>
+  auto do_resolve() const
+      -> net::awaitable<expected<net::resolver_results, error_code>>
   {
     auto resolver = net::resolver(co_await net::this_coro::executor);
     auto [ec, results] = co_await resolver.async_resolve(
@@ -287,7 +288,7 @@ private:
     co_return results;
   }
 
-  auto do_session() -> lazy<expected<http_response, error_code>>
+  auto do_session() -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -318,7 +319,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_session(net::ssl::context ssl_ctx)
-      -> lazy<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, error_code>>
   {
     using std::tie;
     auto _ = std::ignore;
@@ -361,7 +362,7 @@ private:
 
   template <typename Stream>
   auto do_send_recv(std::shared_ptr<Stream> stream)
-      -> lazy<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, error_code>>
   {
     using boost::beast::http::response_parser;
     using boost::beast::http::vector_body;
@@ -421,9 +422,10 @@ private:
 
   template <typename Stream>
   auto do_send_req_with_vector_body(std::shared_ptr<Stream> stream)
-      -> lazy<expected<optional<boost::beast::http::response<
-                           boost::beast::http::vector_body<std::byte>>>,
-                       error_code>>
+      -> net::awaitable<
+          expected<optional<boost::beast::http::response<
+                       boost::beast::http::vector_body<std::byte>>>,
+                   error_code>>
   {
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
@@ -484,9 +486,10 @@ private:
 
   template <typename Stream>
   auto do_send_req_with_chunk_body(std::shared_ptr<Stream> stream)
-      -> lazy<expected<optional<boost::beast::http::response<
-                           boost::beast::http::vector_body<std::byte>>>,
-                       error_code>>
+      -> net::awaitable<
+          expected<optional<boost::beast::http::response<
+                       boost::beast::http::vector_body<std::byte>>>,
+                   error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::request;

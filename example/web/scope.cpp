@@ -12,23 +12,23 @@ using namespace fitoria::web;
 
 namespace api {
 namespace v1 {
-  lazy<http_response> reg([[maybe_unused]] http_request& req)
+  auto reg(http_request&) -> net::awaitable<http_response>
   {
     co_return http_response(http::status::created);
   }
 
-  lazy<http_response> login([[maybe_unused]] http_request& req)
+  auto login(http_request&) -> net::awaitable<http_response>
   {
     co_return http_response(http::status::ok);
   }
 }
 namespace v2 {
-  lazy<http_response> reg([[maybe_unused]] http_request& req)
+  auto reg(http_request&) -> net::awaitable<http_response>
   {
     co_return http_response(http::status::created);
   }
 
-  lazy<http_response> login([[maybe_unused]] http_request& req)
+  auto login(http_request&) -> net::awaitable<http_response>
   {
     co_return http_response(http::status::ok);
   }

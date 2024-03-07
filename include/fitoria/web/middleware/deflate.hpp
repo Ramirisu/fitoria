@@ -28,7 +28,7 @@ class deflate_middleware {
   friend class deflate;
 
 public:
-  auto operator()(http_context& c) const -> lazy<http_response>
+  auto operator()(http_context& c) const -> net::awaitable<http_response>
   {
     if (c.request().fields().get(http::field::content_encoding)
         == http::fields::content_encoding::deflate()) {

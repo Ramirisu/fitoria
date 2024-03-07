@@ -32,14 +32,14 @@ class handler_middleware<Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
-  auto operator()(http_context& ctx) const -> lazy<http_response>
+  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
     return invoke_with_args_expansion(ctx);
   }
 
 private:
   auto invoke_with_args_expansion(http_context& ctx) const
-      -> lazy<http_response>
+      -> net::awaitable<http_response>
   {
     co_return co_await invoke_with_args_expansion_impl<0>(std::tuple {
         co_await from_http_request<Args>(static_cast<http_request&>(ctx))... });
@@ -48,11 +48,11 @@ private:
   template <std::size_t I>
   auto invoke_with_args_expansion_impl(
       std::tuple<expected<Args, error_code>...> args) const
-      -> lazy<http_response>
+      -> net::awaitable<http_response>
   {
     if constexpr (I < sizeof...(Args)) {
       if (auto& arg = std::get<I>(args); !arg) {
-        return [](auto&&) -> lazy<http_response> {
+        return [](auto&&) -> net::awaitable<http_response> {
           co_return http_response(http::status::bad_request);
         }(std::move(arg).error());
       } else {

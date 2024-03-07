@@ -29,7 +29,7 @@ class exception_handler_middleware {
   friend class exception_handler;
 
 public:
-  auto operator()(http_context& c) const -> lazy<http_response>
+  auto operator()(http_context& c) const -> net::awaitable<http_response>
   {
     FITORIA_TRY
     {

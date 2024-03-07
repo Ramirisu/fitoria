@@ -20,18 +20,19 @@ TEST_CASE("exception_handler middleware")
 {
   auto server
       = http_server::builder()
-            .serve(scope<"/api">()
-                       .use(middleware::exception_handler())
-                       .serve(route::get<"/get">(
-                           [&](std::string body) -> lazy<http_response> {
-                             if (body.ends_with("true")) {
-                               throw std::exception();
-                             }
-                             co_return http_response(http::status::ok);
-                           })))
+            .serve(
+                scope<"/api">()
+                    .use(middleware::exception_handler())
+                    .serve(route::get<"/get">(
+                        [&](std::string body) -> net::awaitable<http_response> {
+                          if (body.ends_with("true")) {
+                            throw std::exception();
+                          }
+                          co_return http_response(http::status::ok);
+                        })))
             .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/api/get", http_request(http::verb::get).set_body("throw: false"));

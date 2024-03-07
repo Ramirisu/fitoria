@@ -181,7 +181,7 @@ public:
     return body_;
   }
 
-  lazy<expected<std::string, net::error_code>> as_string()
+  net::awaitable<expected<std::string, net::error_code>> as_string()
   {
     if (auto str = co_await async_read_all_as<std::string>(body()); str) {
       co_return *str;
@@ -191,7 +191,7 @@ public:
   }
 
   template <typename T = boost::json::value>
-  lazy<expected<T, net::error_code>> as_json()
+  net::awaitable<expected<T, net::error_code>> as_json()
   {
     if (fields().get(http::field::content_type)
         != http::fields::content_type::json()) {

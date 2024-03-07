@@ -31,13 +31,13 @@ concept async_readable_stream = requires(T t) {
   { t.is_chunked() } -> std::same_as<bool>;
   { t.size_hint() } -> std::same_as<optional<std::size_t>>;
   { t.async_read_next() } 
-    -> std::same_as<lazy<optional<expected<std::vector<std::byte>, net::error_code>>>>;
+    -> std::same_as<net::awaitable<optional<expected<std::vector<std::byte>, net::error_code>>>>;
 };
 // clang-format on
 
 template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_all_as(AsyncReadableStream&& stream)
-    -> lazy<optional<expected<Container, net::error_code>>>
+    -> net::awaitable<optional<expected<Container, net::error_code>>>
 {
   Container container;
 
@@ -65,7 +65,7 @@ template <typename AsyncWriteStream, async_readable_stream AsyncReadableStream>
 auto async_write_each_chunk(AsyncWriteStream&& to,
                             AsyncReadableStream&& from,
                             std::chrono::milliseconds timeout)
-    -> lazy<expected<void, net::error_code>>
+    -> net::awaitable<expected<void, net::error_code>>
 {
   using boost::beast::http::make_chunk;
   using boost::beast::http::make_chunk_last;

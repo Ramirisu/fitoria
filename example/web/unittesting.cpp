@@ -15,7 +15,8 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::post<"/api/v1/login">(
-                [](http_request& req, std::string body) -> lazy<http_response> {
+                [](http_request& req,
+                   std::string body) -> net::awaitable<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);
@@ -33,7 +34,7 @@ int main()
                 }))
             .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",

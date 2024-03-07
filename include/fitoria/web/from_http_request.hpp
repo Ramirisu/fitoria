@@ -32,47 +32,47 @@ namespace from_http_request_ns {
     {
       static_assert(std::is_same_v<
                     tag_invoke_result_t<from_http_request_t<R>, http_request&>,
-                    lazy<expected<R, error_code>>>);
+                    net::awaitable<expected<R, error_code>>>);
       return tag_invoke(from_http_request_t<R> {}, req);
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, http_request>)
     {
       co_return req;
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, connection_info>)
     {
       co_return req.conn_info();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, route_params>)
     {
       co_return req.params();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, query_map>)
     {
       co_return req.query();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, http_fields>)
     {
       co_return req.fields();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(std::same_as<R, std::vector<std::byte>>)
     {
       if (auto res
@@ -84,7 +84,7 @@ namespace from_http_request_ns {
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> lazy<expected<R, error_code>>
+        -> net::awaitable<expected<R, error_code>>
       requires(std::same_as<R, std::string>)
     {
       if (auto res = co_await async_read_all_as<std::string>(req.body()); res) {

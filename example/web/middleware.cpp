@@ -29,7 +29,7 @@ class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> lazy<http_response>
+  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
     log::log(lv_, "before handler");
 
@@ -75,7 +75,7 @@ private:
   log::level lv_;
 };
 
-auto get_user(http_request& req) -> lazy<http_response>
+auto get_user(http_request& req) -> net::awaitable<http_response>
 {
   log::debug("user: {}", req.params().get("user"));
 

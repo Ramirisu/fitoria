@@ -41,7 +41,7 @@ private:
 
 using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
-auto put(const http_request& req) -> lazy<http_response>
+auto put(const http_request& req) -> net::awaitable<http_response>
 {
   auto key = req.params().get("key");
   auto value = req.params().get("value");
@@ -61,7 +61,7 @@ auto put(const http_request& req) -> lazy<http_response>
   }
 }
 
-auto get(const http_request& req) -> lazy<http_response>
+auto get(const http_request& req) -> net::awaitable<http_response>
 {
   auto key = req.params().get("key");
   if (!key) {

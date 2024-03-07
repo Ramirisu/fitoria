@@ -44,8 +44,8 @@ public:
     return data_.transform([](auto& data) { return data.size(); }).value_or(0);
   }
 
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, net::error_code>>>
   {
     co_return data_.and_then(
         [this](auto& data)

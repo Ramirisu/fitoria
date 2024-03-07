@@ -18,7 +18,7 @@ TEST_CASE("connection_info")
 {
   auto server = http_server::builder()
                     .serve(route::get<"/get">(
-                        [](http_request& req) -> lazy<http_response> {
+                        [](http_request& req) -> net::awaitable<http_response> {
                           CHECK_EQ(req.conn_info().local_addr(),
                                    net::ip::make_address("127.0.0.1"));
                           CHECK_EQ(req.conn_info().local_port(), 0);
@@ -32,7 +32,7 @@ TEST_CASE("connection_info")
                         }))
                     .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     auto res = co_await server.async_serve_request(
         "/get", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);

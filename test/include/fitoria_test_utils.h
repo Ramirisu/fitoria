@@ -78,8 +78,8 @@ public:
     return data_.size();
   }
 
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, net::error_code>>>
   {
     if (written >= data_.size()) {
       co_return nullopt;

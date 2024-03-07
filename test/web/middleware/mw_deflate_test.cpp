@@ -18,7 +18,7 @@ TEST_SUITE_BEGIN("[fitoria.web.middleware.deflate]");
 
 TEST_CASE("async_inflate_stream: in > out")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
       0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b, 0xcf, 0xc8, 0xcc, 0xca,
       0xce, 0xc9, 0xcd, 0xcb, 0x2f, 0x28, 0x2c, 0x2a, 0x2e, 0x29, 0x2d,
@@ -40,7 +40,7 @@ TEST_CASE("async_inflate_stream: in > out")
 
 TEST_CASE("async_inflate_stream: in < out")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
                                                 0x23, 0x19, 0x00, 0x00 };
 
@@ -55,7 +55,7 @@ TEST_CASE("async_inflate_stream: in < out")
 
 TEST_CASE("async_inflate_stream: eof stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -67,7 +67,7 @@ TEST_CASE("async_inflate_stream: eof stream")
 
 TEST_CASE("async_inflate_stream: empty stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -80,7 +80,7 @@ TEST_CASE("async_inflate_stream: empty stream")
 
 TEST_CASE("async_inflate_stream: invalid deflate stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     // RFC-1951: BFINAL 0, BTYPE 11 (reserved)
     const auto in = std::vector<std::uint8_t> { 0x06 };
 
@@ -94,7 +94,7 @@ TEST_CASE("async_inflate_stream: invalid deflate stream")
 
 TEST_CASE("async_deflate_stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     const auto in = std::string_view(
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -109,7 +109,7 @@ TEST_CASE("async_deflate_stream")
 
 TEST_CASE("async_deflate_stream: eof stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
             async_readable_vector_stream::eof()));
@@ -119,7 +119,7 @@ TEST_CASE("async_deflate_stream: eof stream")
 
 TEST_CASE("async_deflate_stream: empty stream")
 {
-  net::sync_wait([]() -> lazy<void> {
+  net::sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
             async_readable_vector_stream::empty()));
@@ -147,7 +147,7 @@ TEST_CASE("deflate middleware")
                        [&](const http_request& req,
                            const route_params& params,
                            const http_fields& fields,
-                           std::string body) -> lazy<http_response> {
+                           std::string body) -> net::awaitable<http_response> {
                          CHECK(!fields.get(http::field::content_encoding));
                          if (req.body().is_chunked()) {
                            CHECK_EQ(fields.get(http::field::content_length),
@@ -190,7 +190,7 @@ TEST_CASE("deflate middleware")
     { false, false, true }, { false, false, false },
   };
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     for (auto& test_case : test_cases) {
       auto res = co_await server.async_serve_request(
           fmt::format(
@@ -244,7 +244,7 @@ TEST_CASE("deflate middleware: header vary")
       = http_server::builder()
             .serve(
                 route::get<"/get">([&](std::string body)
-                                       -> lazy<http_response> {
+                                       -> net::awaitable<http_response> {
                   auto res
                       = http_response(http::status::ok).set_body("hello world");
                   if (!body.empty()) {
@@ -266,7 +266,7 @@ TEST_CASE("deflate middleware: header vary")
   };
 
   for (auto& test_case : test_cases) {
-    net::sync_wait([&]() -> lazy<void> {
+    net::sync_wait([&]() -> net::awaitable<void> {
       auto res = co_await server.async_serve_request(
           "/get",
           http_request(http::verb::get)

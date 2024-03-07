@@ -27,20 +27,21 @@ TEST_CASE("state_map")
                     .state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()
-                            .serve(route::get<
-                                   "/global">([](http_request& req)
-                                                  -> lazy<http_response> {
-                              co_return http_response(http::status::ok)
-                                  .set_field(
-                                      http::field::content_type,
-                                      http::fields::content_type::plaintext())
-                                  .set_body(req.state<const shared_resource&>()
-                                                ->value);
-                            }))
+                            .serve(route::get<"/global">(
+                                [](http_request& req)
+                                    -> net::awaitable<http_response> {
+                                  co_return http_response(http::status::ok)
+                                      .set_field(http::field::content_type,
+                                                 http::fields::content_type::
+                                                     plaintext())
+                                      .set_body(
+                                          req.state<const shared_resource&>()
+                                              ->value);
+                                }))
                             .state(shared_resource { "scope" })
-                            .serve(route::get<
-                                   "/scope">([](http_request& req)
-                                                 -> lazy<http_response> {
+                            .serve(route::get<"/scope">([](http_request& req)
+                                                            -> net::awaitable<
+                                                                http_response> {
                               co_return http_response(http::status::ok)
                                   .set_field(
                                       http::field::content_type,
@@ -48,9 +49,9 @@ TEST_CASE("state_map")
                                   .set_body(req.state<const shared_resource&>()
                                                 ->value);
                             }))
-                            .serve(route::get<
-                                       "/route">([](http_request& req)
-                                                     -> lazy<http_response> {
+                            .serve(route::get<"/route">([](http_request& req)
+                                                            -> net::awaitable<
+                                                                http_response> {
                                      co_return http_response(http::status::ok)
                                          .set_field(http::field::content_type,
                                                     http::fields::content_type::
@@ -61,7 +62,7 @@ TEST_CASE("state_map")
                                    }).state(shared_resource { "route" }))))
             .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/global", http_request(http::verb::get));

@@ -122,8 +122,8 @@ public:
     return nullopt;
   }
 
-  auto async_read_next()
-      -> lazy<optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, net::error_code>>>
   {
     using std::tie;
     auto _ = std::ignore;

@@ -21,12 +21,12 @@ TEST_CASE("logger middleware")
                                .use(middleware::logger())
                                .serve(route::get<"/get">(
                                    [&]([[maybe_unused]] http_request& req)
-                                       -> lazy<http_response> {
+                                       -> net::awaitable<http_response> {
                                      co_return http_response(http::status::ok);
                                    })))
                     .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/api/get",

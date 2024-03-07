@@ -15,9 +15,6 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-template <typename R>
-using lazy = boost::asio::awaitable<R>;
-
 namespace net {
 
 using namespace boost::asio;

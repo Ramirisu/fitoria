@@ -24,7 +24,9 @@ int main()
   auto server = http_server::builder().build();
   net::io_context ioc;
   net::co_spawn(
-      ioc, [&]() -> lazy<void> { co_await server.async_run(); }, net::detached);
+      ioc,
+      [&]() -> net::awaitable<void> { co_await server.async_run(); },
+      net::detached);
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   std::this_thread::sleep_for(server_start_wait_time);

@@ -57,7 +57,7 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/{owner}/{repo}">(
-                [](http_request& req) -> lazy<http_response> {
+                [](http_request& req) -> net::awaitable<http_response> {
                   log::debug("route: {}", req.params().path());
                   log::debug("owner: {}, repo: {}",
                              req.params().get("owner"),
@@ -149,7 +149,7 @@ Use `http_request::params()` to access the route parameters. ([Code](https://git
 ```cpp
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> lazy<http_response>
+auto api(const http_request& req) -> net::awaitable<http_response>
 {
   auto user = req.params().get("user");
   if (!user) {
@@ -183,7 +183,7 @@ Use `http_request::query()` to access the query string parameters. ([Code](https
 ```cpp
 
 namespace api::v1::users {
-auto get_user(const http_request& req) -> lazy<http_response>
+auto get_user(const http_request& req) -> net::awaitable<http_response>
 {
   auto user = req.query().get("user");
   if (!user) {
@@ -217,7 +217,7 @@ Use `as_form()` to parse the url-encoded form body. ([Code](https://github.com/R
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req, std::string body) -> lazy<http_response>
+auto api(const http_request& req, std::string body) -> net::awaitable<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
@@ -295,7 +295,7 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
 
 auto api(const connection_info& conn_info,
          const route_params& params,
-         json<secret_t> secret) -> lazy<http_response>
+         json<secret_t> secret) -> net::awaitable<http_response>
 {
   std::cout << fmt::format("listen addr {}:{}\n",
                            conn_info.listen_addr().to_string(),
@@ -373,7 +373,7 @@ class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> lazy<http_response>
+  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
     log::log(lv_, "before handler");
 
@@ -419,7 +419,7 @@ private:
   log::level lv_;
 };
 
-auto get_user(http_request& req) -> lazy<http_response>
+auto get_user(http_request& req) -> net::awaitable<http_response>
 {
   log::debug("user: {}", req.params().get("user"));
 
@@ -512,7 +512,7 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::post<"/api/v1/login">(
-                [](http_request& req, std::string body) -> lazy<http_response> {
+                [](http_request& req, std::string body) -> net::awaitable<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);
@@ -530,7 +530,7 @@ int main()
                 }))
             .build();
 
-  net::sync_wait([&]() -> lazy<void> {
+  net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
           "/api/v1/login",
