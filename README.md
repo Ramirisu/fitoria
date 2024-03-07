@@ -27,7 +27,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
-      - [Shared State](#shared-state)
+      - [Shared States](#shared-states)
       - [Graceful Shutdown](#graceful-shutdown)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
@@ -40,11 +40,14 @@ The library is ***experimental*** and still under development, not recommended f
 
 #### HTTP Server
 
-[Getting Started Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp)
+[Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp)
 
 ```cpp
 
 #include <fitoria/fitoria.hpp>
+
+using namespace fitoria;
+using namespace fitoria::web;
 
 int main()
 {
@@ -89,9 +92,7 @@ TODO:
 
 #### Method
 
-Register methods defined in `http::verb::*` by using `route::handle`, or simply use `route::get`, `route::post`, `route::put`, `route::patch`, `route::delete_`, `route::head` and `route::options` for convenience. `route::any` can register a handler to serve any method.
-
-[Method Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp)
+Register methods defined in `http::verb::*` by using `route::handle`, or simply use `route::get`, `route::post`, `route::put`, `route::patch`, `route::delete_`, `route::head` and `route::options` for convenience. `route::any` can register a handler to serve any method. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp))
 
 ```cpp
 
@@ -143,9 +144,7 @@ Route
 
 #### Route Parameters
 
-Use `http_request::params()` to access the route parameters.
-
-[Route Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp)
+Use `http_request::params()` to access the route parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp))
 
 ```cpp
 
@@ -179,9 +178,7 @@ int main()
 
 #### Query String Parameters
 
-Use `http_request::query()` to access the query string parameters.
-
-[Query String Parameters Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp)
+Use `http_request::query()` to access the query string parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp))
 
 ```cpp
 
@@ -215,9 +212,7 @@ int main()
 
 #### Urlencoded Post Form
 
-Use `as_form()` to parse the url-encoded form body.
-
-[Form Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/form.cpp)
+Use `as_form()` to parse the url-encoded form body. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/form.cpp))
 
 ```cpp
 
@@ -252,7 +247,7 @@ int main()
 
 #### Extractor
 
-Extractors can help user to access information from `http_request`. Users can specify as many extractors as compiler allows per handler. 
+Extractors provide a more convenient way to help user access information from `http_request`. Users can specify as many extractors as compiler allows per handler. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp))
 
 Built-in Extractors:
 
@@ -270,8 +265,6 @@ Built-in Extractors:
 > Implement `from_http_request_t` CPO to define custom extractors.
 
 > The body extractor can only be used at most once in the request handlers since it consumes the body.
-
-[Extractor Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp)
 
 ```cpp
 
@@ -335,9 +328,7 @@ int main()
 
 #### Scope
 
-Grouping `route`s by `scope`.
-
-[Scope Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp)
+Grouping `route`s by `scope`. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp))
 
 ```cpp
 
@@ -364,9 +355,7 @@ int main()
 
 #### Middleware
 
-`scope` supports `use` to configure middlewares for its `router`s.
-
-([Middleware Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
+Use `scope::use(Service&&)` to configure middlewares for its `router`s. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
 fitoria provides following build-in middlewares:
 
@@ -459,11 +448,9 @@ int main()
 
 ```
 
-#### Shared State
+#### Shared States
 
-Using `scope::state(State&&)` to configure shared states between `route`s under the same `scope`.
-
-([State Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
+Configure shared states by using `scope::state(State&&)` for the `route`s under the same `scope`, or `route::state(State&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
 
 ```cpp
 
@@ -486,9 +473,7 @@ int main()
 
 #### Graceful Shutdown
 
-Use `net::signal_set` to handle signals to shutdown the server gracefully.
-
-([Graceful Shutdown Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp))
+Use `net::signal_set` to handle signals to shutdown the server gracefully. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp))
 
 ```cpp
 
@@ -518,9 +503,7 @@ int main()
 
 #### Unit Testing
 
-`http::async_serve_request()` can consume the `http_request` directly without creating TCP connections. 
-
-([Unit Testing Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
+`http::async_serve_request()` can consume the `http_request` directly without creating TCP connections. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
 
 ```cpp
 
