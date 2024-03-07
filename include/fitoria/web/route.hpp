@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/fixed_string.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/web/compile_time_path_checker.hpp>
 #include <fitoria/web/http/http.hpp>
@@ -94,54 +95,35 @@ public:
         handler_);
   }
 
-  template <typename HandlerServiceFactory>
-  auto build(HandlerServiceFactory handler_service_factory) const
+  template <typename... AdditionalServices>
+  auto build(AdditionalServices... additionalServices) const
   {
     return routable(
         method_,
         path_matcher(Path),
         state_maps_,
-        build_service(std::tuple_cat(
-            services_, std::tuple { handler_service_factory, handler_ })));
-  }
-
-  auto build() const
-  {
-    return routable(
-        method_,
-        path_matcher(Path),
-        state_maps_,
-        build_service(std::tuple_cat(services_, std::tuple { handler_ })));
+        std::apply(
+            [](auto... ss) { return build_service(std::move(ss)...); },
+            reverse_tuple(std::tuple_cat(
+                services_,
+                std::tuple { std::move(additionalServices)..., handler_ }))));
   }
 
 private:
-  template <typename... S>
-  static auto build_service(std::tuple<S...> s)
-  {
-    return build_service(s, std::make_index_sequence<sizeof...(S)> {});
-  }
-
-  template <typename... S, std::size_t... Is>
-  static auto build_service(std::tuple<S...> s, std::index_sequence<Is...>)
-  {
-    return build_service_impl(std::get<sizeof...(S) - Is - 1>(std::move(s))...);
-  }
-
   template <typename S0>
-  static auto build_service_impl(S0&& s0)
+  static auto build_service(S0 s0)
   {
-    return std::forward<S0>(s0);
+    return s0;
   }
 
   template <typename S0, typename S1, typename... S>
-  static auto build_service_impl(S0&& s0, S1&& s1, S&&... s)
+  static auto build_service(S0 s0, S1 s1, S... ss)
   {
-    auto service = new_middleware(std::forward<S1>(s1), std::forward<S0>(s0));
-
     if constexpr (sizeof...(S) > 0) {
-      return build_service_impl(std::move(service), std::forward<S>(s)...);
+      return build_service(new_middleware(std::move(s1), std::move(s0)),
+                           std::move(ss)...);
     } else {
-      return service;
+      return new_middleware(std::move(s1), std::move(s0));
     }
   }
 };
