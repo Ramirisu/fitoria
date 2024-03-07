@@ -29,6 +29,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Middleware](#middleware)
       - [Shared States](#shared-states)
       - [Graceful Shutdown](#graceful-shutdown)
+      - [WebSockets](#websockets)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
   - [Building](#building)
@@ -86,7 +87,7 @@ int main()
 
 #### HTTP Client
 
-TODO:
+***TODO:***
 
 ### HTTP Server
 
@@ -501,6 +502,10 @@ int main()
 
 ```
 
+#### WebSockets
+
+***TODO:***
+
 #### Unit Testing
 
 `http::async_serve_request()` can consume the `http_request` directly without creating TCP connections. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
@@ -577,7 +582,7 @@ int main()
 
 ### HTTP Client
 
-TODO:
+***TODO:***
 
 ## Building
 
