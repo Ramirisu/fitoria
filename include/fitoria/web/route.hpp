@@ -169,7 +169,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto get(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::get, std::forward<Handler>(handler));
@@ -178,7 +177,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto post(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::post, std::forward<Handler>(handler));
@@ -187,7 +185,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto put(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::put, std::forward<Handler>(handler));
@@ -196,7 +193,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto patch(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::patch, std::forward<Handler>(handler));
@@ -205,7 +201,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto delete_(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::delete_, std::forward<Handler>(handler));
@@ -214,7 +209,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto head(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::head, std::forward<Handler>(handler));
@@ -223,7 +217,6 @@ public:
   template <basic_fixed_string Path, typename Handler>
   static auto options(Handler&& handler)
   {
-
     static_assert(compile_time_path_checker::is_valid_route<Path>(),
                   "invalid path for route");
     return handle<Path>(http::verb::options, std::forward<Handler>(handler));
