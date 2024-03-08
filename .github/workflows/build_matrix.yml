@@ -113,7 +113,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: cmake --build build --config ${{ matrix.build_type }} -j2
+        run: cmake --build build --config ${{ matrix.build_type }} -j4
 
       - name: Test
         shell: bash
