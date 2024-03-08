@@ -29,11 +29,6 @@ public:
   {
   }
 
-  bool is_chunked() const noexcept
-  {
-    return next_.is_chunked();
-  }
-
   optional<std::size_t> size_hint() const noexcept
   {
     return next_.size_hint();

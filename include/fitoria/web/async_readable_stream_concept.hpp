@@ -28,7 +28,6 @@ namespace web {
 // clang-format off
 template <typename T>
 concept async_readable_stream = requires(T t) {
-  { t.is_chunked() } -> std::same_as<bool>;
   { t.size_hint() } -> std::same_as<optional<std::size_t>>;
   { t.async_read_next() } 
     -> std::same_as<net::awaitable<optional<expected<std::vector<std::byte>, net::error_code>>>>;
@@ -46,23 +45,22 @@ auto async_read_all_as(AsyncReadableStream&& stream)
     co_return nullopt;
   }
 
-  do {
-    if (!next_chunk.value()) {
-      co_return unexpected { next_chunk.value().error() };
+  for (; next_chunk; next_chunk = co_await stream.async_read_next()) {
+    if (!(*next_chunk)) {
+      co_return unexpected { (*next_chunk).error() };
     }
     const auto offset = container.size();
-    container.resize(offset + next_chunk.value()->size());
-    std::copy(next_chunk.value()->begin(),
-              next_chunk.value()->end(),
+    container.resize(offset + (*next_chunk)->size());
+    std::copy((*next_chunk)->begin(),
+              (*next_chunk)->end(),
               std::as_writable_bytes(std::span(container)).begin() + offset);
-    next_chunk = co_await stream.async_read_next();
-  } while (next_chunk);
+  }
 
   co_return container;
 }
 
-template <typename AsyncWriteStream, async_readable_stream AsyncReadableStream>
-auto async_write_each_chunk(AsyncWriteStream&& to,
+template <typename Stream, async_readable_stream AsyncReadableStream>
+auto async_write_each_chunk(Stream&& to,
                             AsyncReadableStream&& from,
                             std::chrono::milliseconds timeout)
     -> net::awaitable<expected<void, net::error_code>>
@@ -73,19 +71,20 @@ auto async_write_each_chunk(AsyncWriteStream&& to,
 
   net::error_code ec;
 
-  auto chunk = co_await from.async_read_next();
-  while (chunk) {
+  for (auto chunk = co_await from.async_read_next(); chunk;
+       chunk = co_await from.async_read_next()) {
     if (!*chunk) {
       co_return unexpected { (*chunk).error() };
     }
+
     net::get_lowest_layer(to).expires_after(timeout);
     tie(ec, _) = co_await async_write(
         to, make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())));
     if (ec) {
       co_return unexpected { ec };
     }
-    chunk = co_await from.async_read_next();
   }
+
   tie(ec, _) = co_await async_write(to, make_chunk_last());
   if (ec) {
     co_return unexpected { ec };

@@ -364,12 +364,12 @@ private:
   auto do_send_recv(std::shared_ptr<Stream> stream)
       -> net::awaitable<expected<http_response, error_code>>
   {
+    using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
-    using boost::beast::http::vector_body;
     using std::tie;
     auto _ = std::ignore;
 
-    if (body_.is_chunked()) {
+    if (!body_.size_hint()) {
       if (auto res = co_await do_send_req_with_chunk_body(stream); !res) {
         co_return unexpected { res.error() };
       } else if (*res) {
@@ -392,32 +392,19 @@ private:
     net::error_code ec;
     net::flat_buffer buffer;
 
-    auto res_parser
-        = std::make_unique<response_parser<vector_body<std::byte>>>();
+    auto parser = std::make_unique<response_parser<buffer_body>>();
     net::get_lowest_layer(*stream).expires_after(request_timeout_);
-    tie(ec, _) = co_await async_read_header(*stream, buffer, *res_parser);
+    tie(ec, _) = co_await async_read_header(*stream, buffer, *parser);
     if (ec) {
       log::debug("[{}] async_read_header failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    auto res = http_response(res_parser->get().result(),
-                             http_fields::from(res_parser->get()));
-    if (res_parser->chunked()) {
-      co_return std::move(res).set_stream(async_message_parser_stream(
-          stream, std::move(res_parser), std::move(buffer), request_timeout_));
-    }
-
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
-    tie(ec, _)
-        = co_await boost::beast::http::async_read(*stream, buffer, *res_parser);
-    if (ec) {
-      log::debug("[{}] async_read failed: {}", name(), ec.message());
-      co_return unexpected { ec };
-    }
-
-    co_return std::move(res).set_stream(
-        async_readable_vector_stream(std::move(res_parser->get().body())));
+    auto res = http_response(parser->get().result(),
+                             http_fields::from(parser->get()));
+    res.set_stream(async_message_parser_stream(
+        std::move(buffer), stream, std::move(parser), request_timeout_));
+    co_return res;
   }
 
   template <typename Stream>

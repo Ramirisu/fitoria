@@ -32,11 +32,9 @@ public:
   {
     if (c.request().fields().get(http::field::content_encoding)
         == http::fields::content_encoding::deflate()) {
-      auto stream = detail::async_inflate_stream(std::move(c.request().body()));
-      if (stream.is_chunked()) {
-        c.request().set_stream(std::move(stream));
-      } else {
-        auto data = co_await async_read_all_as<std::vector<std::byte>>(stream);
+      if (c.request().body().size_hint()) {
+        auto data = co_await async_read_all_as<std::vector<std::byte>>(
+            detail::async_inflate_stream(std::move(c.request().body())));
         if (!data || !*data) {
           co_return http_response(http::status::bad_request)
               .set_field(http::field::content_type,
@@ -46,6 +44,9 @@ public:
         c.request().set_field(http::field::content_length,
                               std::to_string((*data)->size()));
         c.request().set_stream(async_readable_vector_stream(std::move(**data)));
+      } else {
+        c.request().set_stream(
+            detail::async_inflate_stream(std::move(c.request().body())));
       }
       c.request().fields().erase(http::field::content_encoding);
     }
@@ -63,11 +64,9 @@ public:
     if (auto ac = c.request().fields().get(http::field::accept_encoding); ac
         && ac->find(http::fields::content_encoding::deflate())
             != std::string::npos) {
-      auto stream = detail::async_deflate_stream(std::move(res.body()));
-      if (stream.is_chunked()) {
-        res.set_stream(std::move(stream));
-      } else {
-        auto data = co_await async_read_all_as<std::vector<std::byte>>(stream);
+      if (res.body().size_hint()) {
+        auto data = co_await async_read_all_as<std::vector<std::byte>>(
+            detail::async_deflate_stream(std::move(res.body())));
         if (!data || !*data) {
           co_return http_response(http::status::internal_server_error)
               .set_field(http::field::content_type,
@@ -75,6 +74,8 @@ public:
               .set_body("unable to compress response body into deflate stream");
         }
         res.set_stream(async_readable_vector_stream(std::move(**data)));
+      } else {
+        res.set_stream(detail::async_deflate_stream(std::move(res.body())));
       }
       res.set_field(http::field::content_encoding,
                     http::fields::content_encoding::deflate());

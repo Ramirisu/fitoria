@@ -299,9 +299,11 @@ private:
   do_session_impl(std::shared_ptr<Stream> stream,
                   net::ip::tcp::endpoint listen_ep) const
   {
+    using boost::beast::http::buffer_body;
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
+    using boost::beast::http::response_serializer;
     using boost::beast::http::vector_body;
     using std::tie;
     auto _ = std::ignore;
@@ -310,13 +312,12 @@ private:
 
     for (;;) {
       net::flat_buffer buffer;
-      auto req_parser
-          = std::make_unique<request_parser<vector_body<std::byte>>>();
-      req_parser->body_limit(boost::none);
+      auto parser = std::make_unique<request_parser<buffer_body>>();
+      parser->body_limit(boost::none);
 
       net::get_lowest_layer(*stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await async_read_header(*stream, buffer, *req_parser);
+      tie(ec, _) = co_await async_read_header(*stream, buffer, *parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -324,14 +325,13 @@ private:
         co_return ec;
       }
 
-      bool keep_alive = req_parser->get().keep_alive();
-      auto method = req_parser->get().method();
-      auto target = std::string(req_parser->get().target());
-      auto fields = http_fields::from(req_parser->get());
-      bool chunked = req_parser->get().chunked();
+      bool keep_alive = parser->get().keep_alive();
+      auto method = parser->get().method();
+      auto target = std::string(parser->get().target());
+      auto fields = http_fields::from(parser->get());
 
-      if (auto it = req_parser->get().find(http::field::expect);
-          it != req_parser->get().end() && it->value() == "100-continue") {
+      if (auto it = parser->get().find(http::field::expect);
+          it != parser->get().end() && it->value() == "100-continue") {
         net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
         tie(ec, _) = co_await async_write(
@@ -339,17 +339,6 @@ private:
         if (ec) {
           log::debug(
               "[{}] async_write 100-continue failed: {}", name(), ec.message());
-          co_return ec;
-        }
-      }
-
-      if (!chunked) {
-        net::get_lowest_layer(*stream).expires_after(
-            builder_.client_request_timeout_);
-        tie(ec, _) = co_await boost::beast::http::async_read(
-            *stream, buffer, *req_parser);
-        if (ec) {
-          log::debug("[{}] async_read failed: {}", name(), ec.message());
           co_return ec;
         }
       }
@@ -364,49 +353,19 @@ private:
           method,
           std::move(target),
           std::move(fields),
-          [&]() -> any_async_readable_stream {
-            if (chunked) {
-              return async_message_parser_stream(
-                  stream,
-                  std::move(req_parser),
-                  std::move(buffer),
-                  builder_.client_request_timeout_);
-            }
-            return async_readable_vector_stream(
-                std::move(req_parser->get().body()));
-          }());
+          async_message_parser_stream(std::move(buffer),
+                                      stream,
+                                      std::move(parser),
+                                      builder_.client_request_timeout_));
+
       auto& body = res.body();
-      if (body.is_chunked()) {
-        auto r = response<empty_body>(res.status_code().value(), 11);
-        res.fields().to(r);
-        r.keep_alive(keep_alive);
-        r.chunked(true);
-
-        auto r_serializer
-            = boost::beast::http::response_serializer<empty_body>(r);
-
-        net::get_lowest_layer(*stream).expires_after(
-            builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write_header(*stream, r_serializer);
-        if (ec) {
-          log::debug(
-              "[{}] async_write_header failed: {}", name(), ec.message());
-          co_return ec;
-        }
-
-        if (auto exp = co_await async_write_each_chunk(
-                *stream, body, builder_.client_request_timeout_);
-            !exp) {
-          log::debug(
-              "[{}] async_write_each_chunk failed: {}", name(), ec.message());
-          co_return exp.error();
-        }
-      } else {
+      if (body.size_hint()) {
         auto r
             = response<vector_body<std::byte>>(res.status_code().value(), 11);
         res.fields().to(r);
-        auto data = co_await async_read_all_as<std::vector<std::byte>>(body);
-        if (data) {
+        if (auto data
+            = co_await async_read_all_as<std::vector<std::byte>>(body);
+            data) {
           if (!*data) {
             co_return (*data).error();
           }
@@ -421,6 +380,30 @@ private:
         if (ec) {
           log::debug("[{}] async_write failed: {}", name(), ec.message());
           co_return ec;
+        }
+      } else {
+        auto r = response<empty_body>(res.status_code().value(), 11);
+        res.fields().to(r);
+        r.keep_alive(keep_alive);
+        r.chunked(true);
+
+        auto serializer = response_serializer<empty_body>(r);
+
+        net::get_lowest_layer(*stream).expires_after(
+            builder_.client_request_timeout_);
+        tie(ec, _) = co_await async_write_header(*stream, serializer);
+        if (ec) {
+          log::debug(
+              "[{}] async_write_header failed: {}", name(), ec.message());
+          co_return ec;
+        }
+
+        if (auto exp = co_await async_write_each_chunk(
+                *stream, body, builder_.client_request_timeout_);
+            !exp) {
+          log::debug(
+              "[{}] async_write_each_chunk failed: {}", name(), ec.message());
+          co_return exp.error();
         }
       }
 
@@ -476,7 +459,6 @@ private:
   builder builder_;
   std::vector<net::awaitable<void>> tasks_;
 };
-
 }
 
 FITORIA_NAMESPACE_END

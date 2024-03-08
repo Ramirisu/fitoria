@@ -155,12 +155,12 @@ TEST_CASE("gzip middleware")
                            const http_fields& fields,
                            std::string body) -> net::awaitable<http_response> {
                          CHECK(!fields.get(http::field::content_encoding));
-                         if (req.body().is_chunked()) {
-                           CHECK_EQ(fields.get(http::field::content_length),
-                                    nullopt);
-                         } else {
+                         if (req.body().size_hint()) {
                            CHECK_EQ(fields.get(http::field::content_length),
                                     std::to_string(plain.size()));
+                         } else {
+                           CHECK_EQ(fields.get(http::field::content_length),
+                                    nullopt);
                          }
                          CHECK_EQ(body, plain);
 

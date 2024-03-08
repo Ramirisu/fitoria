@@ -126,11 +126,6 @@ public:
   {
   }
 
-  bool is_chunked() const noexcept
-  {
-    return next_.is_chunked();
-  }
-
   optional<std::size_t> size_hint() const noexcept
   {
     return next_.size_hint();
@@ -243,11 +238,6 @@ public:
   async_gzip_deflate_stream(NextLayer2&& next)
       : next_(std::forward<NextLayer2>(next))
   {
-  }
-
-  bool is_chunked() const noexcept
-  {
-    return next_.is_chunked();
   }
 
   optional<std::size_t> size_hint() const noexcept

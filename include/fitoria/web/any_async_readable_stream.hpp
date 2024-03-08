@@ -21,7 +21,6 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
-    virtual auto is_chunked() const noexcept -> bool = 0;
     virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
     virtual auto async_read_next() -> net::awaitable<
         optional<expected<std::vector<std::byte>, net::error_code>>>
@@ -34,11 +33,6 @@ class any_async_readable_stream {
     derived(AsyncReadableStream stream)
         : stream_(std::move(stream))
     {
-    }
-
-    auto is_chunked() const noexcept -> bool override
-    {
-      return stream_.is_chunked();
     }
 
     auto size_hint() const noexcept -> optional<std::size_t> override
@@ -73,11 +67,6 @@ public:
   any_async_readable_stream(any_async_readable_stream&&) = default;
 
   any_async_readable_stream& operator=(any_async_readable_stream&&) = default;
-
-  auto is_chunked() const noexcept -> bool
-  {
-    return stream_->is_chunked();
-  }
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {

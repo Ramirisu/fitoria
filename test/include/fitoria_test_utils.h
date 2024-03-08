@@ -68,11 +68,6 @@ public:
   {
   }
 
-  auto is_chunked() const noexcept
-  {
-    return true;
-  }
-
   auto size_hint() const noexcept -> optional<std::size_t>
   {
     return data_.size();

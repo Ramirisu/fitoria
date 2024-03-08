@@ -34,11 +34,6 @@ public:
   {
   }
 
-  auto is_chunked() const noexcept -> bool
-  {
-    return false;
-  }
-
   auto size_hint() const noexcept -> optional<std::size_t>
   {
     return data_.transform([](auto& data) { return data.size(); }).value_or(0);
