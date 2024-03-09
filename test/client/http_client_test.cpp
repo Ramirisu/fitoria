@@ -107,13 +107,18 @@ TEST_CASE("methods")
 TEST_CASE("async_send")
 {
   {
-    auto res = net::sync_wait(
-                   http_client::get("http://httpbin.org/get").async_send())
-                   .value();
-    CHECK_EQ(res.status_code().value(), http::status::ok);
+    net::sync_wait([]() -> net::awaitable<void> {
+      auto res
+          = (co_await http_client::get("http://httpbin.org/get").async_send())
+                .value();
+      CHECK_EQ(res.status_code().value(), http::status::ok);
+      CHECK((co_await res.as_string())->size() > 0);
+    });
   }
   {
-    CHECK(!net::sync_wait(http_client::get("").async_send()));
+    net::sync_wait([]() -> net::awaitable<void> {
+      CHECK(!(co_await http_client::get("").async_send()));
+    });
   }
 #if defined(FITORIA_HAS_OPENSSL)
   auto get_certs = []() {
@@ -123,13 +128,18 @@ TEST_CASE("async_send")
     return ssl_ctx;
   };
   {
-    auto res = net::sync_wait(http_client::get("https://httpbin.org/get")
-                                  .async_send(get_certs()))
-                   .value();
-    CHECK_EQ(res.status_code().value(), http::status::ok);
+    net::sync_wait([&]() -> net::awaitable<void> {
+      auto res = (co_await http_client::get("https://httpbin.org/get")
+                      .async_send(get_certs()))
+                     .value();
+      CHECK_EQ(res.status_code().value(), http::status::ok);
+      CHECK((co_await res.as_string())->size() > 0);
+    });
   }
   {
-    CHECK(!net::sync_wait(http_client::get("").async_send(get_certs())));
+    net::sync_wait([&]() -> net::awaitable<void> {
+      CHECK(!(co_await http_client::get("").async_send(get_certs())));
+    });
   }
 #endif
 }
