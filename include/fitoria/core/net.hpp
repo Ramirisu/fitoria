@@ -54,12 +54,12 @@ auto get_remote_endpoint(Stream& stream)
 }
 
 template <typename Awaitable>
-auto sync_wait(Awaitable&& awaitable)
+void sync_wait(Awaitable&& awaitable)
 {
   io_context ioc;
   auto fut = co_spawn(ioc, std::forward<Awaitable>(awaitable), use_future);
   ioc.run();
-  return fut.get();
+  (void)fut.get();
 }
 
 }
