@@ -369,24 +369,15 @@ private:
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
-    if (!body_.size_hint()) {
-      if (auto res = co_await do_send_req_with_chunk_body(stream); !res) {
-        co_return unexpected { res.error() };
-      } else if (*res) {
-        co_return http_response(
-            (**res).result(),
-            http_fields::from(**res),
-            async_readable_vector_stream(std::move(**res).body()));
-      }
-    } else {
-      if (auto res = co_await do_send_req_with_vector_body(stream); !res) {
-        co_return unexpected { res.error() };
-      } else if (*res) {
-        co_return http_response(
-            (**res).result(),
-            http_fields::from(**res),
-            async_readable_vector_stream(std::move(**res).body()));
-      }
+    auto do_request =
+        [&]() -> net::awaitable<expected<optional<http_response>, error_code>> {
+      return body_.size_hint() ? do_sized_request(stream)
+                               : do_chunked_request(stream);
+    };
+    if (auto exp = co_await do_request(); !exp) {
+      co_return unexpected { exp.error() };
+    } else if (*exp) {
+      co_return std::move(**exp);
     }
 
     net::error_code ec;
@@ -409,13 +400,9 @@ private:
   }
 
   template <typename Stream>
-  auto do_send_req_with_vector_body(std::shared_ptr<Stream> stream)
-      -> net::awaitable<
-          expected<optional<boost::beast::http::response<
-                       boost::beast::http::vector_body<std::byte>>>,
-                   error_code>>
+  auto do_sized_request(std::shared_ptr<Stream>& stream)
+      -> net::awaitable<expected<optional<http_response>, error_code>>
   {
-    using boost::beast::http::empty_body;
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
     using boost::beast::http::response;
@@ -450,7 +437,7 @@ private:
 
     if (use_expect) {
       net::flat_buffer buffer;
-      response<empty_body> res;
+      response<vector_body<std::byte>> res;
       net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore) = co_await async_read(*stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
@@ -458,7 +445,10 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return res;
+        co_return http_response(
+            res.result(),
+            http_fields::from(res),
+            async_readable_vector_stream(std::move(res.body())));
       }
     }
 
@@ -473,11 +463,8 @@ private:
   }
 
   template <typename Stream>
-  auto do_send_req_with_chunk_body(std::shared_ptr<Stream> stream)
-      -> net::awaitable<
-          expected<optional<boost::beast::http::response<
-                       boost::beast::http::vector_body<std::byte>>>,
-                   error_code>>
+  auto do_chunked_request(std::shared_ptr<Stream>& stream)
+      -> net::awaitable<expected<optional<http_response>, error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::request;
@@ -506,7 +493,7 @@ private:
 
     if (use_expect) {
       net::flat_buffer buffer;
-      response<empty_body> res;
+      response<vector_body<std::byte>> res;
       net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore) = co_await async_read(*stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
@@ -514,7 +501,10 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return res;
+        co_return http_response(
+            res.result(),
+            http_fields::from(res),
+            async_readable_vector_stream(std::move(res.body())));
       }
     }
 
