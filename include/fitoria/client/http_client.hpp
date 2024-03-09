@@ -222,6 +222,18 @@ public:
     return *this;
   }
 
+  std::chrono::milliseconds expect_100_timeout() const noexcept
+  {
+    return expect100_timeout_;
+  }
+
+  http_client&
+  set_expect_100_timeout(std::chrono::milliseconds timeout) noexcept
+  {
+    expect100_timeout_ = timeout;
+    return *this;
+  }
+
   auto async_send() -> net::awaitable<expected<http_response, error_code>>
   {
     if (!resource_) {
@@ -403,6 +415,7 @@ private:
                        boost::beast::http::vector_body<std::byte>>>,
                    error_code>>
   {
+    using boost::beast::http::empty_body;
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
     using boost::beast::http::response;
@@ -437,8 +450,8 @@ private:
 
     if (use_expect) {
       net::flat_buffer buffer;
-      response<vector_body<std::byte>> res;
-      net::get_lowest_layer(*stream).expires_after(request_timeout_);
+      response<empty_body> res;
+      net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore) = co_await async_read(*stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
@@ -493,8 +506,8 @@ private:
 
     if (use_expect) {
       net::flat_buffer buffer;
-      response<vector_body<std::byte>> res;
-      net::get_lowest_layer(*stream).expires_after(request_timeout_);
+      response<empty_body> res;
+      net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore) = co_await async_read(*stream, buffer, res);
       if (ec && ec != boost::beast::error::timeout) {
         log::debug("[{}] async_read failed: {}", name(), ec.message());
@@ -531,6 +544,7 @@ private:
   http_fields fields_;
   any_async_readable_stream body_ { async_readable_vector_stream::eof() };
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
+  std::chrono::milliseconds expect100_timeout_ = std::chrono::seconds(1);
 };
 }
 
