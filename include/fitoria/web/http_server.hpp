@@ -295,15 +295,13 @@ private:
 
   template <typename Stream>
   net::awaitable<net::error_code>
-  do_session_impl(std::shared_ptr<Stream> stream,
+  do_session_impl(std::shared_ptr<Stream>& stream,
                   net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::buffer_body;
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
-    using boost::beast::http::response_serializer;
-    using boost::beast::http::vector_body;
 
     net::error_code ec;
 
@@ -356,54 +354,14 @@ private:
                                       std::move(parser),
                                       builder_.client_request_timeout_));
 
-      auto& body = res.body();
-      if (body.size_hint()) {
-        auto r
-            = response<vector_body<std::byte>>(res.status_code().value(), 11);
-        res.fields().to(r);
-        if (auto data
-            = co_await async_read_all_as<std::vector<std::byte>>(body);
-            data) {
-          if (!*data) {
-            co_return (*data).error();
-          }
-          r.body() = std::move(**data);
-        }
-        r.keep_alive(keep_alive);
-        r.prepare_payload();
-
-        net::get_lowest_layer(*stream).expires_after(
-            builder_.client_request_timeout_);
-        std::tie(ec, std::ignore) = co_await async_write(*stream, std::move(r));
-        if (ec) {
-          log::debug("[{}] async_write failed: {}", name(), ec.message());
-          co_return ec;
-        }
-      } else {
-        auto r = response<empty_body>(res.status_code().value(), 11);
-        res.fields().to(r);
-        r.keep_alive(keep_alive);
-        r.chunked(true);
-
-        auto serializer = response_serializer<empty_body>(r);
-
-        net::get_lowest_layer(*stream).expires_after(
-            builder_.client_request_timeout_);
-        std::tie(ec, std::ignore)
-            = co_await async_write_header(*stream, serializer);
-        if (ec) {
-          log::debug(
-              "[{}] async_write_header failed: {}", name(), ec.message());
-          co_return ec;
-        }
-
-        if (auto exp = co_await async_write_each_chunk(
-                *stream, body, builder_.client_request_timeout_);
-            !exp) {
-          log::debug(
-              "[{}] async_write_each_chunk failed: {}", name(), ec.message());
-          co_return exp.error();
-        }
+      auto do_response
+          = [&]() -> net::awaitable<expected<void, net::error_code>> {
+        return res.body().size_hint()
+            ? do_sized_response(stream, res, keep_alive)
+            : do_chunked_response(stream, res, keep_alive);
+      };
+      if (auto exp = co_await do_response(); !exp) {
+        co_return exp.error();
       }
 
       if (!keep_alive) {
@@ -448,6 +406,79 @@ private:
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("request path is not found");
+  }
+
+  template <typename Stream>
+  auto do_sized_response(std::shared_ptr<Stream>& stream,
+                         http_response& res,
+                         bool keep_alive) const
+      -> net::awaitable<expected<void, net::error_code>>
+  {
+    using boost::beast::http::response;
+    using boost::beast::http::vector_body;
+
+    net::error_code ec;
+
+    auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
+    res.fields().to(r);
+    if (auto body
+        = co_await async_read_all_as<std::vector<std::byte>>(res.body());
+        body) {
+      if (!*body) {
+        co_return *body;
+      }
+      r.body() = std::move(**body);
+    }
+    r.keep_alive(keep_alive);
+    r.prepare_payload();
+
+    net::get_lowest_layer(*stream).expires_after(
+        builder_.client_request_timeout_);
+    std::tie(ec, std::ignore) = co_await async_write(*stream, r);
+    if (ec) {
+      log::debug("[{}] async_write failed: {}", name(), ec.message());
+      co_return unexpected { ec };
+    }
+
+    co_return expected<void, net::error_code>();
+  }
+
+  template <typename Stream>
+  auto do_chunked_response(std::shared_ptr<Stream>& stream,
+                           http_response& res,
+                           bool keep_alive) const
+      -> net::awaitable<expected<void, net::error_code>>
+  {
+    using boost::beast::http::empty_body;
+    using boost::beast::http::response;
+    using boost::beast::http::response_serializer;
+
+    net::error_code ec;
+
+    auto r = response<empty_body>(res.status_code().value(), 11);
+    res.fields().to(r);
+    r.keep_alive(keep_alive);
+    r.chunked(true);
+
+    auto serializer = response_serializer<empty_body>(std::move(r));
+
+    net::get_lowest_layer(*stream).expires_after(
+        builder_.client_request_timeout_);
+    std::tie(ec, std::ignore)
+        = co_await async_write_header(*stream, serializer);
+    if (ec) {
+      log::debug("[{}] async_write_header failed: {}", name(), ec.message());
+      co_return unexpected { ec };
+    }
+
+    auto result = co_await async_write_each_chunk(
+        *stream, res.body(), builder_.client_request_timeout_);
+    if (!result) {
+      log::debug(
+          "[{}] async_write_each_chunk failed: {}", name(), ec.message());
+    }
+
+    co_return result;
   }
 
   static const char* name() noexcept
