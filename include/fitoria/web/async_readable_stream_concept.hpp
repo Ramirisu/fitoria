@@ -67,8 +67,6 @@ auto async_write_each_chunk(Stream&& to,
 {
   using boost::beast::http::make_chunk;
   using boost::beast::http::make_chunk_last;
-  auto _ = std::ignore;
-
   net::error_code ec;
 
   for (auto chunk = co_await from.async_read_next(); chunk;
@@ -78,14 +76,14 @@ auto async_write_each_chunk(Stream&& to,
     }
 
     net::get_lowest_layer(to).expires_after(timeout);
-    tie(ec, _) = co_await async_write(
+    std::tie(ec, std::ignore) = co_await async_write(
         to, make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())));
     if (ec) {
       co_return unexpected { ec };
     }
   }
 
-  tie(ec, _) = co_await async_write(to, make_chunk_last());
+  std::tie(ec, std::ignore) = co_await async_write(to, make_chunk_last());
   if (ec) {
     co_return unexpected { ec };
   }

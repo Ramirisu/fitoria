@@ -270,13 +270,12 @@ private:
   net::awaitable<void> do_session(std::shared_ptr<net::ssl_stream> stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
-    using std::tie;
-
     net::error_code ec;
 
     net::get_lowest_layer(*stream).expires_after(
         builder_.client_request_timeout_);
-    tie(ec) = co_await stream->async_handshake(net::ssl::stream_base::server);
+    std::tie(ec)
+        = co_await stream->async_handshake(net::ssl::stream_base::server);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       co_return;
@@ -286,7 +285,7 @@ private:
       co_return;
     }
 
-    tie(ec) = co_await stream->async_shutdown();
+    std::tie(ec) = co_await stream->async_shutdown();
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
       co_return;
@@ -305,8 +304,6 @@ private:
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;
     using boost::beast::http::vector_body;
-    using std::tie;
-    auto _ = std::ignore;
 
     net::error_code ec;
 
@@ -317,7 +314,8 @@ private:
 
       net::get_lowest_layer(*stream).expires_after(
           builder_.client_request_timeout_);
-      tie(ec, _) = co_await async_read_header(*stream, buffer, *parser);
+      std::tie(ec, std::ignore)
+          = co_await async_read_header(*stream, buffer, *parser);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -334,7 +332,7 @@ private:
           it != parser->get().end() && it->value() == "100-continue") {
         net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write(
+        std::tie(ec, std::ignore) = co_await async_write(
             *stream, response<empty_body>(http::status::continue_, 11));
         if (ec) {
           log::debug(
@@ -376,7 +374,7 @@ private:
 
         net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write(*stream, std::move(r));
+        std::tie(ec, std::ignore) = co_await async_write(*stream, std::move(r));
         if (ec) {
           log::debug("[{}] async_write failed: {}", name(), ec.message());
           co_return ec;
@@ -391,7 +389,8 @@ private:
 
         net::get_lowest_layer(*stream).expires_after(
             builder_.client_request_timeout_);
-        tie(ec, _) = co_await async_write_header(*stream, serializer);
+        std::tie(ec, std::ignore)
+            = co_await async_write_header(*stream, serializer);
         if (ec) {
           log::debug(
               "[{}] async_write_header failed: {}", name(), ec.message());
