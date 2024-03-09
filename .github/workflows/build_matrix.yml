@@ -19,6 +19,9 @@ jobs:
         build_type: [Debug, Release]
         generator: [Ninja]
         disable_openssl: [ON, OFF]
+        exclude:
+          - os_cxx: { os: windows-2022, cxx: cl }
+            build_type: Debug
 
     steps:
       - uses: actions/checkout@v4
