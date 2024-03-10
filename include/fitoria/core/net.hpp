@@ -13,6 +13,8 @@
 
 #include <fitoria/core/detail/boost.hpp>
 
+#include <fitoria/core/type_traits.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace net {
@@ -36,9 +38,85 @@ using resolver_results = ip::basic_resolver_results<ip::tcp>;
 
 using tcp_stream
     = as_tuple_t<use_awaitable_t<>>::as_default_on_t<boost::beast::tcp_stream>;
+using ws_tcp_stream = boost::beast::websocket::stream<tcp_stream>;
+
+template <typename Stream, bool HasSslCtx = false>
+class basic_shared_stream {
+  std::shared_ptr<Stream> stream_;
+
+public:
+  template <typename Arg>
+    requires(!uncvref_same_as<Arg, basic_shared_stream>)
+  basic_shared_stream(Arg&& arg)
+      : stream_(std::make_shared<Stream>(std::forward<Arg>(arg)))
+  {
+  }
+
+  auto operator*() const noexcept -> const Stream&
+  {
+    return *stream_;
+  }
+
+  auto operator*() noexcept -> Stream&
+  {
+    return *stream_;
+  }
+
+  auto operator->() const noexcept -> const Stream*
+  {
+    return stream_.get();
+  }
+
+  auto operator->() noexcept -> Stream*
+  {
+    return stream_.get();
+  }
+};
+
+using shared_tcp_stream = basic_shared_stream<tcp_stream, false>;
+using shared_ws_tcp_stream = basic_shared_stream<ws_tcp_stream, false>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
+using ws_ssl_stream = boost::beast::websocket::stream<ssl_stream>;
+
+template <typename Stream>
+class basic_shared_stream<Stream, true> {
+  std::shared_ptr<ssl::context> ssl_ctx_;
+  std::shared_ptr<Stream> stream_;
+
+public:
+  template <typename Arg>
+  basic_shared_stream(Arg&& arg, std::shared_ptr<ssl::context> ssl_ctx)
+      : ssl_ctx_(std::move(ssl_ctx))
+      , stream_(std::make_shared<Stream>(std::forward<Arg>(arg), *ssl_ctx_))
+  {
+  }
+
+  auto operator*() const noexcept -> const Stream&
+  {
+    return *stream_;
+  }
+
+  auto operator*() noexcept -> Stream&
+  {
+    return *stream_;
+  }
+
+  auto operator->() const noexcept -> const Stream*
+  {
+    return stream_.get();
+  }
+
+  auto operator->() noexcept -> Stream*
+  {
+    return stream_.get();
+  }
+};
+
+using shared_ssl_stream = basic_shared_stream<ssl_stream, true>;
+using shared_ws_ssl_stream = basic_shared_stream<ws_ssl_stream, true>;
+
 #endif
 
 template <typename Stream>

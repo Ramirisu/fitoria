@@ -308,8 +308,7 @@ private:
     }
 
     net::error_code ec;
-    auto stream
-        = std::make_shared<net::tcp_stream>(co_await net::this_coro::executor);
+    auto stream = net::shared_tcp_stream(co_await net::this_coro::executor);
 
     stream->expires_after(request_timeout_);
     std::tie(ec, std::ignore) = co_await stream->async_connect(*results);
@@ -331,8 +330,9 @@ private:
     }
 
     net::error_code ec;
-    auto stream = std::make_shared<net::ssl_stream>(
-        co_await net::this_coro::executor, ssl_ctx);
+    auto stream = net::shared_ssl_stream(
+        co_await net::this_coro::executor,
+        std::make_shared<net::ssl::context>(std::move(ssl_ctx)));
 
     // Set SNI Hostname (many hosts need this to handshake successfully)
     if (!SSL_set_tlsext_host_name(stream->native_handle(),
@@ -363,7 +363,7 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_send_recv(std::shared_ptr<Stream> stream)
+  auto do_send_recv(Stream& stream)
       -> net::awaitable<expected<http_response, error_code>>
   {
     using boost::beast::http::buffer_body;
@@ -394,13 +394,15 @@ private:
 
     auto res = http_response(parser->get().result(),
                              http_fields::from(parser->get()));
-    res.set_stream(async_message_parser_stream(
-        std::move(buffer), stream, std::move(parser), request_timeout_));
+    res.set_stream(async_message_parser_stream(std::move(buffer),
+                                               std::move(stream),
+                                               std::move(parser),
+                                               request_timeout_));
     co_return res;
   }
 
   template <typename Stream>
-  auto do_sized_request(std::shared_ptr<Stream>& stream)
+  auto do_sized_request(Stream& stream)
       -> net::awaitable<expected<optional<http_response>, error_code>>
   {
     using boost::beast::http::request;
@@ -463,7 +465,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_chunked_request(std::shared_ptr<Stream>& stream)
+  auto do_chunked_request(Stream& stream)
       -> net::awaitable<expected<optional<http_response>, error_code>>
   {
     using boost::beast::http::empty_body;

@@ -227,8 +227,7 @@ private:
 
       net::co_spawn(
           acceptor.get_executor(),
-          do_session(std::make_shared<net::tcp_stream>(std::move(socket)),
-                     endpoint),
+          do_session(net::shared_tcp_stream(std::move(socket)), endpoint),
           builder_.exception_handler_);
     }
   }
@@ -238,6 +237,7 @@ private:
                                  net::ssl::context ssl_ctx) const
   {
     auto acceptor = co_await new_acceptor(endpoint);
+    auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept();
@@ -246,16 +246,16 @@ private:
         continue;
       }
 
-      net::co_spawn(acceptor.get_executor(),
-                    do_session(std::make_shared<net::ssl_stream>(
-                                   std::move(socket), ssl_ctx),
-                               endpoint),
-                    builder_.exception_handler_);
+      net::co_spawn(
+          acceptor.get_executor(),
+          do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr),
+                     endpoint),
+          builder_.exception_handler_);
     }
   }
 #endif
 
-  net::awaitable<void> do_session(std::shared_ptr<net::tcp_stream> stream,
+  net::awaitable<void> do_session(net::shared_tcp_stream stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
     auto ec = co_await do_session_impl(stream, std::move(listen_ep));
@@ -267,7 +267,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(std::shared_ptr<net::ssl_stream> stream,
+  net::awaitable<void> do_session(net::shared_ssl_stream stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
     net::error_code ec;
@@ -295,8 +295,7 @@ private:
 
   template <typename Stream>
   net::awaitable<net::error_code>
-  do_session_impl(std::shared_ptr<Stream>& stream,
-                  net::ip::tcp::endpoint listen_ep) const
+  do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::buffer_body;
     using boost::beast::http::empty_body;
@@ -409,9 +408,8 @@ private:
   }
 
   template <typename Stream>
-  auto do_sized_response(std::shared_ptr<Stream>& stream,
-                         http_response& res,
-                         bool keep_alive) const
+  auto
+  do_sized_response(Stream& stream, http_response& res, bool keep_alive) const
       -> net::awaitable<expected<void, net::error_code>>
   {
     using boost::beast::http::response;
@@ -444,9 +442,8 @@ private:
   }
 
   template <typename Stream>
-  auto do_chunked_response(std::shared_ptr<Stream>& stream,
-                           http_response& res,
-                           bool keep_alive) const
+  auto
+  do_chunked_response(Stream& stream, http_response& res, bool keep_alive) const
       -> net::awaitable<expected<void, net::error_code>>
   {
     using boost::beast::http::empty_body;

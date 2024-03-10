@@ -26,13 +26,13 @@ namespace web {
 template <typename Stream, typename MessageParser>
 class async_message_parser_stream {
   net::flat_buffer buffer_;
-  std::shared_ptr<Stream> stream_;
+  Stream stream_;
   std::unique_ptr<MessageParser> parser_;
   std::chrono::milliseconds timeout_;
 
 public:
   async_message_parser_stream(net::flat_buffer buffer,
-                              std::shared_ptr<Stream> stream,
+                              Stream stream,
                               std::unique_ptr<MessageParser> parser,
                               std::chrono::milliseconds timeout)
       : buffer_(std::move(buffer))
