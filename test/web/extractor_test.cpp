@@ -16,7 +16,108 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("[fitoria.web.extractor]");
 
-TEST_CASE("std::string")
+TEST_CASE("connection_info extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">([](const connection_info& conn_info)
+                                          -> net::awaitable<http_response> {
+              CHECK_EQ(conn_info.local_addr(),
+                       net::ip::make_address("127.0.0.1"));
+              CHECK_EQ(conn_info.local_port(), 0);
+              CHECK_EQ(conn_info.remote_addr(),
+                       net::ip::make_address("127.0.0.1"));
+              CHECK_EQ(conn_info.remote_port(), 0);
+              CHECK_EQ(conn_info.listen_addr(),
+                       net::ip::make_address("127.0.0.1"));
+              CHECK_EQ(conn_info.listen_port(), 0);
+              co_return http_response(http::status::ok);
+            }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/get", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+TEST_CASE("route_params extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/{user}">(
+                [](route_params& params) -> net::awaitable<http_response> {
+                  CHECK_EQ(params.get("user"), "gavin");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/gavin", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+TEST_CASE("query_map extractor")
+{
+  auto server = http_server::builder()
+                    .serve(route::get<"/get">(
+                        [](query_map& query) -> net::awaitable<http_response> {
+                          CHECK_EQ(query.get("user"), "gavin");
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/get", http_request(http::verb::get).set_query("user", "gavin"));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+TEST_CASE("http_fields extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">(
+                [](http_fields& fields) -> net::awaitable<http_response> {
+                  CHECK_EQ(fields.get(http::field::connection), "close");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/get",
+        http_request(http::verb::get)
+            .insert_field(http::field::connection, "close"));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+TEST_CASE("state<T> extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">([](state<std::string> s)
+                                          -> net::awaitable<http_response> {
+                     CHECK_EQ(s, "shared state");
+                     co_return http_response(http::status::ok);
+                   }).share_state(std::string("shared state")))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/get", http_request(http::verb::get));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
+}
+
+TEST_CASE("std::string extractor")
 {
   auto server = http_server::builder()
                     .serve(route::post<"/post">(
@@ -35,7 +136,7 @@ TEST_CASE("std::string")
   }());
 }
 
-TEST_CASE("std::vector<std::byte>")
+TEST_CASE("std::vector<std::byte> extractor")
 {
   auto server
       = http_server::builder()
@@ -98,7 +199,7 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 
 }
 
-TEST_CASE("json<T>")
+TEST_CASE("json<T> extractor")
 {
   auto server
       = http_server::builder()

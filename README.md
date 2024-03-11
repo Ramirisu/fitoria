@@ -355,8 +355,8 @@ Built-in Extractors:
 | `web::query_map`         | Extract query string parameters                        |       no       |                                                                                                           |
 | `web::http_fields`       | Extract fields from request headers                    |       no       |                                                                                                           |
 | `web::state<T>`          | Extract shared state of type `T`.                      |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***. |
-| `std::vector<std::byte>` | Extract body as `std::vector<std::byte>`               |      yes       |                                                                                                           |
 | `std::string`            | Extract body as `std::string`                          |      yes       |                                                                                                           |
+| `std::vector<std::byte>` | Extract body as `std::vector<std::byte>`               |      yes       |                                                                                                           |
 | `web::json<T>`           | Extract body and parse it into json and convert to `T` |      yes       |                                                                                                           |
 
 > Implement `from_http_request_t` CPO to define custom extractors.
