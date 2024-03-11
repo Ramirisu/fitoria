@@ -33,7 +33,7 @@ class route_impl;
 template <basic_fixed_string Path, typename... Services, typename Handler>
 class route_impl<Path, std::tuple<Services...>, Handler> {
   http::verb method_;
-  std::vector<state_map> state_maps_;
+  std::vector<shared_state_map> state_maps_;
   std::tuple<Services...> services_;
   Handler handler_;
 
@@ -42,7 +42,7 @@ public:
                 "invalid path for route");
 
   route_impl(http::verb method,
-             std::vector<state_map> state_maps,
+             std::vector<shared_state_map> state_maps,
              std::tuple<Services...> services,
              Handler handler)
       : method_(method)
@@ -52,15 +52,15 @@ public:
   {
   }
 
-  template <typename State>
-  auto state(State&& state)
+  template <typename SharedState>
+  auto share_state(SharedState&& state) const
   {
     auto state_maps = state_maps_;
     if (state_maps.empty()) {
-      state_maps.push_back({});
+      state_maps.push_back(std::make_shared<state_map>());
     }
-    state_maps.front()[std::type_index(typeid(State))]
-        = std::any(std::forward<State>(state));
+    (*state_maps.front())[std::type_index(typeid(SharedState))]
+        = std::any(std::forward<SharedState>(state));
     return route_impl<Path, std::tuple<Services...>, Handler>(
         method_, std::move(state_maps), services_, handler_);
   }
@@ -79,11 +79,11 @@ public:
   }
 
   template <basic_fixed_string ParentPath, typename... ParentServices>
-  auto rebind_parent(state_map parent_state_map,
+  auto rebind_parent(shared_state_map parent_state_map,
                      std::tuple<ParentServices...> parent_services) const
   {
     auto state_maps = state_maps_;
-    if (!parent_state_map.empty()) {
+    if (!parent_state_map->empty()) {
       state_maps.push_back(std::move(parent_state_map));
     }
     return route_impl<ParentPath + Path,

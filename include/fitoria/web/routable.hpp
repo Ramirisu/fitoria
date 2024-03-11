@@ -25,7 +25,7 @@ public:
   template <typename Service2>
   routable(http::verb method,
            path_matcher matcher,
-           std::vector<state_map> state_maps,
+           std::vector<shared_state_map> state_maps,
            Service2&& service)
       : method_(method)
       , matcher_(std::move(matcher))
@@ -44,7 +44,7 @@ public:
     return matcher_;
   }
 
-  auto state_maps() const noexcept -> const std::vector<state_map>&
+  auto state_maps() const noexcept -> const std::vector<shared_state_map>&
   {
     return state_maps_;
   }
@@ -57,14 +57,13 @@ public:
 private:
   http::verb method_;
   path_matcher matcher_;
-  std::vector<state_map> state_maps_;
+  std::vector<shared_state_map> state_maps_;
   Service service_;
 };
 
 template <typename Service>
-routable(http::verb, path_matcher, std::vector<state_map>, Service&&)
+routable(http::verb, path_matcher, std::vector<shared_state_map>, Service&&)
     -> routable<std::decay_t<Service>>;
-
 }
 
 FITORIA_NAMESPACE_END

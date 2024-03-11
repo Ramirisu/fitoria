@@ -52,7 +52,7 @@ TEST_CASE("rebind_parent")
   CHECK_EQ(r1.build().method(), http::verb::get);
   CHECK_EQ(r1.build().matcher().pattern(), "/v1");
 
-  auto r2 = r1.rebind_parent<"/api">({}, {});
+  auto r2 = r1.rebind_parent<"/api">(std::make_shared<state_map>(), {});
   CHECK_EQ(r2.build().method(), http::verb::get);
   CHECK_EQ(r2.build().matcher().pattern(), "/api/v1");
 }

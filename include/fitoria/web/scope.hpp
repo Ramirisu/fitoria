@@ -22,12 +22,19 @@ class scope_impl;
 
 template <basic_fixed_string Path, typename... Services, typename... Routes>
 class scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> {
-  state_map state_map_;
+  shared_state_map state_map_;
   std::tuple<Services...> services_;
   std::tuple<Routes...> routes_;
 
 public:
-  scope_impl(state_map state_map,
+  scope_impl(std::tuple<Services...> services, std::tuple<Routes...> routes)
+      : state_map_(std::make_shared<state_map>())
+      , services_(std::move(services))
+      , routes_(std::move(routes))
+  {
+  }
+
+  scope_impl(shared_state_map state_map,
              std::tuple<Services...> services,
              std::tuple<Routes...> routes)
       : state_map_(std::move(state_map))
@@ -36,12 +43,12 @@ public:
   {
   }
 
-  template <typename State>
-  auto state(State&& state) const
+  template <typename SharedState>
+  auto share_state(SharedState&& state) const
   {
     auto state_map = state_map_;
-    state_map[std::type_index(typeid(State))]
-        = std::any(std::forward<State>(state));
+    (*state_map)[std::type_index(typeid(SharedState))]
+        = std::any(std::forward<SharedState>(state));
     return scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>(
         std::move(state_map), services_, routes_);
   }
@@ -109,7 +116,7 @@ inline auto scope()
 {
   static_assert(compile_time_path_checker::is_valid_scope<Path>(),
                 "invalid path for scope");
-  return scope_impl<Path, std::tuple<>, std::tuple<>>({}, {}, {});
+  return scope_impl<Path, std::tuple<>, std::tuple<>>({}, {});
 }
 }
 

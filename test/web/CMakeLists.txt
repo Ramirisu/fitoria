@@ -14,7 +14,7 @@ fitoria_add_test(NAME route_params_test SRCS route_params_test.cpp)
 fitoria_add_test(NAME route_test SRCS route_test.cpp)
 fitoria_add_test(NAME router_test SRCS router_test.cpp)
 fitoria_add_test(NAME scope_test SRCS scope_test.cpp)
-fitoria_add_test(NAME state_map_test SRCS state_map_test.cpp)
+fitoria_add_test(NAME share_state_test SRCS share_state_test.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)

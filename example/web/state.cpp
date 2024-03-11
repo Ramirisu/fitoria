@@ -13,7 +13,6 @@ using namespace fitoria;
 using namespace fitoria::web;
 
 namespace cache {
-
 class simple_cache {
   using map_type = unordered_string_map<std::string>;
 
@@ -91,7 +90,7 @@ int main()
 
   auto server = http_server::builder()
                     .serve(scope<"/cache">()
-                               .state(cache)
+                               .share_state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();

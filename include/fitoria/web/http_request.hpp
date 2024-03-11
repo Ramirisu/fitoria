@@ -42,7 +42,7 @@ public:
                query_map query,
                http_fields fields,
                any_async_readable_stream body,
-               const std::vector<state_map>& state_maps)
+               const std::vector<shared_state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , params_(std::move(params))
       , path_(std::move(path))
@@ -276,14 +276,16 @@ public:
   }
 
   template <typename T>
-  optional<T> state() const
+  optional<T&> state() const
   {
+    static_assert(std::same_as<T, std::remove_cvref_t<T>>,
+                  "T must not be cvref qualified");
     if (state_maps_) {
       for (auto& state : *state_maps_) {
-        if (auto it = state.find(std::type_index(typeid(T)));
-            it != state.end()) {
+        if (auto it = state->find(std::type_index(typeid(T)));
+            it != state->end()) {
           try {
-            return std::any_cast<T>(it->second);
+            return std::any_cast<T&>(it->second);
           } catch (const std::bad_any_cast&) {
           }
         }
@@ -301,7 +303,7 @@ private:
   query_map query_;
   http_fields fields_;
   any_async_readable_stream body_ { async_readable_vector_stream::eof() };
-  optional<const std::vector<state_map>&> state_maps_;
+  optional<const std::vector<shared_state_map>&> state_maps_;
 };
 
 }

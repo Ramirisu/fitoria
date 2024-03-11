@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <any>
+#include <memory>
 #include <typeindex>
 #include <unordered_map>
 
@@ -20,6 +21,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 using state_map = std::unordered_map<std::type_index, std::any>;
+using shared_state_map = std::shared_ptr<state_map>;
 
 }
 

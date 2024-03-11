@@ -29,7 +29,7 @@ class any_routable {
     virtual auto method() const noexcept -> http::verb = 0;
     virtual auto matcher() const noexcept -> const path_matcher& = 0;
     virtual auto state_maps() const noexcept
-        -> const std::vector<state_map>& = 0;
+        -> const std::vector<shared_state_map>& = 0;
     virtual auto operator()(Request) const -> Response = 0;
   };
 
@@ -53,7 +53,8 @@ class any_routable {
       return routable_.matcher();
     }
 
-    auto state_maps() const noexcept -> const std::vector<state_map>& override
+    auto state_maps() const noexcept
+        -> const std::vector<shared_state_map>& override
     {
       return routable_.state_maps();
     }
@@ -95,7 +96,7 @@ public:
     return routable_->matcher();
   }
 
-  auto state_maps() const noexcept -> const std::vector<state_map>&
+  auto state_maps() const noexcept -> const std::vector<shared_state_map>&
   {
     return routable_->state_maps();
   }
