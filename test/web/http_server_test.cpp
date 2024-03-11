@@ -55,6 +55,9 @@ TEST_CASE("builder")
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
+  CHECK_EQ(server.max_listen_connections(), 2048);
+  CHECK_EQ(server.client_request_timeout(), std::chrono::seconds(1));
+
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {

@@ -118,8 +118,8 @@ public:
       return "fitoria.builder";
     }
 
-    int max_listen_connections_ = net::socket_base::max_listen_connections;
-    std::chrono::milliseconds client_request_timeout_ = std::chrono::seconds(5);
+    optional<int> max_listen_connections_;
+    optional<std::chrono::milliseconds> client_request_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
     std::function<void(std::exception_ptr)> exception_handler_
         = default_exception_handler;
@@ -130,8 +130,23 @@ public:
   };
 
   http_server(builder builder)
-      : builder_(std::move(builder))
+      : max_listen_connections_(builder.max_listen_connections_.value_or(
+          net::socket_base::max_listen_connections))
+      , client_request_timeout_(
+            builder.client_request_timeout_.value_or(std::chrono::seconds(5)))
+      , exception_handler_(std::move(builder.exception_handler_))
+      , router_(std::move(builder.router_))
   {
+  }
+
+  int max_listen_connections() const noexcept
+  {
+    return max_listen_connections_;
+  }
+
+  std::chrono::milliseconds client_request_timeout() const noexcept
+  {
+    return client_request_timeout_;
   }
 
   http_server& bind(std::string_view addr, std::uint16_t port)
@@ -197,7 +212,7 @@ private:
   void run_impl(Executor&& executor)
   {
     for (auto& task : tasks_) {
-      net::co_spawn(executor, std::move(task), builder_.exception_handler_);
+      net::co_spawn(executor, std::move(task), exception_handler_);
     }
     tasks_.clear();
   }
@@ -210,7 +225,7 @@ private:
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));
     acceptor.bind(endpoint);
-    acceptor.listen(builder_.max_listen_connections_);
+    acceptor.listen(max_listen_connections_);
     co_return acceptor;
   }
 
@@ -228,7 +243,7 @@ private:
       net::co_spawn(
           acceptor.get_executor(),
           do_session(net::shared_tcp_stream(std::move(socket)), endpoint),
-          builder_.exception_handler_);
+          exception_handler_);
     }
   }
 
@@ -250,7 +265,7 @@ private:
           acceptor.get_executor(),
           do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr),
                      endpoint),
-          builder_.exception_handler_);
+          exception_handler_);
     }
   }
 #endif
@@ -272,8 +287,7 @@ private:
   {
     net::error_code ec;
 
-    net::get_lowest_layer(*stream).expires_after(
-        builder_.client_request_timeout_);
+    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
     std::tie(ec)
         = co_await stream->async_handshake(net::ssl::stream_base::server);
     if (ec) {
@@ -309,8 +323,7 @@ private:
       auto parser = std::make_unique<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
-      net::get_lowest_layer(*stream).expires_after(
-          builder_.client_request_timeout_);
+      net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read_header(*stream, buffer, *parser);
       if (ec) {
@@ -327,8 +340,7 @@ private:
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end() && it->value() == "100-continue") {
-        net::get_lowest_layer(*stream).expires_after(
-            builder_.client_request_timeout_);
+        net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
         std::tie(ec, std::ignore) = co_await async_write(
             *stream, response<empty_body>(http::status::continue_, 11));
         if (ec) {
@@ -351,7 +363,7 @@ private:
           async_message_parser_stream(std::move(buffer),
                                       stream,
                                       std::move(parser),
-                                      builder_.client_request_timeout_));
+                                      client_request_timeout_));
 
       auto do_response
           = [&]() -> net::awaitable<expected<void, net::error_code>> {
@@ -385,8 +397,7 @@ private:
           .set_body("request target is invalid");
     }
 
-    if (auto route = builder_.router_.try_find(method, req_url.value().path());
-        route) {
+    if (auto route = router_.try_find(method, req_url.value().path()); route) {
       auto request = http_request(
           std::move(connection_info),
           route_params(route->matcher().match(req_url->path()).value(),
@@ -430,8 +441,7 @@ private:
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
-    net::get_lowest_layer(*stream).expires_after(
-        builder_.client_request_timeout_);
+    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
     std::tie(ec, std::ignore) = co_await async_write(*stream, r);
     if (ec) {
       log::debug("[{}] async_write failed: {}", name(), ec.message());
@@ -459,8 +469,7 @@ private:
 
     auto serializer = response_serializer<empty_body>(std::move(r));
 
-    net::get_lowest_layer(*stream).expires_after(
-        builder_.client_request_timeout_);
+    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer);
     if (ec) {
@@ -469,7 +478,7 @@ private:
     }
 
     auto result = co_await async_write_each_chunk(
-        *stream, res.body(), builder_.client_request_timeout_);
+        *stream, res.body(), client_request_timeout_);
     if (!result) {
       log::debug(
           "[{}] async_write_each_chunk failed: {}", name(), ec.message());
@@ -483,7 +492,17 @@ private:
     return "fitoria.web.http_server";
   }
 
-  builder builder_;
+  // from builder
+  int max_listen_connections_;
+  std::chrono::milliseconds client_request_timeout_;
+#if !FITORIA_NO_EXCEPTIONS
+  std::function<void(std::exception_ptr)> exception_handler_;
+#else
+  net::detached_t exception_handler_;
+#endif
+  router_type router_;
+
+  // others
   std::vector<net::awaitable<void>> tasks_;
 };
 }
