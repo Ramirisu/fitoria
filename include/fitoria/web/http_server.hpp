@@ -131,7 +131,7 @@ public:
 
   http_server(builder builder)
       : max_listen_connections_(builder.max_listen_connections_.value_or(
-          net::socket_base::max_listen_connections))
+          static_cast<int>(net::socket_base::max_listen_connections)))
       , client_request_timeout_(
             builder.client_request_timeout_.value_or(std::chrono::seconds(5)))
       , exception_handler_(std::move(builder.exception_handler_))
