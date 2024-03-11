@@ -26,27 +26,6 @@ using boost::beast::http::status;
 using boost::beast::http::status_class;
 using boost::beast::http::verb;
 
-enum class version {
-  unknown = 0,
-  v10 = 10,
-  v11 = 11,
-};
-
-std::string_view to_string(version v)
-{
-  switch (v) {
-  case version::v10:
-    return "1.0";
-  case version::v11:
-    return "1.1";
-  case version::unknown:
-  default:
-    break;
-  }
-
-  return "UNKNOWN";
-}
-
 namespace fields {
   namespace content_type {
 
