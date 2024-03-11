@@ -129,4 +129,24 @@ TEST_CASE("share_state access order on global, scope and route")
   }());
 }
 
+TEST_CASE("state extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">([](state<std::string> s)
+                                          -> net::awaitable<http_response> {
+                     CHECK_EQ(s, "shared state");
+                     co_return http_response(http::status::ok);
+                   }).share_state(std::string("shared state")))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/get", http_request(http::verb::get));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
+}
+
 TEST_SUITE_END();

@@ -31,6 +31,7 @@
 #include <fitoria/web/route_params.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
+#include <fitoria/web/state.hpp>
 #include <fitoria/web/state_map.hpp>
 
 #endif

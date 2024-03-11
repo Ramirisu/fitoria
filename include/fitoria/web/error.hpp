@@ -23,6 +23,7 @@ enum class error {
   route_already_exists,
   route_not_exists,
   unexpected_content_type,
+  shared_state_not_exists,
 };
 
 class error_category : public std::error_category {
@@ -43,6 +44,8 @@ public:
       return "the route being searched doesn't exist";
     case error::unexpected_content_type:
       return "unexpected Content-Type";
+    case error::shared_state_not_exists:
+      return "the shared state being obtained doesn't exist";
     default:
       break;
     }

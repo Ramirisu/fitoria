@@ -24,10 +24,10 @@ The library is ***experimental*** and still under development, not recommended f
       - [Route Parameters](#route-parameters)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
+      - [Shared States](#shared-states)
       - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
-      - [Shared States](#shared-states)
       - [Graceful Shutdown](#graceful-shutdown)
       - [WebSockets](#websockets)
       - [Unit Testing](#unit-testing)
@@ -246,26 +246,122 @@ int main()
 
 ```
 
+#### Shared States
+
+Configure shared states by using `scope::share_state(SharedState&&)` for the `route`s under the same `scope`, or `route::share_state(SharedState&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
+
+```cpp
+
+namespace cache {
+class simple_cache {
+  using map_type = unordered_string_map<std::string>;
+
+public:
+  optional<map_type::mapped_type> get(std::string_view key) const
+  {
+    auto lock = std::shared_lock { mutex_ };
+    if (auto it = map_.find(key); it != map_.end()) {
+      return it->second;
+    }
+
+    return nullopt;
+  }
+
+  bool put(const std::string& key, std::string value)
+  {
+    auto lock = std::unique_lock { mutex_ };
+    return map_.insert_or_assign(key, std::move(value)).second;
+  }
+
+private:
+  map_type map_;
+  mutable std::shared_mutex mutex_;
+};
+
+using simple_cache_ptr = std::shared_ptr<simple_cache>;
+
+auto put(const http_request& req) -> net::awaitable<http_response>
+{
+  auto key = req.params().get("key");
+  auto value = req.params().get("value");
+  if (!key || !value) {
+    co_return http_response(http::status::bad_request);
+  }
+
+  auto cache = req.state<simple_cache_ptr>();
+  if (!cache) {
+    co_return http_response(http::status::internal_server_error);
+  }
+
+  if ((*cache)->put(*key, *value)) {
+    co_return http_response(http::status::created);
+  } else {
+    co_return http_response(http::status::accepted);
+  }
+}
+
+auto get(const http_request& req) -> net::awaitable<http_response>
+{
+  auto key = req.params().get("key");
+  if (!key) {
+    co_return http_response(http::status::bad_request);
+  }
+
+  auto cache = req.state<simple_cache_ptr>();
+  if (!cache) {
+    co_return http_response(http::status::internal_server_error);
+  }
+
+  if (auto value = (*cache)->get(*key); value) {
+    co_return http_response(http::status::ok)
+        .set_field(http::field::content_type,
+                   http::fields::content_type::plaintext())
+        .set_body(*value);
+  } else {
+    co_return http_response(http::status::not_found);
+  }
+}
+
+}
+
+int main()
+{
+  auto cache = std::make_shared<cache::simple_cache_ptr>();
+
+  auto server = http_server::builder()
+                    .serve(scope<"/cache">()
+                               .share_state(cache)
+                               .serve(route::put<"/{key}/{value}">(cache::put))
+                               .serve(route::get<"/{key}">(cache::get)))
+                    .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+}
+
+```
+
 #### Extractor
 
 Extractors provide a more convenient way to help user access information from `http_request`. Users can specify as many extractors as compiler allows per handler. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp))
 
 Built-in Extractors:
 
-| Extractor                | Description                                            | Body Extractor |
-| :----------------------- | :----------------------------------------------------- | :------------: |
-| `web::http_request`      | Extract whole `http_request`                           |       no       |
-| `web::connection_info`   | Extract connection info                                |       no       |
-| `web::route_params`      | Extract route parameters                               |       no       |
-| `web::query_map`         | Extract query string parameters                        |       no       |
-| `web::http_fields`       | Extract fields from request headers                    |       no       |
-| `std::vector<std::byte>` | Extract body as `std::vector<std::byte>`               |      yes       |
-| `std::string`            | Extract body as `std::string`                          |      yes       |
-| `web::json<T>`           | Extract body and parse it into json and convert to `T` |      yes       |
+| Extractor                | Description                                            | Body Extractor |                                                                                                           |
+| :----------------------- | :----------------------------------------------------- | :------------: | :-------------------------------------------------------------------------------------------------------- |
+| `web::http_request`      | Extract whole `http_request`                           |       no       |                                                                                                           |
+| `web::connection_info`   | Extract connection info                                |       no       |                                                                                                           |
+| `web::route_params`      | Extract route parameters                               |       no       |                                                                                                           |
+| `web::query_map`         | Extract query string parameters                        |       no       |                                                                                                           |
+| `web::http_fields`       | Extract fields from request headers                    |       no       |                                                                                                           |
+| `web::state<T>`          | Extract shared state of type `T`.                      |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***. |
+| `std::vector<std::byte>` | Extract body as `std::vector<std::byte>`               |      yes       |                                                                                                           |
+| `std::string`            | Extract body as `std::string`                          |      yes       |                                                                                                           |
+| `web::json<T>`           | Extract body and parse it into json and convert to `T` |      yes       |                                                                                                           |
 
 > Implement `from_http_request_t` CPO to define custom extractors.
 
-> The body extractor can only be used at most once in the request handlers since it consumes the body.
+> The ***body extractor*** can only be used at most once in the request handlers since it consumes the body.
 
 ```cpp
 
@@ -296,29 +392,40 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
 
 auto api(const connection_info& conn_info,
          const route_params& params,
+         state<database_ptr> db,
          json<secret_t> secret) -> net::awaitable<http_response>
 {
-  std::cout << fmt::format("listen addr {}:{}\n",
-                           conn_info.listen_addr().to_string(),
-                           conn_info.listen_port());
-  if (params.get("user") != "ramirisu" || secret.password != "123456") {
-    co_return http_response(http::status::unauthorized)
+  std::cout << fmt::format("client addr {}:{}\n",
+                           conn_info.remote_addr().to_string(),
+                           conn_info.remote_port());
+  if (secret.password
+      == params.get("user").and_then([&](auto&& name) -> optional<std::string> {
+           if (auto it = db->find(name); it != db->end()) {
+             return it->second;
+           }
+           return nullopt;
+         })) {
+    co_return http_response(http::status::ok)
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
-        .set_body("user name or password is incorrect");
+        .set_body("login succeeded");
   }
-  co_return http_response(http::status::ok)
+  co_return http_response(http::status::unauthorized)
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
-      .set_body("login succeeded");
+      .set_body("user name or password is incorrect");
 }
 }
 
 int main()
 {
+  auto db = std::make_shared<database_t>();
+  db->insert({ "albert", "123456" });
+
   auto server
       = http_server::builder()
-            .serve(route::post<"/api/v1/login/{user}">(api::v1::login::api))
+            .serve(route::post<"/api/v1/login/{user}">(api::v1::login::api)
+                       .share_state(db))
             .build();
   server //
       .bind("127.0.0.1", 8080)
@@ -441,101 +548,6 @@ int main()
                                .use(middleware::exception_handler())
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
-                    .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
-}
-
-```
-
-#### Shared States
-
-Configure shared states by using `scope::share_state(SharedState&&)` for the `route`s under the same `scope`, or `route::share_state(SharedState&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
-
-```cpp
-
-namespace cache {
-class simple_cache {
-  using map_type = unordered_string_map<std::string>;
-
-public:
-  optional<map_type::mapped_type> get(std::string_view key) const
-  {
-    auto lock = std::shared_lock { mutex_ };
-    if (auto it = map_.find(key); it != map_.end()) {
-      return it->second;
-    }
-
-    return nullopt;
-  }
-
-  bool put(const std::string& key, std::string value)
-  {
-    auto lock = std::unique_lock { mutex_ };
-    return map_.insert_or_assign(key, std::move(value)).second;
-  }
-
-private:
-  map_type map_;
-  mutable std::shared_mutex mutex_;
-};
-
-using simple_cache_ptr = std::shared_ptr<simple_cache>;
-
-auto put(const http_request& req) -> net::awaitable<http_response>
-{
-  auto key = req.params().get("key");
-  auto value = req.params().get("value");
-  if (!key || !value) {
-    co_return http_response(http::status::bad_request);
-  }
-
-  auto cache = req.state<simple_cache_ptr>();
-  if (!cache) {
-    co_return http_response(http::status::internal_server_error);
-  }
-
-  if ((*cache)->put(*key, *value)) {
-    co_return http_response(http::status::created);
-  } else {
-    co_return http_response(http::status::accepted);
-  }
-}
-
-auto get(const http_request& req) -> net::awaitable<http_response>
-{
-  auto key = req.params().get("key");
-  if (!key) {
-    co_return http_response(http::status::bad_request);
-  }
-
-  auto cache = req.state<simple_cache_ptr>();
-  if (!cache) {
-    co_return http_response(http::status::internal_server_error);
-  }
-
-  if (auto value = (*cache)->get(*key); value) {
-    co_return http_response(http::status::ok)
-        .set_field(http::field::content_type,
-                   http::fields::content_type::plaintext())
-        .set_body(*value);
-  } else {
-    co_return http_response(http::status::not_found);
-  }
-}
-
-}
-
-int main()
-{
-  auto cache = std::make_shared<cache::simple_cache_ptr>();
-
-  auto server = http_server::builder()
-                    .serve(scope<"/cache">()
-                               .share_state(cache)
-                               .serve(route::put<"/{key}/{value}">(cache::put))
-                               .serve(route::get<"/{key}">(cache::get)))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
