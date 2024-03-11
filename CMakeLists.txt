@@ -65,12 +65,12 @@ endif()
 
 # [dep.lib] boost
 message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.83.0")
-find_package(Boost 1.83.0 REQUIRED json url)
+find_package(Boost 1.84.0 REQUIRED regex json url)
 message(STATUS "[fitoria] [dep.lib] Boost found = ${BOOST_FOUND}")
 
 add_library(fitoria INTERFACE)
 add_library(fitoria::fitoria ALIAS fitoria)
-target_link_libraries(fitoria INTERFACE Boost::json Boost::url)
+target_link_libraries(fitoria INTERFACE Boost::regex Boost::json Boost::url)
 target_link_directories(fitoria INTERFACE ${Boost_LIBRARY_DIRS})
 target_include_directories(fitoria INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
                                              ${Boost_INCLUDE_DIRS})
