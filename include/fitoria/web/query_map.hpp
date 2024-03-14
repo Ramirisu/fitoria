@@ -65,6 +65,11 @@ public:
     return map_.max_size();
   }
 
+  bool contains(const std::string& name) const noexcept
+  {
+    return map_.contains(name);
+  }
+
   void clear() noexcept
   {
     map_.clear();
@@ -119,11 +124,6 @@ public:
   mapped_type& operator[](const std::string& name)
   {
     return map_[name];
-  }
-
-  bool contains(const std::string& name) const
-  {
-    return map_.contains(name);
   }
 
   std::string to_string() const

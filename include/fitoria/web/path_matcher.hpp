@@ -16,11 +16,11 @@
 #include <fitoria/core/optional.hpp>
 
 #include <fitoria/web/error.hpp>
-#include <fitoria/web/query_map.hpp>
 
 #include <boost/regex.hpp>
 
 #include <string>
+#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -60,18 +60,19 @@ public:
     return tokens_;
   }
 
-  auto match(const std::string& input) const -> optional<query_map>
+  auto match(const std::string& input) const
+      -> optional<std::vector<std::pair<std::string, std::string>>>
   {
     if (boost::smatch match; boost::regex_match(input, match, regex_)) {
-      query_map map;
+      std::vector<std::pair<std::string, std::string>> matches;
       for (auto token : tokens_) {
         if (token.kind == token_kind::named_param
             || token.kind == token_kind::wildcard) {
-          map[token.value] = match[token.value].str();
+          matches.push_back({ token.value, match[token.value].str() });
         }
       }
 
-      return map;
+      return matches;
     }
 
     return nullopt;

@@ -44,15 +44,17 @@ TEST_CASE("tokens")
 
 TEST_CASE("match")
 {
-  CHECK_EQ(path_matcher("").match(""), query_map());
-  CHECK_EQ(path_matcher("/w/x/y/z").match("/w/x/y/z"), query_map());
+  using match_type = std::vector<std::pair<std::string, std::string>>;
+
+  CHECK_EQ(path_matcher("").match(""), match_type {});
+  CHECK_EQ(path_matcher("/w/x/y/z").match("/w/x/y/z"), match_type {});
   CHECK_EQ(path_matcher("/{p1}/x/{p3}/z").match("/w/x/y/z"),
-           query_map {
+           match_type {
                { "p1", "w" },
                { "p3", "y" },
            });
   CHECK_EQ(path_matcher("/{p1}/x/{p3}/z/#wildcard").match("/w/x/y/z/abc"),
-           query_map {
+           match_type {
                { "p1", "w" },
                { "p3", "y" },
                { "wildcard", "abc" },

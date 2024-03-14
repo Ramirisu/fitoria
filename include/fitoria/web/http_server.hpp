@@ -400,8 +400,8 @@ private:
     if (auto route = router_.try_find(method, req_url.value().path()); route) {
       auto request = http_request(
           std::move(connection_info),
-          route_params(route->matcher().match(req_url->path()).value(),
-                       std::string(route->matcher().pattern())),
+          route_params(std::string(route->matcher().pattern()),
+                       route->matcher().match(req_url->path()).value()),
           req_url->path(),
           method,
           query_map::from(req_url->params()),
