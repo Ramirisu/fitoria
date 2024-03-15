@@ -452,7 +452,7 @@ TEST_CASE("response status only")
         CHECK_EQ(res.status_code(), http::status::accepted);
         CHECK_EQ(res.fields().get(http::field::connection), "close");
         CHECK_EQ(res.fields().get(http::field::content_length), "0");
-        CHECK_EQ(res.body().size_hint(), 0);
+        CHECK_EQ(res.body().size_hint(), std::size_t(0));
         CHECK_EQ(co_await res.as_string(), "");
       },
       net::use_future)
