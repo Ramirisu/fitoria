@@ -5,7 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#include <fitoria/test/test.hpp>
 
 #include <fitoria/web/route_params.hpp>
 

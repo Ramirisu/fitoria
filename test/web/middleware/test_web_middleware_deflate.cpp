@@ -5,14 +5,15 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#include <fitoria/test/test.hpp>
 
-#include <fitoria_test_utils.h>
+#include <fitoria/test/async_readable_chunk_stream.hpp>
 
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using fitoria::test::async_readable_chunk_stream;
 
 TEST_SUITE_BEGIN("[fitoria.web.middleware.deflate]");
 
@@ -168,7 +169,7 @@ TEST_CASE("deflate middleware")
                          } else {
                            if (params.get("chunked") == "true") {
                              res.set_stream(
-                                 test_async_readable_chunk_stream<5>(plain));
+                                 async_readable_chunk_stream<5>(plain));
                            } else {
                              res.set_body(plain);
                            }
@@ -203,7 +204,7 @@ TEST_CASE("deflate middleware")
               .set_stream([&]() -> any_async_readable_stream {
                 auto s = std::span(compressed.data(), compressed.size());
                 if (test_case.send_chunked) {
-                  return test_async_readable_chunk_stream<5>(s);
+                  return async_readable_chunk_stream<5>(s);
                 }
                 return async_readable_vector_stream(s);
               }()));

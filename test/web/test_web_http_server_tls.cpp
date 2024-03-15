@@ -5,17 +5,17 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#include <fitoria/test/test.hpp>
 
-#include <fitoria_certificate.h>
-#include <fitoria_http_server_utils.h>
+#include <fitoria/test/cert.hpp>
+#include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
-using namespace http_server_utils;
+using namespace fitoria::test;
 using fitoria::client::http_client;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_server.tls]");

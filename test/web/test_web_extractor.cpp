@@ -5,14 +5,15 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#include <fitoria/test/test.hpp>
 
-#include <fitoria_test_utils.h>
+#include <fitoria/test/utility.hpp>
 
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.extractor]");
 

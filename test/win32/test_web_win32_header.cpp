@@ -9,7 +9,7 @@
 #include <Windows.h>
 #endif
 
-#include <fitoria_http_server_utils.h>
+#include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/fitoria.hpp>
 
@@ -17,7 +17,7 @@
 
 using namespace fitoria;
 using namespace fitoria::web;
-using namespace fitoria::http_server_utils;
+using namespace fitoria::test;
 
 int main()
 {

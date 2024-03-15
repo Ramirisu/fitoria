@@ -6,8 +6,10 @@
 //
 #pragma once
 
-#ifndef FITORIA_FITORIA_TEST_UTILS_HPP
-#define FITORIA_FITORIA_TEST_UTILS_HPP
+#ifndef FITORIA_TEST_ASYNC_READABLE_CHUNK_STREAM_HPP
+#define FITORIA_TEST_ASYNC_READABLE_CHUNK_STREAM_HPP
+
+#include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
@@ -15,55 +17,23 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <functional>
-#include <set>
 #include <span>
-#include <type_traits>
 #include <vector>
 
-template <typename L, typename R, typename Comparator = std::equal_to<>>
-bool range_equal(const L& lhs,
-                 const R& rhs,
-                 Comparator comparator = Comparator())
-{
-  return std::equal(
-      lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::move(comparator));
-}
+FITORIA_NAMESPACE_BEGIN
 
-template <typename Iter, typename Projection, typename T>
-bool range_in_set(std::pair<Iter, Iter> iters,
-                  Projection projection,
-                  std::set<T> set)
-{
-  while (iters.first != iters.second) {
-    auto&& value = std::invoke(projection, iters.first);
-    if (set.contains(value)) {
-      set.erase(value);
-    }
-    ++iters.first;
-  }
-
-  return set.empty();
-}
-
-std::vector<std::byte> to_bytes(std::string_view str)
-{
-  auto s = std::as_bytes(std::span(str.begin(), str.end()));
-  return { s.begin(), s.end() };
-}
-
-namespace fitoria {
+namespace test {
 
 template <std::size_t ChunkSize>
-class test_async_readable_chunk_stream {
+class async_readable_chunk_stream {
 public:
-  test_async_readable_chunk_stream(std::string_view sv)
+  async_readable_chunk_stream(std::string_view sv)
       : data_(std::as_bytes(std::span(sv.data(), sv.size())))
   {
   }
 
   template <typename T, std::size_t N>
-  test_async_readable_chunk_stream(std::span<T, N> s)
+  async_readable_chunk_stream(std::span<T, N> s)
       : data_(std::as_bytes(s))
   {
   }
@@ -92,5 +62,7 @@ private:
 };
 
 }
+
+FITORIA_NAMESPACE_END
 
 #endif

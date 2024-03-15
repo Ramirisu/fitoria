@@ -6,8 +6,10 @@
 //
 #pragma once
 
-#ifndef FITORIA_FITORIA_TEST_HPP
-#define FITORIA_FITORIA_TEST_HPP
+#ifndef FITORIA_TEST_HPP
+#define FITORIA_TEST_HPP
+
+#include <fitoria/core/config.hpp>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>

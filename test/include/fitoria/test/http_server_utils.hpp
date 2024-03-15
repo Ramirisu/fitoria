@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_FITORIA_HTTP_SERVER_UTILS_HPP
-#define FITORIA_FITORIA_HTTP_SERVER_UTILS_HPP
+#ifndef FITORIA_TEST_HTTP_SERVER_UTILS_HPP
+#define FITORIA_TEST_HTTP_SERVER_UTILS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,7 +17,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace http_server_utils {
+namespace test {
 
 inline const auto server_start_wait_time = std::chrono::milliseconds(200);
 inline const char* server_ip = "127.0.0.1";

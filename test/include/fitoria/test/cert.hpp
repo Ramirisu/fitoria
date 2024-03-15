@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_FITORIA_CERTIFICATE_HPP
-#define FITORIA_FITORIA_CERTIFICATE_HPP
+#ifndef FITORIA_TEST_CERT_HPP
+#define FITORIA_TEST_CERT_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -15,7 +15,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace cert {
+namespace test::cert {
 
 using namespace fitoria::net;
 

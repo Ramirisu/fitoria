@@ -5,18 +5,19 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <fitoria_test.h>
+#include <fitoria/test/test.hpp>
 
-#include <fitoria_certificate.h>
-#include <fitoria_http_server_utils.h>
-#include <fitoria_test_utils.h>
+#include <fitoria/test/async_readable_chunk_stream.hpp>
+#include <fitoria/test/cert.hpp>
+#include <fitoria/test/http_server_utils.hpp>
+#include <fitoria/test/utility.hpp>
 
 #include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
-using namespace http_server_utils;
+using namespace fitoria::test;
 using fitoria::client::http_client;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_server]");
@@ -405,7 +406,7 @@ TEST_CASE("request with chunked transfer-encoding")
         auto res = (co_await http_client::post(
                         to_local_url(boost::urls::scheme::http, port, "/post"))
                         .set_field(http::field::connection, "close")
-                        .set_stream(test_async_readable_chunk_stream<5>(input))
+                        .set_stream(async_readable_chunk_stream<5>(input))
                         .async_send())
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
@@ -505,7 +506,7 @@ TEST_CASE("response with stream")
                 route::get<"/api">([input]([[maybe_unused]] http_request& req)
                                        -> net::awaitable<http_response> {
                   co_return http_response(http::status::ok)
-                      .set_stream(test_async_readable_chunk_stream<5>(input));
+                      .set_stream(async_readable_chunk_stream<5>(input));
                 }))
             .build();
   server.bind(server_ip, port);
