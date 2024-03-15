@@ -37,7 +37,6 @@ public:
 
   http_request(connection_info conn_info,
                route_params params,
-               std::string path,
                http::verb method,
                query_map query,
                http_fields fields,
@@ -45,7 +44,6 @@ public:
                const std::vector<shared_state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , params_(std::move(params))
-      , path_(std::move(path))
       , method_(method)
       , query_(std::move(query))
       , fields_(std::move(fields))
@@ -84,11 +82,6 @@ public:
   {
     method_ = method;
     return std::move(*this);
-  }
-
-  const std::string& path() const noexcept
-  {
-    return path_;
   }
 
   query_map& query() noexcept
@@ -298,7 +291,6 @@ public:
 private:
   connection_info conn_info_;
   route_params params_;
-  std::string path_;
   http::verb method_;
   query_map query_;
   http_fields fields_;

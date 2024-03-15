@@ -104,8 +104,11 @@ public:
 
   route_params() = default;
 
-  route_params(std::string path, std::initializer_list<value_type> params)
-      : path_(std::move(path))
+  route_params(std::string match_pattern,
+               std::string match_path,
+               std::initializer_list<value_type> params)
+      : match_pattern_(std::move(match_pattern))
+      , match_path_(std::move(match_path))
   {
     for (auto& [key, value] : params) {
       keys_.push_back(key);
@@ -115,9 +118,12 @@ public:
 
   template <typename Key, typename Value>
     requires std::constructible_from<key_type, Key>
-      && std::constructible_from<mapped_type, Value>
-  route_params(std::string path, std::vector<std::pair<Key, Value>> params)
-      : path_(std::move(path))
+                 && std::constructible_from<mapped_type, Value>
+  route_params(std::string match_pattern,
+               std::string match_path,
+               std::vector<std::pair<Key, Value>> params)
+      : match_pattern_(std::move(match_pattern))
+      , match_path_(std::move(match_path))
   {
     for (auto& [key, value] : params) {
       keys_.push_back(key);
@@ -133,9 +139,14 @@ public:
 
   route_params& operator=(route_params&&) = default;
 
-  const std::string& path() const noexcept
+  const std::string& match_pattern() const noexcept
   {
-    return path_;
+    return match_pattern_;
+  }
+
+  const std::string& match_path() const noexcept
+  {
+    return match_path_;
   }
 
   keys_type keys() const
@@ -240,7 +251,8 @@ public:
   friend bool operator==(const route_params&, const route_params&) = default;
 
 private:
-  std::string path_;
+  std::string match_pattern_;
+  std::string match_path_;
   keys_type keys_;
   map_type map_;
 };

@@ -31,7 +31,8 @@ void configure_server(http_server::builder& builder)
         CHECK_EQ(req.method(), http::verb::get);
         CHECK_EQ(req.params().size(), 1);
         CHECK_EQ(req.params().at("repo"), "fitoria");
-        CHECK_EQ(req.path(), "/api/repos/fitoria");
+        CHECK_EQ(req.params().match_pattern(), "/api/repos/{repo}");
+        CHECK_EQ(req.params().match_path(), "/api/repos/fitoria");
         CHECK_EQ(req.fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK_EQ(body, "hello world");

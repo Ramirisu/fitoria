@@ -401,8 +401,8 @@ private:
       auto request = http_request(
           std::move(connection_info),
           route_params(std::string(route->matcher().pattern()),
+                       req_url->path(),
                        route->matcher().match(req_url->path()).value()),
-          req_url->path(),
           method,
           query_map::from(req_url->params()),
           std::move(fields),

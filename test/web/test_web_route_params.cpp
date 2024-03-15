@@ -14,10 +14,11 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("[fitoria.web.route_params]");
 
-TEST_CASE("path")
+TEST_CASE("match_pattern and match_path")
 {
-  route_params params("/api/v1/users/{user}", {});
-  CHECK_EQ(params.path(), "/api/v1/users/{user}");
+  route_params params("/api/v1/users/{user}", "/api/v1/users/ramirisu", {});
+  CHECK_EQ(params.match_pattern(), "/api/v1/users/{user}");
+  CHECK_EQ(params.match_path(), "/api/v1/users/ramirisu");
 }
 
 TEST_CASE("misc")
@@ -25,7 +26,9 @@ TEST_CASE("misc")
   using value_type = route_params::value_type;
 
   route_params params(
-      "", { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
+      "",
+      "",
+      { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
   CHECK_EQ(params.keys(), route_params::keys_type { "key0", "key1", "key2" });
 
@@ -71,6 +74,7 @@ TEST_CASE("iterator")
   {
     route_params params(
         "",
+        "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
     auto it = params.begin();
@@ -93,6 +97,7 @@ TEST_CASE("iterator")
   {
     const route_params params(
         "",
+        "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
     auto it = params.begin();
@@ -114,6 +119,7 @@ TEST_CASE("iterator")
   SUBCASE("cbegin const")
   {
     route_params params(
+        "",
         "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 

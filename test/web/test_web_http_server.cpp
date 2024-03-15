@@ -251,12 +251,12 @@ TEST_CASE("generic request")
                   test_conn_info(conn_info);
 
                   CHECK_EQ(req.method(), http::verb::get);
-                  CHECK_EQ(req.path(),
-                           "/api/v1/users/RinaHidaka/filmography/years/2022");
 
                   auto test_params = [](auto& params) {
-                    CHECK_EQ(params.path(),
+                    CHECK_EQ(params.match_pattern(),
                              "/api/v1/users/{user}/filmography/years/{year}");
+                    CHECK_EQ(params.match_path(),
+                             "/api/v1/users/RinaHidaka/filmography/years/2022");
 
                     CHECK_EQ(params.at("user"), "RinaHidaka");
                     CHECK_EQ(params.at("year"), "2022");
@@ -344,10 +344,9 @@ TEST_CASE("request to route accepting wildcard")
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/#wildcard">(
-                [=](http_request& req,
-                    route_params& params) -> net::awaitable<http_response> {
-                  CHECK_EQ(req.path(), "/api/v1/any/path");
-                  CHECK_EQ(params.path(), "/api/v1/#wildcard");
+                [=](route_params& params) -> net::awaitable<http_response> {
+                  CHECK_EQ(params.match_pattern(), "/api/v1/#wildcard");
+                  CHECK_EQ(params.match_path(), "/api/v1/any/path");
                   CHECK_EQ(params.get("wildcard"), "any/path");
                   co_return http_response(http::status::ok);
                 }))

@@ -24,8 +24,9 @@ using namespace fitoria::web;
 // $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria -v --insecure
 //
 // server output:
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
-// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
+// > 2023-01-01T00:00:00Z DEBUG match_pattern: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
+// > 2023-01-01T00:00:00Z DEBUG match_path: /api/v1/ramirisu/fitoria [quick_start.cpp:37:26]
+// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:38:26]
 // 
 //
 // clang-format on
@@ -39,7 +40,8 @@ int main()
       = http_server::builder()
             .serve(route::get<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("route: {}", req.params().path());
+                  log::debug("match_pattern: {}", req.params().match_pattern());
+                  log::debug("match_path: {}", req.params().match_path());
                   log::debug("owner: {}, repo: {}",
                              req.params().get("owner"),
                              req.params().get("repo"));
