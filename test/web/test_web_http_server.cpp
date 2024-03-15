@@ -226,6 +226,8 @@ TEST_CASE("unhandled exception from handler")
 
 TEST_CASE("generic request")
 {
+  const auto text = std::string_view("happy birthday");
+
   const auto port = generate_port();
   auto server
       = http_server::builder()
@@ -286,6 +288,7 @@ TEST_CASE("generic request")
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
+                  CHECK_EQ(req.body().size_hint(), text.size());
                   CHECK_EQ(body, "happy birthday");
                   CHECK(!(co_await req.body().async_read_next()));
                   CHECK(!(co_await async_read_all_as<std::string>(req.body())));
@@ -321,7 +324,7 @@ TEST_CASE("generic request")
                         .insert_field(http::field::user_agent,
                                       BOOST_BEAST_VERSION_STRING)
                         .insert_field(http::field::user_agent, "fitoria")
-                        .set_plaintext("happy birthday")
+                        .set_plaintext(text)
                         .async_send())
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
@@ -376,16 +379,18 @@ TEST_CASE("request to route accepting wildcard")
       .get();
 }
 
-TEST_CASE("request with chunked transfer-encoding")
+TEST_CASE("request with stream(chunked transfer-encoding)")
 {
-  const auto input = std::string_view("abcdefghijklmnopqrstuvwxyz");
+  const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
   auto server
       = http_server::builder()
             .serve(route::post<"/post">(
-                [input](std::string data) -> net::awaitable<http_response> {
-                  CHECK_EQ(data, input);
+                [text](const http_request& req,
+                       std::string data) -> net::awaitable<http_response> {
+                  CHECK(!req.body().size_hint());
+                  CHECK_EQ(data, text);
                   co_return http_response(http::status::ok);
                 }))
             .build();
@@ -406,7 +411,7 @@ TEST_CASE("request with chunked transfer-encoding")
         auto res = (co_await http_client::post(
                         to_local_url(boost::urls::scheme::http, port, "/post"))
                         .set_field(http::field::connection, "close")
-                        .set_stream(async_readable_chunk_stream<5>(input))
+                        .set_stream(async_readable_chunk_stream<5>(text))
                         .async_send())
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
@@ -447,6 +452,7 @@ TEST_CASE("response status only")
         CHECK_EQ(res.status_code(), http::status::accepted);
         CHECK_EQ(res.fields().get(http::field::connection), "close");
         CHECK_EQ(res.fields().get(http::field::content_length), "0");
+        CHECK_EQ(res.body().size_hint(), 0);
         CHECK_EQ(co_await res.as_string(), "");
       },
       net::use_future)
@@ -455,15 +461,17 @@ TEST_CASE("response status only")
 
 TEST_CASE("response with plain text")
 {
+  const auto text = std::string_view("plain text");
+
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::get<"/api">([]([[maybe_unused]] http_request& req)
+            .serve(route::get<"/api">([text]([[maybe_unused]] http_request& req)
                                           -> net::awaitable<http_response> {
               co_return http_response(http::status::ok)
                   .set_field(http::field::content_type,
                              http::fields::content_type::plaintext())
-                  .set_body("plain text");
+                  .set_body(text);
             }))
             .build();
   server.bind(server_ip, port);
@@ -489,25 +497,25 @@ TEST_CASE("response with plain text")
         CHECK_EQ(res.fields().get(http::field::connection), "close");
         CHECK_EQ(res.fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
-        CHECK_EQ(co_await res.as_string(), "plain text");
+        CHECK_EQ(res.body().size_hint(), text.size());
+        CHECK_EQ(co_await res.as_string(), text);
       },
       net::use_future)
       .get();
 }
 
-TEST_CASE("response with stream")
+TEST_CASE("response with with stream(chunked transfer-encoding)")
 {
-  const auto input = std::string_view("abcdefghijklmnopqrstuvwxyz");
+  const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(
-                route::get<"/api">([input]([[maybe_unused]] http_request& req)
-                                       -> net::awaitable<http_response> {
-                  co_return http_response(http::status::ok)
-                      .set_stream(async_readable_chunk_stream<5>(input));
-                }))
+            .serve(route::get<"/api">([text]([[maybe_unused]] http_request& req)
+                                          -> net::awaitable<http_response> {
+              co_return http_response(http::status::ok)
+                  .set_stream(async_readable_chunk_stream<5>(text));
+            }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -529,7 +537,8 @@ TEST_CASE("response with stream")
                         .async_send())
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), input);
+        CHECK(!res.body().size_hint());
+        CHECK_EQ(co_await res.as_string(), text);
       },
       net::use_future)
       .get();
