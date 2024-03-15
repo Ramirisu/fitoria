@@ -40,7 +40,9 @@ public:
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {
-    return data_.size();
+    // return `nullopt` here to tell serializer to do chunked transfer encoding
+    // even though we know the exact size of the stream is `data_.size()`.
+    return nullopt;
   }
 
   auto async_read_next() -> net::awaitable<

@@ -58,16 +58,20 @@ public:
       co_return nullopt;
     }
 
-    std::vector<std::byte> buf;
-    buf.resize(1024);
+    net::error_code ec;
+
+    // TODO: buffer size configurable ?
+    const std::size_t bufsize = 1024;
+    std::vector<std::byte> buf(bufsize);
     parser_->get().body().data = buf.data();
     parser_->get().body().size = buf.size();
 
     net::get_lowest_layer(*stream_).expires_after(timeout_);
-    auto [ec, size]
+    std::tie(ec, std::ignore)
         = co_await boost::beast::http::async_read(*stream_, buffer_, *parser_);
+    const auto remaining = parser_->get().body().size;
     if (!ec || ec == http::error::need_buffer) {
-      buf.resize(size);
+      buf.resize(bufsize - remaining);
       co_return buf;
     }
     co_return unexpected { ec };
