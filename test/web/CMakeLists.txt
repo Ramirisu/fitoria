@@ -2,6 +2,7 @@ fitoria_add_test(NAME as_form_test SRCS as_form_test.cpp)
 fitoria_add_test(NAME compile_time_path_checker_test SRCS
                  compile_time_path_checker_test.cpp)
 fitoria_add_test(NAME connection_info_test SRCS connection_info_test.cpp)
+fitoria_add_test(NAME error_test SRCS error_test.cpp)
 fitoria_add_test(NAME extractor_test SRCS extractor_test.cpp)
 fitoria_add_test(NAME http_fields_test SRCS http_fields_test.cpp)
 fitoria_add_test(NAME http_response_test SRCS http_response_test.cpp)

@@ -32,7 +32,7 @@ public:
 
   const char* name() const noexcept override
   {
-    return "fitoria.error";
+    return "fitoria.web.error";
   }
 
   std::string message(int condition) const override
