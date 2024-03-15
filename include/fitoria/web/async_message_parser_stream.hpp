@@ -23,17 +23,15 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Stream, typename MessageParser>
+template <typename Stream, bool isRequest, typename Body, typename Allocator>
 class async_message_parser_stream {
-  net::flat_buffer buffer_;
-  Stream stream_;
-  std::unique_ptr<MessageParser> parser_;
-  std::chrono::milliseconds timeout_;
 
 public:
+  using parser_t = boost::beast::http::parser<isRequest, Body, Allocator>;
+
   async_message_parser_stream(net::flat_buffer buffer,
                               Stream stream,
-                              std::unique_ptr<MessageParser> parser,
+                              std::unique_ptr<parser_t> parser,
                               std::chrono::milliseconds timeout)
       : buffer_(std::move(buffer))
       , stream_(std::move(stream))
@@ -76,6 +74,12 @@ public:
     }
     co_return unexpected { ec };
   }
+
+private:
+  net::flat_buffer buffer_;
+  Stream stream_;
+  std::unique_ptr<parser_t> parser_;
+  std::chrono::milliseconds timeout_;
 };
 
 }
