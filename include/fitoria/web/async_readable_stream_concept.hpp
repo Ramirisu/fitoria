@@ -59,8 +59,9 @@ auto async_read_all_as(AsyncReadableStream&& stream)
   co_return container;
 }
 
-template <typename Stream, async_readable_stream AsyncReadableStream>
-auto async_write_each_chunk(Stream&& to,
+template <typename AsyncWritableStream,
+          async_readable_stream AsyncReadableStream>
+auto async_write_each_chunk(AsyncWritableStream&& to,
                             AsyncReadableStream&& from,
                             std::chrono::milliseconds timeout)
     -> net::awaitable<expected<void, net::error_code>>
