@@ -1,1 +1,1 @@
-fitoria_add_test(NAME win32_header_test SRCS win32_header_test.cpp)
+fitoria_add_test(NAME test_web_win32_header SRCS test_web_win32_header.cpp)

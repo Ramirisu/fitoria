@@ -1,1 +1,1 @@
-fitoria_add_test(NAME http_client_test SRCS http_client_test.cpp)
+fitoria_add_test(NAME test_client_http_client SRCS test_client_http_client.cpp)
