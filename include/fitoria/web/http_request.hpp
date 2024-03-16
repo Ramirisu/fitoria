@@ -52,7 +52,7 @@ public:
   {
   }
 
-  const connection_info& conn_info() const noexcept
+  const connection_info& connection() const noexcept
   {
     return conn_info_;
   }

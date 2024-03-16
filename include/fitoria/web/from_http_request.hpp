@@ -47,7 +47,7 @@ namespace from_http_request_ns {
         -> net::awaitable<expected<R, error_code>>
       requires(uncvref_same_as<R, connection_info>)
     {
-      co_return req.conn_info();
+      co_return req.connection();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)

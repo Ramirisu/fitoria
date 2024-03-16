@@ -247,7 +247,7 @@ TEST_CASE("generic request")
                              net::ip::make_address(server_ip));
                     CHECK_EQ(conn_info.listen_port(), port);
                   };
-                  test_conn_info(req.conn_info());
+                  test_conn_info(req.connection());
                   test_conn_info(conn_info);
 
                   CHECK_EQ(req.method(), http::verb::get);
