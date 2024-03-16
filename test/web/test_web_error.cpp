@@ -22,6 +22,8 @@ TEST_CASE("error")
            "the route being searched doesn't exist");
   CHECK_EQ(make_error_code(error::unexpected_content_type).message(),
            "unexpected Content-Type");
+  CHECK_EQ(make_error_code(error::path_extraction_error).message(),
+           "path extraction error");
   CHECK_EQ(make_error_code(error::shared_state_not_exists).message(),
            "the shared state being obtained doesn't exist");
 }

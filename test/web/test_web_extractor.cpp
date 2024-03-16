@@ -61,6 +61,59 @@ TEST_CASE("path_info extractor")
   }());
 }
 
+TEST_CASE("path extractor for tuple<Ts...>")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/{year}/{month}/{day}">(
+                [](path<std::tuple<std::string, std::string, std::string>> path)
+                    -> net::awaitable<http_response> {
+                  auto& [year, month, day] = path.inner();
+                  CHECK_EQ(year, "1994");
+                  CHECK_EQ(month, "06");
+                  CHECK_EQ(day, "15");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/1994/06/15", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+#if __has_include(<boost/pfr.hpp>)
+
+struct date {
+  std::string month;
+  std::string day;
+  std::string year;
+
+  friend bool operator==(const date&, const date&) = default;
+};
+
+TEST_CASE("path extractor for aggregates ")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/{year}/{month}/{day}">(
+                [](path<date> path) -> net::awaitable<http_response> {
+                  CHECK_EQ(path.inner(),
+                           date { .month = "06", .day = "15", .year = "1994" });
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/1994/06/15", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+#endif
+
 TEST_CASE("query_map extractor")
 {
   auto server = http_server::builder()

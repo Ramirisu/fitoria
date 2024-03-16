@@ -23,6 +23,7 @@ enum class error {
   route_already_exists,
   route_not_exists,
   unexpected_content_type,
+  path_extraction_error,
   shared_state_not_exists,
 };
 
@@ -44,6 +45,8 @@ public:
       return "the route being searched doesn't exist";
     case error::unexpected_content_type:
       return "unexpected Content-Type";
+    case error::path_extraction_error:
+      return "path extraction error";
     case error::shared_state_not_exists:
       return "the shared state being obtained doesn't exist";
     default:

@@ -43,6 +43,8 @@ jobs:
           vcpkg install boost-beast:x64-linux
           vcpkg install boost-json:x64-linux
           vcpkg install boost-url:x64-linux
+          vcpkg install boost-regex:x64-linux
+          vcpkg install boost-pfr:x64-linux
           vcpkg install openssl:x64-linux
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux
@@ -65,7 +67,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: cmake --build build --config ${{ matrix.build_type }} -j2
+        run: cmake --build build --config ${{ matrix.build_type }} -j4
 
       - name: Test
         shell: bash

@@ -53,6 +53,7 @@ jobs:
           vcpkg install boost-json:x64-windows
           vcpkg install boost-url:x64-windows
           vcpkg install boost-regex:x64-windows
+          vcpkg install boost-pfr:x64-windows
           vcpkg install openssl:x64-windows
           vcpkg install fmt:x64-windows
           vcpkg install zlib:x64-windows
@@ -74,6 +75,7 @@ jobs:
           vcpkg install boost-json:x64-linux
           vcpkg install boost-url:x64-linux
           vcpkg install boost-regex:x64-linux
+          vcpkg install boost-pfr:x64-linux
           vcpkg install openssl:x64-linux
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux
@@ -94,6 +96,7 @@ jobs:
           vcpkg install boost-json:x64-osx
           vcpkg install boost-url:x64-osx
           vcpkg install boost-regex:x64-osx
+          vcpkg install boost-pfr:x64-osx
           vcpkg install openssl:x64-osx
           vcpkg install fmt:x64-osx
           vcpkg install zlib:x64-osx
