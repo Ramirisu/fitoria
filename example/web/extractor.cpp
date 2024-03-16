@@ -91,7 +91,7 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
 }
 
 auto api(const connection_info& conn_info,
-         const route_params& params,
+         const path_info& path_info,
          state<database_ptr> db,
          json<secret_t> secret) -> net::awaitable<http_response>
 {
@@ -99,7 +99,7 @@ auto api(const connection_info& conn_info,
                            conn_info.remote_addr().to_string(),
                            conn_info.remote_port());
   if (secret.password
-      == params.get("user").and_then([&](auto&& name) -> optional<std::string> {
+      == path_info.get("user").and_then([&](auto&& name) -> optional<std::string> {
            if (auto it = db->find(name); it != db->end()) {
              return it->second;
            }

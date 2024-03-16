@@ -43,13 +43,13 @@ TEST_CASE("connection_info extractor")
   }());
 }
 
-TEST_CASE("route_params extractor")
+TEST_CASE("path_info extractor")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{user}">(
-                [](route_params& params) -> net::awaitable<http_response> {
-                  CHECK_EQ(params.get("user"), "gavin");
+                [](path_info& path_info) -> net::awaitable<http_response> {
+                  CHECK_EQ(path_info.get("user"), "gavin");
                   co_return http_response(http::status::ok);
                 }))
             .build();

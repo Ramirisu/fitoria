@@ -26,9 +26,9 @@
 #include <fitoria/web/middleware/gzip.hpp>
 #include <fitoria/web/middleware/logger.hpp>
 #include <fitoria/web/middleware_concept.hpp>
+#include <fitoria/web/path_info.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
-#include <fitoria/web/route_params.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/state.hpp>

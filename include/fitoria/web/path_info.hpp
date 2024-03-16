@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_ROUTE_PARAMS_HPP
-#define FITORIA_WEB_ROUTE_PARAMS_HPP
+#ifndef FITORIA_WEB_PATH_INFO_HPP
+#define FITORIA_WEB_PATH_INFO_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -20,13 +20,13 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class route_params {
+class path_info {
 public:
   using map_type = unordered_string_map<std::string>;
   using keys_type = std::vector<std::string>;
 
   class const_iterator_impl {
-    friend class route_params;
+    friend class path_info;
 
   public:
     using iterator_category = std::bidirectional_iterator_tag;
@@ -78,14 +78,14 @@ public:
   private:
     const_iterator_impl() = default;
 
-    const_iterator_impl(const route_params& parent,
+    const_iterator_impl(const path_info& parent,
                         typename keys_type::const_iterator key_iter)
         : parent_(&parent)
         , key_iter_(std::move(key_iter))
     {
     }
 
-    const route_params* parent_ = nullptr;
+    const path_info* parent_ = nullptr;
     typename keys_type::const_iterator key_iter_;
   };
 
@@ -102,11 +102,11 @@ public:
   using iterator = const_iterator_impl;
   using const_iterator = const_iterator_impl;
 
-  route_params() = default;
+  path_info() = default;
 
-  route_params(std::string match_pattern,
-               std::string match_path,
-               std::initializer_list<value_type> params)
+  path_info(std::string match_pattern,
+            std::string match_path,
+            std::initializer_list<value_type> params)
       : match_pattern_(std::move(match_pattern))
       , match_path_(std::move(match_path))
   {
@@ -119,9 +119,9 @@ public:
   template <typename Key, typename Value>
     requires std::constructible_from<key_type, Key>
                  && std::constructible_from<mapped_type, Value>
-  route_params(std::string match_pattern,
-               std::string match_path,
-               std::vector<std::pair<Key, Value>> params)
+  path_info(std::string match_pattern,
+            std::string match_path,
+            std::vector<std::pair<Key, Value>> params)
       : match_pattern_(std::move(match_pattern))
       , match_path_(std::move(match_path))
   {
@@ -131,13 +131,13 @@ public:
     }
   }
 
-  route_params(const route_params&) = default;
+  path_info(const path_info&) = default;
 
-  route_params(route_params&&) = default;
+  path_info(path_info&&) = default;
 
-  route_params& operator=(const route_params&) = default;
+  path_info& operator=(const path_info&) = default;
 
-  route_params& operator=(route_params&&) = default;
+  path_info& operator=(path_info&&) = default;
 
   const std::string& match_pattern() const noexcept
   {
@@ -248,7 +248,7 @@ public:
     return const_iterator(*this, keys_.cend());
   }
 
-  friend bool operator==(const route_params&, const route_params&) = default;
+  friend bool operator==(const path_info&, const path_info&) = default;
 
 private:
   std::string match_pattern_;

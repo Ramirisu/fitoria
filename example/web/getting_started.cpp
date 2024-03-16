@@ -40,11 +40,11 @@ int main()
       = http_server::builder()
             .serve(route::get<"/api/v1/{owner}/{repo}">(
                 [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("match_pattern: {}", req.params().match_pattern());
-                  log::debug("match_path: {}", req.params().match_path());
+                  log::debug("match_pattern: {}", req.path().match_pattern());
+                  log::debug("match_path: {}", req.path().match_path());
                   log::debug("owner: {}, repo: {}",
-                             req.params().get("owner"),
-                             req.params().get("repo"));
+                             req.path().get("owner"),
+                             req.path().get("repo"));
 
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,

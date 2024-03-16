@@ -40,7 +40,7 @@ public:
     log::info("[fitoria.middleware.logger] {} {} {} {} {}B {} {:%T}s",
               c.request().conn_info().remote_addr().to_string(),
               std::string(to_string(c.request().method())),
-              c.request().params().match_path(),
+              c.request().path().match_path(),
               res.status_code(),
               res.body().size_hint().value_or(0),
               c.request().fields().get(http::field::user_agent).value_or(""),

@@ -23,7 +23,7 @@ using namespace fitoria::web;
 namespace api::v1::users::get_user {
 auto api(const http_request& req) -> net::awaitable<http_response>
 {
-  auto user = req.params().get("user");
+  auto user = req.path().get("user");
   if (!user) {
     co_return http_response(http::status::bad_request);
   }

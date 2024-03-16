@@ -146,7 +146,7 @@ TEST_CASE("deflate middleware")
       = http_server::builder()
             .serve(route::get<"/get/{set_identity}/{chunked}/{empty_body}">(
                        [&](const http_request& req,
-                           const route_params& params,
+                           const path_info& path_info,
                            const http_fields& fields,
                            std::string body) -> net::awaitable<http_response> {
                          CHECK(!fields.get(http::field::content_encoding));
@@ -160,14 +160,14 @@ TEST_CASE("deflate middleware")
                          CHECK_EQ(body, plain);
 
                          auto res = http_response(http::status::ok);
-                         if (params.get("set_identity") == "true") {
+                         if (path_info.get("set_identity") == "true") {
                            res.set_field(
                                http::field::content_encoding,
                                http::fields::content_encoding::identity());
                          }
-                         if (params.get("empty_body") == "true") {
+                         if (path_info.get("empty_body") == "true") {
                          } else {
-                           if (params.get("chunked") == "true") {
+                           if (path_info.get("chunked") == "true") {
                              res.set_stream(
                                  async_readable_chunk_stream<5>(plain));
                            } else {

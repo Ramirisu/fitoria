@@ -77,12 +77,12 @@ private:
 
 auto get_user(http_request& req) -> net::awaitable<http_response>
 {
-  log::debug("user: {}", req.params().get("user"));
+  log::debug("user: {}", req.path().get("user"));
 
   co_return http_response(http::status::ok)
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
-      .set_body(req.params().get("user").value_or("{{unknown}}"));
+      .set_body(req.path().get("user").value_or("{{unknown}}"));
 }
 
 int main()

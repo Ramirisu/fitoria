@@ -52,9 +52,9 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, route_params>)
+      requires(uncvref_same_as<R, path_info>)
     {
-      co_return req.params();
+      co_return req.path();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)

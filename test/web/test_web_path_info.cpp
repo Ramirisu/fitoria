@@ -7,77 +7,77 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/web/route_params.hpp>
+#include <fitoria/web/path_info.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("[fitoria.web.route_params]");
+TEST_SUITE_BEGIN("[fitoria.web.path_info]");
 
 TEST_CASE("match_pattern and match_path")
 {
-  route_params params("/api/v1/users/{user}", "/api/v1/users/ramirisu", {});
-  CHECK_EQ(params.match_pattern(), "/api/v1/users/{user}");
-  CHECK_EQ(params.match_path(), "/api/v1/users/ramirisu");
+  path_info path_info("/api/v1/users/{user}", "/api/v1/users/ramirisu", {});
+  CHECK_EQ(path_info.match_pattern(), "/api/v1/users/{user}");
+  CHECK_EQ(path_info.match_path(), "/api/v1/users/ramirisu");
 }
 
 TEST_CASE("misc")
 {
-  using value_type = route_params::value_type;
+  using value_type = path_info::value_type;
 
-  route_params params(
+  path_info path_info(
       "",
       "",
       { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
-  CHECK_EQ(params.keys(), route_params::keys_type { "key0", "key1", "key2" });
+  CHECK_EQ(path_info.keys(), path_info::keys_type { "key0", "key1", "key2" });
 
-  CHECK(!params.empty());
+  CHECK(!path_info.empty());
 
-  CHECK_EQ(params.size(), 3);
+  CHECK_EQ(path_info.size(), 3);
 
-  CHECK(params.contains("key0"));
-  CHECK(params.contains("key1"));
-  CHECK(params.contains("key2"));
-  CHECK(!params.contains("key3"));
+  CHECK(path_info.contains("key0"));
+  CHECK(path_info.contains("key1"));
+  CHECK(path_info.contains("key2"));
+  CHECK(!path_info.contains("key3"));
 
-  CHECK_EQ(params.get("key0"), "value0");
-  CHECK_EQ(params.get("key1"), "value1");
-  CHECK_EQ(params.get("key2"), "value2");
-  CHECK_EQ(params.get("key3"), nullopt);
+  CHECK_EQ(path_info.get("key0"), "value0");
+  CHECK_EQ(path_info.get("key1"), "value1");
+  CHECK_EQ(path_info.get("key2"), "value2");
+  CHECK_EQ(path_info.get("key3"), nullopt);
 
-  CHECK_EQ(params.get(0), "value0");
-  CHECK_EQ(params.get(1), "value1");
-  CHECK_EQ(params.get(2), "value2");
-  CHECK_EQ(params.get(3), nullopt);
+  CHECK_EQ(path_info.get(0), "value0");
+  CHECK_EQ(path_info.get(1), "value1");
+  CHECK_EQ(path_info.get(2), "value2");
+  CHECK_EQ(path_info.get(3), nullopt);
 
-  CHECK_EQ(params.at("key0"), "value0");
-  CHECK_EQ(params.at("key1"), "value1");
-  CHECK_EQ(params.at("key2"), "value2");
-  CHECK_THROWS_AS(params.at("key3"), std::out_of_range);
+  CHECK_EQ(path_info.at("key0"), "value0");
+  CHECK_EQ(path_info.at("key1"), "value1");
+  CHECK_EQ(path_info.at("key2"), "value2");
+  CHECK_THROWS_AS(path_info.at("key3"), std::out_of_range);
 
-  CHECK_EQ(params.at(0), "value0");
-  CHECK_EQ(params.at(1), "value1");
-  CHECK_EQ(params.at(2), "value2");
-  CHECK_THROWS_AS(params.at(3), std::out_of_range);
+  CHECK_EQ(path_info.at(0), "value0");
+  CHECK_EQ(path_info.at(1), "value1");
+  CHECK_EQ(path_info.at(2), "value2");
+  CHECK_THROWS_AS(path_info.at(3), std::out_of_range);
 
-  CHECK_EQ(*params.find("key0"), value_type { "key0", "value0" });
-  CHECK_EQ(*params.find("key1"), value_type { "key1", "value1" });
-  CHECK_EQ(*params.find("key2"), value_type { "key2", "value2" });
+  CHECK_EQ(*path_info.find("key0"), value_type { "key0", "value0" });
+  CHECK_EQ(*path_info.find("key1"), value_type { "key1", "value1" });
+  CHECK_EQ(*path_info.find("key2"), value_type { "key2", "value2" });
 }
 
 TEST_CASE("iterator")
 {
-  using value_type = route_params::value_type;
+  using value_type = path_info::value_type;
 
   SUBCASE("begin")
   {
-    route_params params(
+    path_info path_info(
         "",
         "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
-    auto it = params.begin();
+    auto it = path_info.begin();
     CHECK_EQ(it->first, "key0");
     CHECK_EQ(it->second, "value0");
     CHECK_EQ(*it++, value_type { "key0", "value0" });
@@ -87,20 +87,20 @@ TEST_CASE("iterator")
     CHECK_EQ(it->first, "key2");
     CHECK_EQ(it->second, "value2");
     CHECK_EQ(*it++, value_type { "key2", "value2" });
-    CHECK_EQ(it--, params.end());
+    CHECK_EQ(it--, path_info.end());
     CHECK_EQ(*it--, value_type { "key2", "value2" });
     CHECK_EQ(*it--, value_type { "key1", "value1" });
     CHECK_EQ(*it, value_type { "key0", "value0" });
-    CHECK_EQ(it, params.begin());
+    CHECK_EQ(it, path_info.begin());
   }
   SUBCASE("begin const")
   {
-    const route_params params(
+    const path_info path_info(
         "",
         "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
-    auto it = params.begin();
+    auto it = path_info.begin();
     CHECK_EQ(it->first, "key0");
     CHECK_EQ(it->second, "value0");
     CHECK_EQ(*it++, value_type { "key0", "value0" });
@@ -110,20 +110,20 @@ TEST_CASE("iterator")
     CHECK_EQ(it->first, "key2");
     CHECK_EQ(it->second, "value2");
     CHECK_EQ(*it++, value_type { "key2", "value2" });
-    CHECK_EQ(it--, params.end());
+    CHECK_EQ(it--, path_info.end());
     CHECK_EQ(*it--, value_type { "key2", "value2" });
     CHECK_EQ(*it--, value_type { "key1", "value1" });
     CHECK_EQ(*it, value_type { "key0", "value0" });
-    CHECK_EQ(it, params.begin());
+    CHECK_EQ(it, path_info.begin());
   }
   SUBCASE("cbegin const")
   {
-    route_params params(
+    path_info path_info(
         "",
         "",
         { { "key0", "value0" }, { "key1", "value1" }, { "key2", "value2" } });
 
-    auto it = params.cbegin();
+    auto it = path_info.cbegin();
     CHECK_EQ(it->first, "key0");
     CHECK_EQ(it->second, "value0");
     CHECK_EQ(*it++, value_type { "key0", "value0" });
@@ -133,11 +133,11 @@ TEST_CASE("iterator")
     CHECK_EQ(it->first, "key2");
     CHECK_EQ(it->second, "value2");
     CHECK_EQ(*it++, value_type { "key2", "value2" });
-    CHECK_EQ(it--, params.cend());
+    CHECK_EQ(it--, path_info.cend());
     CHECK_EQ(*it--, value_type { "key2", "value2" });
     CHECK_EQ(*it--, value_type { "key1", "value1" });
     CHECK_EQ(*it, value_type { "key0", "value0" });
-    CHECK_EQ(it, params.cbegin());
+    CHECK_EQ(it, path_info.cbegin());
   }
 }
 

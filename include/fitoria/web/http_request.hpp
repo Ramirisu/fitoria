@@ -20,8 +20,8 @@
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
+#include <fitoria/web/path_info.hpp>
 #include <fitoria/web/query_map.hpp>
-#include <fitoria/web/route_params.hpp>
 #include <fitoria/web/state_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -36,14 +36,14 @@ public:
   }
 
   http_request(connection_info conn_info,
-               route_params params,
+               path_info path_info,
                http::verb method,
                query_map query,
                http_fields fields,
                any_async_readable_stream body,
                const std::vector<shared_state_map>& state_maps)
       : conn_info_(std::move(conn_info))
-      , params_(std::move(params))
+      , path_info_(std::move(path_info))
       , method_(method)
       , query_(std::move(query))
       , fields_(std::move(fields))
@@ -57,14 +57,14 @@ public:
     return conn_info_;
   }
 
-  route_params& params() noexcept
+  path_info& path() noexcept
   {
-    return params_;
+    return path_info_;
   }
 
-  const route_params& params() const noexcept
+  const path_info& path() const noexcept
   {
-    return params_;
+    return path_info_;
   }
 
   http::verb method() const noexcept
@@ -290,7 +290,7 @@ public:
 
 private:
   connection_info conn_info_;
-  route_params params_;
+  path_info path_info_;
   http::verb method_;
   query_map query_;
   http_fields fields_;

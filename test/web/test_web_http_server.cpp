@@ -234,7 +234,7 @@ TEST_CASE("generic request")
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
                     const connection_info& conn_info,
-                    route_params& params,
+                    path_info& path_info,
                     query_map& query,
                     http_fields& fields,
                     std::string body) -> net::awaitable<http_response> {
@@ -252,17 +252,17 @@ TEST_CASE("generic request")
 
                   CHECK_EQ(req.method(), http::verb::get);
 
-                  auto test_params = [](auto& params) {
-                    CHECK_EQ(params.match_pattern(),
+                  auto test_path_info = [](auto& path_info) {
+                    CHECK_EQ(path_info.match_pattern(),
                              "/api/v1/users/{user}/filmography/years/{year}");
-                    CHECK_EQ(params.match_path(),
+                    CHECK_EQ(path_info.match_path(),
                              "/api/v1/users/RinaHidaka/filmography/years/2022");
 
-                    CHECK_EQ(params.at("user"), "RinaHidaka");
-                    CHECK_EQ(params.at("year"), "2022");
+                    CHECK_EQ(path_info.at("user"), "RinaHidaka");
+                    CHECK_EQ(path_info.at("year"), "2022");
                   };
-                  test_params(req.params());
-                  test_params(params);
+                  test_path_info(req.path());
+                  test_path_info(path_info);
 
                   auto test_query = [](auto& query) {
                     CHECK_EQ(query.size(), 2);
@@ -344,10 +344,10 @@ TEST_CASE("request to route accepting wildcard")
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/#wildcard">(
-                [=](route_params& params) -> net::awaitable<http_response> {
-                  CHECK_EQ(params.match_pattern(), "/api/v1/#wildcard");
-                  CHECK_EQ(params.match_path(), "/api/v1/any/path");
-                  CHECK_EQ(params.get("wildcard"), "any/path");
+                [=](path_info& path_info) -> net::awaitable<http_response> {
+                  CHECK_EQ(path_info.match_pattern(), "/api/v1/#wildcard");
+                  CHECK_EQ(path_info.match_path(), "/api/v1/any/path");
+                  CHECK_EQ(path_info.get("wildcard"), "any/path");
                   co_return http_response(http::status::ok);
                 }))
             .build();

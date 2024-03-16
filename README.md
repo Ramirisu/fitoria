@@ -21,7 +21,7 @@ The library is ***experimental*** and still under development, not recommended f
     - [HTTP Server](#http-server-1)
       - [Method](#method)
       - [Route](#route)
-      - [Route Parameters](#route-parameters)
+      - [Path Parameter](#path-parameter)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
       - [Shared States](#shared-states)
@@ -125,8 +125,8 @@ Support **static path**, **parameterized path** and **wildcard matching**. Perfo
 ```cpp
 
 route::get<"/api/v1/get">(handler) // static
-route::get<"/api/v1/get/{param}">(handler) // path parameter, `route_params::get("param")`
-route::get<"/api/v1/#any_path">(handler) // wildcard matching, `route_params::get("any_path")`
+route::get<"/api/v1/get/{param}">(handler) // path parameter, `web::path_info::get("param")`
+route::get<"/api/v1/#any_path">(handler) // wildcard matching, `web::path_info::get("any_path")`
 
 route::get<"/api/v1/{">(handler) // error: static_assert failed: 'invalid path for route'
 route::get<"/api/v1/}">(handler) // error: static_assert failed: 'invalid path for route'
@@ -143,16 +143,16 @@ Route
 |   Wildcard    |    3     |     `/api/v1/#any`      | A name parameter follow by `#`. Note that wildcard must be the last segment of the path. |                                                                                                                   |
 
 
-#### Route Parameters
+#### Path Parameter
 
-Use `http_request::params()` to access the route parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/route_parameter.cpp))
+Use `http_request::path()` to access the route parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp))
 
 ```cpp
 
 namespace api::v1::users::get_user {
 auto api(const http_request& req) -> net::awaitable<http_response>
 {
-  auto user = req.params().get("user");
+  auto user = req.path().get("user");
   if (!user) {
     co_return http_response(http::status::bad_request);
   }
@@ -351,7 +351,7 @@ Built-in Extractors:
 | :----------------------- | :----------------------------------------------------- | :------------: | :-------------------------------------------------------------------------------------------------------- |
 | `web::http_request`      | Extract whole `http_request`                           |       no       |                                                                                                           |
 | `web::connection_info`   | Extract connection info                                |       no       |                                                                                                           |
-| `web::route_params`      | Extract route parameters                               |       no       |                                                                                                           |
+| `web::path_info`         | Extract path parameter                                 |       no       |                                                                                                           |
 | `web::query_map`         | Extract query string parameters                        |       no       |                                                                                                           |
 | `web::http_fields`       | Extract fields from request headers                    |       no       |                                                                                                           |
 | `web::state<T>`          | Extract shared state of type `T`.                      |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***. |
@@ -391,7 +391,7 @@ tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
 }
 
 auto api(const connection_info& conn_info,
-         const route_params& params,
+         const path_info& path_info,
          state<database_ptr> db,
          json<secret_t> secret) -> net::awaitable<http_response>
 {
@@ -399,7 +399,7 @@ auto api(const connection_info& conn_info,
                            conn_info.remote_addr().to_string(),
                            conn_info.remote_port());
   if (secret.password
-      == params.get("user").and_then([&](auto&& name) -> optional<std::string> {
+      == path_info.get("user").and_then([&](auto&& name) -> optional<std::string> {
            if (auto it = db->find(name); it != db->end()) {
              return it->second;
            }
@@ -431,6 +431,7 @@ int main()
       .bind("127.0.0.1", 8080)
       .run();
 }
+
 
 ```
 
