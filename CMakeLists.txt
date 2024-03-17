@@ -64,7 +64,7 @@ if(NOT FITORIA_DISABLE_OPENSSL)
 endif()
 
 # [dep.lib] boost
-message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.83.0")
+message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.84.0")
 find_package(Boost 1.84.0 REQUIRED regex json url)
 message(STATUS "[fitoria] [dep.lib] Boost found = ${BOOST_FOUND}")
 
