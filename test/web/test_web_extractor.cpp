@@ -80,7 +80,7 @@ TEST_CASE("path<T = std::tuple<Ts...>> extractor")
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path<std::tuple<std::string, std::string, std::string>> path)
                     -> net::awaitable<http_response> {
-                  auto& [year, month, day] = path.inner();
+                  auto& [year, month, day] = path.get();
                   CHECK_EQ(year, "1994");
                   CHECK_EQ(month, "06");
                   CHECK_EQ(day, "15");
@@ -104,7 +104,7 @@ TEST_CASE("path<T = aggregate> extractor")
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path<date_t> path) -> net::awaitable<http_response> {
                   CHECK_EQ(
-                      path.inner(),
+                      path.get(),
                       date_t { .month = "06", .day = "15", .year = "1994" });
                   co_return http_response(http::status::ok);
                 }))
@@ -151,7 +151,7 @@ TEST_CASE("query<T> extractor")
             .serve(route::get<"/get">(
                 [](query<date_t> query) -> net::awaitable<http_response> {
                   CHECK_EQ(
-                      query.inner(),
+                      query.get(),
                       date_t { .month = "06", .day = "15", .year = "1994" });
                   co_return http_response(http::status::ok);
                 }))

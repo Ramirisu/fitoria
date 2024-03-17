@@ -31,7 +31,7 @@ public:
   {
   }
 
-  auto inner() const noexcept -> const T&
+  auto get() const noexcept -> const T&
   {
     return inner_;
   }

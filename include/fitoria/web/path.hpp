@@ -33,7 +33,7 @@ public:
   {
   }
 
-  auto inner() const noexcept -> const T&
+  auto get() const noexcept -> const T&
   {
     return inner_;
   }
@@ -90,7 +90,7 @@ public:
   {
   }
 
-  auto inner() const noexcept -> const std::tuple<Ts...>&
+  auto get() const noexcept -> const std::tuple<Ts...>&
   {
     return inner_;
   }
