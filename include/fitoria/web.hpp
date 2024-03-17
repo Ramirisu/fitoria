@@ -28,12 +28,12 @@
 #include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/path.hpp>
 #include <fitoria/web/path_info.hpp>
+#include <fitoria/web/query.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/state.hpp>
 #include <fitoria/web/state_map.hpp>
-
 
 #endif

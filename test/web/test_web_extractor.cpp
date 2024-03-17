@@ -17,6 +17,18 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.extractor]");
 
+#if __has_include(<boost/pfr.hpp>)
+
+struct date_t {
+  std::string month;
+  std::string day;
+  std::string year;
+
+  friend bool operator==(const date_t&, const date_t&) = default;
+};
+
+#endif
+
 TEST_CASE("connection_info extractor")
 {
   auto server
@@ -61,7 +73,7 @@ TEST_CASE("path_info extractor")
   }());
 }
 
-TEST_CASE("path extractor for tuple<Ts...>")
+TEST_CASE("path<T = std::tuple<Ts...>> extractor")
 {
   auto server
       = http_server::builder()
@@ -85,22 +97,15 @@ TEST_CASE("path extractor for tuple<Ts...>")
 
 #if __has_include(<boost/pfr.hpp>)
 
-struct date {
-  std::string month;
-  std::string day;
-  std::string year;
-
-  friend bool operator==(const date&, const date&) = default;
-};
-
-TEST_CASE("path extractor for aggregates ")
+TEST_CASE("path<T = aggregate> extractor")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{year}/{month}/{day}">(
-                [](path<date> path) -> net::awaitable<http_response> {
-                  CHECK_EQ(path.inner(),
-                           date { .month = "06", .day = "15", .year = "1994" });
+                [](path<date_t> path) -> net::awaitable<http_response> {
+                  CHECK_EQ(
+                      path.inner(),
+                      date_t { .month = "06", .day = "15", .year = "1994" });
                   co_return http_response(http::status::ok);
                 }))
             .build();
@@ -119,17 +124,51 @@ TEST_CASE("query_map extractor")
   auto server = http_server::builder()
                     .serve(route::get<"/get">(
                         [](query_map& query) -> net::awaitable<http_response> {
-                          CHECK_EQ(query.get("user"), "gavin");
+                          CHECK_EQ(query.get("year"), "1994");
+                          CHECK_EQ(query.get("month"), "06");
+                          CHECK_EQ(query.get("day"), "15");
                           co_return http_response(http::status::ok);
                         }))
                     .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/get", http_request(http::verb::get).set_query("user", "gavin"));
+    auto res
+        = co_await server.async_serve_request("/get",
+                                              http_request(http::verb::get)
+                                                  .set_query("year", "1994")
+                                                  .set_query("month", "06")
+                                                  .set_query("day", "15"));
     CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
+
+#if __has_include(<boost/pfr.hpp>)
+
+TEST_CASE("query<T> extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">(
+                [](query<date_t> query) -> net::awaitable<http_response> {
+                  CHECK_EQ(
+                      query.inner(),
+                      date_t { .month = "06", .day = "15", .year = "1994" });
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res
+        = co_await server.async_serve_request("/get",
+                                              http_request(http::verb::get)
+                                                  .set_query("year", "1994")
+                                                  .set_query("month", "06")
+                                                  .set_query("day", "15"));
+    CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+#endif
 
 TEST_CASE("http_fields extractor")
 {
