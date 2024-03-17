@@ -17,7 +17,7 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.extractor]");
 
-#if __has_include(<boost/pfr.hpp>)
+#if defined(FITORIA_HAS_BOOST_PFR)
 
 struct date_t {
   std::string month;
@@ -95,7 +95,7 @@ TEST_CASE("path<T = std::tuple<Ts...>> extractor")
   }());
 }
 
-#if __has_include(<boost/pfr.hpp>)
+#if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("path<T = aggregate> extractor")
 {
@@ -142,7 +142,7 @@ TEST_CASE("query_map extractor")
   }());
 }
 
-#if __has_include(<boost/pfr.hpp>)
+#if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("query<T> extractor")
 {

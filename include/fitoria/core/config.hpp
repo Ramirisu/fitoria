@@ -56,4 +56,8 @@
 #error "requires formatting library"
 #endif
 
+#if __has_include(<boost/pfr.hpp>)
+#define FITORIA_HAS_BOOST_PFR
+#endif
+
 #endif

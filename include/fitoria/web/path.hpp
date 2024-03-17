@@ -13,7 +13,7 @@
 
 #include <fitoria/web/from_http_request.hpp>
 
-#if __has_include(<boost/pfr.hpp>)
+#if defined(FITORIA_HAS_BOOST_PFR)
 #include <boost/pfr.hpp>
 #endif
 
@@ -23,7 +23,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-#if __has_include(<boost/pfr.hpp>)
+#if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
 class path {
