@@ -12,54 +12,23 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-// clang-format off
-// 
-// $ ./quick_start
-// $ curl -X GET http://127.0.0.1:8080/api/v1/ramirisu/fitoria -v
-//
-// server output:
-// > 2023-01-01T00:00:00Z DEBUG route: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
-// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:37:26]
-//
-// $ curl -X GET https://127.0.0.1:8443/api/v1/ramirisu/fitoria -v --insecure
-//
-// server output:
-// > 2023-01-01T00:00:00Z DEBUG match_pattern: /api/v1/{owner}/{repo} [quick_start.cpp:36:26]
-// > 2023-01-01T00:00:00Z DEBUG match_path: /api/v1/ramirisu/fitoria [quick_start.cpp:37:26]
-// > 2023-01-01T00:00:00Z DEBUG owner: ramirisu, repo: fitoria [quick_start.cpp:38:26]
-// 
-//
-// clang-format on
-
 int main()
 {
-  log::registry::global().set_default_logger(
-      std::make_shared<log::async_logger>(
-          log::filter::at_least(log::level::debug)));
-  log::registry::global().default_logger()->add_writer(
-      std::make_shared<log::async_stdout_writer>());
-
   auto server
       = http_server::builder()
-            .serve(route::get<"/api/v1/{owner}/{repo}">(
-                [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("match_pattern: {}", req.path().match_pattern());
-                  log::debug("match_path: {}", req.path().match_path());
-                  log::debug("owner: {}, repo: {}",
-                             req.path().get("owner"),
-                             req.path().get("repo"));
-
+            .serve(route::get<"/echo">(
+                [](std::string body) -> net::awaitable<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
-                      .set_body("getting started");
+                      .set_body(body);
                 }))
             .build();
   server
-      // Start to listen to port 8080
+      // Bind listen port 8080
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
-      // Start to listen to port 8443 with SSL enabled
+      // Bind listen port 8443 with SSL enabled
       .bind_ssl("127.0.0.1",
                 8443,
                 cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))

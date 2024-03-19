@@ -10,20 +10,6 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-// clang-format off
-// 
-// $ ./middleware
-// $ curl -X GET http://127.0.0.1:8080/api/v1/users/ramirisu -v
-//
-// server output:
-// > 2023-01-01T00:00:00Z INFO before handler [middleware.cpp:36:23]
-// > 2023-01-01T00:00:00Z DEBUG user: ramirisu [middleware.cpp:47:37]
-// > 2023-01-01T00:00:00Z INFO after handler [middleware.cpp:38:23]
-// > 2023-01-01T00:00:00Z INFO [fitoria.middleware.logger] 127.0.0.1 GET /api/v1/users/ramirisu 200 curl/7.83.1 [logger.hpp:31:14]
-//
-//
-// clang-format on
-
 template <typename Next>
 class my_log_middleware {
   friend class my_log;
@@ -31,11 +17,11 @@ class my_log_middleware {
 public:
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    log::log(lv_, "before handler");
+    // do something before the handler
 
     auto res = co_await next_(ctx);
 
-    log::log(lv_, "after handler");
+    // do something after the handler
 
     co_return res;
   }
@@ -77,8 +63,6 @@ private:
 
 auto get_user(http_request& req) -> net::awaitable<http_response>
 {
-  log::debug("user: {}", req.path().get("user"));
-
   co_return http_response(http::status::ok)
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
@@ -87,12 +71,6 @@ auto get_user(http_request& req) -> net::awaitable<http_response>
 
 int main()
 {
-  log::registry::global().set_default_logger(
-      std::make_shared<log::async_logger>(
-          log::filter::at_least(log::level::debug)));
-  log::registry::global().default_logger()->add_writer(
-      std::make_shared<log::async_stdout_writer>());
-
   auto server = http_server::builder()
                     .serve(scope<"/api/v1">()
                                .use(middleware::logger())

@@ -12,7 +12,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/log/async_logger.hpp>
-#include <fitoria/log/async_stdout_writer.hpp>
 #include <fitoria/log/async_writer.hpp>
 #include <fitoria/log/filter.hpp>
 #include <fitoria/log/level.hpp>

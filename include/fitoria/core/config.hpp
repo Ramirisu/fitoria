@@ -48,6 +48,14 @@
 #define FITORIA_CXX_COMPILER_GCC
 #endif
 
+#if defined(_WIN32)
+#define FITORIA_TARGET_WINDOWS
+#elif defined(__APPLE__)
+#define FITORIA_TARGET_MACOS
+#else
+#define FITORIA_TARGET_LINUX
+#endif
+
 #if __has_include(<fmt/core.h>)
 #define FITORIA_HAS_FMT
 #elif defined(__cpp_lib_format) && __has_include(<format>)

@@ -5,7 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#if defined(_WIN32)
+#if defined(FITORIA_TARGET_WINDOWS)
 #include <Windows.h>
 #endif
 

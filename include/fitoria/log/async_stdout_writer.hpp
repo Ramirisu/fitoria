@@ -11,11 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log/async_writer.hpp>
-
-#if !defined(BOOST_ASIO_HAS_FILE)
-#include <iostream>
-#endif
+#include <fitoria/log/basic_async_stream_file_writer.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -23,50 +19,18 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-class async_stdout_writer : public async_writer {
-  net::stream_file file_;
+using async_stdout_writer = basic_async_stream_file_writer<true>;
 
-public:
-  async_stdout_writer()
-#if defined(_WIN32)
-      : file_(
-          net::system_executor(), "CONOUT$", net::file_base::flags::write_only)
+inline std::shared_ptr<async_writer> make_async_stdout_writer()
+{
+#if defined(FITORIA_TARGET_WINDOWS)
+  return std::make_shared<async_stdout_writer>(net::stream_file(
+      net::system_executor(), "CONOUT$", net::file_base::write_only));
 #else
-      : file_(net::system_executor(), STDOUT_FILENO)
+  return std::make_shared<async_stdout_writer>(
+      net::stream_file(net::system_executor(), STDOUT_FILENO));
 #endif
-  {
-  }
-
-  ~async_stdout_writer() override = default;
-
-  auto async_write(record_ptr rec) -> net::awaitable<void> override
-  {
-    auto output = format_record(rec);
-
-    co_await net::async_write(file_,
-                              net::const_buffer(output.data(), output.size()),
-                              net::use_awaitable);
-  }
-};
-
-#else
-class async_stdout_writer : public async_writer {
-  std::ostream& file_;
-
-public:
-  async_stdout_writer()
-      : file_(std::cout)
-  {
-  }
-
-  ~async_stdout_writer() override = default;
-
-  auto async_write(record_ptr rec) -> net::awaitable<void> override
-  {
-    file_ << format_record(rec);
-    co_return;
-  }
-};
+}
 
 #endif
 

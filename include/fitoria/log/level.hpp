@@ -13,7 +13,7 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <string_view>
+#include <string>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -29,7 +29,7 @@ enum class level : std::uint8_t {
   fatal,
 };
 
-inline std::string_view to_string(level lv)
+inline std::string to_string(level lv)
 {
   switch (lv) {
   case level::trace:

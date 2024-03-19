@@ -11,11 +11,11 @@
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 #include <fitoria/log.hpp>
-#include <fitoria/log/async_stdout_writer.hpp>
+#include <fitoria/log/async_stream_file_writer.hpp>
 
 using namespace fitoria::log;
 
-TEST_SUITE_BEGIN("[fitoria.log.async_stdout_writer]");
+TEST_SUITE_BEGIN("[fitoria.log.async_stream_file_writer]");
 
 #if !defined(FITORIA_TARGET_MACOS)
 
@@ -39,7 +39,8 @@ TEST_CASE("write log")
 {
   registry::global().set_default_logger(
       std::make_shared<async_logger>(filter::at_least(level::debug)));
-  registry::global().default_logger()->add_writer(make_async_stdout_writer());
+  registry::global().default_logger()->add_writer(
+      make_async_stream_file_writer("./test_log_async_stream_file_writer.log"));
 
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
   [[maybe_unused]] auto obj = my_ns::my_class();

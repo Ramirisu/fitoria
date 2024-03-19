@@ -11,7 +11,7 @@
 
 #include <semaphore>
 
-#if !defined(_WIN32)
+#if !defined(FITORIA_TARGET_WINDOWS)
 #include <cstdlib> // _putenv, setenv
 #endif
 
@@ -23,7 +23,7 @@ namespace {
 
 void setenv(const char* name, const char* value)
 {
-#if defined(_WIN32)
+#if defined(FITORIA_TARGET_WINDOWS)
   std::string str = name;
   str += "=";
   str += value;
