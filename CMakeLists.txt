@@ -25,27 +25,31 @@ endif()
 include(cmake/fitoria_utils.cmake)
 include(cmake/fitoria_check_compiler_feature.cmake)
 
-# [dep.lib] std.format
-detect_std_format()
-message(
-  STATUS
-    "[fitoria] [dep.lib] std.format = ${FITORIA_CXX_COMPILER_HAS_STD_FORMAT}")
+# [dep.lib] format lib
+message(STATUS "[fitoria] [dep.lib.format] try to find fmt")
+find_package(fmt)
+message(STATUS "[fitoria] [dep.lib.format] fmt found = ${fmt_FOUND}")
 
-if(NOT FITORIA_CXX_COMPILER_HAS_STD_FORMAT)
-  message(STATUS "[fitoria] [dep.lib] try to find fmt")
-  find_package(fmt REQUIRED)
-  message(STATUS "[fitoria] [dep.lib] fmt found = ${fmt_FOUND}")
+if(fmt_FOUND)
+  set(FITORIA_USE_FMT ON)
+else()
+  message(STATUS "[fitoria] [dep.lib.format] try to find std.format")
+  detect_std_format()
+  message(
+    STATUS
+      "[fitoria] [dep.lib.format] std.format = ${FITORIA_CXX_COMPILER_HAS_STD_FORMAT}"
+  )
+endif()
 
-  if(fmt_FOUND)
-    set(FITORIA_USE_FMT ON)
-  endif()
+if(NOT fmt_FOUND AND NOT FITORIA_CXX_COMPILER_HAS_STD_FORMAT)
+  message(FATAL_ERROR "[fitoria] [dep.lib.format] requires fmt or std.format")
 endif()
 
 # [dep.lib] zlib
 if(NOT FITORIA_DISABLE_ZLIB)
-  message(STATUS "[fitoria] [dep.lib] trying to find zlib")
+  message(STATUS "[fitoria] [dep.lib.zlib] trying to find zlib")
   find_package(ZLIB)
-  message(STATUS "[fitoria] [dep.lib] zlib found = ${ZLIB_FOUND}")
+  message(STATUS "[fitoria] [dep.lib.zlib] zlib found = ${ZLIB_FOUND}")
 
   if(ZLIB_FOUND)
     set(FITORIA_USE_ZLIB ON)
@@ -54,9 +58,9 @@ endif()
 
 # [dep.lib] openssl
 if(NOT FITORIA_DISABLE_OPENSSL)
-  message(STATUS "[fitoria] [dep.lib] trying to find OpenSSL")
+  message(STATUS "[fitoria] [dep.lib.openssl] trying to find OpenSSL")
   find_package(OpenSSL)
-  message(STATUS "[fitoria] [dep.lib] OpenSSL found = ${OPENSSL_FOUND}")
+  message(STATUS "[fitoria] [dep.lib.openssl] OpenSSL found = ${OPENSSL_FOUND}")
 
   if(OPENSSL_FOUND)
     set(FITORIA_USE_OPENSSL ON)
@@ -64,9 +68,9 @@ if(NOT FITORIA_DISABLE_OPENSSL)
 endif()
 
 # [dep.lib] boost
-message(STATUS "[fitoria] [dep.lib] trying to find Boost 1.84.0")
+message(STATUS "[fitoria] [dep.lib.boost] trying to find Boost 1.84.0")
 find_package(Boost 1.84.0 REQUIRED regex json url)
-message(STATUS "[fitoria] [dep.lib] Boost found = ${BOOST_FOUND}")
+message(STATUS "[fitoria] [dep.lib.boost] Boost found = ${BOOST_FOUND}")
 
 add_library(fitoria INTERFACE)
 add_library(fitoria::fitoria ALIAS fitoria)
@@ -102,9 +106,9 @@ if(FITORIA_BUILD_EXAMPLES)
 endif()
 
 if(FITORIA_BUILD_TESTS)
-  message(STATUS "[fitoria] [dep.lib] trying to find doctest")
+  message(STATUS "[fitoria] [dep.lib.doctest] trying to find doctest")
   find_package(doctest REQUIRED)
-  message(STATUS "[fitoria] [dep.lib] doctest found = ${doctest_FOUND}")
+  message(STATUS "[fitoria] [dep.lib.doctest] doctest found = ${doctest_FOUND}")
 
   enable_testing()
   add_subdirectory(test)
