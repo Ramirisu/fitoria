@@ -30,6 +30,7 @@ FITORIA_NAMESPACE_END
 
 #elif defined(FITORIA_HAS_FMT)
 #include <fmt/chrono.h>
+#include <fmt/color.h>
 #include <fmt/format.h>
 
 FITORIA_NAMESPACE_BEGIN
