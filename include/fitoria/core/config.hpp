@@ -56,6 +56,10 @@
 #error "requires formatting library"
 #endif
 
+#if defined(__cpp_lib_source_location)
+#define FITORIA_HAS_STD_SOURCE_LOCATION
+#endif
+
 #if __has_include(<boost/pfr.hpp>)
 #define FITORIA_HAS_BOOST_PFR
 #endif

@@ -11,13 +11,13 @@
 
 #include <fitoria/core/config.hpp>
 
-#if defined(__cpp_lib_source_location)
+#if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
 #include <source_location>
 #endif
 
 FITORIA_NAMESPACE_BEGIN
 
-#if defined(__cpp_lib_source_location)
+#if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
 
 using std::source_location;
 

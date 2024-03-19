@@ -83,7 +83,7 @@ inline auto format_record(record_ptr rec) -> std::string
   auto newline = std::string_view("\n");
 #endif
 
-#if defined(__cpp_lib_source_location)
+#if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
   return fmt::format("[{:%FT%TZ} {} {}] {} [{}:{}:{}]{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
                      lv,
@@ -94,10 +94,9 @@ inline auto format_record(record_ptr rec) -> std::string
                      rec->loc.column(),
                      newline);
 #else
-  return fmt::format("[{:%FT%TZ} {} {}] {}{}",
+  return fmt::format("[{:%FT%TZ} {}] {}{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
                      lv,
-                     rec->loc.function_name(),
                      rec->msg,
                      newline);
 #endif
