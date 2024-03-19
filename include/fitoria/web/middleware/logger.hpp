@@ -14,7 +14,7 @@
 #include <fitoria/core/type_traits.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/log/logger.hpp>
+#include <fitoria/log/log.hpp>
 
 #include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_response.hpp>

@@ -11,80 +11,124 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log/logger.hpp>
+#include <fitoria/log/registry.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
 template <typename... Args>
-struct [[maybe_unused]] log {
+class log {
+public:
   log(level lv,
+      fmt::format_string<Args...> fmt,
       Args&&... args,
       const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, lv, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, lv, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-log(level, Args&&...) -> log<Args...>;
+log(level, fmt::format_string<Args...>, Args&&...) -> log<Args...>;
 
 template <typename... Args>
-struct [[maybe_unused]] debug {
-  debug(Args&&... args, const source_location& loc = source_location::current())
+class trace {
+public:
+  trace(fmt::format_string<Args...> fmt,
+        Args&&... args,
+        const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, level::debug, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::trace, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-debug(Args&&...) -> debug<Args...>;
+trace(fmt::format_string<Args...>, Args&&...) -> trace<Args...>;
 
 template <typename... Args>
-struct [[maybe_unused]] info {
-  info(Args&&... args, const source_location& loc = source_location::current())
+class debug {
+public:
+  debug(fmt::format_string<Args...> fmt,
+        Args&&... args,
+        const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, level::info, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::debug, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-info(Args&&...) -> info<Args...>;
+debug(fmt::format_string<Args...>, Args&&...) -> debug<Args...>;
 
 template <typename... Args>
-struct [[maybe_unused]] warning {
-  warning(Args&&... args,
+class info {
+public:
+  info(fmt::format_string<Args...> fmt,
+       Args&&... args,
+       const source_location& loc = source_location::current())
+  {
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::info, fmt, std::forward<Args>(args)...);
+    }
+  }
+};
+
+template <typename... Args>
+info(fmt::format_string<Args...>, Args&&...) -> info<Args...>;
+
+template <typename... Args>
+class warning {
+public:
+  warning(fmt::format_string<Args...> fmt,
+          Args&&... args,
           const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, level::warning, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::warning, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-warning(Args&&...) -> warning<Args...>;
+warning(fmt::format_string<Args...>, Args&&...) -> warning<Args...>;
 
 template <typename... Args>
-struct [[maybe_unused]] error {
-  error(Args&&... args, const source_location& loc = source_location::current())
+class error {
+public:
+  error(fmt::format_string<Args...> fmt,
+        Args&&... args,
+        const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, level::error, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::error, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-error(Args&&...) -> error<Args...>;
+error(fmt::format_string<Args...>, Args&&...) -> error<Args...>;
 
 template <typename... Args>
-struct [[maybe_unused]] fatal {
-  fatal(Args&&... args, const source_location& loc = source_location::current())
+class fatal {
+public:
+  fatal(fmt::format_string<Args...> fmt,
+        Args&&... args,
+        const source_location& loc = source_location::current())
   {
-    global_logger()->log(loc, level::fatal, std::forward<Args>(args)...);
+    if (auto logger = registry::global().default_logger(); logger) {
+      logger->log(loc, level::fatal, fmt, std::forward<Args>(args)...);
+    }
   }
 };
 
 template <typename... Args>
-fatal(Args&&...) -> fatal<Args...>;
+fatal(fmt::format_string<Args...>, Args&&...) -> fatal<Args...>;
 
 }
 

@@ -7,38 +7,32 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/log/log.hpp>
+#include <fitoria/log.hpp>
 
-#if !defined(_WIN32)
-#include <cstdlib> // _putenv, setenv
-#endif
+#include <semaphore>
 
+using namespace fitoria;
 using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.log]");
 
 namespace {
 
-void setenv(const char* name, const char* value)
-{
-#if defined(_WIN32)
-  std::string str = name;
-  str += "=";
-  str += value;
-  _putenv(str.c_str());
-#else
-  ::setenv(name, value, 1);
-#endif
-}
-
-class test_writer : public writer {
+class test_writer : public async_writer {
 public:
   ~test_writer() override = default;
 
-  void write(std::string msg) override
+  auto async_write(record_ptr rec) -> net::awaitable<void> override
   {
     is_called_ = true;
-    output_ += msg;
+    output_ += rec->msg;
+    sync_.release();
+    co_return;
+  }
+
+  bool try_acquire()
+  {
+    return sync_.try_acquire_for(std::chrono::milliseconds(100));
   }
 
   bool is_called() const noexcept
@@ -58,80 +52,92 @@ public:
   }
 
 private:
+  std::binary_semaphore sync_ { 0 };
   bool is_called_ = false;
   std::string output_;
 };
-
 }
 
-TEST_CASE("default log level")
+TEST_CASE("logger with filter()")
 {
   const char* msg = "hello world";
 
+  registry::global().set_default_logger(
+      std::make_shared<async_logger>(filter({})));
   auto writer = std::make_shared<test_writer>();
-  global_logger() = std::make_shared<logger>(writer);
+  registry::global().default_logger()->add_writer(writer);
+
+  trace("{}", msg);
+  CHECK(!writer->try_acquire());
+  CHECK(!writer->is_called());
+  writer->reset();
+
   debug("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
+
   info("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
+
   warning("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
+
   error("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
+
   fatal("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
 }
 
-TEST_CASE("set_log_level")
+TEST_CASE("logger with filter::at_least()")
 {
   const char* msg = "hello world";
 
+  registry::global().set_default_logger(
+      std::make_shared<async_logger>(filter::at_least(level::info)));
   auto writer = std::make_shared<test_writer>();
-  global_logger() = std::make_shared<logger>(writer);
-  global_logger()->set_log_level(level::warning);
+  registry::global().default_logger()->add_writer(writer);
+
+  trace("{}", msg);
+  CHECK(!writer->try_acquire());
+  CHECK(!writer->is_called());
+  writer->reset();
+
   debug("{}", msg);
+  CHECK(!writer->try_acquire());
   CHECK(!writer->is_called());
   writer->reset();
+
   info("{}", msg);
-  CHECK(!writer->is_called());
+  CHECK(writer->try_acquire());
+  CHECK(writer->is_called());
+  CHECK(writer->contains(msg));
   writer->reset();
+
   warning("{}", msg);
+  CHECK(writer->try_acquire());
+  CHECK(writer->is_called());
   CHECK(writer->contains(msg));
   writer->reset();
+
   error("{}", msg);
+  CHECK(writer->try_acquire());
+  CHECK(writer->is_called());
   CHECK(writer->contains(msg));
   writer->reset();
+
   fatal("{}", msg);
-  CHECK(writer->contains(msg));
-  writer->reset();
-}
-
-TEST_CASE("log level from env")
-{
-  const char* msg = "hello world";
-
-  setenv("CPP_LOG", "info");
-
-  auto writer = std::make_shared<test_writer>();
-  global_logger() = std::make_shared<logger>(writer);
-  debug("{}", msg);
-  CHECK(!writer->is_called());
-  writer->reset();
-  info("{}", msg);
-  CHECK(writer->contains(msg));
-  writer->reset();
-  warning("{}", msg);
-  CHECK(writer->contains(msg));
-  writer->reset();
-  error("{}", msg);
-  CHECK(writer->contains(msg));
-  writer->reset();
-  fatal("{}", msg);
+  CHECK(writer->try_acquire());
+  CHECK(writer->is_called());
   CHECK(writer->contains(msg));
   writer->reset();
 }

@@ -33,8 +33,11 @@ using namespace fitoria::web;
 
 int main()
 {
-  log::global_logger() = log::stdout_logger();
-  log::global_logger()->set_log_level(log::level::debug);
+  log::registry::global().set_default_logger(
+      std::make_shared<log::async_logger>(
+          log::filter::at_least(log::level::debug)));
+  log::registry::global().default_logger()->add_writer(
+      std::make_shared<log::async_stdout_writer>());
 
   auto server
       = http_server::builder()

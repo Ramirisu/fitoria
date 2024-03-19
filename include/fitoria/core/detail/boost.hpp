@@ -25,6 +25,8 @@
 #include <boost/beast/ssl.hpp>
 #endif
 
+#include <boost/asio/experimental/concurrent_channel.hpp>
+
 #if defined(FITORIA_CXX_COMPILER_MSVC)
 // boost/asio/buffer.hpp(247): warning C4702: unreachable code
 #pragma warning(pop)

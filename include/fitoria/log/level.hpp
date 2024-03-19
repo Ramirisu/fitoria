@@ -12,26 +12,28 @@
 #include <fitoria/core/config.hpp>
 
 #include <algorithm>
-#include <cctype>
-#include <string>
+#include <cstdint>
 #include <string_view>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
-enum class level {
+enum class level : std::uint8_t {
+  off = 0,
+  trace,
   debug,
   info,
   warning,
   error,
   fatal,
-  off,
 };
 
 inline std::string_view to_string(level lv)
 {
   switch (lv) {
+  case level::trace:
+    return "TRACE";
   case level::debug:
     return "DEBUG";
   case level::info:
@@ -55,6 +57,9 @@ inline level to_level(std::string_view sv)
   std::transform(sv.begin(), sv.end(), lower.begin(), [](char c) {
     return static_cast<char>(std::tolower(c));
   });
+  if (lower == "trace") {
+    return level::trace;
+  }
   if (lower == "debug") {
     return level::debug;
   }

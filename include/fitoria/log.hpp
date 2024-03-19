@@ -11,10 +11,13 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/log/async_logger.hpp>
+#include <fitoria/log/async_stdout_writer.hpp>
+#include <fitoria/log/async_writer.hpp>
+#include <fitoria/log/filter.hpp>
 #include <fitoria/log/level.hpp>
 #include <fitoria/log/log.hpp>
-#include <fitoria/log/logger.hpp>
-#include <fitoria/log/stdout_writer.hpp>
-#include <fitoria/log/writer.hpp>
+#include <fitoria/log/record.hpp>
+#include <fitoria/log/registry.hpp>
 
 #endif

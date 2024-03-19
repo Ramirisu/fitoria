@@ -6,22 +6,24 @@
 //
 #pragma once
 
-#ifndef FITORIA_LOG_WRITER_HPP
-#define FITORIA_LOG_WRITER_HPP
+#ifndef FITORIA_LOG_ASYNC_WRITER_HPP
+#define FITORIA_LOG_ASYNC_WRITER_HPP
 
 #include <fitoria/core/config.hpp>
 
-#include <string>
+#include <fitoria/core/net.hpp>
+
+#include <fitoria/log/record.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
-class writer {
+class async_writer {
 public:
-  virtual ~writer() = default;
+  virtual ~async_writer() = default;
 
-  virtual void write(std::string msg) = 0;
+  virtual auto async_write(record_ptr rec) -> net::awaitable<void> = 0;
 };
 
 }

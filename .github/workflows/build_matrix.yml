@@ -80,6 +80,7 @@ jobs:
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux
           vcpkg install doctest:x64-linux
+          vcpkg install liburing:x64-linux
 
       - name: Install dependencies on macos
         if: startsWith(matrix.os_cxx.os, 'macos')

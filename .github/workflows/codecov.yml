@@ -49,6 +49,7 @@ jobs:
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux
           vcpkg install doctest:x64-linux
+          vcpkg install liburing:x64-linux
 
       - name: Configure
         shell: bash
@@ -60,7 +61,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=${{ matrix.os_cxx.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
-            -DFITORIA_BUILD_EXAMPLES=ON \
+            -DFITORIA_BUILD_EXAMPLES=OFF \
             -DFITORIA_BUILD_TESTS=ON \
             -DFITORIA_DISABLE_ZLIB=OFF \
             -DFITORIA_ENABLE_CODECOV=ON
