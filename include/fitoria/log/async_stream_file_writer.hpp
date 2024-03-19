@@ -24,12 +24,18 @@ using async_stream_file_writer = basic_async_stream_file_writer<false>;
 inline std::shared_ptr<async_writer>
 make_async_stream_file_writer(const std::string& path)
 {
-  return std::make_shared<async_stream_file_writer>(
-      net::stream_file(net::system_executor(),
-                       path,
-                       net::file_base::create | net::file_base::write_only
-                           | net::file_base::append));
-  // TODO: boost::asio::stream_file bug, `append` flag not working
+  auto file
+      = net::stream_file(net::system_executor(),
+                         path,
+                         net::file_base::create | net::file_base::write_only
+                             | net::file_base::append);
+
+#if defined(FITORIA_TARGET_WINDOWS)
+  // `net::file_base::append` do not work for windows iocp
+  file.seek(0, net::file_base::seek_end);
+#endif
+
+  return std::make_shared<async_stream_file_writer>(std::move(file));
 }
 
 #endif
