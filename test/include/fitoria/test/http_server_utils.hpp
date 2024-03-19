@@ -33,8 +33,7 @@ inline std::string to_local_url(boost::urls::scheme scheme,
                                 std::string_view path)
 {
   auto scheme_str = std::string_view(to_string(scheme));
-  return fmt::vformat("{}://{}:{}{}",
-                      fmt::make_format_args(scheme_str, localhost, port, path));
+  return fmt::format("{}://{}:{}{}", scheme_str, localhost, port, path);
 }
 
 template <typename F>
