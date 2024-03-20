@@ -32,6 +32,10 @@ The library is ***experimental*** and still under development, not recommended f
       - [WebSockets](#websockets)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
+    - [Logger](#logger)
+      - [Log Level Filtering](#log-level-filtering)
+      - [Register loggers](#register-loggers)
+      - [Log messages](#log-messages)
   - [Building](#building)
   - [License](#license)
 
@@ -52,29 +56,21 @@ using namespace fitoria::web;
 
 int main()
 {
-  log::global_logger() = log::stdout_logger();
-  log::global_logger()->set_log_level(log::level::debug);
-
   auto server
       = http_server::builder()
-            .serve(route::get<"/api/v1/{owner}/{repo}">(
-                [](http_request& req) -> net::awaitable<http_response> {
-                  log::debug("route: {}", req.params().path());
-                  log::debug("owner: {}, repo: {}",
-                             req.params().get("owner"),
-                             req.params().get("repo"));
-
+            .serve(route::get<"/echo">(
+                [](std::string body) -> net::awaitable<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
-                      .set_body("getting started");
+                      .set_body(body);
                 }))
             .build();
   server
-      // Start to listen to port 8080
+      // Bind listen port 8080
       .bind("127.0.0.1", 8080)
 #if defined(FITORIA_HAS_OPENSSL)
-      // Start to listen to port 8443 with SSL enabled
+      // Bind listen port 8443 with SSL enabled
       .bind_ssl("127.0.0.1",
                 8443,
                 cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
@@ -100,7 +96,6 @@ Register methods defined in `http::verb::*` by using `route::handle`, or simply 
 int main()
 {
   auto server = http_server::builder()
-                    // Single route by using `route`
                     .serve(route::handle<"/">(http::verb::get, get_handler))
                     .serve(route::get<"/get">(get_handler))
                     .serve(route::post<"/post">(post_handler))
@@ -218,7 +213,8 @@ Use `as_form()` to parse the url-encoded form body. ([Code](https://github.com/R
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req, std::string body) -> net::awaitable<http_response>
+auto api(const http_request& req, std::string body)
+    -> net::awaitable<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
@@ -252,6 +248,7 @@ Configure shared states by using `scope::share_state(SharedState&&)` for the `ro
 
 ```cpp
 
+
 namespace cache {
 class simple_cache {
   using map_type = unordered_string_map<std::string>;
@@ -282,8 +279,8 @@ using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
 auto put(const http_request& req) -> net::awaitable<http_response>
 {
-  auto key = req.params().get("key");
-  auto value = req.params().get("value");
+  auto key = req.path().get("key");
+  auto value = req.path().get("value");
   if (!key || !value) {
     co_return http_response(http::status::bad_request);
   }
@@ -302,7 +299,7 @@ auto put(const http_request& req) -> net::awaitable<http_response>
 
 auto get(const http_request& req) -> net::awaitable<http_response>
 {
-  auto key = req.params().get("key");
+  auto key = req.path().get("key");
   if (!key) {
     co_return http_response(http::status::bad_request);
   }
@@ -486,11 +483,11 @@ class my_log_middleware {
 public:
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    log::log(lv_, "before handler");
+    // do something before the handler
 
     auto res = co_await next_(ctx);
 
-    log::log(lv_, "after handler");
+    // do something after the handler
 
     co_return res;
   }
@@ -532,19 +529,14 @@ private:
 
 auto get_user(http_request& req) -> net::awaitable<http_response>
 {
-  log::debug("user: {}", req.params().get("user"));
-
   co_return http_response(http::status::ok)
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
-      .set_body(req.params().get("user").value_or("{{unknown}}"));
+      .set_body(req.path().get("user").value_or("{{unknown}}"));
 }
 
 int main()
 {
-  log::global_logger() = log::stdout_logger();
-  log::global_logger()->set_log_level(log::level::debug);
-
   auto server = http_server::builder()
                     .serve(scope<"/api/v1">()
                                .use(middleware::logger())
@@ -604,7 +596,8 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::post<"/api/v1/login">(
-                [](http_request& req, std::string body) -> net::awaitable<http_response> {
+                [](http_request& req,
+                   std::string body) -> net::awaitable<http_response> {
                   if (req.fields().get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request);
@@ -671,6 +664,68 @@ int main()
 
 ***TODO:***
 
+### Logger
+
+#### Log Level Filtering
+
+There are 6 levels `level::trace`, `level::debug`, `level::info`, `level::warning`, `level::error` and `level::fatal` for logging messages, and can be configured with `filter`.
+
+```cpp
+
+// result to `debeg`, `info`, `warning`, `error` and `fatal`.
+log::filter::at_least(log::level::debug);
+
+// all levels
+log::filter::all();
+
+// load level config from the environment variable.
+// $ CPP_LOG=DEBUG ./my_server 
+log::filter::from_env();
+
+```
+
+#### Register loggers
+
+The `registry::global()` provides a way to register loggers globally.
+
+```cpp
+
+log::registry::global().set_default_logger(
+    std::make_shared<log::async_logger>(log::filter::at_least(log::level::trace)));
+
+```
+
+After registering the loggers, one or more `async_writer`s should be attached to the logger in order to determine where/how to log the messages.
+
+```cpp
+
+// an stdout writer
+log::registry::global().default_logger()->add_writer(log::make_async_stdout_writer());
+
+
+// a file writer
+log::registry::global().default_logger()->add_writer(
+    log::make_async_stream_file_writer("./my_server.log"));
+
+```
+
+#### Log messages
+
+Use `log::log(level, fmt, ...)`, `log::trace(fmt, ...)`, `log::debug(fmt, ...)`, `log::info(fmt, ...)`, `log::warning(fmt, ...)`, `log::error(fmt, ...)`, `log::fatal(fmt, ...)` to write the logs to the default logger.
+
+```cpp
+
+log::log(log::level::info, "price: {}", 100);
+
+log::trace("price: {}", 100);
+log::debug("price: {}", 100);
+log::info("price: {}", 100);
+log::warning("price: {}", 100);
+log::error("price: {}", 100);
+log::fatal("price: {}", 100);
+
+```
+
 ## Building
 
 Platform
@@ -696,7 +751,7 @@ Dependencies
 | `boost::regex` | Route parsing                      |                 |     required      |
 |  `boost::pfr`  | `web::path<T>` extractor           |                 |     optional      |
 |     `zlib`     | Built-in middleware gzip           |                 |     optional      |
-|     `fmt`      | Formatting                         | `fitoria::fmt`  |     optional      |
+|     `fmt`      | Log formatting                     | `fitoria::fmt`  |     optional      |
 |   `OpenSSL`    | Secure networking                  |                 |     optional      |
 |   `doctest`    | Unit testing                       |                 |     optional      |
 

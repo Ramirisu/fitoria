@@ -53,7 +53,6 @@ auto any_handler(http_request&) -> net::awaitable<http_response>
 int main()
 {
   auto server = http_server::builder()
-                    // Single route by using `route`
                     .serve(route::handle<"/">(http::verb::get, get_handler))
                     .serve(route::get<"/get">(get_handler))
                     .serve(route::post<"/post">(post_handler))
