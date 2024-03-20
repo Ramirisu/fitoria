@@ -20,13 +20,13 @@ FITORIA_NAMESPACE_BEGIN
 namespace log {
 
 enum class level : std::uint8_t {
-  off = 0,
-  trace,
+  trace = 0,
   debug,
   info,
   warning,
   error,
   fatal,
+  off,
 };
 
 inline std::string to_string(level lv)

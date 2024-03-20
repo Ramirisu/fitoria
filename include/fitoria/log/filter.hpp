@@ -28,7 +28,11 @@ class filter {
 
   static flags_t to_bit(level lv) noexcept
   {
-    return (1 << static_cast<flags_t>(lv)) >> 1;
+    if (lv == level::off) {
+      return 0;
+    }
+
+    return (1 << static_cast<flags_t>(lv));
   }
 
   filter() = default;
@@ -53,12 +57,8 @@ public:
 
   static auto at_least(level lv) -> filter
   {
-    if (lv == level::off) {
-      return filter();
-    }
-
     filter flt;
-    for (auto l = to_underlying(lv); l <= to_underlying(level::fatal); ++l) {
+    for (auto l = to_underlying(lv); l < to_underlying(level::off); ++l) {
       flt.flags_ |= to_bit(static_cast<level>(l));
     }
     return flt;
