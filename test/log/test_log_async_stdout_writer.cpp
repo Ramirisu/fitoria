@@ -38,7 +38,7 @@ public:
 TEST_CASE("write log")
 {
   registry::global().set_default_logger(
-      std::make_shared<async_logger>(filter::at_least(level::debug)));
+      std::make_shared<async_logger>(filter::at_least(level::trace)));
   registry::global().default_logger()->add_writer(make_async_stdout_writer());
 
   std::this_thread::sleep_for(std::chrono::milliseconds(200));

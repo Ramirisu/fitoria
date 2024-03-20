@@ -33,7 +33,7 @@ public:
 TEST_CASE("write log")
 {
   registry::global().set_default_logger(
-      std::make_shared<async_logger>(filter::at_least(level::debug)));
+      std::make_shared<async_logger>(filter::at_least(level::trace)));
   registry::global().default_logger()->add_writer(
       make_sync_stream_file_writer("./test_log_sync_stream_file_writer.log"));
 

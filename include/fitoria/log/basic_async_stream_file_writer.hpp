@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/log/detail/format.hpp>
+
 #include <fitoria/log/async_writer.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -33,7 +35,7 @@ public:
 
   auto async_write(record_ptr rec) -> net::awaitable<void> override
   {
-    auto output = format(rec, Colorful);
+    auto output = detail::format(rec, Colorful);
 
     co_await net::async_write(file_,
                               net::const_buffer(output.data(), output.size()),

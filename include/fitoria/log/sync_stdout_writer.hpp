@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/log/detail/format.hpp>
+
 #include <fitoria/log/async_writer.hpp>
 
 #include <iostream>
@@ -32,7 +34,7 @@ public:
 
   auto async_write(record_ptr rec) -> net::awaitable<void> override
   {
-    file_ << format(rec, true);
+    file_ << detail::format(rec, true);
 
     co_return;
   }
