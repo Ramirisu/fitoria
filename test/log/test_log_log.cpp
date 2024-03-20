@@ -58,12 +58,12 @@ private:
 };
 }
 
-TEST_CASE("logger with filter()")
+TEST_CASE("logger with level off")
 {
   const char* msg = "hello world";
 
   registry::global().set_default_logger(
-      std::make_shared<async_logger>(filter({})));
+      async_logger::builder().set_filter(filter::at_least(level::off)).build());
   auto writer = std::make_shared<test_writer>();
   registry::global().default_logger()->add_writer(writer);
 
@@ -98,12 +98,14 @@ TEST_CASE("logger with filter()")
   writer->reset();
 }
 
-TEST_CASE("logger with filter::at_least()")
+TEST_CASE("logger with level info")
 {
   const char* msg = "hello world";
 
   registry::global().set_default_logger(
-      std::make_shared<async_logger>(filter::at_least(level::info)));
+      async_logger::builder()
+          .set_filter(filter::at_least(level::info))
+          .build());
   auto writer = std::make_shared<test_writer>();
   registry::global().default_logger()->add_writer(writer);
 

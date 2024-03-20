@@ -35,7 +35,7 @@ void setenv(const char* name, const char* value)
 
 }
 
-TEST_CASE("logger with filter()")
+TEST_CASE("logger with filter::all()")
 {
   auto flt = filter::all();
   CHECK(flt.is_allowed(level::trace));
@@ -57,7 +57,7 @@ TEST_CASE("logger with filter({ debug, error })")
   CHECK(!flt.is_allowed(level::fatal));
 }
 
-TEST_CASE("logger with filter::at_least()")
+TEST_CASE("logger with filter::at_least(info)")
 {
   auto flt = filter::at_least(level::info);
   CHECK(!flt.is_allowed(level::trace));
@@ -68,7 +68,7 @@ TEST_CASE("logger with filter::at_least()")
   CHECK(flt.is_allowed(level::fatal));
 }
 
-TEST_CASE("logger with filter::at_least()")
+TEST_CASE("logger with filter::at_least(off)")
 {
   auto flt = filter::at_least(level::off);
   CHECK(!flt.is_allowed(level::trace));

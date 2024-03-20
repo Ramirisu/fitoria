@@ -72,9 +72,36 @@ class async_logger {
   }
 
 public:
-  async_logger(filter f = filter::all())
-      : filter_(f)
-      , channel_(net::system_executor())
+  class builder {
+    friend class async_logger;
+
+    filter flt_ = filter::all();
+    std::size_t max_buffer_size_ = 0;
+
+  public:
+    builder() = default;
+
+    std::shared_ptr<async_logger> build() const
+    {
+      return std::make_shared<async_logger>(*this);
+    }
+
+    builder& set_filter(filter flt)
+    {
+      flt_ = flt;
+      return *this;
+    }
+
+    builder& set_max_buffer_size(std::size_t size)
+    {
+      max_buffer_size_ = size;
+      return *this;
+    }
+  };
+
+  async_logger(builder builder)
+      : filter_(builder.flt_)
+      , channel_(net::system_executor(), builder.max_buffer_size_)
   {
     net::co_spawn(
         net::system_executor(), async_dequeue_and_write(), net::detached);
