@@ -88,7 +88,7 @@ FITORIA_NAMESPACE_END
 template <typename CharT>
 struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
   template <class ParseContext>
-  constexpr ParseContext::iterator parse(ParseContext& ctx)
+  constexpr auto parse(ParseContext& ctx)
   {
     auto it = ctx.begin();
     if (it == ctx.end()) {
