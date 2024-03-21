@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
+
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -82,5 +84,30 @@ inline level to_level(std::string_view sv)
 }
 
 FITORIA_NAMESPACE_END
+
+template <typename CharT>
+struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext& ctx)
+  {
+    auto it = ctx.begin();
+    if (it == ctx.end()) {
+      return it;
+    }
+    if (*it != '}') {
+      FITORIA_THROW(FITORIA_NAMESPACE::fmt::format_error(
+          "Invalid format args for fitoria::log::level"));
+    }
+
+    return it;
+  }
+
+  template <typename FormatContext>
+  auto format(FITORIA_NAMESPACE::log::level lv, FormatContext& ctx) const
+  {
+    auto str = to_string(lv);
+    return std::copy(str.begin(), str.end(), ctx.out());
+  }
+};
 
 #endif

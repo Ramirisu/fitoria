@@ -46,21 +46,24 @@ inline auto format(level lv, [[maybe_unused]] bool colorful) -> std::string
       return fmt::color::white;
     };
 
-    return fmt::format("{}", fmt::styled(to_string(lv), fmt::fg(get_color())));
+    return fmt::format("{}", fmt::styled(lv, fmt::fg(get_color())));
   }
 #endif
 
-  return to_string(lv);
+  return fmt::format("{}", lv);
+}
+
+inline auto newline()
+{
+#if defined(FITORIA_TARGET_WINDOWS)
+  return std::string_view("\r\n");
+#else
+  return std::string_view("\n");
+#endif
 }
 
 inline auto format(record_ptr rec, bool colorful) -> std::string
 {
-#if defined(FITORIA_TARGET_WINDOWS)
-  auto newline = std::string_view("\r\n");
-#else
-  auto newline = std::string_view("\n");
-#endif
-
 #if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
   return fmt::format("[{:%FT%TZ} {} {}] {} [{}:{}:{}]{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
@@ -70,13 +73,13 @@ inline auto format(record_ptr rec, bool colorful) -> std::string
                      get_file_name(rec->loc.file_name()),
                      rec->loc.line(),
                      rec->loc.column(),
-                     newline);
+                     newline());
 #else
   return fmt::format("[{:%FT%TZ} {}] {}{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
                      format(rec->lv, colorful),
                      rec->msg,
-                     newline);
+                     newline());
 #endif
 }
 
