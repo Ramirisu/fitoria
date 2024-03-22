@@ -11,6 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/web/path_parser.hpp>
 #include <fitoria/web/route.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -116,8 +117,7 @@ public:
 template <basic_fixed_string Path = "">
 inline auto scope()
 {
-  static_assert(compile_time_path_checker::is_valid_scope<Path>(),
-                "invalid path for scope");
+  static_assert(path_parser<false>().parse<Path>(), "invalid path for scope");
   return scope_impl<Path, std::tuple<>, std::tuple<>>({}, {});
 }
 }

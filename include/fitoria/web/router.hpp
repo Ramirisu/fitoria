@@ -39,7 +39,7 @@ public:
     std::shared_ptr<node> wildcard_;
 
     auto try_insert(const route_type& route,
-                    path_matcher::tokens_t::size_type token_index)
+                    path_tokens_t::size_type token_index)
         -> expected<void, error_code>
     {
       if (token_index == route.matcher().tokens().size()) {
@@ -47,10 +47,10 @@ public:
       }
 
       auto& token = route.matcher().tokens()[token_index];
-      if (token.kind == path_matcher::token_kind::static_) {
+      if (token.kind == path_token_kind::static_) {
         return try_insert_static(route, token.value, token_index);
       }
-      if (token.kind == path_matcher::token_kind::named_param) {
+      if (token.kind == path_token_kind::param) {
         return try_insert_param(route, token_index);
       }
 
@@ -59,7 +59,7 @@ public:
 
     auto try_insert_static(const route_type& route,
                            std::string_view token,
-                           path_matcher::tokens_t::size_type token_index)
+                           path_tokens_t::size_type token_index)
         -> expected<void, error_code>
     {
       if (token.empty()) {
@@ -87,7 +87,7 @@ public:
     }
 
     auto try_insert_param(const route_type& route,
-                          path_matcher::tokens_t::size_type token_index)
+                          path_tokens_t::size_type token_index)
         -> expected<void, error_code>
     {
       if (!params_) {
@@ -98,7 +98,7 @@ public:
     }
 
     auto try_insert_wildcard(const route_type& route,
-                             path_matcher::tokens_t::size_type token_index)
+                             path_tokens_t::size_type token_index)
         -> expected<void, error_code>
     {
       if (!wildcard_) {

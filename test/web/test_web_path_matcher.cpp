@@ -16,30 +16,28 @@ TEST_SUITE_BEGIN("[fitoria.web.path_matcher]");
 
 TEST_CASE("tokens")
 {
-  using token_kind = path_matcher::token_kind;
-  using tokens_t = path_matcher::tokens_t;
-  using token_t = path_matcher::token_t;
-
-  CHECK_EQ(path_matcher("").tokens(), tokens_t {});
-  CHECK_EQ(path_matcher("/w/x/y/z").tokens(),
-           tokens_t { token_t { token_kind::static_, "/w/x/y/z" } });
+  CHECK_EQ(path_matcher("").tokens(), path_tokens_t {});
+  CHECK_EQ(
+      path_matcher("/w/x/y/z").tokens(),
+      path_tokens_t { path_token_t { path_token_kind::static_, "/w/x/y/z" } });
   CHECK_EQ(path_matcher("/{p1}").tokens(),
-           tokens_t { token_t { token_kind::static_, "/" },
-                      token_t { token_kind::named_param, "p1" } });
+           path_tokens_t { path_token_t { path_token_kind::static_, "/" },
+                           path_token_t { path_token_kind::param, "p1" } });
   CHECK_EQ(path_matcher("/{p1}/x/{p3}/z").tokens(),
-           tokens_t { token_t { token_kind::static_, "/" },
-                      token_t { token_kind::named_param, "p1" },
-                      token_t { token_kind::static_, "/x/" },
-                      token_t { token_kind::named_param, "p3" },
-                      token_t { token_kind::static_, "/z" } });
-  CHECK_EQ(path_matcher("/w/x/y/z/#abc").tokens(),
-           tokens_t { token_t { token_kind::static_, "/w/x/y/z/" },
-                      token_t { token_kind::wildcard, "abc" } });
+           path_tokens_t { path_token_t { path_token_kind::static_, "/" },
+                           path_token_t { path_token_kind::param, "p1" },
+                           path_token_t { path_token_kind::static_, "/x/" },
+                           path_token_t { path_token_kind::param, "p3" },
+                           path_token_t { path_token_kind::static_, "/z" } });
+  CHECK_EQ(
+      path_matcher("/w/x/y/z/#abc").tokens(),
+      path_tokens_t { path_token_t { path_token_kind::static_, "/w/x/y/z/" },
+                      path_token_t { path_token_kind::wildcard, "abc" } });
   CHECK_EQ(path_matcher("/{p1}/#abc").tokens(),
-           tokens_t { token_t { token_kind::static_, "/" },
-                      token_t { token_kind::named_param, "p1" },
-                      token_t { token_kind::static_, "/" },
-                      token_t { token_kind::wildcard, "abc" } });
+           path_tokens_t { path_token_t { path_token_kind::static_, "/" },
+                           path_token_t { path_token_kind::param, "p1" },
+                           path_token_t { path_token_kind::static_, "/" },
+                           path_token_t { path_token_kind::wildcard, "abc" } });
 }
 
 TEST_CASE("match")
