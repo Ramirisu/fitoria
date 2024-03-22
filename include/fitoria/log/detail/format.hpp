@@ -53,12 +53,12 @@ inline auto format(level lv, [[maybe_unused]] bool colorful) -> std::string
   return fmt::format("{}", lv);
 }
 
-inline auto newline()
+inline auto newline() noexcept -> std::string_view
 {
 #if defined(FITORIA_TARGET_WINDOWS)
-  return std::string_view("\r\n");
+  return "\r\n";
 #else
-  return std::string_view("\n");
+  return "\n";
 #endif
 }
 
@@ -67,11 +67,11 @@ inline auto format(record_ptr rec, bool colorful) -> std::string
   return fmt::format("[{:%FT%TZ} {} {}] {} [{}:{}:{}]{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
                      format(rec->lv, colorful),
-                     rec->loc.function_name(),
+                     rec->function_name,
                      rec->msg,
-                     get_file_name(rec->loc.file_name()),
-                     rec->loc.line(),
-                     rec->loc.column(),
+                     get_file_name(rec->file_name),
+                     rec->line,
+                     rec->column,
                      newline());
 }
 

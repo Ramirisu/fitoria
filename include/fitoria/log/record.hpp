@@ -27,7 +27,10 @@ struct record {
   using clock_t = std::chrono::system_clock;
 
   clock_t::time_point time;
-  source_location loc;
+  std::uint32_t line;
+  std::uint32_t column;
+  std::string_view file_name;
+  std::string_view function_name;
   level lv;
   std::string msg;
 
@@ -36,7 +39,10 @@ struct record {
          level lv,
          std::string msg)
       : time(time)
-      , loc(loc)
+      , line(loc.line())
+      , column(loc.column())
+      , file_name(loc.file_name())
+      , function_name(loc.function_name())
       , lv(lv)
       , msg(std::move(msg))
   {
