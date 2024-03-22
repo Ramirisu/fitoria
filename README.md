@@ -32,10 +32,11 @@ The library is ***experimental*** and still under development, not recommended f
       - [WebSockets](#websockets)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
-    - [Logger](#logger)
+    - [Log](#log)
       - [Log Level Filtering](#log-level-filtering)
       - [Register loggers](#register-loggers)
       - [Log messages](#log-messages)
+      - [Format String](#format-string)
   - [Building](#building)
   - [License](#license)
 
@@ -664,7 +665,9 @@ int main()
 
 ***TODO:***
 
-### Logger
+### Log
+
+Namespace `fitoria::log` provides logging utilities.
 
 #### Log Level Filtering
 
@@ -673,25 +676,27 @@ There are 6 levels `level::trace`, `level::debug`, `level::info`, `level::warnin
 ```cpp
 
 // result to `debeg`, `info`, `warning`, `error` and `fatal`.
-log::filter::at_least(log::level::debug);
+filter::at_least(level::debug);
 
 // all levels
-log::filter::all();
+filter::all();
 
 // load level config from the environment variable.
 // $ CPP_LOG=DEBUG ./my_server 
-log::filter::from_env();
+filter::from_env();
 
 ```
 
 #### Register loggers
 
-The `registry::global()` provides a way to register loggers globally.
+The `registry::global()` provides a way to register loggers globally, and use `async_logger::builder` to create the logger.
 
 ```cpp
 
-log::registry::global().set_default_logger(
-    std::make_shared<log::async_logger>(log::filter::at_least(log::level::trace)));
+registry::global().set_default_logger(
+      async_logger::builder()
+          .set_filter(filter::at_least(level::trace))
+          .build());
 
 ```
 
@@ -700,31 +705,59 @@ After registering the loggers, one or more `async_writer`s should be attached to
 ```cpp
 
 // an stdout writer
-log::registry::global().default_logger()->add_writer(log::make_async_stdout_writer());
+registry::global().default_logger()->add_writer(make_async_stdout_writer());
 
 
 // a file writer
-log::registry::global().default_logger()->add_writer(
-    log::make_async_stream_file_writer("./my_server.log"));
+registry::global().default_logger()->add_writer(
+    make_async_stream_file_writer("./my_server.log"));
 
 ```
 
 #### Log messages
 
-Use `log::log(level, fmt, ...)`, `log::trace(fmt, ...)`, `log::debug(fmt, ...)`, `log::info(fmt, ...)`, `log::warning(fmt, ...)`, `log::error(fmt, ...)`, `log::fatal(fmt, ...)` to write the logs to the default logger.
+Use `log(level, fmt, ...)`, `trace(fmt, ...)`, `debug(fmt, ...)`, `info(fmt, ...)`, `warning(fmt, ...)`, `error(fmt, ...)`, `fatal(fmt, ...)` to write the logs to the default logger.
 
 ```cpp
 
-log::log(log::level::info, "price: {}", 100);
+log(level::info, "price: {}", 100);
 
-log::trace("price: {}", 100);
-log::debug("price: {}", 100);
-log::info("price: {}", 100);
-log::warning("price: {}", 100);
-log::error("price: {}", 100);
-log::fatal("price: {}", 100);
+trace("price: {}", 100);
+debug("price: {}", 100);
+info("price: {}", 100);
+warning("price: {}", 100);
+error("price: {}", 100);
+fatal("price: {}", 100);
 
 ```
+
+#### Format String
+
+`formatter` allows user to customize style of log message. Fields are mapped by named arguments and user can specify detailed format for each field.
+
+```cpp
+
+auto writer = make_async_stdout_writer();
+writer->set_formatter(
+    formatter::builder()
+        // Custom format pattern
+        .set_pattern("{TIME:%FT%TZ} {LV:} >> {MSG:} << {FUNC:}{FILE:}{LINE:}{COL:}")
+        // Show full path of source file
+        .set_file_name_style(file_name_style::full_path)
+        // Show log level with colors
+        .set_color_level_style());
+
+```
+
+| Argument Name |                         Type                         |               Source               |
+| :-----------: | :--------------------------------------------------: | :--------------------------------: |
+|   `{TIME:}`   | `std::chrono::time_point<std::chrono::system_clock>` | `std::chrono::system_clock::now()` |
+|    `{LV:}`    |                     `log::level`                     |           User provided.           |
+|   `{MSG:}`    |                    `std::string`                     |           User provided.           |
+|   `{LINE:}`   |                   `std::uint32_t`                    | `std::source_location::current()`  |
+|   `{COL:}`    |                   `std::uint32_t`                    | `std::source_location::current()`  |
+|   `{FILE:}`   |                  `std::string_view`                  | `std::source_location::current()`  |
+|   `{FUNC:}`   |                  `std::string_view`                  | `std::source_location::current()`  |
 
 ## Building
 
@@ -751,7 +784,7 @@ Dependencies
 | `boost::regex` | Route parsing                      |                 |     required      |
 |  `boost::pfr`  | `web::path<T>` extractor           |                 |     optional      |
 |     `zlib`     | Built-in middleware gzip           |                 |     optional      |
-|     `fmt`      | Log formatting                     | `fitoria::fmt`  |     optional      |
+|     `fmt`      | Log formatting                     | `fitoria::fmt`  |     required      |
 |   `OpenSSL`    | Secure networking                  |                 |     optional      |
 |   `doctest`    | Unit testing                       |                 |     optional      |
 
