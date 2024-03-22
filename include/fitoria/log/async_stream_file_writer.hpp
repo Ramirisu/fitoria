@@ -19,8 +19,6 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-using async_stream_file_writer = basic_async_stream_file_writer<false>;
-
 inline std::shared_ptr<async_writer>
 make_async_stream_file_writer(const std::string& path)
 {
@@ -35,7 +33,8 @@ make_async_stream_file_writer(const std::string& path)
   file.seek(0, net::file_base::seek_end);
 #endif
 
-  return std::make_shared<async_stream_file_writer>(std::move(file));
+  return std::make_shared<basic_async_stream_file_writer>(
+      formatter::builder().build(), std::move(file));
 }
 
 #endif

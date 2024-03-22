@@ -13,6 +13,8 @@
 #include <fitoria/log.hpp>
 #include <fitoria/log/async_stdout_writer.hpp>
 
+#include <fitoria/log/formatter.hpp>
+
 using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.async_stdout_writer]");

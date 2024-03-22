@@ -11,9 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log/detail/format.hpp>
-
-#include <fitoria/log/async_writer.hpp>
+#include <fitoria/log/async_formattable_writer.hpp>
 
 #include <iostream>
 
@@ -21,12 +19,14 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
-class sync_stdout_writer : public async_writer {
+class sync_stdout_writer : public async_formattable_writer {
   std::ostream& file_;
 
 public:
   sync_stdout_writer()
-      : file_(std::cout)
+      : async_formattable_writer(
+          formatter::builder().set_color_level_style().build())
+      , file_(std::cout)
   {
   }
 
@@ -34,7 +34,7 @@ public:
 
   auto async_write(record_ptr rec) -> net::awaitable<void> override
   {
-    file_ << detail::format(rec, true);
+    file_ << this->fmter_.format(rec);
 
     co_return;
   }

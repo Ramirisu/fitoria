@@ -11,21 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#if defined(FITORIA_HAS_STD_FORMAT)
-#include <format>
-
-FITORIA_NAMESPACE_BEGIN
-
-namespace fmt {
-using std::format;
-using std::format_string;
-using std::format_to;
-using std::formatter;
-}
-
-FITORIA_NAMESPACE_END
-
-#elif defined(FITORIA_HAS_FMT)
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
@@ -35,7 +20,5 @@ FITORIA_NAMESPACE_BEGIN
 namespace fmt = fmt;
 
 FITORIA_NAMESPACE_END
-
-#endif
 
 #endif

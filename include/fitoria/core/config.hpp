@@ -56,12 +56,8 @@
 #define FITORIA_TARGET_LINUX
 #endif
 
-#if __has_include(<fmt/core.h>)
-#define FITORIA_HAS_FMT
-#elif defined(__cpp_lib_format) && __has_include(<format>)
-#define FITORIA_HAS_STD_FORMAT
-#else
-#error "requires formatting library"
+#if !__has_include(<fmt/format.h>)
+#error "requires fmtlib"
 #endif
 
 #if defined(__cpp_lib_source_location)

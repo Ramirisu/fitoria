@@ -29,6 +29,9 @@ enum class level : std::uint8_t {
   error,
   fatal,
   off,
+
+  // internal use only
+  count,
 };
 
 inline std::string to_string(level lv)

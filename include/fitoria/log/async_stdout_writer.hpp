@@ -19,15 +19,16 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-using async_stdout_writer = basic_async_stream_file_writer<true>;
-
 inline std::shared_ptr<async_writer> make_async_stdout_writer()
 {
 #if defined(FITORIA_TARGET_WINDOWS)
-  return std::make_shared<async_stdout_writer>(net::stream_file(
-      net::system_executor(), "CONOUT$", net::file_base::write_only));
+  return std::make_shared<basic_async_stream_file_writer>(
+      formatter::builder().set_color_level_style().build(),
+      net::stream_file(
+          net::system_executor(), "CONOUT$", net::file_base::write_only));
 #else
-  return std::make_shared<async_stdout_writer>(
+  return std::make_shared<basic_async_stream_file_writer>(
+      formatter::builder().set_color_level_style().build(),
       net::stream_file(net::system_executor(), STDOUT_FILENO));
 #endif
 }

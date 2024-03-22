@@ -23,7 +23,6 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
 endif()
 
 include(cmake/fitoria_utils.cmake)
-include(cmake/fitoria_check_compiler_feature.cmake)
 
 # [dep.lib] format lib
 message(STATUS "[fitoria] [dep.lib.format] try to find fmt")
@@ -33,16 +32,7 @@ message(STATUS "[fitoria] [dep.lib.format] fmt found = ${fmt_FOUND}")
 if(fmt_FOUND)
   set(FITORIA_USE_FMT ON)
 else()
-  message(STATUS "[fitoria] [dep.lib.format] try to find std.format")
-  detect_std_format()
-  message(
-    STATUS
-      "[fitoria] [dep.lib.format] std.format = ${FITORIA_CXX_COMPILER_HAS_STD_FORMAT}"
-  )
-endif()
-
-if(NOT fmt_FOUND AND NOT FITORIA_CXX_COMPILER_HAS_STD_FORMAT)
-  message(FATAL_ERROR "[fitoria] [dep.lib.format] requires fmt or std.format")
+  message(FATAL_ERROR "[fitoria] [dep.lib.format] fmt is required")
 endif()
 
 # [dep.lib] zlib
@@ -71,6 +61,9 @@ endif()
 message(STATUS "[fitoria] [dep.lib.boost] trying to find Boost 1.84.0")
 find_package(Boost 1.84.0 REQUIRED regex json url)
 message(STATUS "[fitoria] [dep.lib.boost] Boost found = ${BOOST_FOUND}")
+if(NOT BOOST_FOUND)
+  message(FATAL_ERROR "[fitoria] [dep.lib.boost] boost is required")
+endif()
 
 add_library(fitoria INTERFACE)
 add_library(fitoria::fitoria ALIAS fitoria)

@@ -11,9 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/log/detail/format.hpp>
-
-#include <fitoria/log/async_writer.hpp>
+#include <fitoria/log/async_formattable_writer.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -21,13 +19,13 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-template <bool Colorful>
-class basic_async_stream_file_writer : public async_writer {
+class basic_async_stream_file_writer : public async_formattable_writer {
   net::stream_file file_;
 
 public:
-  basic_async_stream_file_writer(net::stream_file file)
-      : file_(std::move(file))
+  basic_async_stream_file_writer(formatter fmter, net::stream_file file)
+      : async_formattable_writer(fmter)
+      , file_(std::move(file))
   {
   }
 
@@ -35,11 +33,10 @@ public:
 
   auto async_write(record_ptr rec) -> net::awaitable<void> override
   {
-    auto output = detail::format(rec, Colorful);
+    auto output = this->fmter_.format(rec);
 
-    co_await net::async_write(file_,
-                              net::const_buffer(output.data(), output.size()),
-                              net::use_awaitable);
+    co_await net::async_write(
+        file_, net::const_buffer(output.data(), output.size()), net::use_ta);
   }
 };
 
