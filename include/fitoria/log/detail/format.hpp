@@ -64,7 +64,6 @@ inline auto newline()
 
 inline auto format(record_ptr rec, bool colorful) -> std::string
 {
-#if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
   return fmt::format("[{:%FT%TZ} {} {}] {} [{}:{}:{}]{}",
                      std::chrono::floor<std::chrono::seconds>(rec->time),
                      format(rec->lv, colorful),
@@ -74,13 +73,6 @@ inline auto format(record_ptr rec, bool colorful) -> std::string
                      rec->loc.line(),
                      rec->loc.column(),
                      newline());
-#else
-  return fmt::format("[{:%FT%TZ} {}] {}{}",
-                     std::chrono::floor<std::chrono::seconds>(rec->time),
-                     format(rec->lv, colorful),
-                     rec->msg,
-                     newline());
-#endif
 }
 
 }

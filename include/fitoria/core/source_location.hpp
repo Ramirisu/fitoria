@@ -13,6 +13,8 @@
 
 #if defined(FITORIA_HAS_STD_SOURCE_LOCATION)
 #include <source_location>
+#else
+#include <cstdint>
 #endif
 
 FITORIA_NAMESPACE_BEGIN
@@ -23,14 +25,45 @@ using std::source_location;
 
 #else
 
-class source_location {
-public:
-  source_location() = default;
-
-  static constexpr source_location current() noexcept
+struct source_location {
+  static consteval source_location
+  current(const std::uint_least32_t line = __builtin_LINE(),
+          const std::uint_least32_t column = __builtin_COLUMN(),
+          const char* const file = __builtin_FILE(),
+          const char* const function = __builtin_FUNCTION()) noexcept
   {
-    return source_location();
+    source_location loc {};
+    loc.line_ = line;
+    loc.column_ = column;
+    loc.file_ = file;
+    loc.function_ = function;
+    return loc;
   }
+
+  constexpr source_location() noexcept = default;
+
+  constexpr std::uint_least32_t line() const noexcept
+  {
+    return line_;
+  }
+  constexpr std::uint_least32_t column() const noexcept
+  {
+    return column_;
+  }
+  constexpr const char* file_name() const noexcept
+  {
+    return file_;
+  }
+  constexpr const char* function_name() const noexcept
+  {
+    return function_;
+  }
+
+private:
+  std::uint_least32_t line_ {};
+  std::uint_least32_t column_ {};
+  const char* file_ = "";
+  const char* function_ = "";
 };
 
 #endif
