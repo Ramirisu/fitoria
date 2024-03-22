@@ -29,7 +29,7 @@ class async_message_parser_stream {
 public:
   using parser_t = boost::beast::http::parser<isRequest, Body, Allocator>;
 
-  async_message_parser_stream(net::flat_buffer buffer,
+  async_message_parser_stream(boost::beast::flat_buffer buffer,
                               Stream stream,
                               std::unique_ptr<parser_t> parser,
                               std::chrono::milliseconds timeout)
@@ -65,8 +65,8 @@ public:
     parser_->get().body().size = buf.size();
 
     net::get_lowest_layer(*stream_).expires_after(timeout_);
-    std::tie(ec, std::ignore)
-        = co_await boost::beast::http::async_read(*stream_, buffer_, *parser_);
+    std::tie(ec, std::ignore) = co_await boost::beast::http::async_read(
+        *stream_, buffer_, *parser_, net::use_ta);
     const auto remaining = parser_->get().body().size;
     if (!ec || ec == http::error::need_buffer) {
       buf.resize(bufsize - remaining);
@@ -76,7 +76,7 @@ public:
   }
 
 private:
-  net::flat_buffer buffer_;
+  boost::beast::flat_buffer buffer_;
   Stream stream_;
   std::unique_ptr<parser_t> parser_;
   std::chrono::milliseconds timeout_;

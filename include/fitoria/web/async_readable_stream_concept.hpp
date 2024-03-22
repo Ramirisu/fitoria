@@ -78,13 +78,16 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
 
     net::get_lowest_layer(to).expires_after(timeout);
     std::tie(ec, std::ignore) = co_await async_write(
-        to, make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())));
+        to,
+        make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())),
+        net::use_ta);
     if (ec) {
       co_return unexpected { ec };
     }
   }
 
-  std::tie(ec, std::ignore) = co_await async_write(to, make_chunk_last());
+  std::tie(ec, std::ignore)
+      = co_await async_write(to, make_chunk_last(), net::use_ta);
   if (ec) {
     co_return unexpected { ec };
   }

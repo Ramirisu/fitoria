@@ -217,10 +217,10 @@ private:
     tasks_.clear();
   }
 
-  net::awaitable<net::acceptor>
+  net::awaitable<net::ip::tcp::acceptor>
   new_acceptor(net::ip::tcp::endpoint endpoint) const
   {
-    auto acceptor = net::acceptor(co_await net::this_coro::executor);
+    auto acceptor = net::ip::tcp::acceptor(co_await net::this_coro::executor);
 
     acceptor.open(endpoint.protocol());
     acceptor.set_option(net::socket_base::reuse_address(true));
@@ -234,7 +234,7 @@ private:
     auto acceptor = co_await new_acceptor(endpoint);
 
     for (;;) {
-      auto [ec, socket] = co_await acceptor.async_accept();
+      auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
         continue;
@@ -255,7 +255,7 @@ private:
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
     for (;;) {
-      auto [ec, socket] = co_await acceptor.async_accept();
+      auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
       if (ec) {
         log::debug("[{}] async_accept failed: {}", name(), ec.message());
         continue;
@@ -288,8 +288,8 @@ private:
     net::error_code ec;
 
     net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
-    std::tie(ec)
-        = co_await stream->async_handshake(net::ssl::stream_base::server);
+    std::tie(ec) = co_await stream->async_handshake(
+        net::ssl::stream_base::server, net::use_ta);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
       co_return;
@@ -299,7 +299,7 @@ private:
       co_return;
     }
 
-    std::tie(ec) = co_await stream->async_shutdown();
+    std::tie(ec) = co_await stream->async_shutdown(net::use_ta);
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
       co_return;
@@ -319,13 +319,13 @@ private:
     net::error_code ec;
 
     for (;;) {
-      net::flat_buffer buffer;
+      boost::beast::flat_buffer buffer;
       auto parser = std::make_unique<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
       net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
       std::tie(ec, std::ignore)
-          = co_await async_read_header(*stream, buffer, *parser);
+          = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
       if (ec) {
         if (ec != http::error::end_of_stream) {
           log::debug("[{}] async_read_header failed: {}", name(), ec.message());
@@ -342,7 +342,9 @@ private:
           it != parser->get().end() && it->value() == "100-continue") {
         net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
         std::tie(ec, std::ignore) = co_await async_write(
-            *stream, response<empty_body>(http::status::continue_, 11));
+            *stream,
+            response<empty_body>(http::status::continue_, 11),
+            net::use_ta);
         if (ec) {
           log::debug(
               "[{}] async_write 100-continue failed: {}", name(), ec.message());
@@ -442,7 +444,7 @@ private:
     r.prepare_payload();
 
     net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
-    std::tie(ec, std::ignore) = co_await async_write(*stream, r);
+    std::tie(ec, std::ignore) = co_await async_write(*stream, r, net::use_ta);
     if (ec) {
       log::debug("[{}] async_write failed: {}", name(), ec.message());
       co_return unexpected { ec };
@@ -471,7 +473,7 @@ private:
 
     net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
     std::tie(ec, std::ignore)
-        = co_await async_write_header(*stream, serializer);
+        = co_await async_write_header(*stream, serializer, net::use_ta);
     if (ec) {
       log::debug("[{}] async_write_header failed: {}", name(), ec.message());
       co_return unexpected { ec };

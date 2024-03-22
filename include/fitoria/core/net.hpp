@@ -22,23 +22,12 @@ namespace net {
 using namespace boost::asio;
 
 using boost::beast::error_code;
-using boost::beast::system_error;
-
-using boost::beast::flat_buffer;
 
 using boost::beast::get_lowest_layer;
 
-using acceptor
-    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<ip::tcp::acceptor>;
+constexpr auto use_ta = as_tuple(use_awaitable);
 
-using resolver
-    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<ip::tcp::resolver>;
-
-using resolver_results = ip::basic_resolver_results<ip::tcp>;
-
-using tcp_stream
-    = as_tuple_t<use_awaitable_t<>>::as_default_on_t<boost::beast::tcp_stream>;
-using ws_tcp_stream = boost::beast::websocket::stream<tcp_stream>;
+using ws_tcp_stream = boost::beast::websocket::stream<boost::beast::tcp_stream>;
 
 template <typename Stream, bool HasSslCtx = false>
 class basic_shared_stream {
@@ -73,11 +62,11 @@ public:
   }
 };
 
-using shared_tcp_stream = basic_shared_stream<tcp_stream, false>;
+using shared_tcp_stream = basic_shared_stream<boost::beast::tcp_stream, false>;
 using shared_ws_tcp_stream = basic_shared_stream<ws_tcp_stream, false>;
 
 #if defined(FITORIA_HAS_OPENSSL)
-using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
+using ssl_stream = boost::beast::ssl_stream<boost::beast::tcp_stream>;
 using ws_ssl_stream = boost::beast::websocket::stream<ssl_stream>;
 
 template <typename Stream>
