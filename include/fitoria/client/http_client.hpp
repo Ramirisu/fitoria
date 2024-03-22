@@ -343,16 +343,16 @@ private:
           net::error::get_ssl_category()) };
     }
 
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
-        = co_await net::get_lowest_layer(*stream).async_connect(*results,
-                                                                net::use_ta);
+        = co_await boost::beast::get_lowest_layer(*stream).async_connect(
+            *results, net::use_ta);
     if (ec) {
       log::debug("[{}] async_connect failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::client, net::use_ta);
     if (ec) {
@@ -386,7 +386,7 @@ private:
     boost::beast::flat_buffer buffer;
 
     auto parser = std::make_unique<response_parser<buffer_body>>();
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
     if (ec) {
@@ -431,7 +431,7 @@ private:
     net::error_code ec;
 
     auto serializer = request_serializer<vector_body<std::byte>>(req);
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer, net::use_ta);
     if (ec) {
@@ -442,7 +442,7 @@ private:
     if (use_expect) {
       boost::beast::flat_buffer buffer;
       response<vector_body<std::byte>> res;
-      net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
+      boost::beast::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read(*stream, buffer, res, net::use_ta);
       if (ec && ec != boost::beast::error::timeout) {
@@ -457,7 +457,7 @@ private:
       }
     }
 
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write(*stream, serializer, net::use_ta);
     if (ec) {
@@ -489,7 +489,7 @@ private:
     net::error_code ec;
 
     auto serializer = request_serializer<empty_body>(req);
-    net::get_lowest_layer(*stream).expires_after(request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer, net::use_ta);
     if (ec) {
@@ -500,7 +500,7 @@ private:
     if (use_expect) {
       boost::beast::flat_buffer buffer;
       response<vector_body<std::byte>> res;
-      net::get_lowest_layer(*stream).expires_after(expect100_timeout_);
+      boost::beast::get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read(*stream, buffer, res, net::use_ta);
       if (ec && ec != boost::beast::error::timeout) {

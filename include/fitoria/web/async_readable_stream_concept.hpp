@@ -76,7 +76,7 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
       co_return unexpected { (*chunk).error() };
     }
 
-    net::get_lowest_layer(to).expires_after(timeout);
+    boost::beast::get_lowest_layer(to).expires_after(timeout);
     std::tie(ec, std::ignore) = co_await async_write(
         to,
         make_chunk(net::const_buffer((*chunk)->data(), (*chunk)->size())),

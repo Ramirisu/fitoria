@@ -287,7 +287,8 @@ private:
   {
     net::error_code ec;
 
-    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(
+        client_request_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
@@ -323,7 +324,8 @@ private:
       auto parser = std::make_unique<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
-      net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
+      boost::beast::get_lowest_layer(*stream).expires_after(
+          client_request_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
       if (ec) {
@@ -340,7 +342,8 @@ private:
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end() && it->value() == "100-continue") {
-        net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
+        boost::beast::get_lowest_layer(*stream).expires_after(
+            client_request_timeout_);
         std::tie(ec, std::ignore) = co_await async_write(
             *stream,
             response<empty_body>(http::status::continue_, 11),
@@ -443,7 +446,8 @@ private:
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
-    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(
+        client_request_timeout_);
     std::tie(ec, std::ignore) = co_await async_write(*stream, r, net::use_ta);
     if (ec) {
       log::debug("[{}] async_write failed: {}", name(), ec.message());
@@ -471,7 +475,8 @@ private:
 
     auto serializer = response_serializer<empty_body>(std::move(r));
 
-    net::get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    boost::beast::get_lowest_layer(*stream).expires_after(
+        client_request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer, net::use_ta);
     if (ec) {

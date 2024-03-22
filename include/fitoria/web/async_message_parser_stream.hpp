@@ -64,7 +64,7 @@ public:
     parser_->get().body().data = buf.data();
     parser_->get().body().size = buf.size();
 
-    net::get_lowest_layer(*stream_).expires_after(timeout_);
+    boost::beast::get_lowest_layer(*stream_).expires_after(timeout_);
     std::tie(ec, std::ignore) = co_await boost::beast::http::async_read(
         *stream_, buffer_, *parser_, net::use_ta);
     const auto remaining = parser_->get().body().size;

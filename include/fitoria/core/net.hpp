@@ -23,8 +23,6 @@ using namespace boost::asio;
 
 using boost::beast::error_code;
 
-using boost::beast::get_lowest_layer;
-
 constexpr auto use_ta = as_tuple(use_awaitable);
 
 using ws_tcp_stream = boost::beast::websocket::stream<boost::beast::tcp_stream>;
@@ -111,13 +109,13 @@ using shared_ws_ssl_stream = basic_shared_stream<ws_ssl_stream, true>;
 template <typename Stream>
 auto get_local_endpoint(Stream& stream)
 {
-  return net::get_lowest_layer(stream).socket().local_endpoint();
+  return boost::beast::get_lowest_layer(stream).socket().local_endpoint();
 }
 
 template <typename Stream>
 auto get_remote_endpoint(Stream& stream)
 {
-  return net::get_lowest_layer(stream).socket().remote_endpoint();
+  return boost::beast::get_lowest_layer(stream).socket().remote_endpoint();
 }
 
 template <typename Awaitable>
