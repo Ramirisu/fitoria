@@ -34,8 +34,8 @@ public:
     return next_.size_hint();
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next()
+      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
   {
     namespace zlib = boost::beast::zlib;
 
@@ -61,7 +61,7 @@ public:
     p.avail_out = out.size();
 
     while (true) {
-      net::error_code ec;
+      boost::system::error_code ec;
       inflater_.write(p, zlib::Flush::sync, ec);
       FITORIA_ASSERT(ec != zlib::error::stream_error);
 
@@ -111,8 +111,8 @@ public:
     return next_.size_hint();
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next()
+      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
   {
     namespace zlib = boost::beast::zlib;
 
@@ -138,7 +138,7 @@ public:
     p.avail_out = out.size();
 
     while (true) {
-      net::error_code ec;
+      boost::system::error_code ec;
       deflater_.write(p, zlib::Flush::sync, ec);
       FITORIA_ASSERT(ec != zlib::error::stream_error);
 

@@ -30,13 +30,13 @@ template <typename T>
 concept async_readable_stream = requires(T t) {
   { t.size_hint() } -> std::same_as<optional<std::size_t>>;
   { t.async_read_next() } 
-    -> std::same_as<net::awaitable<optional<expected<std::vector<std::byte>, net::error_code>>>>;
+    -> std::same_as<net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>>;
 };
 // clang-format on
 
 template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_all_as(AsyncReadableStream&& stream)
-    -> net::awaitable<optional<expected<Container, net::error_code>>>
+    -> net::awaitable<optional<expected<Container, error_code>>>
 {
   Container container;
 
@@ -64,11 +64,11 @@ template <typename AsyncWritableStream,
 auto async_write_each_chunk(AsyncWritableStream&& to,
                             AsyncReadableStream&& from,
                             std::chrono::milliseconds timeout)
-    -> net::awaitable<expected<void, net::error_code>>
+    -> net::awaitable<expected<void, error_code>>
 {
   using boost::beast::http::make_chunk;
   using boost::beast::http::make_chunk_last;
-  net::error_code ec;
+  boost::system::error_code ec;
 
   for (auto chunk = co_await from.async_read_next(); chunk;
        chunk = co_await from.async_read_next()) {
@@ -92,7 +92,7 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
     co_return unexpected { ec };
   }
 
-  co_return expected<void, net::error_code>();
+  co_return expected<void, error_code>();
 }
 }
 

@@ -28,8 +28,8 @@ FITORIA_NAMESPACE_BEGIN
 namespace log {
 
 class async_logger {
-  using channel_t = net::experimental::concurrent_channel<void(net::error_code,
-                                                               record_ptr)>;
+  using channel_t = net::experimental::concurrent_channel<void(
+      boost::system::error_code, record_ptr)>;
 
   std::vector<std::shared_ptr<async_writer>> writers_;
   filter filter_;
@@ -56,8 +56,8 @@ class async_logger {
 
   auto async_enqueue(record_ptr rec) -> net::awaitable<void>
   {
-    [[maybe_unused]] auto [ec]
-        = co_await channel_.async_send(net::error_code(), rec, net::use_ta);
+    [[maybe_unused]] auto [ec] = co_await channel_.async_send(
+        boost::system::error_code(), rec, net::use_ta);
   }
 
   void log(record::clock_t::time_point time,

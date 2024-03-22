@@ -307,12 +307,10 @@ private:
       co_return unexpected { results.error() };
     }
 
-    net::error_code ec;
     auto stream = net::shared_tcp_stream(co_await net::this_coro::executor);
 
     stream->expires_after(request_timeout_);
-    std::tie(ec, std::ignore)
-        = co_await stream->async_connect(*results, net::use_ta);
+    auto [ec, _] = co_await stream->async_connect(*results, net::use_ta);
     if (ec) {
       log::debug("[{}] async_connect failed: {}", name(), ec.message());
       co_return unexpected { ec };
@@ -330,7 +328,7 @@ private:
       co_return unexpected { results.error() };
     }
 
-    net::error_code ec;
+    boost::system::error_code ec;
     auto stream = net::shared_ssl_stream(
         co_await net::this_coro::executor,
         std::make_shared<net::ssl::context>(std::move(ssl_ctx)));
@@ -338,7 +336,7 @@ private:
     // Set SNI Hostname (many hosts need this to handshake successfully)
     if (!SSL_set_tlsext_host_name(stream->native_handle(),
                                   resource_->host.c_str())) {
-      co_return unexpected { net::error_code(
+      co_return unexpected { boost::system::error_code(
           static_cast<int>(::ERR_get_error()),
           net::error::get_ssl_category()) };
     }
@@ -382,7 +380,7 @@ private:
       co_return std::move(**exp);
     }
 
-    net::error_code ec;
+    boost::system::error_code ec;
     boost::beast::flat_buffer buffer;
 
     auto parser = std::make_unique<response_parser<buffer_body>>();
@@ -428,7 +426,7 @@ private:
     }
     req.prepare_payload();
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     auto serializer = request_serializer<vector_body<std::byte>>(req);
     boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);
@@ -486,7 +484,7 @@ private:
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     auto serializer = request_serializer<empty_body>(req);
     boost::beast::get_lowest_layer(*stream).expires_after(request_timeout_);

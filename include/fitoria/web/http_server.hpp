@@ -273,11 +273,12 @@ private:
   net::awaitable<void> do_session(net::shared_tcp_stream stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
-    auto ec = co_await do_session_impl(stream, std::move(listen_ep));
-    if (ec) {
+
+    if (auto ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
       co_return;
     }
 
+    boost::system::error_code ec;
     stream->socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
   }
 
@@ -285,7 +286,7 @@ private:
   net::awaitable<void> do_session(net::shared_ssl_stream stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
-    net::error_code ec;
+    boost::system::error_code ec;
 
     boost::beast::get_lowest_layer(*stream).expires_after(
         client_request_timeout_);
@@ -309,7 +310,7 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<net::error_code>
+  net::awaitable<error_code>
   do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::buffer_body;
@@ -317,7 +318,7 @@ private:
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     for (;;) {
       boost::beast::flat_buffer buffer;
@@ -370,8 +371,7 @@ private:
                                       std::move(parser),
                                       client_request_timeout_));
 
-      auto do_response
-          = [&]() -> net::awaitable<expected<void, net::error_code>> {
+      auto do_response = [&]() -> net::awaitable<expected<void, error_code>> {
         return res.body().size_hint()
             ? do_sized_response(stream, res, keep_alive)
             : do_chunked_response(stream, res, keep_alive);
@@ -426,12 +426,12 @@ private:
   template <typename Stream>
   auto
   do_sized_response(Stream& stream, http_response& res, bool keep_alive) const
-      -> net::awaitable<expected<void, net::error_code>>
+      -> net::awaitable<expected<void, error_code>>
   {
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
     res.fields().to(r);
@@ -454,19 +454,19 @@ private:
       co_return unexpected { ec };
     }
 
-    co_return expected<void, net::error_code>();
+    co_return expected<void, error_code>();
   }
 
   template <typename Stream>
   auto
   do_chunked_response(Stream& stream, http_response& res, bool keep_alive) const
-      -> net::awaitable<expected<void, net::error_code>>
+      -> net::awaitable<expected<void, error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     auto r = response<empty_body>(res.status_code().value(), 11);
     res.fields().to(r);

@@ -49,14 +49,14 @@ public:
     return nullopt;
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, net::error_code>>>
+  auto async_read_next()
+      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
   {
     if (parser_->is_done()) {
       co_return nullopt;
     }
 
-    net::error_code ec;
+    boost::system::error_code ec;
 
     // TODO: buffer size configurable ?
     const std::size_t bufsize = 1024;

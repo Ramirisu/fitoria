@@ -21,8 +21,6 @@ namespace net {
 
 using namespace boost::asio;
 
-using boost::beast::error_code;
-
 constexpr auto use_ta = as_tuple(use_awaitable);
 
 using ws_tcp_stream = boost::beast::websocket::stream<boost::beast::tcp_stream>;
