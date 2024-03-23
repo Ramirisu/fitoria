@@ -448,10 +448,8 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(
-            res.result(),
-            http_fields::from(res),
-            async_readable_vector_stream(std::move(res.body())));
+        co_return http_response(res.result(), http_fields::from(res))
+            .set_stream(async_readable_vector_stream(std::move(res.body())));
       }
     }
 
@@ -506,10 +504,8 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(
-            res.result(),
-            http_fields::from(res),
-            async_readable_vector_stream(std::move(res.body())));
+        co_return http_response(res.result(), http_fields::from(res))
+            .set_stream(async_readable_vector_stream(std::move(res.body())));
       }
     }
 
