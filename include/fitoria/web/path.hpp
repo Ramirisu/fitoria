@@ -28,14 +28,32 @@ namespace web {
 template <typename T>
 class path {
 public:
+  static_assert(std::same_as<T, std::remove_cvref_t<T>>,
+                "T must not be cvref qualified");
+
   explicit path(T inner)
       : inner_(std::move(inner))
   {
   }
 
-  auto get() const noexcept -> const T&
+  auto get() & noexcept -> T&
   {
     return inner_;
+  }
+
+  auto get() const& noexcept -> const T&
+  {
+    return inner_;
+  }
+
+  auto get() && noexcept -> T&&
+  {
+    return std::move(inner_);
+  }
+
+  auto get() const&& noexcept -> const T&&
+  {
+    return std::move(inner_);
   }
 
   friend auto tag_invoke(from_http_request_t<path<T>>, http_request& req)
@@ -85,14 +103,32 @@ class path;
 template <typename... Ts>
 class path<std::tuple<Ts...>> {
 public:
+  static_assert((std::same_as<Ts, std::remove_cvref_t<Ts>> && ...),
+                "Ts... must not be cvref qualified");
+
   explicit path(std::tuple<Ts...> inner)
       : inner_(std::move(inner))
   {
   }
 
-  auto get() const noexcept -> const std::tuple<Ts...>&
+  auto get() & noexcept -> std::tuple<Ts...>&
   {
     return inner_;
+  }
+
+  auto get() const& noexcept -> const std::tuple<Ts...>&
+  {
+    return inner_;
+  }
+
+  auto get() && noexcept -> std::tuple<Ts...>&&
+  {
+    return std::move(inner_);
+  }
+
+  auto get() const&& noexcept -> const std::tuple<Ts...>&&
+  {
+    return std::move(inner_);
   }
 
   friend auto tag_invoke(from_http_request_t<path<std::tuple<Ts...>>>,

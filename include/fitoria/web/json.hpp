@@ -24,6 +24,9 @@ namespace web {
 template <typename T>
 class json : public T {
 public:
+  static_assert(std::same_as<T, std::remove_cvref_t<T>>,
+                "T must not be cvref qualified");
+
   json(T value)
       : T(std::move(value))
   {

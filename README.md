@@ -365,73 +365,94 @@ Built-in Extractors:
 
 ```cpp
 
-namespace api::v1::login {
-struct secret_t {
-  std::string password;
-};
-
-boost::json::result_for<secret_t, boost::json::value>::type
-tag_invoke(const boost::json::try_value_to_tag<secret_t>&,
-           const boost::json::value& jv)
-{
-  secret_t user;
-
-  if (!jv.is_object()) {
-    return make_error_code(boost::json::error::incomplete);
-  }
-
-  const auto& obj = jv.get_object();
-
-  auto* password = obj.if_contains("password");
-  if (password && password->is_string()) {
-    return secret_t { .password = std::string(password->get_string()) };
-  }
-
-  return make_error_code(boost::json::error::incomplete);
-}
-
-auto api(const connection_info& conn_info,
-         const path_info& path_info,
-         state<database_ptr> db,
-         json<secret_t> secret) -> net::awaitable<http_response>
-{
-  std::cout << fmt::format("client addr {}:{}\n",
-                           conn_info.remote_addr().to_string(),
-                           conn_info.remote_port());
-  if (secret.password
-      == path_info.get("user").and_then([&](auto&& name) -> optional<std::string> {
-           if (auto it = db->find(name); it != db->end()) {
-             return it->second;
-           }
-           return nullopt;
-         })) {
-    co_return http_response(http::status::ok)
+namespace api::v1 {
+namespace users {
+  auto api(path<std::tuple<std::string>> path, state<database::ptr> db)
+      -> net::awaitable<http_response>
+  {
+    auto& [user] = path.get();
+    if (auto it = db.get()->find(user); it != db.get()->end()) {
+      if (it->second.last_login_time) {
+        co_return http_response(http::status::ok)
+            .set_field(http::field::content_type,
+                       http::fields::content_type::plaintext())
+            .set_body(fmt::format("{:%FT%TZ}", *(it->second.last_login_time)));
+      } else {
+        co_return http_response(http::status::internal_server_error)
+            .set_field(http::field::content_type,
+                       http::fields::content_type::plaintext())
+            .set_body(fmt::format("User [{}] never logins.", user));
+      }
+    }
+    co_return http_response(http::status::not_found)
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
-        .set_body("login succeeded");
+        .set_body("User does not exist.");
   }
-  co_return http_response(http::status::unauthorized)
-      .set_field(http::field::content_type,
-                 http::fields::content_type::plaintext())
-      .set_body("user name or password is incorrect");
+}
+namespace login {
+  struct body_type {
+    std::string username;
+    std::string password;
+  };
+
+  boost::json::result_for<body_type, boost::json::value>::type
+  tag_invoke(const boost::json::try_value_to_tag<body_type>&,
+             const boost::json::value& jv)
+  {
+    if (!jv.is_object()) {
+      return make_error_code(boost::json::error::incomplete);
+    }
+
+    const auto& obj = jv.get_object();
+
+    auto* username = obj.if_contains("username");
+    auto* password = obj.if_contains("password");
+    if (!username || !username->is_string() || !password
+        || !password->is_string()) {
+      return make_error_code(boost::json::error::incomplete);
+    }
+    return body_type { .username = std::string(username->get_string()),
+                       .password = std::string(password->get_string()) };
+  }
+
+  auto api(state<database::ptr> db, json<body_type> body)
+      -> net::awaitable<http_response>
+  {
+    if (auto it = db.get()->find(body.username);
+        it != db.get()->end() && it->second.password == body.password) {
+      it->second.last_login_time = database::clock_t::now();
+      co_return http_response(http::status::ok)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body("Login succeeded.");
+    }
+    co_return http_response(http::status::unauthorized)
+        .set_field(http::field::content_type,
+                   http::fields::content_type::plaintext())
+        .set_body("User name or password is incorrect.");
+  }
 }
 }
 
 int main()
 {
-  auto db = std::make_shared<database_t>();
-  db->insert({ "albert", "123456" });
+  auto db = std::make_shared<database::type>();
+  db->insert({ "albert",
+               database::user_t { .password = "123456",
+                                  .last_login_time = nullopt } });
 
   auto server
       = http_server::builder()
-            .serve(route::post<"/api/v1/login/{user}">(api::v1::login::api)
+            .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
+                       .share_state(db))
+            .serve(route::post<"/api/v1/login">(api::v1::login::api)
                        .share_state(db))
             .build();
   server //
       .bind("127.0.0.1", 8080)
       .run();
 }
-
 
 ```
 

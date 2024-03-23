@@ -236,9 +236,9 @@ TEST_CASE("state<T> extractor")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">([](state<std::string> s)
+            .serve(route::get<"/get">([](state<std::string> st)
                                           -> net::awaitable<http_response> {
-                     CHECK_EQ(s, "shared state");
+                     CHECK_EQ(st, "shared state");
                      co_return http_response(http::status::ok);
                    }).share_state(std::string("shared state")))
             .build();
