@@ -277,7 +277,26 @@ TEST_CASE("std::vector<std::byte> extractor")
       = http_server::builder()
             .serve(route::post<"/post">([](std::vector<std::byte> bytes)
                                             -> net::awaitable<http_response> {
-              CHECK_EQ(bytes, to_bytes("abc"));
+              CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
+              co_return http_response(http::status::ok);
+            }))
+            .build();
+  net::sync_wait([&]() -> net::awaitable<void> {
+    {
+      auto res = co_await server.async_serve_request(
+          "/post", http_request(http::verb::post).set_body("abc"));
+      CHECK_EQ(res.status_code(), http::status::ok);
+    }
+  }());
+}
+
+TEST_CASE("std::vector<std::uint8_t> extractor")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::post<"/post">([](std::vector<std::uint8_t> bytes)
+                                            -> net::awaitable<http_response> {
+              CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
               co_return http_response(http::status::ok);
             }))
             .build();

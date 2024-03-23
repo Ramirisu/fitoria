@@ -48,12 +48,17 @@ bool range_in_set(std::pair<Iter, Iter> iters,
   return set.empty();
 }
 
-std::vector<std::byte> to_bytes(std::string_view str)
+template <typename T>
+std::vector<T> str_to_vec(std::string_view str)
 {
-  auto s = std::as_bytes(std::span(str.begin(), str.end()));
-  return { s.begin(), s.end() };
-}
+  auto vec = std::vector<T>();
+  vec.reserve(str.size());
+  for (auto& c : str) {
+    vec.push_back(static_cast<T>(c));
+  }
 
+  return vec;
+}
 }
 
 FITORIA_NAMESPACE_END

@@ -73,6 +73,16 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
+      requires(std::same_as<R, std::string>)
+    {
+      if (auto res = co_await async_read_all_as<std::string>(req.body()); res) {
+        co_return std::move(*res);
+      }
+      co_return R();
+    }
+
+    friend auto tag_invoke(from_http_request_t<R>, http_request& req)
+        -> net::awaitable<expected<R, error_code>>
       requires(std::same_as<R, std::vector<std::byte>>)
     {
       if (auto res
@@ -85,9 +95,11 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(std::same_as<R, std::string>)
+      requires(std::same_as<R, std::vector<std::uint8_t>>)
     {
-      if (auto res = co_await async_read_all_as<std::string>(req.body()); res) {
+      if (auto res
+          = co_await async_read_all_as<std::vector<std::uint8_t>>(req.body());
+          res) {
         co_return std::move(*res);
       }
       co_return R();
