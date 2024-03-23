@@ -40,6 +40,16 @@ public:
   {
   }
 
+  async_message_parser_stream(const async_message_parser_stream&) = delete;
+
+  async_message_parser_stream& operator=(const async_message_parser_stream&)
+      = delete;
+
+  async_message_parser_stream(async_message_parser_stream&&) = default;
+
+  async_message_parser_stream& operator=(async_message_parser_stream&&)
+      = default;
+
   auto size_hint() const noexcept -> optional<std::size_t>
   {
     if (auto length = parser_->content_length(); length) {

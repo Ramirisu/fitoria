@@ -34,6 +34,16 @@ public:
   {
   }
 
+  async_readable_vector_stream(const async_readable_vector_stream&) = default;
+
+  async_readable_vector_stream& operator=(const async_readable_vector_stream&)
+      = default;
+
+  async_readable_vector_stream(async_readable_vector_stream&&) = default;
+
+  async_readable_vector_stream& operator=(async_readable_vector_stream&&)
+      = default;
+
   auto size_hint() const noexcept -> optional<std::size_t>
   {
     return data_.transform([](auto& data) { return data.size(); }).value_or(0);
