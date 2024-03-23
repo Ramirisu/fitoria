@@ -149,4 +149,17 @@ TEST_CASE("async_send")
 #endif
 }
 
+TEST_CASE("request with body")
+{
+  net::sync_wait([]() -> net::awaitable<void> {
+    auto res = (co_await http_client::post("http://httpbin.org/post")
+                    .set_body("echo")
+                    .async_send())
+                   .value();
+    CHECK_EQ(res.status_code().value(), http::status::ok);
+    auto body = co_await res.as_json();
+    CHECK_EQ(body->at("data"), "echo");
+  });
+}
+
 TEST_SUITE_END();
