@@ -26,34 +26,14 @@ namespace web {
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
-class path {
+class path : public T {
 public:
   static_assert(std::same_as<T, std::remove_cvref_t<T>>,
                 "T must not be cvref qualified");
 
   explicit path(T inner)
-      : inner_(std::move(inner))
+      : T(std::move(inner))
   {
-  }
-
-  auto get() & noexcept -> T&
-  {
-    return inner_;
-  }
-
-  auto get() const& noexcept -> const T&
-  {
-    return inner_;
-  }
-
-  auto get() && noexcept -> T&&
-  {
-    return std::move(inner_);
-  }
-
-  auto get() const&& noexcept -> const T&&
-  {
-    return std::move(inner_);
   }
 
   friend auto tag_invoke(from_http_request_t<path<T>>, http_request& req)
@@ -89,8 +69,6 @@ private:
 
     return false;
   }
-
-  T inner_;
 };
 
 #else
@@ -101,34 +79,14 @@ class path;
 #endif
 
 template <typename... Ts>
-class path<std::tuple<Ts...>> {
+class path<std::tuple<Ts...>> : public std::tuple<Ts...> {
 public:
   static_assert((std::same_as<Ts, std::remove_cvref_t<Ts>> && ...),
                 "Ts... must not be cvref qualified");
 
   explicit path(std::tuple<Ts...> inner)
-      : inner_(std::move(inner))
+      : std::tuple<Ts...>(std::move(inner))
   {
-  }
-
-  auto get() & noexcept -> std::tuple<Ts...>&
-  {
-    return inner_;
-  }
-
-  auto get() const& noexcept -> const std::tuple<Ts...>&
-  {
-    return inner_;
-  }
-
-  auto get() && noexcept -> std::tuple<Ts...>&&
-  {
-    return std::move(inner_);
-  }
-
-  auto get() const&& noexcept -> const std::tuple<Ts...>&&
-  {
-    return std::move(inner_);
   }
 
   friend auto tag_invoke(from_http_request_t<path<std::tuple<Ts...>>>,
@@ -151,12 +109,18 @@ private:
 
     return unexpected { make_error_code(error::path_extraction_error) };
   }
-
-  std::tuple<Ts...> inner_;
 };
 
 }
 
 FITORIA_NAMESPACE_END
+
+template <typename... Ts>
+struct std::tuple_size<FITORIA_NAMESPACE::web::path<std::tuple<Ts...>>>
+    : std::tuple_size<std::tuple<Ts...>> { };
+
+template <std::size_t I, typename... Ts>
+struct std::tuple_element<I, FITORIA_NAMESPACE::web::path<std::tuple<Ts...>>>
+    : std::tuple_element<I, std::tuple<Ts...>> { };
 
 #endif

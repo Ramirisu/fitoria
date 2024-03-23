@@ -370,8 +370,8 @@ namespace users {
   auto api(path<std::tuple<std::string>> path, state<database::ptr> db)
       -> net::awaitable<http_response>
   {
-    auto& [user] = path.get();
-    if (auto it = db.get()->find(user); it != db.get()->end()) {
+    auto [user] = std::move(path);
+    if (auto it = db->find(user); it != db->end()) {
       if (it->second.last_login_time) {
         co_return http_response(http::status::ok)
             .set_field(http::field::content_type,
@@ -419,8 +419,8 @@ namespace login {
   auto api(state<database::ptr> db, json<body_type> body)
       -> net::awaitable<http_response>
   {
-    if (auto it = db.get()->find(body.username);
-        it != db.get()->end() && it->second.password == body.password) {
+    if (auto it = db->find(body.username);
+        it != db->end() && it->second.password == body.password) {
       it->second.last_login_time = database::clock_t::now();
       co_return http_response(http::status::ok)
           .set_field(http::field::content_type,
