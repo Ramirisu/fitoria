@@ -11,82 +11,87 @@
 
 using namespace fitoria::web;
 
+#define TEST_PARSE_CT_AND_RT(wildcard, path, success)                          \
+  static_assert(path_parser<wildcard>().parse<path>() == success);             \
+  CHECK(path_parser<wildcard>().parse(path) == success);
+
 TEST_SUITE_BEGIN("[fitoria.web.path_parser]");
 
 TEST_CASE("without wildcard support")
 {
-  static_assert(path_parser<false>().parse<"">());
-  static_assert(path_parser<false>().parse<"/">());
-  static_assert(path_parser<false>().parse<"///">());
-  static_assert(path_parser<false>().parse<"/abc/{abc}">());
-  static_assert(path_parser<false>().parse<"/abc/{abcd}/xyz/{xyz}">());
-  static_assert(path_parser<false>().parse<"/%00/%FF/%9A">());
-  static_assert(path_parser<false>().parse<"/abcdefghijklmnopqrstuvwxyz">());
-  static_assert(path_parser<false>().parse<"/ABCDEFGHIJKLMNOPQRSTUVWXYZ">());
-  static_assert(path_parser<false>().parse<"/0123456789-._~">());
-  static_assert(path_parser<false>().parse<"/!$&'()*+,;=">());
-  static_assert(!path_parser<false>().parse<"{">());
-  static_assert(!path_parser<false>().parse<"}">());
-  static_assert(!path_parser<false>().parse<"{}">());
-  static_assert(!path_parser<false>().parse<"/{}">());
-  static_assert(!path_parser<false>().parse<"/{abc">());
-  static_assert(!path_parser<false>().parse<"/abc}">());
-  static_assert(!path_parser<false>().parse<"/{abc}}">());
-  static_assert(!path_parser<false>().parse<"/{abc}xyz">());
-  static_assert(!path_parser<false>().parse<"/{abc}/{abc}">());
-  static_assert(!path_parser<false>().parse<"/{abc}/xyz/{abc}/abc">());
-  static_assert(!path_parser<false>().parse<"/{abc/xyz}">());
-  static_assert(!path_parser<false>().parse<"/{abc}.{xyz}">());
-  static_assert(!path_parser<false>().parse<"/{abc}xyz">());
-  static_assert(!path_parser<false>().parse<"/xyz{abc}">());
-  static_assert(!path_parser<false>().parse<"/%GC">());
+  TEST_PARSE_CT_AND_RT(false, "", true);
+  TEST_PARSE_CT_AND_RT(false, "", true);
+  TEST_PARSE_CT_AND_RT(false, "/", true);
+  TEST_PARSE_CT_AND_RT(false, "///", true);
+  TEST_PARSE_CT_AND_RT(false, "/abc/{abc}", true);
+  TEST_PARSE_CT_AND_RT(false, "/abc/{abcd}/xyz/{xyz}", true);
+  TEST_PARSE_CT_AND_RT(false, "/%00/%FF/%9A", true);
+  TEST_PARSE_CT_AND_RT(false, "/abcdefghijklmnopqrstuvwxyz", true);
+  TEST_PARSE_CT_AND_RT(false, "/ABCDEFGHIJKLMNOPQRSTUVWXYZ", true);
+  TEST_PARSE_CT_AND_RT(false, "/0123456789-._~", true);
+  TEST_PARSE_CT_AND_RT(false, "/!$&'()*+,;=", true);
+  TEST_PARSE_CT_AND_RT(false, "{", false);
+  TEST_PARSE_CT_AND_RT(false, "}", false);
+  TEST_PARSE_CT_AND_RT(false, "{}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc", false);
+  TEST_PARSE_CT_AND_RT(false, "/abc}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}xyz", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}/{abc}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}/xyz/{abc}/abc", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc/xyz}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}.{xyz}", false);
+  TEST_PARSE_CT_AND_RT(false, "/{abc}xyz", false);
+  TEST_PARSE_CT_AND_RT(false, "/xyz{abc}", false);
+  TEST_PARSE_CT_AND_RT(false, "/%GC", false);
 
-  static_assert(!path_parser<false>().parse<"/#abc">());
-  static_assert(!path_parser<false>().parse<"/abc/#xyz">());
-  static_assert(!path_parser<false>().parse<"/abc#xyz">());
-  static_assert(!path_parser<false>().parse<"/#">());
-  static_assert(!path_parser<false>().parse<"/abc#/x">());
-  static_assert(!path_parser<false>().parse<"/#/abc">());
-  static_assert(!path_parser<false>().parse<"/{#}">());
-  static_assert(!path_parser<false>().parse<"/#{abc}">());
+  TEST_PARSE_CT_AND_RT(false, "/#abc", false);
+  TEST_PARSE_CT_AND_RT(false, "/abc/#xyz", false);
+  TEST_PARSE_CT_AND_RT(false, "/abc#xyz", false);
+  TEST_PARSE_CT_AND_RT(false, "/#", false);
+  TEST_PARSE_CT_AND_RT(false, "/abc#/x", false);
+  TEST_PARSE_CT_AND_RT(false, "/#/abc", false);
+  TEST_PARSE_CT_AND_RT(false, "/{#}", false);
+  TEST_PARSE_CT_AND_RT(false, "/#{abc}", false);
 }
 
 TEST_CASE("with wildcard support")
 {
-  static_assert(path_parser<true>().parse<"">());
-  static_assert(path_parser<true>().parse<"/">());
-  static_assert(path_parser<true>().parse<"///">());
-  static_assert(path_parser<true>().parse<"/abc/{abc}">());
-  static_assert(path_parser<true>().parse<"/abc/{abcd}/xyz/{xyz}">());
-  static_assert(path_parser<true>().parse<"/%00/%FF/%9A">());
-  static_assert(path_parser<true>().parse<"/abcdefghijklmnopqrstuvwxyz">());
-  static_assert(path_parser<true>().parse<"/ABCDEFGHIJKLMNOPQRSTUVWXYZ">());
-  static_assert(path_parser<true>().parse<"/0123456789-._~">());
-  static_assert(path_parser<true>().parse<"/!$&'()*+,;=">());
-  static_assert(!path_parser<true>().parse<"{">());
-  static_assert(!path_parser<true>().parse<"}">());
-  static_assert(!path_parser<true>().parse<"{}">());
-  static_assert(!path_parser<true>().parse<"/{}">());
-  static_assert(!path_parser<true>().parse<"/{abc">());
-  static_assert(!path_parser<true>().parse<"/abc}">());
-  static_assert(!path_parser<true>().parse<"/{abc}}">());
-  static_assert(!path_parser<true>().parse<"/{abc}xyz">());
-  static_assert(!path_parser<true>().parse<"/{abc}/{abc}">());
-  static_assert(!path_parser<true>().parse<"/{abc}/xyz/{abc}/abc">());
-  static_assert(!path_parser<true>().parse<"/{abc/xyz}">());
-  static_assert(!path_parser<true>().parse<"/{abc}.{xyz}">());
-  static_assert(!path_parser<true>().parse<"/{abc}xyz">());
-  static_assert(!path_parser<true>().parse<"/xyz{abc}">());
-  static_assert(!path_parser<true>().parse<"/%GC">());
+  TEST_PARSE_CT_AND_RT(true, "", true);
+  TEST_PARSE_CT_AND_RT(true, "/", true);
+  TEST_PARSE_CT_AND_RT(true, "///", true);
+  TEST_PARSE_CT_AND_RT(true, "/abc/{abc}", true);
+  TEST_PARSE_CT_AND_RT(true, "/abc/{abcd}/xyz/{xyz}", true);
+  TEST_PARSE_CT_AND_RT(true, "/%00/%FF/%9A", true);
+  TEST_PARSE_CT_AND_RT(true, "/abcdefghijklmnopqrstuvwxyz", true);
+  TEST_PARSE_CT_AND_RT(true, "/ABCDEFGHIJKLMNOPQRSTUVWXYZ", true);
+  TEST_PARSE_CT_AND_RT(true, "/0123456789-._~", true);
+  TEST_PARSE_CT_AND_RT(true, "/!$&'()*+,;=", true);
+  TEST_PARSE_CT_AND_RT(true, "{", false);
+  TEST_PARSE_CT_AND_RT(true, "}", false);
+  TEST_PARSE_CT_AND_RT(true, "{}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc", false);
+  TEST_PARSE_CT_AND_RT(true, "/abc}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}xyz", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}/{abc}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}/xyz/{abc}/abc", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc/xyz}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}.{xyz}", false);
+  TEST_PARSE_CT_AND_RT(true, "/{abc}xyz", false);
+  TEST_PARSE_CT_AND_RT(true, "/xyz{abc}", false);
+  TEST_PARSE_CT_AND_RT(true, "/%GC", false);
 
-  static_assert(path_parser<true>().parse<"/#abc">());
-  static_assert(path_parser<true>().parse<"/abc/#xyz">());
-  static_assert(path_parser<true>().parse<"/abc#xyz">());
-  static_assert(!path_parser<true>().parse<"/#">());
-  static_assert(!path_parser<true>().parse<"/abc#/x">());
-  static_assert(!path_parser<true>().parse<"/#/abc">());
-  static_assert(!path_parser<true>().parse<"/{#}">());
-  static_assert(!path_parser<true>().parse<"/#{abc}">());
+  TEST_PARSE_CT_AND_RT(true, "/#abc", true);
+  TEST_PARSE_CT_AND_RT(true, "/abc/#xyz", true);
+  TEST_PARSE_CT_AND_RT(true, "/abc#xyz", true);
+  TEST_PARSE_CT_AND_RT(true, "/#", false);
+  TEST_PARSE_CT_AND_RT(true, "/abc#/x", false);
+  TEST_PARSE_CT_AND_RT(true, "/#/abc", false);
+  TEST_PARSE_CT_AND_RT(true, "/{#}", false);
+  TEST_PARSE_CT_AND_RT(true, "/#{abc}", false);
 }
 
 TEST_SUITE_END();
