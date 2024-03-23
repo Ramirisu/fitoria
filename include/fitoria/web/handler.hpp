@@ -52,8 +52,11 @@ private:
   {
     if constexpr (I < sizeof...(Args)) {
       if (auto& arg = std::get<I>(args); !arg) {
-        return [](auto&&) -> net::awaitable<http_response> {
-          co_return http_response(http::status::bad_request);
+        return [](auto&& e) -> net::awaitable<http_response> {
+          co_return http_response(http::status::internal_server_error)
+              .set_field(http::field::content_type,
+                         http::fields::content_type::plaintext())
+              .set_body(e.message());
         }(std::move(arg).error());
       } else {
         return invoke_with_args_expansion_impl<I + 1>(std::move(args));

@@ -323,13 +323,13 @@ TEST_CASE("json<T> extractor")
       auto res = co_await server.async_serve_request(
           "/get",
           http_request(http::verb::get).set_body(boost::json::serialize(json)));
-      CHECK_EQ(res.status_code(), http::status::bad_request);
+      CHECK_EQ(res.status_code(), http::status::internal_server_error);
     }
     {
       const auto json = boost::json::value { { "name", "Rina Hidaka" } };
       auto res = co_await server.async_serve_request(
           "/get", http_request(http::verb::get).set_json(json));
-      CHECK_EQ(res.status_code(), http::status::bad_request);
+      CHECK_EQ(res.status_code(), http::status::internal_server_error);
     }
   }());
 }
