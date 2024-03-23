@@ -126,9 +126,7 @@ private:
 
     if (kind_ == path_token_kind::static_) {
       if (auto value = std::string(token_first_, it_); !value.empty()) {
-        if (!try_push_without_duplicate(kind_, value)) {
-          return false;
-        }
+        try_push_without_duplicate(kind_, value);
       }
     } else if (kind_ == path_token_kind::param) {
       return false;
