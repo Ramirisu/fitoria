@@ -109,7 +109,7 @@ private:
                           std::index_sequence<Is...>)
       -> expected<path<std::tuple<Ts...>>, error_code>
   {
-    if (sizeof...(Is) <= path_info.size()) {
+    if (sizeof...(Is) == path_info.size()) {
       return path<std::tuple<Ts...>>(std::tuple<Ts...> { path_info.at(Is)... });
     }
 

@@ -95,6 +95,28 @@ TEST_CASE("path<T = std::tuple<Ts...>> extractor")
   }());
 }
 
+TEST_CASE("path<T = std::tuple<Ts...>> extractor, not match")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/{month}/{day}">(
+                [](path<std::tuple<std::string, std::string, std::string>> path)
+                    -> net::awaitable<http_response> {
+                  auto& [year, month, day] = path.get();
+                  CHECK_EQ(year, "06");
+                  CHECK_EQ(month, "06");
+                  CHECK_EQ(day, "15");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/06/15", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::internal_server_error);
+  }());
+}
+
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("path<T = aggregate> extractor")
@@ -114,6 +136,26 @@ TEST_CASE("path<T = aggregate> extractor")
     auto res = co_await server.async_serve_request(
         "/1994/06/15", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
+  }());
+}
+
+TEST_CASE("path<T = aggregate> extractor, not match")
+{
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/{month}/{day}">(
+                [](path<date_t> path) -> net::awaitable<http_response> {
+                  CHECK_EQ(
+                      path.get(),
+                      date_t { .month = "06", .day = "15", .year = "1994" });
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/06/15", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::internal_server_error);
   }());
 }
 
