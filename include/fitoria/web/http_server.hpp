@@ -23,6 +23,8 @@
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 
+#include <system_error>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
@@ -185,7 +187,6 @@ public:
   {
     log::info("[{}] starting server", name());
     run_impl(co_await net::this_coro::executor);
-    co_return;
   }
 
   net::awaitable<http_response> async_serve_request(std::string_view path,
@@ -273,9 +274,12 @@ private:
   net::awaitable<void> do_session(net::shared_tcp_stream stream,
                                   net::ip::tcp::endpoint listen_ep) const
   {
-
     if (auto ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
+#if FITORIA_NO_EXCEPTIONS
       co_return;
+#else
+      throw system_error(ec);
+#endif
     }
 
     boost::system::error_code ec;
@@ -294,17 +298,29 @@ private:
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
       log::debug("[{}] async_handshake failed: {}", name(), ec.message());
+#if FITORIA_NO_EXCEPTIONS
       co_return;
+#else
+      throw system_error(ec);
+#endif
     }
 
     if (ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
+#if FITORIA_NO_EXCEPTIONS
       co_return;
+#else
+      throw system_error(ec);
+#endif
     }
 
     std::tie(ec) = co_await stream->async_shutdown(net::use_ta);
     if (ec) {
       log::debug("[{}] async_shutdown failed: {}", name(), ec.message());
+#if FITORIA_NO_EXCEPTIONS
       co_return;
+#else
+      throw system_error(ec);
+#endif
     }
   }
 #endif
