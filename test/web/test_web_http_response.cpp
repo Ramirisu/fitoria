@@ -9,6 +9,7 @@
 
 #include <fitoria/web/http_response.hpp>
 
+using namespace fitoria;
 using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_response]");
@@ -42,6 +43,26 @@ TEST_CASE("set_field")
     CHECK_EQ(res.fields().get(http::field::content_type),
              http::fields::content_type::plaintext());
   }
+}
+
+TEST_CASE("as_string")
+{
+  net::sync_wait([]() -> net::awaitable<void> {
+    http_response res;
+    res.set_body("Hello World");
+    CHECK_EQ(co_await res.as_string(), "Hello World");
+  });
+}
+
+TEST_CASE("as_vector")
+{
+  net::sync_wait([]() -> net::awaitable<void> {
+    http_response res;
+    res.set_body("Hello World");
+    CHECK_EQ(co_await res.as_vector<std::uint8_t>(),
+             std::vector<std::uint8_t> {
+                 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' });
+  });
 }
 
 TEST_SUITE_END();
