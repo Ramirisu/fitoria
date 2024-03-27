@@ -15,6 +15,7 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/tag_invoke.hpp>
+#include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -83,23 +84,9 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(std::same_as<R, std::vector<std::byte>>)
+      requires(is_specialization_of_v<R, std::vector>)
     {
-      if (auto res
-          = co_await async_read_all_as<std::vector<std::byte>>(req.body());
-          res) {
-        co_return std::move(*res);
-      }
-      co_return R();
-    }
-
-    friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
-      requires(std::same_as<R, std::vector<std::uint8_t>>)
-    {
-      if (auto res
-          = co_await async_read_all_as<std::vector<std::uint8_t>>(req.body());
-          res) {
+      if (auto res = co_await async_read_all_as<R>(req.body()); res) {
         co_return std::move(*res);
       }
       co_return R();

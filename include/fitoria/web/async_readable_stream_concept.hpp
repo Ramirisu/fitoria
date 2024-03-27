@@ -46,13 +46,14 @@ auto async_read_all_as(AsyncReadableStream&& stream)
   }
 
   for (; next_chunk; next_chunk = co_await stream.async_read_next()) {
-    if (!(*next_chunk)) {
-      co_return unexpected { (*next_chunk).error() };
+    auto& nc = *next_chunk;
+    if (!nc) {
+      co_return unexpected { nc.error() };
     }
     const auto offset = container.size();
-    container.resize(offset + (*next_chunk)->size());
-    std::copy((*next_chunk)->begin(),
-              (*next_chunk)->end(),
+    container.resize(offset + nc->size());
+    std::copy(nc->begin(),
+              nc->end(),
               std::as_writable_bytes(std::span(container)).begin() + offset);
   }
 
