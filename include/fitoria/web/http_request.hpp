@@ -174,34 +174,6 @@ public:
     return body_;
   }
 
-  net::awaitable<expected<std::string, error_code>> as_string()
-  {
-    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
-      co_return *str;
-    }
-
-    co_return std::string();
-  }
-
-  template <typename T = boost::json::value>
-  net::awaitable<expected<T, error_code>> as_json()
-  {
-    if (fields().get(http::field::content_type)
-        != http::fields::content_type::json()) {
-      co_return unexpected { make_error_code(error::unexpected_content_type) };
-    }
-
-    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
-      if (*str) {
-        co_return detail::as_json<T>(**str);
-      }
-
-      co_return unexpected { (*str).error() };
-    }
-
-    co_return detail::as_json<T>("");
-  }
-
   template <std::size_t N>
   http_request& set_body(std::span<const std::byte, N> bytes) &
   {
