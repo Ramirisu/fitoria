@@ -15,7 +15,7 @@ using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
 
-TEST_SUITE_BEGIN("[fitoria.web.extractor]");
+TEST_SUITE_BEGIN("[fitoria.web.from_http_request]");
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
@@ -29,7 +29,7 @@ struct date_t {
 
 #endif
 
-TEST_CASE("connection_info extractor")
+TEST_CASE("connection_info")
 {
   auto server
       = http_server::builder()
@@ -55,25 +55,25 @@ TEST_CASE("connection_info extractor")
   }());
 }
 
-TEST_CASE("path_info extractor")
+TEST_CASE("path_info")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/{user}">(
-                [](path_info& path_info) -> net::awaitable<http_response> {
-                  CHECK_EQ(path_info.get("user"), "gavin");
-                  co_return http_response(http::status::ok);
-                }))
+            .serve(route::get<"/{user}">([](const path_info& path_info)
+                                             -> net::awaitable<http_response> {
+              CHECK_EQ(path_info.get("user"), "ramirisu");
+              co_return http_response(http::status::ok);
+            }))
             .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res = co_await server.async_serve_request(
-        "/gavin", http_request(http::verb::get));
+        "/ramirisu", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
 
-TEST_CASE("path<T = std::tuple<Ts...>> extractor")
+TEST_CASE("path<T = std::tuple<Ts...>>")
 {
   auto server
       = http_server::builder()
@@ -95,7 +95,7 @@ TEST_CASE("path<T = std::tuple<Ts...>> extractor")
   }());
 }
 
-TEST_CASE("path<T = std::tuple<Ts...>> extractor, not match")
+TEST_CASE("path<T = std::tuple<Ts...>>, not match")
 {
   auto server
       = http_server::builder()
@@ -119,7 +119,7 @@ TEST_CASE("path<T = std::tuple<Ts...>> extractor, not match")
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
-TEST_CASE("path<T = aggregate> extractor")
+TEST_CASE("path<T = aggregate>")
 {
   auto server
       = http_server::builder()
@@ -139,7 +139,7 @@ TEST_CASE("path<T = aggregate> extractor")
   }());
 }
 
-TEST_CASE("path<T = aggregate> extractor, not match")
+TEST_CASE("path<T = aggregate>, not match")
 {
   auto server
       = http_server::builder()
@@ -161,17 +161,18 @@ TEST_CASE("path<T = aggregate> extractor, not match")
 
 #endif
 
-TEST_CASE("query_map extractor")
+TEST_CASE("query_map")
 {
-  auto server = http_server::builder()
-                    .serve(route::get<"/get">(
-                        [](query_map& query) -> net::awaitable<http_response> {
-                          CHECK_EQ(query.get("year"), "1994");
-                          CHECK_EQ(query.get("month"), "06");
-                          CHECK_EQ(query.get("day"), "15");
-                          co_return http_response(http::status::ok);
-                        }))
-                    .build();
+  auto server
+      = http_server::builder()
+            .serve(route::get<"/get">(
+                [](const query_map& query) -> net::awaitable<http_response> {
+                  CHECK_EQ(query.get("year"), "1994");
+                  CHECK_EQ(query.get("month"), "06");
+                  CHECK_EQ(query.get("day"), "15");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res
@@ -186,7 +187,7 @@ TEST_CASE("query_map extractor")
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
-TEST_CASE("query<T> extractor")
+TEST_CASE("query<T>")
 {
   auto server
       = http_server::builder()
@@ -212,12 +213,12 @@ TEST_CASE("query<T> extractor")
 
 #endif
 
-TEST_CASE("http_fields extractor")
+TEST_CASE("http_fields")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/get">(
-                [](http_fields& fields) -> net::awaitable<http_response> {
+                [](const http_fields& fields) -> net::awaitable<http_response> {
                   CHECK_EQ(fields.get(http::field::connection), "close");
                   co_return http_response(http::status::ok);
                 }))
@@ -232,7 +233,7 @@ TEST_CASE("http_fields extractor")
   }());
 }
 
-TEST_CASE("state<T> extractor")
+TEST_CASE("state<T>")
 {
   auto server
       = http_server::builder()
@@ -252,7 +253,7 @@ TEST_CASE("state<T> extractor")
   }());
 }
 
-TEST_CASE("std::string extractor")
+TEST_CASE("std::string")
 {
   auto server = http_server::builder()
                     .serve(route::post<"/post">(
@@ -271,7 +272,7 @@ TEST_CASE("std::string extractor")
   }());
 }
 
-TEST_CASE("std::vector<std::byte> extractor")
+TEST_CASE("std::vector<std::byte>")
 {
   auto server
       = http_server::builder()
@@ -290,7 +291,7 @@ TEST_CASE("std::vector<std::byte> extractor")
   }());
 }
 
-TEST_CASE("std::vector<std::uint8_t> extractor")
+TEST_CASE("std::vector<std::uint8_t>")
 {
   auto server
       = http_server::builder()
@@ -353,7 +354,7 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 
 }
 
-TEST_CASE("json<T> extractor")
+TEST_CASE("json<T>")
 {
   auto server
       = http_server::builder()

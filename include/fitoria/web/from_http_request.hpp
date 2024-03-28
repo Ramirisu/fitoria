@@ -31,43 +31,44 @@ namespace from_http_request_ns {
         is_nothrow_tag_invocable_v<from_http_request_t<R>, http_request&>)
       requires is_tag_invocable_v<from_http_request_t<R>, http_request&>
     {
-      static_assert(std::is_same_v<
+      static_assert(std::same_as<
                     tag_invoke_result_t<from_http_request_t<R>, http_request&>,
                     net::awaitable<expected<R, error_code>>>);
-      return tag_invoke(from_http_request_t<R> {}, req);
+      return tag_invoke(*this, req);
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, http_request>)
+      requires(std::same_as<R, http_request&>
+               || std::same_as<R, const http_request&>)
     {
       co_return req;
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, connection_info>)
+      requires(std::same_as<R, const connection_info&>)
     {
       co_return req.connection();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, path_info>)
+      requires(std::same_as<R, const path_info&>)
     {
       co_return req.path();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, query_map>)
+      requires(std::same_as<R, const query_map&>)
     {
       co_return req.query();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(uncvref_same_as<R, http_fields>)
+      requires(std::same_as<R, const http_fields&>)
     {
       co_return req.fields();
     }
@@ -84,7 +85,8 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, error_code>>
-      requires(is_specialization_of_v<R, std::vector>)
+      requires(is_specialization_of_v<R, std::vector>
+               && std::same_as<R, std::remove_cvref_t<R>>)
     {
       if (auto res = co_await async_read_all_as<R>(req.body()); res) {
         co_return std::move(*res);

@@ -2,7 +2,8 @@ fitoria_add_test(NAME test_web_as_form SRCS test_web_as_form.cpp)
 fitoria_add_test(NAME test_web_connection_info SRCS
                  test_web_connection_info.cpp)
 fitoria_add_test(NAME test_web_error SRCS test_web_error.cpp)
-fitoria_add_test(NAME test_web_extractor SRCS test_web_extractor.cpp)
+fitoria_add_test(NAME test_web_from_http_request SRCS
+                 test_web_from_http_request.cpp)
 fitoria_add_test(NAME test_web_http_fields SRCS test_web_http_fields.cpp)
 fitoria_add_test(NAME test_web_http_response SRCS test_web_http_response.cpp)
 fitoria_add_test(NAME test_web_http_server_tls SRCS

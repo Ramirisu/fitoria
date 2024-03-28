@@ -234,9 +234,9 @@ TEST_CASE("generic request")
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
                     const connection_info& conn_info,
-                    path_info& path_info,
-                    query_map& query,
-                    http_fields& fields,
+                    const path_info& path_info,
+                    const query_map& query,
+                    const http_fields& fields,
                     std::string body) -> net::awaitable<http_response> {
                   auto test_conn_info = [=](auto& conn_info) {
                     CHECK_EQ(conn_info.local_addr(),
@@ -344,7 +344,8 @@ TEST_CASE("request to route accepting wildcard")
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/#wildcard">(
-                [=](path_info& path_info) -> net::awaitable<http_response> {
+                [=](const path_info& path_info)
+                    -> net::awaitable<http_response> {
                   CHECK_EQ(path_info.match_pattern(), "/api/v1/#wildcard");
                   CHECK_EQ(path_info.match_path(), "/api/v1/any/path");
                   CHECK_EQ(path_info.get("wildcard"), "any/path");
