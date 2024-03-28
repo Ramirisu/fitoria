@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/optional.hpp>
@@ -46,8 +45,8 @@ public:
     return nullopt;
   }
 
-  auto async_read_next()
-      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, std::error_code>>>
   {
     if (written >= data_.size()) {
       co_return nullopt;

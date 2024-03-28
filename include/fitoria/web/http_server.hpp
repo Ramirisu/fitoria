@@ -82,7 +82,7 @@ public:
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));
           !res) {
-        FITORIA_THROW(system_error(res.error()));
+        FITORIA_THROW(std::system_error(res.error()));
       }
 
       return *this;
@@ -278,7 +278,7 @@ private:
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
-      throw system_error(ec);
+      throw std::system_error(ec);
 #endif
     }
 
@@ -301,7 +301,7 @@ private:
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
-      throw system_error(ec);
+      throw std::system_error(ec);
 #endif
     }
 
@@ -309,7 +309,7 @@ private:
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
-      throw system_error(ec);
+      throw std::system_error(ec);
 #endif
     }
 
@@ -319,14 +319,14 @@ private:
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
-      throw system_error(ec);
+      throw std::system_error(ec);
 #endif
     }
   }
 #endif
 
   template <typename Stream>
-  net::awaitable<error_code>
+  net::awaitable<std::error_code>
   do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
   {
     using boost::beast::http::buffer_body;
@@ -387,7 +387,8 @@ private:
                                       std::move(parser),
                                       client_request_timeout_));
 
-      auto do_response = [&]() -> net::awaitable<expected<void, error_code>> {
+      auto do_response
+          = [&]() -> net::awaitable<expected<void, std::error_code>> {
         return res.body().size_hint()
             ? do_sized_response(stream, res, keep_alive)
             : do_chunked_response(stream, res, keep_alive);
@@ -442,7 +443,7 @@ private:
   template <typename Stream>
   auto
   do_sized_response(Stream& stream, http_response& res, bool keep_alive) const
-      -> net::awaitable<expected<void, error_code>>
+      -> net::awaitable<expected<void, std::error_code>>
   {
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
@@ -470,13 +471,13 @@ private:
       co_return unexpected { ec };
     }
 
-    co_return expected<void, error_code>();
+    co_return expected<void, std::error_code>();
   }
 
   template <typename Stream>
   auto
   do_chunked_response(Stream& stream, http_response& res, bool keep_alive) const
-      -> net::awaitable<expected<void, error_code>>
+      -> net::awaitable<expected<void, std::error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::response;

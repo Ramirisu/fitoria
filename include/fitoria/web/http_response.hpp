@@ -130,7 +130,7 @@ public:
     return body_;
   }
 
-  auto as_string() -> net::awaitable<expected<std::string, error_code>>
+  auto as_string() -> net::awaitable<expected<std::string, std::error_code>>
   {
     if (auto str = co_await async_read_all_as<std::string>(body()); str) {
       co_return *str;
@@ -140,7 +140,8 @@ public:
   }
 
   template <typename Byte>
-  auto as_vector() -> net::awaitable<expected<std::vector<Byte>, error_code>>
+  auto as_vector()
+      -> net::awaitable<expected<std::vector<Byte>, std::error_code>>
   {
     if (auto str = co_await async_read_all_as<std::vector<Byte>>(body()); str) {
       co_return *str;
@@ -150,7 +151,7 @@ public:
   }
 
   template <typename T = boost::json::value>
-  auto as_json() -> net::awaitable<expected<T, error_code>>
+  auto as_json() -> net::awaitable<expected<T, std::error_code>>
   {
     if (fields().get(http::field::content_type)
         != http::fields::content_type::json()) {

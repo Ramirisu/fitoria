@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/tag_invoke.hpp>
@@ -33,12 +32,12 @@ namespace from_http_request_ns {
     {
       static_assert(std::same_as<
                     tag_invoke_result_t<from_http_request_t<R>, http_request&>,
-                    net::awaitable<expected<R, error_code>>>);
+                    net::awaitable<expected<R, std::error_code>>>);
       return tag_invoke(*this, req);
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, http_request&>
                || std::same_as<R, const http_request&>)
     {
@@ -46,35 +45,35 @@ namespace from_http_request_ns {
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, const connection_info&>)
     {
       co_return req.connection();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, const path_info&>)
     {
       co_return req.path();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, const query_map&>)
     {
       co_return req.query();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, const http_fields&>)
     {
       co_return req.fields();
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, std::string>)
     {
       if (auto res = co_await async_read_all_as<std::string>(req.body()); res) {
@@ -84,7 +83,7 @@ namespace from_http_request_ns {
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
-        -> net::awaitable<expected<R, error_code>>
+        -> net::awaitable<expected<R, std::error_code>>
       requires(is_specialization_of_v<R, std::vector>
                && std::same_as<R, std::remove_cvref_t<R>>)
     {

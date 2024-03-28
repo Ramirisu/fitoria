@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 
 #include <fitoria/web/from_http_request.hpp>
@@ -34,7 +33,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<state<T>>, http_request& req)
-      -> net::awaitable<expected<state<T>, error_code>>
+      -> net::awaitable<expected<state<T>, std::error_code>>
   {
     if (auto result = req.state<T>(); result) {
       co_return state<T>(*result);

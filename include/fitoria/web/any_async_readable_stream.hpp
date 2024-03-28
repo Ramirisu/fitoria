@@ -23,7 +23,7 @@ class any_async_readable_stream {
     virtual ~base() = default;
     virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
     virtual auto async_read_next() -> net::awaitable<
-        optional<expected<std::vector<std::byte>, error_code>>>
+        optional<expected<std::vector<std::byte>, std::error_code>>>
         = 0;
   };
 
@@ -41,7 +41,7 @@ class any_async_readable_stream {
     }
 
     auto async_read_next() -> net::awaitable<
-        optional<expected<std::vector<std::byte>, error_code>>> override
+        optional<expected<std::vector<std::byte>, std::error_code>>> override
     {
       return stream_.async_read_next();
     }
@@ -73,8 +73,8 @@ public:
     return stream_->size_hint();
   }
 
-  auto async_read_next()
-      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, std::error_code>>>
   {
     return stream_->async_read_next();
   }

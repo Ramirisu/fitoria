@@ -21,7 +21,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-inline expected<query_map, error_code> as_form(std::string_view text)
+inline expected<query_map, std::error_code> as_form(std::string_view text)
 {
   auto res = boost::urls::parse_query(text);
   if (!res) {

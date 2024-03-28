@@ -37,7 +37,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<path<T>>, http_request& req)
-      -> net::awaitable<expected<path<T>, error_code>>
+      -> net::awaitable<expected<path<T>, std::error_code>>
   {
     co_return unpack_path(
         req.path(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
@@ -47,7 +47,7 @@ private:
   template <std::size_t... Is>
   static auto unpack_path(const path_info& path_info,
                           std::index_sequence<Is...>)
-      -> expected<path<T>, error_code>
+      -> expected<path<T>, std::error_code>
   {
     if (sizeof...(Is) == path_info.size()) {
       T result;
@@ -91,7 +91,7 @@ public:
 
   friend auto tag_invoke(from_http_request_t<path<std::tuple<Ts...>>>,
                          http_request& req)
-      -> net::awaitable<expected<path<std::tuple<Ts...>>, error_code>>
+      -> net::awaitable<expected<path<std::tuple<Ts...>>, std::error_code>>
   {
     co_return unpack_path(req.path(),
                           std::make_index_sequence<sizeof...(Ts)> {});
@@ -101,7 +101,7 @@ private:
   template <std::size_t... Is>
   static auto unpack_path(const path_info& path_info,
                           std::index_sequence<Is...>)
-      -> expected<path<std::tuple<Ts...>>, error_code>
+      -> expected<path<std::tuple<Ts...>>, std::error_code>
   {
     if (sizeof...(Is) == path_info.size()) {
       return path<std::tuple<Ts...>>(std::tuple<Ts...> { path_info.at(Is)... });

@@ -40,7 +40,7 @@ public:
 
     auto try_insert(const route_type& route,
                     path_tokens_t::size_type token_index)
-        -> expected<void, error_code>
+        -> expected<void, std::error_code>
     {
       if (token_index == route.matcher().tokens().size()) {
         return try_insert_route(route);
@@ -60,7 +60,7 @@ public:
     auto try_insert_static(const route_type& route,
                            std::string_view token,
                            path_tokens_t::size_type token_index)
-        -> expected<void, error_code>
+        -> expected<void, std::error_code>
     {
       if (token.empty()) {
         return try_insert(route, token_index + 1);
@@ -88,7 +88,7 @@ public:
 
     auto try_insert_param(const route_type& route,
                           path_tokens_t::size_type token_index)
-        -> expected<void, error_code>
+        -> expected<void, std::error_code>
     {
       if (!params_) {
         params_ = std::make_shared<node>();
@@ -99,7 +99,7 @@ public:
 
     auto try_insert_wildcard(const route_type& route,
                              path_tokens_t::size_type token_index)
-        -> expected<void, error_code>
+        -> expected<void, std::error_code>
     {
       if (!wildcard_) {
         wildcard_ = std::make_shared<node>();
@@ -108,7 +108,8 @@ public:
       return wildcard_->try_insert(route, token_index + 1);
     }
 
-    auto try_insert_route(const route_type& route) -> expected<void, error_code>
+    auto try_insert_route(const route_type& route)
+        -> expected<void, std::error_code>
     {
       if (auto [_, ok] = routes_.insert({ route.method(), route }); ok) {
         return {};
@@ -118,7 +119,7 @@ public:
     }
 
     auto try_find_static(http::verb method, std::string_view path) const
-        -> expected<const route_type&, error_code>
+        -> expected<const route_type&, std::error_code>
     {
       for (auto& node : statics_) {
         if (path.starts_with(node.prefix_)) {
@@ -130,7 +131,7 @@ public:
     }
 
     auto try_find_param(http::verb method, std::string_view path) const
-        -> expected<const route_type&, error_code>
+        -> expected<const route_type&, std::error_code>
     {
       if (params_) {
         if (auto pos = path.find('/'); pos != std::string_view::npos) {
@@ -143,7 +144,7 @@ public:
     }
 
     auto try_find_wildcard(http::verb method) const
-        -> expected<const route_type&, error_code>
+        -> expected<const route_type&, std::error_code>
     {
       if (wildcard_) {
         return wildcard_->try_find(method, std::string_view());
@@ -160,13 +161,13 @@ public:
     {
     }
 
-    auto try_insert(const route_type& route) -> expected<void, error_code>
+    auto try_insert(const route_type& route) -> expected<void, std::error_code>
     {
       return try_insert(route, 0);
     }
 
     auto try_find(http::verb method, std::string_view path) const
-        -> expected<const route_type&, error_code>
+        -> expected<const route_type&, std::error_code>
     {
       if (path.empty()) {
         if (auto it = routes_.find(method); it != routes_.end()) {
@@ -188,13 +189,13 @@ public:
   node root_;
 
 public:
-  auto try_insert(const route_type& route) -> expected<void, error_code>
+  auto try_insert(const route_type& route) -> expected<void, std::error_code>
   {
     return root_.try_insert(route);
   }
 
   auto try_find(http::verb method, std::string_view path) const
-      -> expected<const route_type&, error_code>
+      -> expected<const route_type&, std::error_code>
   {
     return root_.try_find(method, path);
   }

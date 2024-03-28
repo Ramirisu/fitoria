@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
@@ -20,7 +19,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace web::detail {
 
 template <typename T = boost::json::value>
-expected<T, error_code> as_json(std::string_view text)
+expected<T, std::error_code> as_json(std::string_view text)
 {
   boost::json::error_code ec;
   auto jv = boost::json::parse(text, ec);

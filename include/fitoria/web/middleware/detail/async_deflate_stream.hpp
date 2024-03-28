@@ -34,8 +34,8 @@ public:
     return next_.size_hint();
   }
 
-  auto async_read_next()
-      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, std::error_code>>>
   {
     namespace zlib = boost::beast::zlib;
 
@@ -111,8 +111,8 @@ public:
     return next_.size_hint();
   }
 
-  auto async_read_next()
-      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, std::error_code>>>
   {
     namespace zlib = boost::beast::zlib;
 

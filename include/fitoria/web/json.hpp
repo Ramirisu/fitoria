@@ -33,7 +33,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<json<T>>, http_request& req)
-      -> net::awaitable<expected<json<T>, error_code>>
+      -> net::awaitable<expected<json<T>, std::error_code>>
   {
     if (req.fields().get(http::field::content_type)
         != http::fields::content_type::json()) {

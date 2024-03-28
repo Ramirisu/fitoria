@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 #include <fitoria/core/net.hpp>
@@ -99,18 +98,18 @@ public:
     return http_client(http::verb::options, url);
   }
 
-  expected<const std::string&, error_code> host() const noexcept
+  expected<const std::string&, std::error_code> host() const noexcept
   {
     return resource_.transform(
         [](const resource& res) -> const std::string& { return res.host; });
   }
 
-  expected<std::uint16_t, error_code> port() const noexcept
+  expected<std::uint16_t, std::error_code> port() const noexcept
   {
     return resource_.transform([](const resource& res) { return res.port; });
   }
 
-  expected<const std::string&, error_code> path() const noexcept
+  expected<const std::string&, std::error_code> path() const noexcept
   {
     return resource_.transform(
         [](const resource& res) -> const std::string& { return res.path; });
@@ -240,7 +239,7 @@ public:
     return *this;
   }
 
-  auto async_send() -> net::awaitable<expected<http_response, error_code>>
+  auto async_send() -> net::awaitable<expected<http_response, std::error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -251,7 +250,7 @@ public:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto async_send(net::ssl::context ssl_ctx)
-      -> net::awaitable<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, std::error_code>>
   {
     if (!resource_) {
       co_return unexpected { resource_.error() };
@@ -267,7 +266,7 @@ public:
   }
 
 private:
-  static expected<resource, error_code> parse_uri(std::string_view url)
+  static expected<resource, std::error_code> parse_uri(std::string_view url)
   {
     auto res = boost::urls::parse_uri(url);
     if (!res) {
@@ -293,7 +292,7 @@ private:
   }
 
   auto do_resolve() const -> net::awaitable<
-      expected<net::ip::basic_resolver_results<net::ip::tcp>, error_code>>
+      expected<net::ip::basic_resolver_results<net::ip::tcp>, std::error_code>>
   {
     auto resolver = net::ip::tcp::resolver(co_await net::this_coro::executor);
     auto [ec, results] = co_await resolver.async_resolve(
@@ -306,7 +305,7 @@ private:
     co_return results;
   }
 
-  auto do_session() -> net::awaitable<expected<http_response, error_code>>
+  auto do_session() -> net::awaitable<expected<http_response, std::error_code>>
   {
     auto results = co_await do_resolve();
     if (!results) {
@@ -327,7 +326,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_session(net::ssl::context ssl_ctx)
-      -> net::awaitable<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, std::error_code>>
   {
     auto results = co_await do_resolve();
     if (!results) {
@@ -370,13 +369,13 @@ private:
 
   template <typename Stream>
   auto do_send_recv(Stream& stream)
-      -> net::awaitable<expected<http_response, error_code>>
+      -> net::awaitable<expected<http_response, std::error_code>>
   {
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
-    auto do_request =
-        [&]() -> net::awaitable<expected<optional<http_response>, error_code>> {
+    auto do_request = [&]()
+        -> net::awaitable<expected<optional<http_response>, std::error_code>> {
       return body_.size_hint() ? do_sized_request(stream)
                                : do_chunked_request(stream);
     };
@@ -409,7 +408,7 @@ private:
 
   template <typename Stream>
   auto do_sized_request(Stream& stream)
-      -> net::awaitable<expected<optional<http_response>, error_code>>
+      -> net::awaitable<expected<optional<http_response>, std::error_code>>
   {
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
@@ -472,7 +471,7 @@ private:
 
   template <typename Stream>
   auto do_chunked_request(Stream& stream)
-      -> net::awaitable<expected<optional<http_response>, error_code>>
+      -> net::awaitable<expected<optional<http_response>, std::error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::request;
@@ -535,7 +534,7 @@ private:
     return std::string(url.encoded_target());
   }
 
-  expected<resource, error_code> resource_;
+  expected<resource, std::error_code> resource_;
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;

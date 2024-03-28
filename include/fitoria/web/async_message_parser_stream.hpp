@@ -59,8 +59,8 @@ public:
     return nullopt;
   }
 
-  auto async_read_next()
-      -> net::awaitable<optional<expected<std::vector<std::byte>, error_code>>>
+  auto async_read_next() -> net::awaitable<
+      optional<expected<std::vector<std::byte>, std::error_code>>>
   {
     if (parser_->is_done()) {
       co_return nullopt;

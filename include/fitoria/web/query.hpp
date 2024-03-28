@@ -37,7 +37,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<query<T>>, http_request& req)
-      -> net::awaitable<expected<query<T>, error_code>>
+      -> net::awaitable<expected<query<T>, std::error_code>>
   {
     co_return unpack_query(
         req.query(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
@@ -46,7 +46,7 @@ public:
 private:
   template <std::size_t... Is>
   static auto unpack_query(const query_map& map, std::index_sequence<Is...>)
-      -> expected<query<T>, error_code>
+      -> expected<query<T>, std::error_code>
   {
     if (sizeof...(Is) == map.size()) {
       T result;

@@ -11,9 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/error.hpp>
-
-#include <type_traits>
+#include <system_error>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -57,10 +55,10 @@ public:
   }
 };
 
-inline error_code make_error_code(error e)
+inline std::error_code make_error_code(error e)
 {
   static const error_category c;
-  return error_code(static_cast<int>(e), c);
+  return std::error_code(static_cast<int>(e), c);
 }
 
 }

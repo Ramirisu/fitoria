@@ -35,7 +35,7 @@ class handler_middleware<Next, std::tuple<Args...>> {
 public:
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    auto args = std::tuple<expected<Args, error_code>...> {
+    auto args = std::tuple<expected<Args, std::error_code>...> {
       co_await from_http_request<Args>(static_cast<http_request&>(ctx))...
     };
 
@@ -56,8 +56,8 @@ public:
 
 private:
   template <std::size_t I>
-  auto get_error_of(std::tuple<expected<Args, error_code>...>& args) const
-      -> optional<error_code>
+  auto get_error_of(std::tuple<expected<Args, std::error_code>...>& args) const
+      -> optional<std::error_code>
   {
     if constexpr (I < sizeof...(Args)) {
       if (auto& arg = std::get<I>(args); !arg) {
