@@ -7,7 +7,13 @@
 
 #include <fitoria/test/test.hpp>
 
+#if defined(FITORIA_TARGET_LINUX)
+#define BOOST_ASIO_HAS_IO_URING
+#endif
+
 #include <fitoria/web.hpp>
+
+#include <fstream>
 
 using namespace fitoria;
 using namespace fitoria::web;
@@ -126,5 +132,33 @@ TEST_CASE("std::variant")
     }
   }());
 }
+
+#if defined(BOOST_ASIO_HAS_FILE)
+
+TEST_CASE("stream_file")
+{
+  const auto data = std::string(1024 * 1024, 'a');
+  {
+    std::ofstream("test_web_to_http_response.stream_file.txt", std::ios::binary)
+        << data;
+  }
+
+  auto server = http_server::builder()
+                    .serve(route::get<"/">(
+                        [](http_request&) -> net::awaitable<stream_file> {
+                          auto file = co_await stream_file::async_open_readonly(
+                              "test_web_to_http_response.stream_file.txt");
+                          co_return std::move(*file);
+                        }))
+                    .build();
+  net::sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await server.async_serve_request(
+        "/", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
+    CHECK_EQ(co_await res.as_string(), data);
+  }());
+}
+
+#endif
 
 TEST_SUITE_END();

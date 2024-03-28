@@ -64,7 +64,7 @@ namespace to_http_response_ns {
     auto operator()(T&& t) const -> http_response
     {
       return std::visit(
-          [this]<typename Arg>(Arg&& arg) {
+          [this]<typename Arg>(Arg&& arg) -> http_response {
             return (*this)(std::forward<Arg>(arg));
           },
           std::forward<T>(t));

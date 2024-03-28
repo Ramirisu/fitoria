@@ -35,5 +35,6 @@
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/state.hpp>
 #include <fitoria/web/state_map.hpp>
+#include <fitoria/web/stream_file.hpp>
 
 #endif
