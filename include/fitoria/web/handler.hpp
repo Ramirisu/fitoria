@@ -34,37 +34,37 @@ class handler_middleware<Next, std::tuple<Args...>> {
 public:
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    return invoke_with_args_expansion(ctx);
+    auto args = std::tuple<expected<Args, error_code>...> {
+      co_await from_http_request<Args>(static_cast<http_request&>(ctx))...
+    };
+
+    if (auto err = get_error_of<0>(args); err) {
+      co_return http_response(http::status::internal_server_error)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body(err->message());
+    }
+
+    co_return co_await std::apply(
+        [this](auto&... ts) -> net::awaitable<http_response> {
+          return next_(std::forward<Args>(ts.value())...);
+        },
+        args);
   }
 
 private:
-  auto invoke_with_args_expansion(http_context& ctx) const
-      -> net::awaitable<http_response>
-  {
-    co_return co_await invoke_with_args_expansion_impl<0>(std::tuple {
-        co_await from_http_request<Args>(static_cast<http_request&>(ctx))... });
-  }
-
   template <std::size_t I>
-  auto invoke_with_args_expansion_impl(
-      std::tuple<expected<Args, error_code>...> args) const
-      -> net::awaitable<http_response>
+  auto get_error_of(std::tuple<expected<Args, error_code>...>& args) const
+      -> optional<error_code>
   {
     if constexpr (I < sizeof...(Args)) {
       if (auto& arg = std::get<I>(args); !arg) {
-        return [](auto&& e) -> net::awaitable<http_response> {
-          co_return http_response(http::status::internal_server_error)
-              .set_field(http::field::content_type,
-                         http::fields::content_type::plaintext())
-              .set_body(e.message());
-        }(std::move(arg).error());
-      } else {
-        return invoke_with_args_expansion_impl<I + 1>(std::move(args));
+        return arg.error();
       }
+
+      return get_error_of<I + 1>(args);
     } else {
-      return std::apply(
-          [&](auto... args) { return next_(std::move(args).value()...); },
-          std::move(args));
+      return nullopt;
     }
   }
 
