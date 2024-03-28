@@ -244,8 +244,8 @@ TEST_CASE("deflate middleware: header vary")
   auto server
       = http_server::builder()
             .serve(
-                route::get<"/get">([&](std::string body)
-                                       -> net::awaitable<http_response> {
+                route::get<"/">([&](std::string body)
+                                    -> net::awaitable<http_response> {
                   auto res
                       = http_response(http::status::ok).set_body("hello world");
                   if (!body.empty()) {
@@ -269,7 +269,7 @@ TEST_CASE("deflate middleware: header vary")
   for (auto& test_case : test_cases) {
     net::sync_wait([&]() -> net::awaitable<void> {
       auto res = co_await server.async_serve_request(
-          "/get",
+          "/",
           http_request(http::verb::get)
               .set_field(http::field::accept_encoding,
                          http::fields::content_encoding::deflate())

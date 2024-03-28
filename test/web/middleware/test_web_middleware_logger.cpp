@@ -16,20 +16,20 @@ TEST_SUITE_BEGIN("[fitoria.web.middleware.logger]");
 
 TEST_CASE("logger middleware")
 {
-  auto server = http_server::builder()
-                    .serve(scope<"/api">()
-                               .use(middleware::logger())
-                               .serve(route::get<"/get">(
-                                   [&]([[maybe_unused]] http_request& req)
-                                       -> net::awaitable<http_response> {
-                                     co_return http_response(http::status::ok);
-                                   })))
-                    .build();
+  auto server
+      = http_server::builder()
+            .serve(scope<"/api">()
+                       .use(middleware::logger())
+                       .serve(route::get<"/">(
+                           [&](http_request&) -> net::awaitable<http_response> {
+                             co_return http_response(http::status::ok);
+                           })))
+            .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
-          "/api/get",
+          "/api/",
           http_request(http::verb::get)
               .set_field(http::field::user_agent, "fitoria"));
       CHECK_EQ(res.status_code(), http::status::ok);

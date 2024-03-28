@@ -33,8 +33,8 @@ TEST_CASE("connection_info")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">([](const connection_info& conn_info)
-                                          -> net::awaitable<http_response> {
+            .serve(route::get<"/">([](const connection_info& conn_info)
+                                       -> net::awaitable<http_response> {
               CHECK_EQ(conn_info.local_addr(),
                        net::ip::make_address("127.0.0.1"));
               CHECK_EQ(conn_info.local_port(), 0);
@@ -50,7 +50,7 @@ TEST_CASE("connection_info")
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res = co_await server.async_serve_request(
-        "/get", http_request(http::verb::get));
+        "/", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
@@ -165,7 +165,7 @@ TEST_CASE("query_map")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">(
+            .serve(route::get<"/">(
                 [](const query_map& query) -> net::awaitable<http_response> {
                   CHECK_EQ(query.get("year"), "1994");
                   CHECK_EQ(query.get("month"), "06");
@@ -176,7 +176,7 @@ TEST_CASE("query_map")
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res
-        = co_await server.async_serve_request("/get",
+        = co_await server.async_serve_request("/",
                                               http_request(http::verb::get)
                                                   .set_query("year", "1994")
                                                   .set_query("month", "06")
@@ -191,7 +191,7 @@ TEST_CASE("query<T>")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">(
+            .serve(route::get<"/">(
                 [](query<date_t> query) -> net::awaitable<http_response> {
                   CHECK_EQ(
                       query.get(),
@@ -202,7 +202,7 @@ TEST_CASE("query<T>")
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res
-        = co_await server.async_serve_request("/get",
+        = co_await server.async_serve_request("/",
                                               http_request(http::verb::get)
                                                   .set_query("year", "1994")
                                                   .set_query("month", "06")
@@ -217,7 +217,7 @@ TEST_CASE("http_fields")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">(
+            .serve(route::get<"/">(
                 [](const http_fields& fields) -> net::awaitable<http_response> {
                   CHECK_EQ(fields.get(http::field::connection), "close");
                   co_return http_response(http::status::ok);
@@ -226,7 +226,7 @@ TEST_CASE("http_fields")
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res = co_await server.async_serve_request(
-        "/get",
+        "/",
         http_request(http::verb::get)
             .insert_field(http::field::connection, "close"));
     CHECK_EQ(res.status_code(), http::status::ok);
@@ -237,26 +237,24 @@ TEST_CASE("state<T>")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">([](state<std::string> st)
-                                          -> net::awaitable<http_response> {
+            .serve(route::get<"/">([](state<std::string> st)
+                                       -> net::awaitable<http_response> {
                      CHECK_EQ(st, "shared state");
                      co_return http_response(http::status::ok);
                    }).share_state(std::string("shared state")))
             .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/get", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
+    auto res = co_await server.async_serve_request(
+        "/", http_request(http::verb::get));
+    CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
 
 TEST_CASE("std::string")
 {
   auto server = http_server::builder()
-                    .serve(route::post<"/post">(
+                    .serve(route::post<"/">(
                         [](std::string text) -> net::awaitable<http_response> {
                           CHECK_EQ(text, "abc");
                           co_return http_response(http::status::ok);
@@ -264,11 +262,9 @@ TEST_CASE("std::string")
                     .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/post", http_request(http::verb::post).set_body("abc"));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
+    auto res = co_await server.async_serve_request(
+        "/", http_request(http::verb::post).set_body("abc"));
+    CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
 
@@ -276,18 +272,16 @@ TEST_CASE("std::vector<std::byte>")
 {
   auto server
       = http_server::builder()
-            .serve(route::post<"/post">([](std::vector<std::byte> bytes)
-                                            -> net::awaitable<http_response> {
+            .serve(route::post<"/">([](std::vector<std::byte> bytes)
+                                        -> net::awaitable<http_response> {
               CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
               co_return http_response(http::status::ok);
             }))
             .build();
   net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/post", http_request(http::verb::post).set_body("abc"));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
+    auto res = co_await server.async_serve_request(
+        "/", http_request(http::verb::post).set_body("abc"));
+    CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
 
@@ -295,18 +289,16 @@ TEST_CASE("std::vector<std::uint8_t>")
 {
   auto server
       = http_server::builder()
-            .serve(route::post<"/post">([](std::vector<std::uint8_t> bytes)
-                                            -> net::awaitable<http_response> {
+            .serve(route::post<"/">([](std::vector<std::uint8_t> bytes)
+                                        -> net::awaitable<http_response> {
               CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
               co_return http_response(http::status::ok);
             }))
             .build();
   net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/post", http_request(http::verb::post).set_body("abc"));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
+    auto res = co_await server.async_serve_request(
+        "/", http_request(http::verb::post).set_body("abc"));
+    CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }
 
@@ -358,7 +350,7 @@ TEST_CASE("json<T>")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/get">(
+            .serve(route::get<"/">(
                 [](json<user_t> user) -> net::awaitable<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");
@@ -373,7 +365,7 @@ TEST_CASE("json<T>")
         .birth = "1994/06/15",
       };
       auto res = co_await server.async_serve_request(
-          "/get", http_request(http::verb::get).set_json(user));
+          "/", http_request(http::verb::get).set_json(user));
       CHECK_EQ(res.status_code(), http::status::ok);
       CHECK_EQ(res.fields().get(http::field::content_type),
                http::fields::content_type::json());
@@ -383,14 +375,14 @@ TEST_CASE("json<T>")
       const auto json = boost::json::value { { "name", "Rina Hidaka" },
                                              { "birth", "1994/06/15" } };
       auto res = co_await server.async_serve_request(
-          "/get",
+          "/",
           http_request(http::verb::get).set_body(boost::json::serialize(json)));
       CHECK_EQ(res.status_code(), http::status::internal_server_error);
     }
     {
       const auto json = boost::json::value { { "name", "Rina Hidaka" } };
       auto res = co_await server.async_serve_request(
-          "/get", http_request(http::verb::get).set_json(json));
+          "/", http_request(http::verb::get).set_json(json));
       CHECK_EQ(res.status_code(), http::status::internal_server_error);
     }
   }());

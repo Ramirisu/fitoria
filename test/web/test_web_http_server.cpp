@@ -25,26 +25,25 @@ TEST_SUITE_BEGIN("[fitoria.web.http_server]");
 TEST_CASE("builder")
 {
   const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .set_max_listen_connections(2048)
-            .set_client_request_timeout(std::chrono::seconds(1))
+  auto server = http_server::builder()
+                    .set_max_listen_connections(2048)
+                    .set_client_request_timeout(std::chrono::seconds(1))
 #if !FITORIA_NO_EXCEPTIONS
-            .set_exception_handler([](std::exception_ptr ptr) {
-              if (!ptr) {
-                return;
-              }
-              try {
-                std::rethrow_exception(ptr);
-              } catch (...) {
-              }
-            })
+                    .set_exception_handler([](std::exception_ptr ptr) {
+                      if (!ptr) {
+                        return;
+                      }
+                      try {
+                        std::rethrow_exception(ptr);
+                      } catch (...) {
+                      }
+                    })
 #endif
-            .serve(route::get<"/api">([&]([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-              co_return http_response(http::status::ok);
-            }))
-            .build();
+                    .serve(route::get<"/">(
+                        [&](http_request&) -> net::awaitable<http_response> {
+                          co_return http_response(http::status::ok);
+                        }))
+                    .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -63,7 +62,7 @@ TEST_CASE("builder")
       ioc,
       [&]() -> net::awaitable<void> {
         auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        to_local_url(boost::urls::scheme::http, port, "/"))
                         .async_send())
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
@@ -75,15 +74,15 @@ TEST_CASE("duplicate route")
 {
   CHECK_THROWS_AS(
       http_server::builder().serve(
-          scope<"/api/v1">()
-              .serve(route::get<"/xxx">([]([[maybe_unused]] http_request& req)
-                                            -> net::awaitable<http_response> {
-                co_return http_response(http::status::ok);
-              }))
-              .serve(route::get<"/xxx">([]([[maybe_unused]] http_request& req)
-                                            -> net::awaitable<http_response> {
-                co_return http_response(http::status::ok);
-              }))),
+          scope<"">()
+              .serve(route::get<"/">(
+                  [](http_request&) -> net::awaitable<http_response> {
+                    co_return http_response(http::status::ok);
+                  }))
+              .serve(route::get<"/">(
+                  [](http_request&) -> net::awaitable<http_response> {
+                    co_return http_response(http::status::ok);
+                  }))),
       std::system_error);
 }
 
@@ -92,8 +91,7 @@ TEST_CASE("invalid target")
   const auto port = generate_port();
   auto server = http_server::builder()
                     .serve(route::get<"/api/v1/users/{user}">(
-                        []([[maybe_unused]] http_request& req)
-                            -> net::awaitable<http_response> {
+                        [](http_request&) -> net::awaitable<http_response> {
                           co_return http_response(http::status::ok);
                         }))
                     .build();
@@ -186,9 +184,8 @@ TEST_CASE("unhandled exception from handler")
                         }
                       }
                     })
-                    .serve(route::get<"/api/v1/get">(
-                        []([[maybe_unused]] http_request& req)
-                            -> net::awaitable<http_response> {
+                    .serve(route::get<"/">(
+                        [](http_request&) -> net::awaitable<http_response> {
                           throw std::exception();
                           co_return http_response(http::status::ok);
                         }))
@@ -207,12 +204,11 @@ TEST_CASE("unhandled exception from handler")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        CHECK(
-            !(co_await http_client::get(
-                  to_local_url(boost::urls::scheme::http, port, "/api/v1/get"))
-                  .set_field(http::field::connection, "close")
-                  .set_plaintext("text")
-                  .async_send()));
+        CHECK(!(co_await http_client::get(
+                    to_local_url(boost::urls::scheme::http, port, "/"))
+                    .set_field(http::field::connection, "close")
+                    .set_plaintext("text")
+                    .async_send()));
       },
       net::use_future)
       .get();
@@ -379,14 +375,14 @@ TEST_CASE("request to route accepting wildcard")
       .get();
 }
 
-TEST_CASE("request with stream(chunked transfer-encoding)")
+TEST_CASE("request with stream (chunked transfer-encoding)")
 {
   const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::post<"/post">(
+            .serve(route::post<"/">(
                 [text](const http_request& req,
                        std::string data) -> net::awaitable<http_response> {
                   CHECK(!req.body().size_hint());
@@ -409,7 +405,7 @@ TEST_CASE("request with stream(chunked transfer-encoding)")
       ioc,
       [&]() -> net::awaitable<void> {
         auto res = (co_await http_client::post(
-                        to_local_url(boost::urls::scheme::http, port, "/post"))
+                        to_local_url(boost::urls::scheme::http, port, "/"))
                         .set_field(http::field::connection, "close")
                         .set_stream(async_readable_chunk_stream<5>(text))
                         .async_send())
@@ -423,13 +419,12 @@ TEST_CASE("request with stream(chunked transfer-encoding)")
 TEST_CASE("response status only")
 {
   const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .serve(route::get<"/api">([]([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-              co_return http_response(http::status::accepted);
-            }))
-            .build();
+  auto server = http_server::builder()
+                    .serve(route::get<"/">(
+                        [](http_request&) -> net::awaitable<http_response> {
+                          co_return http_response(http::status::accepted);
+                        }))
+                    .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -445,7 +440,7 @@ TEST_CASE("response status only")
       ioc,
       [&]() -> net::awaitable<void> {
         auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        to_local_url(boost::urls::scheme::http, port, "/"))
                         .set_field(http::field::connection, "close")
                         .async_send())
                        .value();
@@ -466,13 +461,13 @@ TEST_CASE("response with plain text")
   const auto port = generate_port();
   auto server
       = http_server::builder()
-            .serve(route::get<"/api">([text]([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-              co_return http_response(http::status::ok)
-                  .set_field(http::field::content_type,
-                             http::fields::content_type::plaintext())
-                  .set_body(text);
-            }))
+            .serve(route::get<"/">(
+                [text](http_request&) -> net::awaitable<http_response> {
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_body(text);
+                }))
             .build();
   server.bind(server_ip, port);
   net::io_context ioc;
@@ -489,7 +484,7 @@ TEST_CASE("response with plain text")
       ioc,
       [&]() -> net::awaitable<void> {
         auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        to_local_url(boost::urls::scheme::http, port, "/"))
                         .set_field(http::field::connection, "close")
                         .async_send())
                        .value();
@@ -504,19 +499,18 @@ TEST_CASE("response with plain text")
       .get();
 }
 
-TEST_CASE("response with with stream(chunked transfer-encoding)")
+TEST_CASE("response with with stream (chunked transfer-encoding)")
 {
   const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
-  auto server
-      = http_server::builder()
-            .serve(route::get<"/api">([text]([[maybe_unused]] http_request& req)
-                                          -> net::awaitable<http_response> {
-              co_return http_response(http::status::ok)
-                  .set_stream(async_readable_chunk_stream<5>(text));
-            }))
-            .build();
+  auto server = http_server::builder()
+                    .serve(route::get<"/">(
+                        [text](http_request&) -> net::awaitable<http_response> {
+                          co_return http_response(http::status::ok)
+                              .set_stream(async_readable_chunk_stream<5>(text));
+                        }))
+                    .build();
   server.bind(server_ip, port);
   net::io_context ioc;
   net::co_spawn(
@@ -532,7 +526,7 @@ TEST_CASE("response with with stream(chunked transfer-encoding)")
       ioc,
       [&]() -> net::awaitable<void> {
         auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/api"))
+                        to_local_url(boost::urls::scheme::http, port, "/"))
                         .set_field(http::field::connection, "close")
                         .async_send())
                        .value();

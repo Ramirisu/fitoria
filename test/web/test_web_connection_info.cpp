@@ -17,7 +17,7 @@ TEST_SUITE_BEGIN("[fitoria.web.connection_info]");
 TEST_CASE("connection_info")
 {
   auto server = http_server::builder()
-                    .serve(route::get<"/get">(
+                    .serve(route::get<"/">(
                         [](http_request& req) -> net::awaitable<http_response> {
                           CHECK_EQ(req.connection().local_addr(),
                                    net::ip::make_address("127.0.0.1"));
@@ -34,7 +34,7 @@ TEST_CASE("connection_info")
 
   net::sync_wait([&]() -> net::awaitable<void> {
     auto res = co_await server.async_serve_request(
-        "/get", http_request(http::verb::get));
+        "/", http_request(http::verb::get));
     CHECK_EQ(res.status_code(), http::status::ok);
   }());
 }

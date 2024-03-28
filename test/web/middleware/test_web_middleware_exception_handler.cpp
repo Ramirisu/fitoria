@@ -23,7 +23,7 @@ TEST_CASE("exception_handler middleware")
             .serve(
                 scope<"/api">()
                     .use(middleware::exception_handler())
-                    .serve(route::get<"/get">(
+                    .serve(route::get<"/">(
                         [&](std::string body) -> net::awaitable<http_response> {
                           if (body.ends_with("true")) {
                             throw std::exception();
@@ -35,12 +35,12 @@ TEST_CASE("exception_handler middleware")
   net::sync_wait([&]() -> net::awaitable<void> {
     {
       auto res = co_await server.async_serve_request(
-          "/api/get", http_request(http::verb::get).set_body("throw: false"));
+          "/api/", http_request(http::verb::get).set_body("throw: false"));
       CHECK_EQ(res.status_code(), http::status::ok);
     }
     {
       auto res = co_await server.async_serve_request(
-          "/api/get", http_request(http::verb::get).set_body("throw: true"));
+          "/api/", http_request(http::verb::get).set_body("throw: true"));
       CHECK_EQ(res.status_code(), http::status::internal_server_error);
     }
   }());
