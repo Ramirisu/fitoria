@@ -86,7 +86,7 @@ private:
         // {name} => (?<name>pattern)
         regex += "(?<";
         regex += token.value;
-        regex += ">.+)";
+        regex += ">.*)";
       }
     }
 

@@ -57,6 +57,10 @@ TEST_CASE("match")
                { "p3", "y" },
                { "wildcard", "abc" },
            });
+  CHECK_EQ(path_matcher("/static/#file").match("/static/"),
+           match_type { { "file", "" } });
+  CHECK_EQ(path_matcher("/static/#file").match("/static/abc"),
+           match_type { { "file", "abc" } });
 
   CHECK(!path_matcher("/w").match(""));
   CHECK(!path_matcher("/w").match("/w/x"));

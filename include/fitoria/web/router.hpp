@@ -177,7 +177,7 @@ public:
           return it->second;
         }
 
-        return unexpected { make_error_code(error::route_not_exists) };
+        return try_find_wildcard(method);
       }
 
       return try_find_static(method, path)
