@@ -58,6 +58,17 @@ namespace to_http_response_ns {
                      http::fields::content_type::octet_stream())
           .set_body(std::as_bytes(std::span(t.begin(), t.end())));
     }
+
+    template <typename T>
+      requires is_specialization_of_v<T, std::variant>
+    auto operator()(T&& t) const -> http_response
+    {
+      return std::visit(
+          [this]<typename Arg>(Arg&& arg) {
+            return (*this)(std::forward<Arg>(arg));
+          },
+          std::forward<T>(t));
+    }
   };
 }
 
