@@ -50,7 +50,7 @@ The library is ***experimental*** and still under development, not recommended f
 
 ```cpp
 
-#include <fitoria/fitoria.hpp>
+#include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
