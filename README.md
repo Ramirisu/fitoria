@@ -28,6 +28,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
+      - [Static Files](#static-files)
       - [Graceful Shutdown](#graceful-shutdown)
       - [WebSockets](#websockets)
       - [Unit Testing](#unit-testing)
@@ -565,6 +566,38 @@ int main()
                                .use(middleware::exception_handler())
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
+                    .build();
+  server //
+      .bind("127.0.0.1", 8080)
+      .run();
+}
+
+```
+
+#### Static Files
+
+Use `web::stream_file` to serve static files. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp))
+
+```cpp
+
+auto get_static_file(const path_info& pi)
+    -> net::awaitable<std::variant<stream_file, http_response>>
+{
+  auto path = pi.at("file_path");
+  if (auto file = co_await stream_file::async_open_readonly(path); file) {
+    co_return std::move(*file);
+  }
+
+  co_return http_response(http::status::not_found)
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body(fmt::format("Requsted file was not found: \"{}\"", path));
+}
+
+int main()
+{
+  auto server = http_server::builder()
+                    .serve(route::get<"/static/#file_path">(get_static_file))
                     .build();
   server //
       .bind("127.0.0.1", 8080)
