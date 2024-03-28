@@ -150,6 +150,40 @@ public:
     co_return std::vector<Byte>();
   }
 
+#if defined(BOOST_ASIO_HAS_FILE)
+  auto as_file(const std::string& path)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
+  {
+    auto file = net::stream_file(co_await net::this_coro::executor);
+
+    boost::system::error_code ec;
+    file.open(path, net::file_base::create | net::file_base::write_only, ec);
+    if (ec) {
+      co_return unexpected { ec };
+    }
+
+    std::size_t total = 0;
+    for (auto next_chunk = co_await body_.async_read_next(); next_chunk;
+         next_chunk = co_await body_.async_read_next()) {
+      auto& nc = *next_chunk;
+      if (!nc) {
+        co_return unexpected { nc.error() };
+      }
+
+      std::size_t bytes_written = 0;
+      std::tie(ec, bytes_written) = co_await net::async_write(
+          file, net::const_buffer(nc->data(), nc->size()), net::use_ta);
+      if (ec) {
+        co_return unexpected { ec };
+      }
+
+      total += bytes_written;
+    }
+
+    co_return total;
+  }
+#endif
+
   template <typename T = boost::json::value>
   auto as_json() -> net::awaitable<expected<T, std::error_code>>
   {

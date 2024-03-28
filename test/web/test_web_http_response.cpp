@@ -7,6 +7,10 @@
 
 #include <fitoria/test/test.hpp>
 
+#if defined(FITORIA_TARGET_LINUX)
+#define BOOST_ASIO_HAS_IO_URING
+#endif
+
 #include <fitoria/web/http_response.hpp>
 
 using namespace fitoria;
@@ -64,5 +68,18 @@ TEST_CASE("as_vector")
                  'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' });
   });
 }
+
+#if defined(BOOST_ASIO_HAS_FILE)
+
+TEST_CASE("as_file")
+{
+  net::sync_wait([]() -> net::awaitable<void> {
+    http_response res;
+    res.set_body("Hello World");
+    CHECK_EQ(*(co_await res.as_file("test_web_http_response.as_file.txt")), 11);
+  });
+}
+
+#endif
 
 TEST_SUITE_END();

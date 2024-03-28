@@ -9,6 +9,7 @@ fitoria_add_test(NAME test_web_from_http_request SRCS
                  test_web_from_http_request.cpp)
 fitoria_add_test(NAME test_web_http_fields SRCS test_web_http_fields.cpp)
 fitoria_add_test(NAME test_web_http_response SRCS test_web_http_response.cpp)
+fitoria_try_target_link_liburing(test_web_http_response)
 fitoria_add_test(NAME test_web_http_server_tls SRCS
                  test_web_http_server_tls.cpp)
 fitoria_add_test(NAME test_web_http_server SRCS test_web_http_server.cpp)
