@@ -19,6 +19,7 @@
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
+#include <fitoria/web/to_http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -47,7 +48,8 @@ public:
 
     co_return co_await std::apply(
         [this](auto&... ts) -> net::awaitable<http_response> {
-          return next_(std::forward<Args>(ts.value())...);
+          co_return to_http_response(
+              co_await next_(std::forward<Args>(ts.value())...));
         },
         args);
   }

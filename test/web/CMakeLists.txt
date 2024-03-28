@@ -18,6 +18,8 @@ fitoria_add_test(NAME test_web_route SRCS test_web_route.cpp)
 fitoria_add_test(NAME test_web_router SRCS test_web_router.cpp)
 fitoria_add_test(NAME test_web_scope SRCS test_web_scope.cpp)
 fitoria_add_test(NAME test_web_share_state SRCS test_web_share_state.cpp)
+fitoria_add_test(NAME test_web_to_http_response SRCS
+                 test_web_to_http_response.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)
