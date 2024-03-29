@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_QUERY_HPP
-#define FITORIA_WEB_QUERY_HPP
+#ifndef FITORIA_WEB_QUERY_OF_HPP
+#define FITORIA_WEB_QUERY_OF_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -24,9 +24,9 @@ namespace web {
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
-class query {
+class query_of {
 public:
-  explicit query(T inner)
+  explicit query_of(T inner)
       : inner_(std::move(inner))
   {
   }
@@ -36,8 +36,8 @@ public:
     return inner_;
   }
 
-  friend auto tag_invoke(from_http_request_t<query<T>>, http_request& req)
-      -> net::awaitable<expected<query<T>, std::error_code>>
+  friend auto tag_invoke(from_http_request_t<query_of<T>>, http_request& req)
+      -> net::awaitable<expected<query_of<T>, std::error_code>>
   {
     co_return unpack_query(
         req.query(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
@@ -46,12 +46,12 @@ public:
 private:
   template <std::size_t... Is>
   static auto unpack_query(const query_map& map, std::index_sequence<Is...>)
-      -> expected<query<T>, std::error_code>
+      -> expected<query_of<T>, std::error_code>
   {
     if (sizeof...(Is) == map.size()) {
       T result;
       if ((try_assign_field_index<Is>(map, result) && ...)) {
-        return query<T>(std::move(result));
+        return query_of<T>(std::move(result));
       }
     }
 
@@ -75,7 +75,7 @@ private:
 #else
 
 template <typename T>
-class query;
+class query_of;
 
 #endif
 

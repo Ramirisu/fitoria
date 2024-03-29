@@ -187,12 +187,12 @@ TEST_CASE("query_map")
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
-TEST_CASE("query<T>")
+TEST_CASE("query_of<T>")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/">(
-                [](query<date_t> query) -> net::awaitable<http_response> {
+                [](query_of<date_t> query) -> net::awaitable<http_response> {
                   CHECK_EQ(
                       query.get(),
                       date_t { .month = "06", .day = "15", .year = "1994" });
