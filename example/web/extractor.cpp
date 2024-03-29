@@ -43,7 +43,7 @@ using ptr = std::shared_ptr<type>;
 
 namespace api::v1 {
 namespace users {
-  auto api(path<std::tuple<std::string>> path, state<database::ptr> db)
+  auto api(path<std::tuple<std::string>> path, state_of<database::ptr> db)
       -> net::awaitable<http_response>
   {
     auto [user] = std::move(path);
@@ -92,7 +92,7 @@ namespace login {
                        .password = std::string(password->get_string()) };
   }
 
-  auto api(state<database::ptr> db, json<body_type> body)
+  auto api(state_of<database::ptr> db, json<body_type> body)
       -> net::awaitable<http_response>
   {
     if (auto it = db->find(body.username);

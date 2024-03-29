@@ -233,11 +233,11 @@ TEST_CASE("http_fields")
   }());
 }
 
-TEST_CASE("state<T>")
+TEST_CASE("state_of<T>")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/">([](state<std::string> st)
+            .serve(route::get<"/">([](state_of<std::string> st)
                                        -> net::awaitable<http_response> {
                      CHECK_EQ(st, "shared state");
                      co_return http_response(http::status::ok);

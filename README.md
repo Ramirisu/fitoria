@@ -354,7 +354,7 @@ Built-in Extractors:
 | `web::query_map`       | Extract query string parameters.                        |       no       |                                                                                                                                                                       |
 | `web::query<T>`        | Extract query string parameters into type `T`           |       no       | `T = aggregate`, parameters are extracted to the field of their name.                                                                                                 |
 | `web::http_fields`     | Extract fields from request headers.                    |       no       |                                                                                                                                                                       |
-| `web::state<T>`        | Extract shared state of type `T`.                       |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                             |
+| `web::state_of<T>`     | Extract shared state of type `T`.                       |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                             |
 | `std::string`          | Extract body as `std::string`.                          |      yes       |                                                                                                                                                                       |
 | `std::vector<T>`       | Extract body as `std::vector<T>`.                       |      yes       |                                                                                                                                                                       |
 | `web::json<T>`         | Extract body and parse it into json and convert to `T`. |      yes       |                                                                                                                                                                       |
@@ -381,7 +381,7 @@ using ptr = std::shared_ptr<type>;
 
 namespace api::v1 {
 namespace users {
-  auto api(path<std::tuple<std::string>> path, state<database::ptr> db)
+  auto api(path<std::tuple<std::string>> path, state_of<database::ptr> db)
       -> net::awaitable<http_response>
   {
     auto [user] = std::move(path);
@@ -430,7 +430,7 @@ namespace login {
                        .password = std::string(password->get_string()) };
   }
 
-  auto api(state<database::ptr> db, json<body_type> body)
+  auto api(state_of<database::ptr> db, json<body_type> body)
       -> net::awaitable<http_response>
   {
     if (auto it = db->find(body.username);
