@@ -12,15 +12,15 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("[fitoria.web.share_state]");
+TEST_SUITE_BEGIN("[fitoria.web.state]");
 
-TEST_CASE("share_state shares the same instance")
+TEST_CASE("state shares the same instance")
 {
   auto server
       = http_server::builder()
             .serve(
                 scope<>()
-                    .share_state(std::string("original"))
+                    .state(std::string("original"))
                     .serve(route::get<"/modify">(
                         [](http_request& req) -> net::awaitable<http_response> {
                           auto state = req.state<std::string>();
@@ -60,7 +60,7 @@ TEST_CASE("share_state shares the same instance")
   }());
 }
 
-TEST_CASE("share_state access order on global, scope and route")
+TEST_CASE("state access order on global, scope and route")
 {
   struct shared_resource {
     std::string_view value;
@@ -70,7 +70,7 @@ TEST_CASE("share_state access order on global, scope and route")
       = http_server::builder()
             .serve(
                 scope<>()
-                    .share_state(shared_resource { "global" })
+                    .state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()
                             .serve(route::get<"/global">(
@@ -83,7 +83,7 @@ TEST_CASE("share_state access order on global, scope and route")
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
-                            .share_state(shared_resource { "scope" })
+                            .state(shared_resource { "scope" })
                             .serve(route::get<"/scope">([](http_request& req)
                                                             -> net::awaitable<
                                                                 http_response> {
@@ -104,7 +104,7 @@ TEST_CASE("share_state access order on global, scope and route")
                                                      plaintext())
                                       .set_body(
                                           req.state<shared_resource>()->value);
-                                }).share_state(shared_resource { "route" }))))
+                                }).state(shared_resource { "route" }))))
             .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {

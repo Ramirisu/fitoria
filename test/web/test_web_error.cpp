@@ -24,8 +24,8 @@ TEST_CASE("error")
            "unexpected Content-Type");
   CHECK_EQ(make_error_code(error::path_extraction_error).message(),
            "path extraction error");
-  CHECK_EQ(make_error_code(error::shared_state_not_exists).message(),
-           "the shared state being obtained doesn't exist");
+  CHECK_EQ(make_error_code(error::state_not_found).message(),
+           "the state being obtained doesn't exist");
 }
 
 TEST_SUITE_END();

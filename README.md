@@ -24,7 +24,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Path Parameter](#path-parameter)
       - [Query String Parameters](#query-string-parameters)
       - [Urlencoded Post Form](#urlencoded-post-form)
-      - [Shared States](#shared-states)
+      - [State](#state)
       - [Extractor](#extractor)
       - [Scope](#scope)
       - [Middleware](#middleware)
@@ -244,12 +244,11 @@ int main()
 
 ```
 
-#### Shared States
+#### State
 
-Configure shared states by using `scope::share_state(SharedState&&)` for the `route`s under the same `scope`, or `route::share_state(SharedState&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
+Configure shared states by using `scope::state(State&&)` for the `route`s under the same `scope`, or `route::state(State&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
 
 ```cpp
-
 
 namespace cache {
 class simple_cache {
@@ -329,7 +328,7 @@ int main()
 
   auto server = http_server::builder()
                     .serve(scope<"/cache">()
-                               .share_state(cache)
+                               .state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();
@@ -365,6 +364,20 @@ Built-in Extractors:
 > The ***body extractor*** can only be used at most once in the request handlers since it consumes the body.
 
 ```cpp
+
+namespace database {
+
+using clock_t = std::chrono::system_clock;
+using time_point = std::chrono::time_point<clock_t>;
+
+struct user_t {
+  std::string password;
+  optional<time_point> last_login_time;
+};
+
+using type = std::unordered_map<std::string, user_t>;
+using ptr = std::shared_ptr<type>;
+}
 
 namespace api::v1 {
 namespace users {
@@ -446,9 +459,8 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
-                       .share_state(db))
-            .serve(route::post<"/api/v1/login">(api::v1::login::api)
-                       .share_state(db))
+                       .state(db))
+            .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
             .build();
   server //
       .bind("127.0.0.1", 8080)

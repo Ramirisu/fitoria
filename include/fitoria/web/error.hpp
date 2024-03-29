@@ -22,7 +22,7 @@ enum class error {
   route_not_exists,
   unexpected_content_type,
   path_extraction_error,
-  shared_state_not_exists,
+  state_not_found,
 };
 
 class error_category : public std::error_category {
@@ -45,8 +45,8 @@ public:
       return "unexpected Content-Type";
     case error::path_extraction_error:
       return "path extraction error";
-    case error::shared_state_not_exists:
-      return "the shared state being obtained doesn't exist";
+    case error::state_not_found:
+      return "the state being obtained doesn't exist";
     default:
       break;
     }

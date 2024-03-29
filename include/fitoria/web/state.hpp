@@ -39,7 +39,7 @@ public:
       co_return state<T>(*result);
     }
 
-    co_return unexpected { make_error_code(error::shared_state_not_exists) };
+    co_return unexpected { make_error_code(error::state_not_found) };
   }
 };
 

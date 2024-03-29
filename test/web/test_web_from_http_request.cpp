@@ -241,7 +241,7 @@ TEST_CASE("state<T>")
                                        -> net::awaitable<http_response> {
                      CHECK_EQ(st, "shared state");
                      co_return http_response(http::status::ok);
-                   }).share_state(std::string("shared state")))
+                   }).state(std::string("shared state")))
             .build();
 
   net::sync_wait([&]() -> net::awaitable<void> {

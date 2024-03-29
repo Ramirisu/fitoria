@@ -21,7 +21,7 @@ fitoria_add_test(NAME test_web_path_info SRCS test_web_path_info.cpp)
 fitoria_add_test(NAME test_web_route SRCS test_web_route.cpp)
 fitoria_add_test(NAME test_web_router SRCS test_web_router.cpp)
 fitoria_add_test(NAME test_web_scope SRCS test_web_scope.cpp)
-fitoria_add_test(NAME test_web_share_state SRCS test_web_share_state.cpp)
+fitoria_add_test(NAME test_web_state SRCS test_web_state.cpp)
 fitoria_add_test(NAME test_web_stream_file SRCS test_web_stream_file.cpp)
 fitoria_try_target_link_liburing(test_web_stream_file)
 fitoria_add_test(NAME test_web_to_http_response SRCS

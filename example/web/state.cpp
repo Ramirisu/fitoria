@@ -90,7 +90,7 @@ int main()
 
   auto server = http_server::builder()
                     .serve(scope<"/cache">()
-                               .share_state(cache)
+                               .state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();

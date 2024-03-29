@@ -44,14 +44,14 @@ public:
   {
   }
 
-  template <typename SharedState>
-  auto share_state(SharedState&& state) const
+  template <typename State>
+  auto state(State&& state) const
   {
-    using type = std::decay_t<SharedState>;
+    using type = std::decay_t<State>;
     static_assert(std::copy_constructible<type>);
     auto state_map = state_map_;
     (*state_map)[std::type_index(typeid(type))]
-        = std::any(std::forward<SharedState>(state));
+        = std::any(std::forward<State>(state));
     return scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>(
         std::move(state_map), services_, routes_);
   }

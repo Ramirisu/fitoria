@@ -121,9 +121,8 @@ int main()
   auto server
       = http_server::builder()
             .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
-                       .share_state(db))
-            .serve(route::post<"/api/v1/login">(api::v1::login::api)
-                       .share_state(db))
+                       .state(db))
+            .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
             .build();
   server //
       .bind("127.0.0.1", 8080)

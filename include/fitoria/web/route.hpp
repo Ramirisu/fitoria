@@ -51,17 +51,17 @@ public:
   {
   }
 
-  template <typename SharedState>
-  auto share_state(SharedState&& state) const
+  template <typename State>
+  auto state(State&& state) const
   {
-    using type = std::decay_t<SharedState>;
+    using type = std::decay_t<State>;
     static_assert(std::copy_constructible<type>);
     auto state_maps = state_maps_;
     if (state_maps.empty()) {
       state_maps.push_back(std::make_shared<state_map>());
     }
     (*state_maps.front())[std::type_index(typeid(type))]
-        = std::any(std::forward<SharedState>(state));
+        = std::any(std::forward<State>(state));
     return route_impl<Path, std::tuple<Services...>, Handler>(
         method_, std::move(state_maps), services_, handler_);
   }
