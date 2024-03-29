@@ -229,29 +229,32 @@ public:
     return std::move(*this);
   }
 
-  template <typename T = boost::json::value>
-  http_response& set_json(const T& obj) &
+  http_response& set_json(const boost::json::value& jv) &
   {
-    if constexpr (std::is_same_v<T, boost::json::value>) {
-      set_field(http::field::content_type, http::fields::content_type::json());
-      auto s = boost::json::serialize(obj);
-      set_body(std::as_bytes(std::span(s.begin(), s.end())));
-    } else {
-      set_json(boost::json::value_from(obj));
-    }
+    set_field(http::field::content_type, http::fields::content_type::json());
+    auto str = boost::json::serialize(jv);
+    set_body(std::as_bytes(std::span(str.begin(), str.end())));
     return *this;
   }
 
-  template <typename T = boost::json::value>
+  http_response&& set_json(const boost::json::value& jv) &&
+  {
+    set_json(jv);
+    return std::move(*this);
+  }
+
+  template <typename T>
+    requires(boost::json::has_value_from<T>::value)
+  http_response& set_json(const T& obj) &
+  {
+    return set_json(boost::json::value_from(obj));
+  }
+
+  template <typename T>
+    requires(boost::json::has_value_from<T>::value)
   http_response&& set_json(const T& obj) &&
   {
-    if constexpr (std::is_same_v<T, boost::json::value>) {
-      set_field(http::field::content_type, http::fields::content_type::json());
-      auto s = boost::json::serialize(obj);
-      set_body(std::as_bytes(std::span(s.begin(), s.end())));
-    } else {
-      set_json(boost::json::value_from(obj));
-    }
+    set_json(boost::json::value_from(obj));
     return std::move(*this);
   }
 

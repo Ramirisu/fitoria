@@ -196,17 +196,19 @@ public:
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
-  template <typename T = boost::json::value>
+  http_client& set_json(const boost::json::value& jv)
+  {
+    set_field(http::field::content_type, http::fields::content_type::json());
+    auto str = boost::json::serialize(jv);
+    set_body(std::as_bytes(std::span(str.begin(), str.end())));
+    return *this;
+  }
+
+  template <typename T>
+    requires(boost::json::has_value_from<T>::value)
   http_client& set_json(const T& obj)
   {
-    if constexpr (std::is_same_v<T, boost::json::value>) {
-      set_field(http::field::content_type, http::fields::content_type::json());
-      auto s = boost::json::serialize(obj);
-      set_body(std::as_bytes(std::span(s.begin(), s.end())));
-    } else {
-      set_json(boost::json::value_from(obj));
-    }
-    return *this;
+    return set_json(boost::json::value_from(obj));
   }
 
   template <async_readable_stream AsyncReadableStream>

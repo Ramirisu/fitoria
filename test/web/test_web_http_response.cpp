@@ -49,6 +49,41 @@ TEST_CASE("set_field")
   }
 }
 
+struct user_t {
+  std::string name;
+
+  friend bool operator==(const user_t&, const user_t&) = default;
+};
+
+void tag_invoke(const boost::json::value_from_tag&,
+                boost::json::value& jv,
+                const user_t& user)
+{
+  jv = {
+    { "name", user.name },
+  };
+}
+
+TEST_CASE("set_json")
+{
+  net::sync_wait([]() -> net::awaitable<void> {
+    {
+      http_response res;
+      res.set_json({ { "name", "Rina Hidaka" } });
+      CHECK_EQ(res.fields().get(http::field::content_type),
+               http::fields::content_type::json());
+      CHECK_EQ(co_await res.as_string(), R"({"name":"Rina Hidaka"})");
+    }
+    {
+      http_response res;
+      res.set_json(user_t { .name = "Rina Hidaka" });
+      CHECK_EQ(res.fields().get(http::field::content_type),
+               http::fields::content_type::json());
+      CHECK_EQ(co_await res.as_string(), R"({"name":"Rina Hidaka"})");
+    }
+  });
+}
+
 TEST_CASE("as_string")
 {
   net::sync_wait([]() -> net::awaitable<void> {
