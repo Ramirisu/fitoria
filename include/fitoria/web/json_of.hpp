@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_JSON_HPP
-#define FITORIA_WEB_JSON_HPP
+#ifndef FITORIA_WEB_JSON_OF_HPP
+#define FITORIA_WEB_JSON_OF_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -22,18 +22,18 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 template <typename T>
-class json : public T {
+class json_of : public T {
 public:
   static_assert(std::same_as<T, std::remove_cvref_t<T>>,
                 "T must not be cvref qualified");
 
-  json(T value)
+  json_of(T value)
       : T(std::move(value))
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<json<T>>, http_request& req)
-      -> net::awaitable<expected<json<T>, std::error_code>>
+  friend auto tag_invoke(from_http_request_t<json_of<T>>, http_request& req)
+      -> net::awaitable<expected<json_of<T>, std::error_code>>
   {
     if (req.fields().get(http::field::content_type)
         != http::fields::content_type::json()) {

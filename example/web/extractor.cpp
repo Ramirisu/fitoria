@@ -92,7 +92,7 @@ namespace login {
                        .password = std::string(password->get_string()) };
   }
 
-  auto api(state_of<database::ptr> db, json<body_type> body)
+  auto api(state_of<database::ptr> db, json_of<body_type> body)
       -> net::awaitable<http_response>
   {
     if (auto it = db->find(body.username);

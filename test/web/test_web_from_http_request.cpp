@@ -346,12 +346,12 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 
 }
 
-TEST_CASE("json<T>")
+TEST_CASE("json_of<T>")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/">(
-                [](json<user_t> user) -> net::awaitable<http_response> {
+                [](json_of<user_t> user) -> net::awaitable<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
                   CHECK_EQ(user.birth, "1994/06/15");
                   co_return http_response(http::status::ok).set_json(user);

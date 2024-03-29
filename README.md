@@ -357,7 +357,7 @@ Built-in Extractors:
 | `web::state_of<T>`     | Extract shared state of type `T`.                       |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                             |
 | `std::string`          | Extract body as `std::string`.                          |      yes       |                                                                                                                                                                       |
 | `std::vector<T>`       | Extract body as `std::vector<T>`.                       |      yes       |                                                                                                                                                                       |
-| `web::json<T>`         | Extract body and parse it into json and convert to `T`. |      yes       |                                                                                                                                                                       |
+| `web::json_of<T>`      | Extract body and parse it into json and convert to `T`. |      yes       |                                                                                                                                                                       |
 
 > Implement `from_http_request_t` CPO to define custom extractors.
 
@@ -430,7 +430,7 @@ namespace login {
                        .password = std::string(password->get_string()) };
   }
 
-  auto api(state_of<database::ptr> db, json<body_type> body)
+  auto api(state_of<database::ptr> db, json_of<body_type> body)
       -> net::awaitable<http_response>
   {
     if (auto it = db->find(body.username);

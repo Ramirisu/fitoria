@@ -7,13 +7,13 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/web/json.hpp>
+#include <fitoria/web/detail/as_json.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::web::detail;
 
-TEST_SUITE_BEGIN("[fitoria.web.json]");
+TEST_SUITE_BEGIN("[fitoria.web.as_json]");
 
 namespace {
 
