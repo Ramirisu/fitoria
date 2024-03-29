@@ -22,6 +22,8 @@ namespace web {
 
 class async_readable_vector_stream {
 public:
+  using is_async_readable_stream = void;
+
   async_readable_vector_stream(std::vector<std::byte> data)
       : data_(std::move(data))
   {

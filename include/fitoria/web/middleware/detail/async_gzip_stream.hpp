@@ -120,6 +120,8 @@ private:
 template <async_readable_stream NextLayer>
 class async_gzip_inflate_stream {
 public:
+  using is_async_readable_stream = void;
+
   template <async_readable_stream NextLayer2>
   async_gzip_inflate_stream(NextLayer2&& next)
       : next_(std::forward<NextLayer2>(next))
@@ -234,6 +236,8 @@ private:
 template <async_readable_stream NextLayer>
 class async_gzip_deflate_stream {
 public:
+  using is_async_readable_stream = void;
+
   template <async_readable_stream NextLayer2>
   async_gzip_deflate_stream(NextLayer2&& next)
       : next_(std::forward<NextLayer2>(next))

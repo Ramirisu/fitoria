@@ -25,6 +25,8 @@ namespace web {
 
 class async_readable_file_stream {
 public:
+  using is_async_readable_stream = void;
+
   async_readable_file_stream(net::stream_file file)
       : file_(std::move(file))
   {

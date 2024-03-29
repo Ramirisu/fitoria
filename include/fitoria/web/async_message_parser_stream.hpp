@@ -25,8 +25,9 @@ namespace web {
 
 template <typename Stream, bool isRequest, typename Body, typename Allocator>
 class async_message_parser_stream {
-
 public:
+  using is_async_readable_stream = void;
+
   using parser_t = boost::beast::http::parser<isRequest, Body, Allocator>;
 
   async_message_parser_stream(boost::beast::flat_buffer buffer,

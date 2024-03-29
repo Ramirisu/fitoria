@@ -27,6 +27,8 @@ namespace test {
 template <std::size_t ChunkSize>
 class async_readable_chunk_stream {
 public:
+  using is_async_readable_stream = void;
+
   async_readable_chunk_stream(std::string_view sv)
       : data_(std::as_bytes(std::span(sv.data(), sv.size())))
   {

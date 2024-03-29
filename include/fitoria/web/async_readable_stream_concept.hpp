@@ -24,14 +24,18 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-// clang-format off
 template <typename T>
-concept async_readable_stream = requires(T t) {
-  { t.size_hint() } -> std::same_as<optional<std::size_t>>;
-  { t.async_read_next() } 
-    -> std::same_as<net::awaitable<optional<expected<std::vector<std::byte>, std::error_code>>>>;
-};
-// clang-format on
+concept async_readable_stream
+    = std::move_constructible<std::remove_cvref_t<T>> && requires(T t) {
+        typename std::remove_cvref_t<T>::is_async_readable_stream;
+        {
+          t.size_hint()
+        } -> std::same_as<optional<std::size_t>>;
+        {
+          t.async_read_next()
+        } -> std::same_as<net::awaitable<
+            optional<expected<std::vector<std::byte>, std::error_code>>>>;
+      };
 
 template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_all_as(AsyncReadableStream&& stream)
