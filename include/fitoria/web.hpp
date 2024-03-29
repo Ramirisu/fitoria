@@ -26,8 +26,8 @@
 #include <fitoria/web/middleware/gzip.hpp>
 #include <fitoria/web/middleware/logger.hpp>
 #include <fitoria/web/middleware_concept.hpp>
-#include <fitoria/web/path.hpp>
 #include <fitoria/web/path_info.hpp>
+#include <fitoria/web/path_of.hpp>
 #include <fitoria/web/query.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/route.hpp>
@@ -36,6 +36,5 @@
 #include <fitoria/web/state_map.hpp>
 #include <fitoria/web/state_of.hpp>
 #include <fitoria/web/stream_file.hpp>
-
 
 #endif

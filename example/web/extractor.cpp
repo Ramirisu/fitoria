@@ -43,7 +43,7 @@ using ptr = std::shared_ptr<type>;
 
 namespace api::v1 {
 namespace users {
-  auto api(path<std::tuple<std::string>> path, state_of<database::ptr> db)
+  auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
       -> net::awaitable<http_response>
   {
     auto [user] = std::move(path);

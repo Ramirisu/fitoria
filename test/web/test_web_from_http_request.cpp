@@ -73,13 +73,13 @@ TEST_CASE("path_info")
   }());
 }
 
-TEST_CASE("path<T = std::tuple<Ts...>>")
+TEST_CASE("path_of<T = std::tuple<Ts...>>")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{year}/{month}/{day}">(
-                [](path<std::tuple<std::string, std::string, std::string>> path)
-                    -> net::awaitable<http_response> {
+                [](path_of<std::tuple<std::string, std::string, std::string>>
+                       path) -> net::awaitable<http_response> {
                   auto [year, month, day] = std::move(path);
                   CHECK_EQ(year, "1994");
                   CHECK_EQ(month, "06");
@@ -95,13 +95,13 @@ TEST_CASE("path<T = std::tuple<Ts...>>")
   }());
 }
 
-TEST_CASE("path<T = std::tuple<Ts...>>, not match")
+TEST_CASE("path_of<T = std::tuple<Ts...>>, not match")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{month}/{day}">(
-                [](path<std::tuple<std::string, std::string, std::string>> path)
-                    -> net::awaitable<http_response> {
+                [](path_of<std::tuple<std::string, std::string, std::string>>
+                       path) -> net::awaitable<http_response> {
                   auto [year, month, day] = std::move(path);
                   CHECK_EQ(year, "06");
                   CHECK_EQ(month, "06");
@@ -119,12 +119,12 @@ TEST_CASE("path<T = std::tuple<Ts...>>, not match")
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
-TEST_CASE("path<T = aggregate>")
+TEST_CASE("path_of<T = aggregate>")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{year}/{month}/{day}">(
-                [](path<date_t> path) -> net::awaitable<http_response> {
+                [](path_of<date_t> path) -> net::awaitable<http_response> {
                   CHECK_EQ(
                       path,
                       date_t { .month = "06", .day = "15", .year = "1994" });
@@ -139,12 +139,12 @@ TEST_CASE("path<T = aggregate>")
   }());
 }
 
-TEST_CASE("path<T = aggregate>, not match")
+TEST_CASE("path_of<T = aggregate>, not match")
 {
   auto server
       = http_server::builder()
             .serve(route::get<"/{month}/{day}">(
-                [](path<date_t> path) -> net::awaitable<http_response> {
+                [](path_of<date_t> path) -> net::awaitable<http_response> {
                   CHECK_EQ(
                       path,
                       date_t { .month = "06", .day = "15", .year = "1994" });

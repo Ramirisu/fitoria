@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_PATH_HPP
-#define FITORIA_WEB_PATH_HPP
+#ifndef FITORIA_WEB_PATH_OF_HPP
+#define FITORIA_WEB_PATH_OF_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -26,18 +26,18 @@ namespace web {
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
-class path : public T {
+class path_of : public T {
 public:
   static_assert(std::same_as<T, std::remove_cvref_t<T>>,
                 "T must not be cvref qualified");
 
-  explicit path(T inner)
+  explicit path_of(T inner)
       : T(std::move(inner))
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<path<T>>, http_request& req)
-      -> net::awaitable<expected<path<T>, std::error_code>>
+  friend auto tag_invoke(from_http_request_t<path_of<T>>, http_request& req)
+      -> net::awaitable<expected<path_of<T>, std::error_code>>
   {
     co_return unpack_path(
         req.path(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
@@ -47,12 +47,12 @@ private:
   template <std::size_t... Is>
   static auto unpack_path(const path_info& path_info,
                           std::index_sequence<Is...>)
-      -> expected<path<T>, std::error_code>
+      -> expected<path_of<T>, std::error_code>
   {
     if (sizeof...(Is) == path_info.size()) {
       T result;
       if ((try_assign_field_index<Is>(path_info, result) && ...)) {
-        return path<T>(std::move(result));
+        return path_of<T>(std::move(result));
       }
     }
 
@@ -74,24 +74,24 @@ private:
 #else
 
 template <typename T>
-class path;
+class path_of;
 
 #endif
 
 template <typename... Ts>
-class path<std::tuple<Ts...>> : public std::tuple<Ts...> {
+class path_of<std::tuple<Ts...>> : public std::tuple<Ts...> {
 public:
   static_assert((std::same_as<Ts, std::remove_cvref_t<Ts>> && ...),
                 "Ts... must not be cvref qualified");
 
-  explicit path(std::tuple<Ts...> inner)
+  explicit path_of(std::tuple<Ts...> inner)
       : std::tuple<Ts...>(std::move(inner))
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<path<std::tuple<Ts...>>>,
+  friend auto tag_invoke(from_http_request_t<path_of<std::tuple<Ts...>>>,
                          http_request& req)
-      -> net::awaitable<expected<path<std::tuple<Ts...>>, std::error_code>>
+      -> net::awaitable<expected<path_of<std::tuple<Ts...>>, std::error_code>>
   {
     co_return unpack_path(req.path(),
                           std::make_index_sequence<sizeof...(Ts)> {});
@@ -101,10 +101,11 @@ private:
   template <std::size_t... Is>
   static auto unpack_path(const path_info& path_info,
                           std::index_sequence<Is...>)
-      -> expected<path<std::tuple<Ts...>>, std::error_code>
+      -> expected<path_of<std::tuple<Ts...>>, std::error_code>
   {
     if (sizeof...(Is) == path_info.size()) {
-      return path<std::tuple<Ts...>>(std::tuple<Ts...> { path_info.at(Is)... });
+      return path_of<std::tuple<Ts...>>(
+          std::tuple<Ts...> { path_info.at(Is)... });
     }
 
     return unexpected { make_error_code(error::path_extraction_error) };
@@ -116,11 +117,11 @@ private:
 FITORIA_NAMESPACE_END
 
 template <typename... Ts>
-struct std::tuple_size<FITORIA_NAMESPACE::web::path<std::tuple<Ts...>>>
+struct std::tuple_size<FITORIA_NAMESPACE::web::path_of<std::tuple<Ts...>>>
     : std::tuple_size<std::tuple<Ts...>> { };
 
 template <std::size_t I, typename... Ts>
-struct std::tuple_element<I, FITORIA_NAMESPACE::web::path<std::tuple<Ts...>>>
+struct std::tuple_element<I, FITORIA_NAMESPACE::web::path_of<std::tuple<Ts...>>>
     : std::tuple_element<I, std::tuple<Ts...>> { };
 
 #endif

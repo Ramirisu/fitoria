@@ -350,7 +350,7 @@ Built-in Extractors:
 | `web::http_request`    | Extract whole `http_request`.                           |       no       |                                                                                                                                                                       |
 | `web::connection_info` | Extract connection info.                                |       no       |                                                                                                                                                                       |
 | `web::path_info`       | Extract path info parameter.                            |       no       |                                                                                                                                                                       |
-| `web::path<T>`         | Extract path parameter into type `T`.                   |       no       | `T = std::tuple<Ts...>`, parameters are extracted in the order where they are in the path.<br/> `T = aggregate`, parameters are extracted to the field of their name. |
+| `web::path_of<T>`      | Extract path parameter into type `T`.                   |       no       | `T = std::tuple<Ts...>`, parameters are extracted in the order where they are in the path.<br/> `T = aggregate`, parameters are extracted to the field of their name. |
 | `web::query_map`       | Extract query string parameters.                        |       no       |                                                                                                                                                                       |
 | `web::query<T>`        | Extract query string parameters into type `T`           |       no       | `T = aggregate`, parameters are extracted to the field of their name.                                                                                                 |
 | `web::http_fields`     | Extract fields from request headers.                    |       no       |                                                                                                                                                                       |
@@ -381,7 +381,7 @@ using ptr = std::shared_ptr<type>;
 
 namespace api::v1 {
 namespace users {
-  auto api(path<std::tuple<std::string>> path, state_of<database::ptr> db)
+  auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
       -> net::awaitable<http_response>
   {
     auto [user] = std::move(path);
