@@ -835,24 +835,24 @@ Platform
 
 Compiler (C++20 coroutine/concepts)
 
-- GCC 12
+- GCC 13
 - MSVC 17 2022
 - Clang 15
 
 Dependencies
 
-|    Library     | Usage                              |    Namespace    | required/optional |
-| :------------: | :--------------------------------- | :-------------: | :---------------: |
-| `boost::asio`  | Networking                         | `fitoria::net`  |     required      |
-| `boost::beast` | HTTP                               | `fitoria::http` |     required      |
-|  `boost::url`  | Url parsing                        |                 |     required      |
-| `boost::json`  | JSON serialization/deserialization |                 |     required      |
-| `boost::regex` | Route parsing                      |                 |     required      |
-|  `boost::pfr`  | `web::path<T>` extractor           |                 |     optional      |
-|     `zlib`     | Built-in middleware gzip           |                 |     optional      |
-|     `fmt`      | Log formatting                     | `fitoria::fmt`  |     required      |
-|   `OpenSSL`    | Secure networking                  |                 |     optional      |
-|   `doctest`    | Unit testing                       |                 |     optional      |
+|    Library     |     Version     | Usage                              |    Namespace    | required/optional |
+| :------------: | :-------------: | :--------------------------------- | :-------------: | :---------------: |
+| `boost::asio`  | `1.84` or later | Networking                         | `fitoria::net`  |     required      |
+| `boost::beast` | `1.84` or later | HTTP                               | `fitoria::http` |     required      |
+|  `boost::url`  | `1.84` or later | Url parsing                        |                 |     required      |
+| `boost::json`  | `1.84` or later | JSON serialization/deserialization |                 |     required      |
+| `boost::regex` | `1.84` or later | Route parsing                      |                 |     required      |
+|  `boost::pfr`  | `1.84` or later | `web::path<T>` extractor           |                 |     optional      |
+|     `zlib`     |                 | Built-in middleware gzip           |                 |     optional      |
+|     `fmt`      | `10.x` or later | Log formatting                     | `fitoria::fmt`  |     required      |
+|   `OpenSSL`    |                 | Secure networking                  |                 |     optional      |
+|   `doctest`    |                 | Unit testing                       |                 |     optional      |
 
 CMake
 
