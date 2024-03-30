@@ -13,6 +13,8 @@
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
+#include <memory>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
@@ -56,7 +58,7 @@ public:
   template <async_readable_stream AsyncReadableStream>
   any_async_readable_stream(AsyncReadableStream&& stream)
     requires(!uncvref_same_as<AsyncReadableStream, any_async_readable_stream>)
-      : stream_(std::make_shared<derived<std::decay_t<AsyncReadableStream>>>(
+      : stream_(std::make_unique<derived<std::decay_t<AsyncReadableStream>>>(
           std::forward<AsyncReadableStream>(stream)))
   {
   }
@@ -82,10 +84,7 @@ public:
   }
 
 private:
-  // TODO:
-  // GCC 12 bug?
-  // using unique_ptr causes segmentation fault during destruction
-  std::shared_ptr<base> stream_;
+  std::unique_ptr<base> stream_;
 };
 
 }
