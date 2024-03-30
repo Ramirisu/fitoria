@@ -48,7 +48,7 @@ public:
 template <typename T>
 class optional {
   template <typename U>
-  static constexpr bool is_optional_like_construct_v
+  static constexpr bool is_optional_like_constructible_v
       = std::is_constructible_v<T, optional<U>&>
       || std::is_constructible_v<T, const optional<U>&>
       || std::is_constructible_v<T, optional<U>&&>
@@ -59,8 +59,8 @@ class optional {
       || std::is_convertible_v<const optional<U>&&, T>;
 
   template <typename U>
-  static constexpr bool is_optional_like_assign_v
-      = is_optional_like_construct_v<U>
+  static constexpr bool is_optional_like_assignable_v
+      = is_optional_like_constructible_v<U>
       || std::is_assignable_v<T&, optional<U>&>
       || std::is_assignable_v<T&, const optional<U>&>
       || std::is_assignable_v<T&, optional<U>&&>
@@ -115,7 +115,7 @@ public:
   constexpr explicit(!std::is_convertible_v<const U&, T>)
       optional(const optional<U>& other)
     requires(std::is_constructible_v<T, const U&>
-             && !is_optional_like_construct_v<U>)
+             && !is_optional_like_constructible_v<U>)
   {
     if (other) {
       std::construct_at(std::addressof(this->val_), other.value());
@@ -127,7 +127,7 @@ public:
   constexpr explicit(!std::is_convertible_v<U&&, T>)
       optional(optional<U>&& other)
     requires(std::is_constructible_v<T, U &&>
-             && !is_optional_like_construct_v<U>)
+             && !is_optional_like_constructible_v<U>)
   {
     if (other) {
       std::construct_at(std::addressof(this->val_), std::move(other.value()));
@@ -262,7 +262,7 @@ public:
   constexpr optional& operator=(const optional<U>& other)
     requires(std::is_constructible_v<T, const U&>
              && std::is_assignable_v<T&, const U&>
-             && !is_optional_like_assign_v<U>)
+             && !is_optional_like_assignable_v<U>)
   {
     if (has_value()) {
       if (other) {
@@ -284,7 +284,7 @@ public:
   template <typename U>
   constexpr optional& operator=(optional<U>&& other)
     requires(std::is_constructible_v<T, U> && std::is_assignable_v<T&, U>
-             && !is_optional_like_assign_v<U>)
+             && !is_optional_like_assignable_v<U>)
   {
     if (has_value()) {
       if (other) {
@@ -590,11 +590,10 @@ private:
   bool has_ = false;
 };
 
-template <typename T>
-  requires(std::is_void_v<T>)
-class optional<T> {
+template <>
+class optional<void> {
 public:
-  using value_type = T;
+  using value_type = void;
 
   constexpr optional() noexcept = default;
 
@@ -710,7 +709,7 @@ class optional<T> {
   using raw_value_type = std::remove_cvref_t<T>;
 
   template <typename U>
-  static constexpr bool is_optional_like_construct_v
+  static constexpr bool is_optional_like_constructible_v
       = std::is_constructible_v<T, optional<U>&>
       || std::is_constructible_v<T, const optional<U>&>
       || std::is_constructible_v<T, optional<U>&&>
@@ -721,8 +720,8 @@ class optional<T> {
       || std::is_convertible_v<const optional<U>&&, T>;
 
   template <typename U>
-  static constexpr bool is_optional_like_assign_v
-      = is_optional_like_construct_v<U>
+  static constexpr bool is_optional_like_assignable_v
+      = is_optional_like_constructible_v<U>
       || std::is_assignable_v<T&, optional<U>&>
       || std::is_assignable_v<T&, const optional<U>&>
       || std::is_assignable_v<T&, optional<U>&&>
@@ -746,7 +745,7 @@ public:
   template <typename U>
   constexpr explicit optional(optional<U>& other) noexcept
     requires(std::is_constructible_v<raw_value_type, const U&>
-             && !is_optional_like_construct_v<U>)
+             && !is_optional_like_constructible_v<U>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
@@ -756,7 +755,7 @@ public:
   template <typename U>
   constexpr explicit optional(const optional<U>& other) noexcept
     requires(std::is_constructible_v<raw_value_type, const U&>
-             && !is_optional_like_construct_v<U>)
+             && !is_optional_like_constructible_v<U>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
@@ -806,7 +805,7 @@ public:
 
   template <typename U>
   constexpr optional& operator=(optional<U>& other) noexcept
-    requires(!is_optional_like_assign_v<U>)
+    requires(!is_optional_like_assignable_v<U>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
@@ -819,7 +818,7 @@ public:
 
   template <typename U>
   constexpr optional& operator=(const optional<U>& other) noexcept
-    requires(!is_optional_like_assign_v<U>)
+    requires(!is_optional_like_assignable_v<U>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
