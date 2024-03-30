@@ -135,11 +135,6 @@ TEST_CASE("in-place constructor")
     auto o = optional<dc<int>>(std::in_place, { 0, 1, 2 });
     CHECK_EQ(o.value(), dc<int> { 0, 1, 2 });
   }
-  {
-    int val = 1;
-    auto o = optional<int&>(std::in_place, val);
-    CHECK_EQ(o.value(), 1);
-  }
 }
 
 TEST_CASE("perfect forwarding constructor")
@@ -593,42 +588,45 @@ TEST_CASE("converting assignment operator")
 TEST_CASE("rebinding assignment operator")
 {
   {
-    auto s = optional<int>(1);
+    int val = 1;
+    auto s = optional<int&>(val);
     auto d = optional<int&>();
     d = s;
     CHECK(s);
     CHECK_EQ(d.value(), 1);
   }
   {
-    auto s = optional<int>();
+    auto s = optional<int&>();
     auto d = optional<int&>();
     d = s;
     CHECK(!s);
     CHECK(!d);
   }
   {
-    auto s = optional<int>(1);
+    int val = 1;
+    auto s = optional<int&>(val);
     auto d = optional<const int&>();
     d = s;
     CHECK(s);
     CHECK_EQ(d.value(), 1);
   }
   {
-    auto s = optional<int>();
+    auto s = optional<int&>();
     auto d = optional<const int&>();
     d = s;
     CHECK(!s);
     CHECK(!d);
   }
   {
-    const auto s = optional<int>(1);
+    int val = 1;
+    const auto s = optional<int&>(val);
     auto d = optional<const int&>();
     d = s;
     CHECK(s);
     CHECK_EQ(d.value(), 1);
   }
   {
-    const auto s = optional<int>();
+    const auto s = optional<int&>();
     auto d = optional<const int&>();
     d = s;
     CHECK(!s);

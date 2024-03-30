@@ -704,29 +704,7 @@ private:
 };
 
 template <typename T>
-  requires(std::is_lvalue_reference_v<T>)
-class optional<T> {
-  using raw_value_type = std::remove_cvref_t<T>;
-
-  template <typename U>
-  static constexpr bool is_optional_like_constructible_v
-      = std::is_constructible_v<T, optional<U>&>
-      || std::is_constructible_v<T, const optional<U>&>
-      || std::is_constructible_v<T, optional<U>&&>
-      || std::is_constructible_v<T, const optional<U>&&>
-      || std::is_convertible_v<optional<U>&, T>
-      || std::is_convertible_v<const optional<U>&, T>
-      || std::is_convertible_v<optional<U>&&, T>
-      || std::is_convertible_v<const optional<U>&&, T>;
-
-  template <typename U>
-  static constexpr bool is_optional_like_assignable_v
-      = is_optional_like_constructible_v<U>
-      || std::is_assignable_v<T&, optional<U>&>
-      || std::is_assignable_v<T&, const optional<U>&>
-      || std::is_assignable_v<T&, optional<U>&&>
-      || std::is_assignable_v<T&, const optional<U>&&>;
-
+class optional<T&> {
 public:
   static_assert(!std::is_same_v<std::remove_cvref_t<T>, std::in_place_t>);
   static_assert(!std::is_same_v<std::remove_cvref_t<T>, nullopt_t>);
@@ -743,9 +721,9 @@ public:
   constexpr optional(optional&&) noexcept = default;
 
   template <typename U>
-  constexpr explicit optional(optional<U>& other) noexcept
-    requires(std::is_constructible_v<raw_value_type, const U&>
-             && !is_optional_like_constructible_v<U>)
+  constexpr explicit(std::is_convertible_v<U, T>)
+      optional(optional<U>& other) noexcept
+    requires(!std::is_same_v<std::remove_cvref_t<U>, optional>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
@@ -753,28 +731,22 @@ public:
   }
 
   template <typename U>
-  constexpr explicit optional(const optional<U>& other) noexcept
-    requires(std::is_constructible_v<raw_value_type, const U&>
-             && !is_optional_like_constructible_v<U>)
+  constexpr explicit(std::is_convertible_v<U, T>)
+      optional(const optional<U>& other) noexcept
+    requires(!std::is_same_v<std::remove_cvref_t<U>, optional>)
   {
     if (other) {
       this->valptr_ = std::addressof(other.value());
     }
   }
 
-  template <typename U>
-  constexpr explicit optional(std::in_place_t, U& value) noexcept
+  template <typename U = T>
+  constexpr explicit(!std::is_convertible_v<U, T>) optional(U&& value) noexcept
+    requires(!is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>)
   {
-    this->valptr_ = std::addressof(value);
-  }
+    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
+    static_assert(std::is_lvalue_reference_v<U>);
 
-  template <typename U = raw_value_type>
-  constexpr explicit(!std::is_convertible_v<U, raw_value_type>)
-      optional(U& value) noexcept
-    requires(
-        !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t>
-        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>)
-  {
     this->valptr_ = std::addressof(value);
   }
 
@@ -791,13 +763,14 @@ public:
 
   constexpr optional& operator=(optional&&) noexcept = default;
 
-  template <typename U = raw_value_type>
-  constexpr optional& operator=(U& value) noexcept
-    requires(
-        !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t>
-        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>
-        && (!std::is_scalar_v<T> || !std::is_same_v<std::decay_t<U>, T>))
+  template <typename U = T>
+  constexpr optional& operator=(U&& value) noexcept
+    requires(!is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>
+             && (!std::is_scalar_v<T> || !std::is_same_v<T, std::decay_t<U>>))
   {
+    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
+    static_assert(std::is_lvalue_reference_v<U>);
+
     this->valptr_ = std::addressof(value);
 
     return *this;
@@ -805,8 +778,9 @@ public:
 
   template <typename U>
   constexpr optional& operator=(optional<U>& other) noexcept
-    requires(!is_optional_like_assignable_v<U>)
   {
+    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
+    static_assert(std::is_lvalue_reference_v<U>);
     if (other) {
       this->valptr_ = std::addressof(other.value());
     } else {
@@ -818,8 +792,9 @@ public:
 
   template <typename U>
   constexpr optional& operator=(const optional<U>& other) noexcept
-    requires(!is_optional_like_assignable_v<U>)
   {
+    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
+    static_assert(std::is_lvalue_reference_v<U>);
     if (other) {
       this->valptr_ = std::addressof(other.value());
     } else {
@@ -829,28 +804,16 @@ public:
     return *this;
   }
 
-  constexpr std::add_pointer_t<T> operator->() noexcept
+  constexpr std::add_pointer_t<T> operator->() const noexcept
   {
     FITORIA_ASSERT(has_value());
     return this->valptr_;
   }
 
-  constexpr std::add_pointer_t<const T> operator->() const noexcept
-  {
-    FITORIA_ASSERT(has_value());
-    return this->valptr_;
-  }
-
-  constexpr T& operator*() const& noexcept
+  constexpr T& operator*() const noexcept
   {
     FITORIA_ASSERT(has_value());
     return *this->valptr_;
-  }
-
-  constexpr T&& operator*() const&& noexcept
-  {
-    FITORIA_ASSERT(has_value());
-    return std::forward<T>(*this->valptr_);
   }
 
   constexpr explicit operator bool() const noexcept
@@ -863,7 +826,7 @@ public:
     return this->valptr_ != nullptr;
   }
 
-  constexpr T& value() const&
+  constexpr T& value() const
   {
     if (!has_value()) {
       FITORIA_THROW(bad_optional_access());
@@ -872,30 +835,21 @@ public:
     return *this->valptr_;
   }
 
-  constexpr T&& value() const&&
-  {
-    if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
-    }
-
-    return std::forward<T>(*this->valptr_);
-  }
-
   template <typename U>
-  constexpr raw_value_type value_or(U&& default_value) const
-    requires(std::is_copy_constructible_v<raw_value_type>)
+  constexpr T value_or(U&& default_value) const
+    requires(std::is_copy_constructible_v<T>)
   {
     if (has_value()) {
       return value();
     } else {
-      return static_cast<raw_value_type>(std::forward<U>(default_value));
+      return static_cast<T>(std::forward<U>(default_value));
     }
   }
 
   template <typename F>
   constexpr auto and_then(F&& f) const
   {
-    using U = std::invoke_result_t<F, T>;
+    using U = std::invoke_result_t<F, std::add_lvalue_reference_t<T>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
       return U(std::invoke(std::forward<F>(f), value()));
@@ -907,7 +861,8 @@ public:
   template <typename F>
   constexpr auto transform(F&& f) const
   {
-    using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
+    using U = std::remove_cv_t<
+        std::invoke_result_t<F, std::add_lvalue_reference_t<T>>>;
     if (has_value()) {
       return optional<U>(std::invoke(std::forward<F>(f), value()));
     } else {
@@ -933,15 +888,21 @@ public:
     this->valptr_ = nullptr;
   }
 
-  template <typename U>
-  constexpr T& emplace(U& value) noexcept
+  template <typename U = T>
+  constexpr T& emplace(U&& u) noexcept
+    requires(
+        !std::is_same_v<std::remove_cvref_t<U>, optional>
+        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>)
   {
-    this->valptr_ = std::addressof(value);
+    static_assert(std::is_lvalue_reference_v<U>);
+
+    this->valptr_ = std::addressof(u);
+
     return *this->valptr_;
   }
 
 private:
-  std::remove_reference_t<T>* valptr_ = nullptr;
+  T* valptr_ = nullptr;
 };
 
 template <typename T1, typename T2>
