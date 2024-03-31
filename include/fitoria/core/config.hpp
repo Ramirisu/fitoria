@@ -26,11 +26,11 @@
 // clang-format off
 #if __cpp_exceptions >= 199711
 #define FITORIA_NO_EXCEPTIONS 0
-#define FITORIA_THROW(ex) throw ex
+#define FITORIA_THROW_OR(ex, expr) throw ex
 #else
 #include <exception>
 #define FITORIA_NO_EXCEPTIONS 1
-#define FITORIA_THROW(ex) std::terminate()
+#define FITORIA_THROW_OR(ex, expr) expr
 #endif
 // clang-format on
 

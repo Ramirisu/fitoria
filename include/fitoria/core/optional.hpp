@@ -352,7 +352,7 @@ public:
   constexpr T& value() &
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
 
     return this->val_;
@@ -361,7 +361,7 @@ public:
   constexpr const T& value() const&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
 
     return this->val_;
@@ -370,7 +370,7 @@ public:
   constexpr T&& value() &&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
 
     return std::move(this->val_);
@@ -379,7 +379,7 @@ public:
   constexpr const T&& value() const&&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
 
     return std::move(this->val_);
@@ -644,7 +644,7 @@ public:
   constexpr void value() const
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
   }
 
@@ -829,7 +829,7 @@ public:
   constexpr T& value() const
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_optional_access());
+      FITORIA_THROW_OR(bad_optional_access(), std::terminate());
     }
 
     return *this->valptr_;

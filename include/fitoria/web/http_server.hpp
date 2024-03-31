@@ -82,7 +82,7 @@ public:
       if (auto res
           = router_.try_insert(router_type::route_type(route.build(handler())));
           !res) {
-        FITORIA_THROW(std::system_error(res.error()));
+        FITORIA_THROW_OR(std::system_error(res.error()), std::terminate());
       }
 
       return *this;
@@ -262,11 +262,7 @@ private:
                                   net::ip::tcp::endpoint listen_ep) const
   {
     if (auto ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
-#if FITORIA_NO_EXCEPTIONS
-      co_return;
-#else
-      throw std::system_error(ec);
-#endif
+      FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
     boost::system::error_code ec;
@@ -284,28 +280,16 @@ private:
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
-#if FITORIA_NO_EXCEPTIONS
-      co_return;
-#else
-      throw std::system_error(ec);
-#endif
+      FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
     if (ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
-#if FITORIA_NO_EXCEPTIONS
-      co_return;
-#else
-      throw std::system_error(ec);
-#endif
+      FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
     std::tie(ec) = co_await stream->async_shutdown(net::use_ta);
     if (ec) {
-#if FITORIA_NO_EXCEPTIONS
-      co_return;
-#else
-      throw std::system_error(ec);
-#endif
+      FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
   }
 #endif

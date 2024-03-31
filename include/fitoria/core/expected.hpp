@@ -600,7 +600,7 @@ public:
   constexpr T& value() &
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(error()));
+      FITORIA_THROW_OR(bad_expected_access(error()), std::terminate());
     }
 
     return this->val_;
@@ -609,7 +609,7 @@ public:
   constexpr const T& value() const&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(error()));
+      FITORIA_THROW_OR(bad_expected_access(error()), std::terminate());
     }
 
     return this->val_;
@@ -618,7 +618,8 @@ public:
   constexpr T&& value() &&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(std::move(error())));
+      FITORIA_THROW_OR(bad_expected_access(std::move(error())),
+                       std::terminate());
     }
 
     return std::move(this->val_);
@@ -627,7 +628,8 @@ public:
   constexpr const T&& value() const&&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(std::move(error())));
+      FITORIA_THROW_OR(bad_expected_access(std::move(error())),
+                       std::terminate());
     }
 
     return std::move(this->val_);
@@ -1284,14 +1286,15 @@ public:
   constexpr void value() const&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(error()));
+      FITORIA_THROW_OR(bad_expected_access(error()), std::terminate());
     }
   }
 
   constexpr void value() &&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(std::move(error())));
+      FITORIA_THROW_OR(bad_expected_access(std::move(error())),
+                       std::terminate());
     }
   }
 
@@ -1922,7 +1925,7 @@ public:
   constexpr T& value() const&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(error()));
+      FITORIA_THROW_OR(bad_expected_access(error()), std::terminate());
     }
 
     return *this->valptr_;
@@ -1931,7 +1934,8 @@ public:
   constexpr T&& value() const&&
   {
     if (!has_value()) {
-      FITORIA_THROW(bad_expected_access(std::move(error())));
+      FITORIA_THROW_OR(bad_expected_access(std::move(error())),
+                       std::terminate());
     }
 
     return std::forward<T>(*this->valptr_);
