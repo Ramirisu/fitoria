@@ -79,7 +79,7 @@ TEST_CASE("async_gzip_inflate_stream: empty stream")
 
     auto out = co_await async_read_all_as<std::string>(
         middleware::detail::async_gzip_inflate_stream(
-            async_readable_vector_stream::empty()));
+            async_readable_vector_stream()));
     CHECK(out);
     CHECK(!*out);
   });
@@ -128,7 +128,7 @@ TEST_CASE("async_gzip_deflate_stream: empty stream")
   net::sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
-            async_readable_vector_stream::empty()));
+            async_readable_vector_stream()));
     CHECK(out);
     CHECK(!*out);
   });

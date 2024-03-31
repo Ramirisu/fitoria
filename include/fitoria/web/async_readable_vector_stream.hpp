@@ -24,6 +24,11 @@ class async_readable_vector_stream {
 public:
   using is_async_readable_stream = void;
 
+  async_readable_vector_stream()
+      : data_(std::vector<std::byte>())
+  {
+  }
+
   async_readable_vector_stream(std::vector<std::byte> data)
       : data_(std::move(data))
   {
@@ -54,23 +59,16 @@ public:
   auto async_read_next() -> net::awaitable<
       optional<expected<std::vector<std::byte>, std::error_code>>>
   {
-    co_return data_.and_then(
-        [this](auto& data)
-            -> optional<expected<std::vector<std::byte>, std::error_code>> {
-          auto moved = std::move(data);
-          data_.reset();
-          return moved;
-        });
-  }
+    if (data_) {
+      auto data = std::move(*data_);
+      data_.reset();
+      co_return data;
+    }
 
-  static async_readable_vector_stream empty()
-  {
-    return async_readable_vector_stream(std::vector<std::byte>());
+    co_return nullopt;
   }
 
 private:
-  async_readable_vector_stream() = default;
-
   optional<std::vector<std::byte>> data_;
 };
 }
