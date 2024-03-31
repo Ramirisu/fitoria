@@ -86,7 +86,7 @@ TEST_CASE("insert")
     auto iters = fs.equal_range(http::field::content_type);
     int match_count = 0;
     for (auto iter = iters.first; iter != iters.second; ++iter) {
-      if (exp.contains(iter->second)) {
+      if (exp.contains(iter->value())) {
         ++match_count;
       }
     }

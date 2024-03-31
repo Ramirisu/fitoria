@@ -12,7 +12,6 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/optional.hpp>
-#include <fitoria/core/unordered_string_map.hpp>
 
 #include <fitoria/web/http.hpp>
 
@@ -21,21 +20,19 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class http_fields {
-public:
-  using map_type = unordered_string_multimap<std::string>;
+private:
+  using impl_type = boost::beast::http::fields;
+
+  http_fields(impl_type impl)
+      : impl_(std::move(impl))
+  {
+  }
 
 public:
-  using key_type = typename map_type::key_type;
-  using mapped_type = typename map_type::mapped_type;
-  using value_type = typename map_type::value_type;
-  using size_type = typename map_type::size_type;
-  using difference_type = typename map_type::difference_type;
-  using reference = typename map_type::reference;
-  using const_reference = typename map_type::const_reference;
-  using pointer = typename map_type::pointer;
-  using const_pointer = typename map_type::const_pointer;
-  using iterator = typename map_type::iterator;
-  using const_iterator = typename map_type::const_iterator;
+  using mapped_type = std::string_view;
+  using size_type = std::size_t;
+  using iterator = typename impl_type::iterator;
+  using const_iterator = typename impl_type::const_iterator;
 
   http_fields() = default;
 
@@ -49,178 +46,131 @@ public:
 
   bool empty() const noexcept
   {
-    return map_.empty();
+    return begin() == end();
   }
 
   size_type size() const noexcept
   {
-    return map_.size();
-  }
-
-  size_type max_size() const noexcept
-  {
-    return map_.max_size();
+    return std::distance(begin(), end());
   }
 
   void clear() noexcept
   {
-    map_.clear();
+    impl_.clear();
   }
 
-  void set(std::string name, std::string_view value)
+  void set(std::string_view name, std::string_view value)
   {
-    canonicalize_field_name(name);
-    erase(name);
-    map_.insert({ std::move(name), std::string(value) });
+    impl_.set(name, value);
   }
 
   void set(http::field name, std::string_view value)
   {
-    set(std::string(to_string(name)), value);
+    impl_.set(name, value);
   }
 
-  void insert(std::string name, std::string_view value)
+  void insert(std::string_view name, std::string_view value)
   {
-    canonicalize_field_name(name);
-    map_.insert({ std::move(name), std::string(value) });
+    impl_.insert(name, value);
   }
 
   void insert(http::field name, std::string_view value)
   {
-    insert(std::string(to_string(name)), std::string(value));
+    impl_.insert(name, value);
   }
 
-  optional<mapped_type&> get(std::string name) noexcept
+  optional<mapped_type> get(std::string_view name) const noexcept
   {
-    canonicalize_field_name(name);
-    if (auto it = map_.find(name); it != map_.end()) {
-      return it->second;
+    if (auto it = impl_.find(name); it != impl_.end()) {
+      return it->value();
     }
 
     return nullopt;
   }
 
-  optional<mapped_type&> get(http::field name) noexcept
+  optional<mapped_type> get(http::field name) const noexcept
   {
-    return get(to_string(name));
-  }
-
-  optional<const mapped_type&> get(std::string name) const noexcept
-  {
-    canonicalize_field_name(name);
-    if (auto it = map_.find(name); it != map_.end()) {
-      return it->second;
+    if (auto it = impl_.find(name); it != impl_.end()) {
+      return it->value();
     }
 
     return nullopt;
   }
 
-  optional<const mapped_type&> get(http::field name) const noexcept
+  std::pair<iterator, iterator> equal_range(std::string_view name)
   {
-    return get(to_string(name));
-  }
-
-  std::pair<iterator, iterator> equal_range(std::string name)
-  {
-    canonicalize_field_name(name);
-    return map_.equal_range(std::move(name));
+    return impl_.equal_range(name);
   }
 
   std::pair<iterator, iterator> equal_range(http::field name)
   {
-    return equal_range(to_string(name));
+    return impl_.equal_range(name);
   }
 
-  size_type erase(std::string name)
+  size_type erase(std::string_view name)
   {
-    canonicalize_field_name(name);
-    return map_.erase(name);
+    return impl_.erase(name);
   }
 
   size_type erase(http::field name)
   {
-    return erase(to_string(name));
+    return impl_.erase(name);
   }
 
-  bool contains(std::string name) const
+  bool contains(std::string_view name) const
   {
-    canonicalize_field_name(name);
-    return map_.contains(std::move(name));
+    return impl_.find(name) != end();
   }
 
   bool contains(http::field name) const
   {
-    return map_.contains(to_string(name));
+    return impl_.find(name) != end();
   }
 
-  auto begin() noexcept
+  auto begin() noexcept -> iterator
   {
-    return map_.begin();
+    return impl_.begin();
   }
 
-  auto begin() const noexcept
+  auto begin() const noexcept -> const_iterator
   {
-    return map_.begin();
+    return impl_.begin();
   }
 
-  auto cbegin() const noexcept
+  auto cbegin() const noexcept -> const_iterator
   {
-    return map_.cbegin();
+    return impl_.cbegin();
   }
 
-  auto end() noexcept
+  auto end() noexcept -> iterator
   {
-    return map_.end();
+    return impl_.end();
   }
 
-  auto end() const noexcept
+  auto end() const noexcept -> const_iterator
   {
-    return map_.end();
+    return impl_.end();
   }
 
-  auto cend() const noexcept
+  auto cend() const noexcept -> const_iterator
   {
-    return map_.cend();
+    return impl_.cend();
   }
 
-  template <bool IsRequest, typename Body, typename Fields>
-  static auto
-  from(const boost::beast::http::message<IsRequest, Body, Fields>& msg)
-      -> http_fields
+  static auto from_impl(impl_type impl) -> http_fields
   {
-    http_fields fields;
-    for (auto& kv : msg.base()) {
-      fields.insert(kv.name(), kv.value());
-    }
-    return fields;
+    return http_fields(std::move(impl));
   }
 
-  template <bool IsRequest, typename Body, typename Fields>
-  void to(boost::beast::http::message<IsRequest, Body, Fields>& msg) const
+  void to_impl(impl_type& impl) const
   {
-    for (auto& [name, value] : map_) {
-      msg.insert(name, value);
+    for (auto& element : impl_) {
+      impl.insert(element.name(), element.value());
     }
   }
 
 private:
-  static void canonicalize_field_name(std::string& name) noexcept
-  {
-    bool upper = true;
-    for (std::size_t i = 0; i < name.size(); ++i) {
-      if (name[i] == '-') {
-        upper = true;
-      } else if (upper) {
-        name[i] = static_cast<char>(::toupper(name[i]));
-        upper = false;
-      } else {
-        name[i] = static_cast<char>(::tolower(name[i]));
-      }
-    }
-  }
-
-private:
-  map_type map_;
+  impl_type impl_;
 };
 
 }

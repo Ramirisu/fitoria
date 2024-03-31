@@ -337,7 +337,7 @@ private:
       bool keep_alive = parser->get().keep_alive();
       auto method = parser->get().method();
       auto target = std::string(parser->get().target());
-      auto fields = http_fields::from(parser->get());
+      auto fields = http_fields::from_impl(parser->get());
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end() && it->value() == "100-continue") {
@@ -431,7 +431,7 @@ private:
     boost::system::error_code ec;
 
     auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
-    res.fields().to(r);
+    res.fields().to_impl(r);
     if (auto body
         = co_await async_read_all_as<std::vector<std::byte>>(res.body());
         body) {
@@ -465,7 +465,7 @@ private:
     boost::system::error_code ec;
 
     auto r = response<empty_body>(res.status_code().value(), 11);
-    res.fields().to(r);
+    res.fields().to_impl(r);
     r.keep_alive(keep_alive);
     r.chunked(true);
 

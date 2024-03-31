@@ -81,8 +81,10 @@ public:
                     http::fields::content_encoding::deflate());
       if (auto vary = res.fields().get(http::field::vary); vary == "*") {
       } else if (vary && !vary->empty()) {
-        *vary += ", ";
-        *vary += to_string(http::field::content_encoding);
+        auto new_vary = std::string(*vary);
+        new_vary += ", ";
+        new_vary += to_string(http::field::content_encoding);
+        res.set_field(http::field::vary, new_vary);
       } else {
         res.set_field(http::field::vary,
                       to_string(http::field::content_encoding));

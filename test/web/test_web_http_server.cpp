@@ -280,7 +280,7 @@ TEST_CASE("generic request")
 
                   CHECK(range_in_set(
                       req.fields().equal_range(http::field::user_agent),
-                      [](auto&& p) { return p->second; },
+                      [](auto&& p) { return p->value(); },
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
@@ -326,7 +326,7 @@ TEST_CASE("generic request")
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK(range_in_set(
             res.fields().equal_range(http::field::user_agent),
-            [](auto&& p) { return p->second; },
+            [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
       },

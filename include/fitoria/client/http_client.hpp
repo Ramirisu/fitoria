@@ -400,7 +400,7 @@ private:
     }
 
     auto res = http_response(parser->get().result(),
-                             http_fields::from(parser->get()));
+                             http_fields::from_impl(parser->get()));
     res.set_stream(async_message_parser_stream(std::move(buffer),
                                                std::move(stream),
                                                std::move(parser),
@@ -421,7 +421,7 @@ private:
 
     request<vector_body<std::byte>> req(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    fields_.to(req);
+    fields_.to_impl(req);
     req.set(http::field::host, resource_->host);
     if (auto data
         = co_await web::async_read_all_as<std::vector<std::byte>>(body_);
@@ -455,7 +455,7 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(res.result(), http_fields::from(res))
+        co_return http_response(res.result(), http_fields::from_impl(res))
             .set_stream(async_readable_vector_stream(std::move(res.body())));
       }
     }
@@ -485,7 +485,7 @@ private:
 
     request<empty_body> req(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    fields_.to(req);
+    fields_.to_impl(req);
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
@@ -511,7 +511,7 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(res.result(), http_fields::from(res))
+        co_return http_response(res.result(), http_fields::from_impl(res))
             .set_stream(async_readable_vector_stream(std::move(res.body())));
       }
     }
