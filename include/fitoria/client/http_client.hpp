@@ -19,6 +19,7 @@
 #include <fitoria/log/log.hpp>
 
 #include <fitoria/web/async_message_parser_stream.hpp>
+#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/http/http.hpp>
@@ -34,6 +35,7 @@ namespace http = web::http;
 
 using web::any_async_readable_stream;
 using web::async_message_parser_stream;
+using web::async_readable_eof_stream;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
 using web::http_fields;
@@ -540,7 +542,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
+  any_async_readable_stream body_ { async_readable_eof_stream() };
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
   std::chrono::milliseconds expect100_timeout_ = std::chrono::seconds(1);
 };

@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
+#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
@@ -275,7 +276,7 @@ public:
 private:
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
+  any_async_readable_stream body_ { async_readable_eof_stream() };
 };
 
 }

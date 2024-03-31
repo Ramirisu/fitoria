@@ -63,11 +63,6 @@ public:
         });
   }
 
-  static async_readable_vector_stream eof()
-  {
-    return {};
-  }
-
   static async_readable_vector_stream empty()
   {
     return async_readable_vector_stream(std::vector<std::byte>());

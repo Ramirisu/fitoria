@@ -15,6 +15,7 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
+#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
@@ -269,7 +270,7 @@ private:
   http::verb method_;
   query_map query_;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_vector_stream::eof() };
+  any_async_readable_stream body_ { async_readable_eof_stream() };
   optional<const std::vector<shared_state_map>&> state_maps_;
 };
 
