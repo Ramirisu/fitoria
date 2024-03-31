@@ -74,7 +74,9 @@ int main()
   auto server = http_server::builder()
                     .serve(scope<"/api/v1">()
                                .use(middleware::logger())
+#if !FITORIA_NO_EXCEPTIONS
                                .use(middleware::exception_handler())
+#endif
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
                     .build();
