@@ -19,8 +19,7 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-inline std::shared_ptr<async_writer>
-make_async_stream_file_writer(const std::string& path)
+inline auto make_async_stream_file_writer(const std::string& path)
 {
   auto file
       = net::stream_file(net::system_executor(),

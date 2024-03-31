@@ -40,7 +40,7 @@ public:
   }
 };
 
-inline std::shared_ptr<async_writer> make_sync_stdout_writer()
+inline auto make_sync_stdout_writer()
 {
   return std::make_shared<sync_stdout_writer>();
 }

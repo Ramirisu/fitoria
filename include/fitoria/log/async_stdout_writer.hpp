@@ -19,7 +19,7 @@ namespace log {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-inline std::shared_ptr<async_writer> make_async_stdout_writer()
+inline auto make_async_stdout_writer()
 {
 #if defined(FITORIA_TARGET_WINDOWS)
   return std::make_shared<basic_async_stream_file_writer>(

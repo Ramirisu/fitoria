@@ -38,8 +38,7 @@ public:
   }
 };
 
-inline std::shared_ptr<async_writer>
-make_sync_stream_file_writer(const std::string& path)
+inline auto make_sync_stream_file_writer(const std::string& path)
 {
   return std::make_shared<sync_stream_file_writer>(
       std::ofstream(path, std::ios::binary | std::ios::app));
