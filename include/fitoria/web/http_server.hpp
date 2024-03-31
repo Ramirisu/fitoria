@@ -68,7 +68,7 @@ public:
     builder& set_exception_handler(F&& f)
       requires std::invocable<F, std::exception_ptr>
     {
-      exception_handler_ = std::forward<F>(f);
+      exception_handler_.emplace(std::forward<F>(f));
       return *this;
     }
 #endif
@@ -102,19 +102,6 @@ public:
     }
 
   private:
-#if !FITORIA_NO_EXCEPTIONS
-    static void default_exception_handler(std::exception_ptr ptr)
-    {
-      if (ptr) {
-        try {
-          std::rethrow_exception(ptr);
-        } catch (const std::exception& ex) {
-          log::debug("[{}] exception: {}", name(), ex.what());
-        }
-      }
-    }
-#endif
-
     static const char* name() noexcept
     {
       return "fitoria.builder";
@@ -123,8 +110,7 @@ public:
     optional<int> max_listen_connections_;
     optional<std::chrono::milliseconds> client_request_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
-    std::function<void(std::exception_ptr)> exception_handler_
-        = default_exception_handler;
+    optional<std::function<void(std::exception_ptr)>> exception_handler_;
 #else
     net::detached_t exception_handler_;
 #endif
@@ -136,7 +122,10 @@ public:
           static_cast<int>(net::socket_base::max_listen_connections)))
       , client_request_timeout_(
             builder.client_request_timeout_.value_or(std::chrono::seconds(5)))
-      , exception_handler_(std::move(builder.exception_handler_))
+#if !FITORIA_NO_EXCEPTIONS
+      , exception_handler_(
+            builder.exception_handler_.value_or(default_exception_handler))
+#endif
       , router_(std::move(builder.router_))
   {
   }
@@ -510,6 +499,19 @@ private:
 
     co_return result;
   }
+
+#if !FITORIA_NO_EXCEPTIONS
+  static void default_exception_handler(std::exception_ptr ptr)
+  {
+    if (ptr) {
+      try {
+        std::rethrow_exception(ptr);
+      } catch (const std::exception& ex) {
+        log::debug("[{}] exception: {}", name(), ex.what());
+      }
+    }
+  }
+#endif
 
   static const char* name() noexcept
   {
