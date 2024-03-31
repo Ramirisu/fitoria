@@ -226,7 +226,6 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
       if (ec) {
-        log::warning("[{}] async_accept failed: {}", name(), ec.message());
         continue;
       }
 
@@ -247,7 +246,6 @@ private:
     for (;;) {
       auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
       if (ec) {
-        log::warning("[{}] async_accept failed: {}", name(), ec.message());
         continue;
       }
 
@@ -286,7 +284,6 @@ private:
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
-      log::warning("[{}] async_handshake failed: {}", name(), ec.message());
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
@@ -304,7 +301,6 @@ private:
 
     std::tie(ec) = co_await stream->async_shutdown(net::use_ta);
     if (ec) {
-      log::warning("[{}] async_shutdown failed: {}", name(), ec.message());
 #if FITORIA_NO_EXCEPTIONS
       co_return;
 #else
@@ -335,10 +331,6 @@ private:
       std::tie(ec, std::ignore)
           = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
       if (ec) {
-        if (ec != http::error::end_of_stream) {
-          log::warning(
-              "[{}] async_read_header failed: {}", name(), ec.message());
-        }
         co_return ec;
       }
 
@@ -356,8 +348,6 @@ private:
             response<empty_body>(http::status::continue_, 11),
             net::use_ta);
         if (ec) {
-          log::warning(
-              "[{}] async_write 100-continue failed: {}", name(), ec.message());
           co_return ec;
         }
       }
@@ -457,7 +447,6 @@ private:
         client_request_timeout_);
     std::tie(ec, std::ignore) = co_await async_write(*stream, r, net::use_ta);
     if (ec) {
-      log::warning("[{}] async_write failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
@@ -487,18 +476,11 @@ private:
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer, net::use_ta);
     if (ec) {
-      log::warning("[{}] async_write_header failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    auto result = co_await async_write_each_chunk(
+    co_return co_await async_write_each_chunk(
         *stream, res.body(), client_request_timeout_);
-    if (!result) {
-      log::warning(
-          "[{}] async_write_each_chunk failed: {}", name(), ec.message());
-    }
-
-    co_return result;
   }
 
 #if !FITORIA_NO_EXCEPTIONS
@@ -508,7 +490,7 @@ private:
       try {
         std::rethrow_exception(ptr);
       } catch (const std::exception& ex) {
-        log::warning("[{}] exception: {}", name(), ex.what());
+        log::debug("[{}] exception: {}", name(), ex.what());
       }
     }
   }
