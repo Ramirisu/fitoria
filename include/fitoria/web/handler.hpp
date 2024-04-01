@@ -35,29 +35,30 @@ class handler_middleware<Next, std::tuple<Args...>> {
 public:
   auto operator()(http_context& ctx) const -> net::awaitable<http_response>
   {
-    auto args = std::tuple<expected<Args, std::error_code>...> {
-      co_await from_http_request<Args>(static_cast<http_request&>(ctx))...
-    };
+    co_return co_await invoke_with_args(
+        co_await from_http_request<Args>(static_cast<http_request&>(ctx))...);
+  }
 
-    if (auto err = get_error_of<0>(args); err) {
+private:
+  auto invoke_with_args(expected<Args, std::error_code>... args) const
+      -> net::awaitable<http_response>
+  {
+    const auto pack
+        = std::tuple<expected<Args, std::error_code>&...> { args... };
+    if (auto err = get_error_of<0>(pack); err) {
       co_return http_response(http::status::internal_server_error)
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body(err->message());
     }
 
-    co_return co_await std::apply(
-        [this](auto&... ts) -> net::awaitable<http_response> {
-          co_return to_http_response(
-              co_await next_(std::forward<Args>(ts.value())...));
-        },
-        args);
+    co_return to_http_response(
+        co_await next_(std::forward<Args>(args.value())...));
   }
 
-private:
   template <std::size_t I>
-  auto get_error_of(std::tuple<expected<Args, std::error_code>...>& args) const
-      -> optional<std::error_code>
+  auto get_error_of(const std::tuple<expected<Args, std::error_code>&...>& args)
+      const -> optional<std::error_code>
   {
     if constexpr (I < sizeof...(Args)) {
       if (auto& arg = std::get<I>(args); !arg) {
