@@ -35,8 +35,8 @@ public:
     std::string prefix_;
     std::unordered_map<http::verb, route_type> routes_;
     std::vector<node> statics_;
-    std::shared_ptr<node> params_;
-    std::shared_ptr<node> wildcard_;
+    std::unique_ptr<node> params_;
+    std::unique_ptr<node> wildcard_;
 
     auto try_insert(route_type route, path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
@@ -91,7 +91,7 @@ public:
         -> expected<void, std::error_code>
     {
       if (!params_) {
-        params_ = std::make_shared<node>();
+        params_ = std::make_unique<node>();
       }
 
       return params_->try_insert(std::move(route), token_index + 1);
@@ -102,7 +102,7 @@ public:
         -> expected<void, std::error_code>
     {
       if (!wildcard_) {
-        wildcard_ = std::make_shared<node>();
+        wildcard_ = std::make_unique<node>();
       }
 
       return wildcard_->try_insert(std::move(route), token_index + 1);
