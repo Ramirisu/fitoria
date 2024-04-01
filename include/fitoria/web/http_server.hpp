@@ -172,14 +172,14 @@ public:
     ioc.run();
   }
 
-  net::awaitable<void> async_run()
+  auto async_run() -> net::awaitable<void>
   {
     log::info("[{}] starting server", name());
     run_impl(co_await net::this_coro::executor);
   }
 
-  net::awaitable<http_response> async_serve_request(std::string_view path,
-                                                    http_request req)
+  auto async_serve_request(std::string_view path, http_request req) const
+      -> net::awaitable<http_response>
   {
     boost::urls::url url;
     url.set_path(path);
@@ -206,8 +206,8 @@ private:
     tasks_.clear();
   }
 
-  net::awaitable<net::ip::tcp::acceptor>
-  new_acceptor(net::ip::tcp::endpoint endpoint) const
+  auto new_acceptor(net::ip::tcp::endpoint endpoint) const
+      -> net::awaitable<net::ip::tcp::acceptor>
   {
     auto acceptor = net::ip::tcp::acceptor(co_await net::this_coro::executor);
 
@@ -218,7 +218,7 @@ private:
     co_return acceptor;
   }
 
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint) const
+  auto do_listen(net::ip::tcp::endpoint endpoint) const -> net::awaitable<void>
   {
     auto acceptor = co_await new_acceptor(endpoint);
 
@@ -236,8 +236,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_listen(net::ip::tcp::endpoint endpoint,
-                                 net::ssl::context ssl_ctx) const
+  auto do_listen(net::ip::tcp::endpoint endpoint,
+                 net::ssl::context ssl_ctx) const -> net::awaitable<void>
   {
     auto acceptor = co_await new_acceptor(endpoint);
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
@@ -257,8 +257,9 @@ private:
   }
 #endif
 
-  net::awaitable<void> do_session(net::shared_tcp_stream stream,
-                                  net::ip::tcp::endpoint listen_ep) const
+  auto do_session(net::shared_tcp_stream stream,
+                  net::ip::tcp::endpoint listen_ep) const
+      -> net::awaitable<void>
   {
     if (auto ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
@@ -269,13 +270,14 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  net::awaitable<void> do_session(net::shared_ssl_stream stream,
-                                  net::ip::tcp::endpoint listen_ep) const
+  auto do_session(net::shared_ssl_stream stream,
+                  net::ip::tcp::endpoint listen_ep) const
+      -> net::awaitable<void>
   {
+    using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
 
-    boost::beast::get_lowest_layer(*stream).expires_after(
-        client_request_timeout_);
+    get_lowest_layer(*stream).expires_after(client_request_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
@@ -294,9 +296,11 @@ private:
 #endif
 
   template <typename Stream>
-  net::awaitable<std::error_code>
-  do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
+  auto do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
+      -> net::awaitable<std::error_code>
   {
+    using boost::beast::flat_buffer;
+    using boost::beast::get_lowest_layer;
     using boost::beast::http::buffer_body;
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
@@ -305,12 +309,11 @@ private:
     boost::system::error_code ec;
 
     for (;;) {
-      boost::beast::flat_buffer buffer;
+      flat_buffer buffer;
       auto parser = std::make_unique<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
-      boost::beast::get_lowest_layer(*stream).expires_after(
-          client_request_timeout_);
+      get_lowest_layer(*stream).expires_after(client_request_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
       if (ec) {
@@ -324,8 +327,7 @@ private:
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end() && it->value() == "100-continue") {
-        boost::beast::get_lowest_layer(*stream).expires_after(
-            client_request_timeout_);
+        get_lowest_layer(*stream).expires_after(client_request_timeout_);
         std::tie(ec, std::ignore) = co_await async_write(
             *stream,
             response<empty_body>(http::status::continue_, 11),
@@ -336,9 +338,9 @@ private:
       }
 
       auto res = co_await do_handler(
-          connection_info { net::get_local_endpoint(*stream),
-                            net::get_remote_endpoint(*stream),
-                            std::move(listen_ep) },
+          connection_info(get_lowest_layer(*stream).socket().local_endpoint(),
+                          get_lowest_layer(*stream).socket().remote_endpoint(),
+                          std::move(listen_ep)),
           method,
           std::move(target),
           std::move(fields),
@@ -405,10 +407,9 @@ private:
   do_sized_response(Stream& stream, http_response& res, bool keep_alive) const
       -> net::awaitable<expected<void, std::error_code>>
   {
+    using boost::beast::get_lowest_layer;
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
-
-    boost::system::error_code ec;
 
     auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
     res.fields().to_impl(r);
@@ -423,10 +424,8 @@ private:
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
-    boost::beast::get_lowest_layer(*stream).expires_after(
-        client_request_timeout_);
-    std::tie(ec, std::ignore) = co_await async_write(*stream, r, net::use_ta);
-    if (ec) {
+    get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    if (auto [ec, _] = co_await async_write(*stream, r, net::use_ta); ec) {
       co_return unexpected { ec };
     }
 
@@ -438,24 +437,21 @@ private:
   do_chunked_response(Stream& stream, http_response& res, bool keep_alive) const
       -> net::awaitable<expected<void, std::error_code>>
   {
+    using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;
-
-    boost::system::error_code ec;
 
     auto r = response<empty_body>(res.status_code().value(), 11);
     res.fields().to_impl(r);
     r.keep_alive(keep_alive);
     r.chunked(true);
 
-    auto serializer = response_serializer<empty_body>(std::move(r));
+    auto ser = response_serializer<empty_body>(r);
 
-    boost::beast::get_lowest_layer(*stream).expires_after(
-        client_request_timeout_);
-    std::tie(ec, std::ignore)
-        = co_await async_write_header(*stream, serializer, net::use_ta);
-    if (ec) {
+    get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    if (auto [ec, _] = co_await async_write_header(*stream, ser, net::use_ta);
+        ec) {
       co_return unexpected { ec };
     }
 

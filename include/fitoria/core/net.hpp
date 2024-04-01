@@ -104,18 +104,6 @@ using shared_ws_ssl_stream = basic_shared_stream<ws_ssl_stream, true>;
 
 #endif
 
-template <typename Stream>
-auto get_local_endpoint(Stream& stream)
-{
-  return boost::beast::get_lowest_layer(stream).socket().local_endpoint();
-}
-
-template <typename Stream>
-auto get_remote_endpoint(Stream& stream)
-{
-  return boost::beast::get_lowest_layer(stream).socket().remote_endpoint();
-}
-
 template <typename Awaitable>
 void sync_wait(Awaitable&& awaitable)
 {
