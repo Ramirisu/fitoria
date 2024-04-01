@@ -73,14 +73,14 @@ public:
   explicit any_routable(Routable&& routable)
     requires(
         !is_specialization_of_v<std::remove_cvref_t<Routable>, any_routable>)
-      : routable_(std::make_shared<derived<std::decay_t<Routable>>>(
+      : routable_(std::make_unique<derived<std::decay_t<Routable>>>(
           std::forward<Routable>(routable)))
   {
   }
 
-  any_routable(const any_routable&) = default;
+  any_routable(const any_routable&) = delete;
 
-  any_routable& operator=(const any_routable&) = default;
+  any_routable& operator=(const any_routable&) = delete;
 
   any_routable(any_routable&&) = default;
 
@@ -107,7 +107,7 @@ public:
   }
 
 private:
-  std::shared_ptr<base> routable_;
+  std::unique_ptr<base> routable_;
 };
 
 }

@@ -39,7 +39,7 @@ public:
   public:
     http_server build()
     {
-      return http_server(*this);
+      return http_server(std::move(*this));
     }
 
     template <typename F>

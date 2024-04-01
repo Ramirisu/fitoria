@@ -38,38 +38,37 @@ public:
     std::shared_ptr<node> params_;
     std::shared_ptr<node> wildcard_;
 
-    auto try_insert(const route_type& route,
-                    path_tokens_t::size_type token_index)
+    auto try_insert(route_type route, path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
     {
       if (token_index == route.matcher().tokens().size()) {
-        return try_insert_route(route);
+        return try_insert_route(std::move(route));
       }
 
       auto& token = route.matcher().tokens()[token_index];
       if (token.kind == path_token_kind::static_) {
-        return try_insert_static(route, token.value, token_index);
+        return try_insert_static(std::move(route), token.value, token_index);
       }
       if (token.kind == path_token_kind::param) {
-        return try_insert_param(route, token_index);
+        return try_insert_param(std::move(route), token_index);
       }
 
-      return try_insert_wildcard(route, token_index);
+      return try_insert_wildcard(std::move(route), token_index);
     }
 
-    auto try_insert_static(const route_type& route,
+    auto try_insert_static(route_type route,
                            std::string_view token,
                            path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
     {
       if (token.empty()) {
-        return try_insert(route, token_index + 1);
+        return try_insert(std::move(route), token_index + 1);
       }
 
       for (auto& node : statics_) {
         if (token.starts_with(node.prefix_)) {
           return node.try_insert_static(
-              route, token.substr(node.prefix_.size()), token_index);
+              std::move(route), token.substr(node.prefix_.size()), token_index);
         }
       }
 
@@ -79,14 +78,15 @@ public:
           statics_[i].prefix_.erase(0, token.size());
           n.statics_.push_back(std::move(statics_[i]));
           std::swap(n, statics_[i]);
-          return statics_[i].try_insert(route, token_index + 1);
+          return statics_[i].try_insert(std::move(route), token_index + 1);
         }
       }
 
-      return statics_.emplace_back(token).try_insert(route, token_index + 1);
+      return statics_.emplace_back(token).try_insert(std::move(route),
+                                                     token_index + 1);
     }
 
-    auto try_insert_param(const route_type& route,
+    auto try_insert_param(route_type route,
                           path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
     {
@@ -94,10 +94,10 @@ public:
         params_ = std::make_shared<node>();
       }
 
-      return params_->try_insert(route, token_index + 1);
+      return params_->try_insert(std::move(route), token_index + 1);
     }
 
-    auto try_insert_wildcard(const route_type& route,
+    auto try_insert_wildcard(route_type route,
                              path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
     {
@@ -105,13 +105,13 @@ public:
         wildcard_ = std::make_shared<node>();
       }
 
-      return wildcard_->try_insert(route, token_index + 1);
+      return wildcard_->try_insert(std::move(route), token_index + 1);
     }
 
-    auto try_insert_route(const route_type& route)
-        -> expected<void, std::error_code>
+    auto try_insert_route(route_type route) -> expected<void, std::error_code>
     {
-      if (auto [_, ok] = routes_.insert({ route.method(), route }); ok) {
+      if (auto [_, ok] = routes_.try_emplace(route.method(), std::move(route));
+          ok) {
         return {};
       }
 
@@ -156,14 +156,22 @@ public:
   public:
     node() = default;
 
+    node(const node&) = delete;
+
+    node& operator=(const node&) = delete;
+
+    node(node&&) = default;
+
+    node& operator=(node&&) = default;
+
     node(std::string_view prefix)
         : prefix_(std::string(prefix))
     {
     }
 
-    auto try_insert(const route_type& route) -> expected<void, std::error_code>
+    auto try_insert(route_type route) -> expected<void, std::error_code>
     {
-      return try_insert(route, 0);
+      return try_insert(std::move(route), 0);
     }
 
     auto try_find(http::verb method, std::string_view path) const
@@ -171,10 +179,10 @@ public:
     {
       if (path.empty()) {
         if (auto it = routes_.find(method); it != routes_.end()) {
-          return it->second;
+          return expected<const route_type&, std::error_code>(it->second);
         }
         if (auto it = routes_.find(http::verb::unknown); it != routes_.end()) {
-          return it->second;
+          return expected<const route_type&, std::error_code>(it->second);
         }
 
         return try_find_wildcard(method);
@@ -189,9 +197,9 @@ public:
   node root_;
 
 public:
-  auto try_insert(const route_type& route) -> expected<void, std::error_code>
+  auto try_insert(route_type route) -> expected<void, std::error_code>
   {
-    return root_.try_insert(route);
+    return root_.try_insert(std::move(route));
   }
 
   auto try_find(http::verb method, std::string_view path) const
