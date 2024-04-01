@@ -21,58 +21,34 @@ class connection_info {
 public:
   connection_info() = default;
 
-  connection_info(net::ip::address local_addr,
-                  std::uint16_t local_port,
-                  net::ip::address remote_addr,
-                  std::uint16_t remote_port,
-                  net::ip::address listen_addr,
-                  std::uint16_t listen_port)
-      : local_addr_(std::move(local_addr))
-      , local_port_(local_port)
-      , remote_addr_(std::move(remote_addr))
-      , remote_port_(remote_port)
-      , listen_addr_(std::move(listen_addr))
-      , listen_port_(listen_port)
+  connection_info(net::ip::tcp::endpoint local,
+                  net::ip::tcp::endpoint remote,
+                  net::ip::tcp::endpoint listen)
+      : local_(std::move(local))
+      , remote_(std::move(remote))
+      , listen_(std::move(listen))
   {
   }
 
-  const net::ip::address& local_addr() const noexcept
+  auto local() const -> const net::ip::tcp::endpoint&
   {
-    return local_addr_;
+    return local_;
   }
 
-  std::uint16_t local_port() const noexcept
+  auto remote() const -> const net::ip::tcp::endpoint&
   {
-    return local_port_;
+    return remote_;
   }
 
-  const net::ip::address& remote_addr() const noexcept
+  auto listen() const -> const net::ip::tcp::endpoint&
   {
-    return remote_addr_;
-  }
-
-  std::uint16_t remote_port() const noexcept
-  {
-    return remote_port_;
-  }
-
-  const net::ip::address& listen_addr() const noexcept
-  {
-    return listen_addr_;
-  }
-
-  std::uint16_t listen_port() const noexcept
-  {
-    return listen_port_;
+    return listen_;
   }
 
 private:
-  net::ip::address local_addr_;
-  std::uint16_t local_port_;
-  net::ip::address remote_addr_;
-  std::uint16_t remote_port_;
-  net::ip::address listen_addr_;
-  std::uint16_t listen_port_;
+  net::ip::tcp::endpoint local_;
+  net::ip::tcp::endpoint remote_;
+  net::ip::tcp::endpoint listen_;
 };
 
 }

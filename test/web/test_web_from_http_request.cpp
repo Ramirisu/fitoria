@@ -33,17 +33,17 @@ TEST_CASE("connection_info")
 {
   auto server
       = http_server::builder()
-            .serve(route::get<"/">([](const connection_info& conn_info)
+            .serve(route::get<"/">([](const connection_info& connection)
                                        -> net::awaitable<http_response> {
-              CHECK_EQ(conn_info.local_addr(),
+              CHECK_EQ(connection.local().address(),
                        net::ip::make_address("127.0.0.1"));
-              CHECK_EQ(conn_info.local_port(), 0);
-              CHECK_EQ(conn_info.remote_addr(),
+              CHECK_EQ(connection.local().port(), 0);
+              CHECK_EQ(connection.remote().address(),
                        net::ip::make_address("127.0.0.1"));
-              CHECK_EQ(conn_info.remote_port(), 0);
-              CHECK_EQ(conn_info.listen_addr(),
+              CHECK_EQ(connection.remote().port(), 0);
+              CHECK_EQ(connection.listen().address(),
                        net::ip::make_address("127.0.0.1"));
-              CHECK_EQ(conn_info.listen_port(), 0);
+              CHECK_EQ(connection.listen().port(), 0);
               co_return http_response(http::status::ok);
             }))
             .build();

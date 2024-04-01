@@ -38,7 +38,7 @@ public:
     auto res = co_await next_(c);
 
     log::info("[fitoria.middleware.logger] {} {} {} {} {}B {} {:%T}s",
-              c.request().connection().remote_addr().to_string(),
+              c.request().connection().remote().address().to_string(),
               std::string(to_string(c.request().method())),
               c.request().path().match_path(),
               res.status_code(),

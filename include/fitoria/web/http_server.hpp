@@ -185,16 +185,15 @@ public:
     url.set_path(path);
     url.set_query(req.query().to_string());
 
-    return do_handler(connection_info { net::ip::make_address("127.0.0.1"),
-                                        0,
-                                        net::ip::make_address("127.0.0.1"),
-                                        0,
-                                        net::ip::make_address("127.0.0.1"),
-                                        0 },
-                      req.method(),
-                      std::string(url.encoded_target()),
-                      std::move(req.fields()),
-                      std::move(req.body()));
+    return do_handler(
+        connection_info {
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0) },
+        req.method(),
+        std::string(url.encoded_target()),
+        std::move(req.fields()),
+        std::move(req.body()));
   }
 
 private:
@@ -337,12 +336,9 @@ private:
       }
 
       auto res = co_await do_handler(
-          connection_info { net::get_local_endpoint(*stream).address(),
-                            net::get_local_endpoint(*stream).port(),
-                            net::get_remote_endpoint(*stream).address(),
-                            net::get_remote_endpoint(*stream).port(),
-                            listen_ep.address(),
-                            listen_ep.port() },
+          connection_info { net::get_local_endpoint(*stream),
+                            net::get_remote_endpoint(*stream),
+                            std::move(listen_ep) },
           method,
           std::move(target),
           std::move(fields),

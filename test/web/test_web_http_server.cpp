@@ -229,36 +229,36 @@ TEST_CASE("generic request")
       = http_server::builder()
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
-                    const connection_info& conn_info,
-                    const path_info& path_info,
+                    const connection_info& connection,
+                    const path_info& path,
                     const query_map& query,
                     const http_fields& fields,
                     std::string body) -> net::awaitable<http_response> {
-                  auto test_conn_info = [=](auto& conn_info) {
-                    CHECK_EQ(conn_info.local_addr(),
+                  auto test_connection = [=](auto& conn) {
+                    CHECK_EQ(conn.local().address(),
                              net::ip::make_address(server_ip));
-                    CHECK_EQ(conn_info.remote_addr(),
+                    CHECK_EQ(conn.remote().address(),
                              net::ip::make_address(server_ip));
-                    CHECK_EQ(conn_info.listen_addr(),
+                    CHECK_EQ(conn.listen().address(),
                              net::ip::make_address(server_ip));
-                    CHECK_EQ(conn_info.listen_port(), port);
+                    CHECK_EQ(conn.listen().port(), port);
                   };
-                  test_conn_info(req.connection());
-                  test_conn_info(conn_info);
+                  test_connection(req.connection());
+                  test_connection(connection);
 
                   CHECK_EQ(req.method(), http::verb::get);
 
-                  auto test_path_info = [](auto& path_info) {
-                    CHECK_EQ(path_info.match_pattern(),
+                  auto test_path = [](auto& path) {
+                    CHECK_EQ(path.match_pattern(),
                              "/api/v1/users/{user}/filmography/years/{year}");
-                    CHECK_EQ(path_info.match_path(),
+                    CHECK_EQ(path.match_path(),
                              "/api/v1/users/RinaHidaka/filmography/years/2022");
 
-                    CHECK_EQ(path_info.at("user"), "RinaHidaka");
-                    CHECK_EQ(path_info.at("year"), "2022");
+                    CHECK_EQ(path.at("user"), "RinaHidaka");
+                    CHECK_EQ(path.at("year"), "2022");
                   };
-                  test_path_info(req.path());
-                  test_path_info(path_info);
+                  test_path(req.path());
+                  test_path(path);
 
                   auto test_query = [](auto& query) {
                     CHECK_EQ(query.size(), 2);

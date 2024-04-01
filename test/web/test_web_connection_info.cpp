@@ -19,15 +19,15 @@ TEST_CASE("connection_info")
   auto server = http_server::builder()
                     .serve(route::get<"/">(
                         [](http_request& req) -> net::awaitable<http_response> {
-                          CHECK_EQ(req.connection().local_addr(),
+                          CHECK_EQ(req.connection().local().address(),
                                    net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().local_port(), 0);
-                          CHECK_EQ(req.connection().remote_addr(),
+                          CHECK_EQ(req.connection().local().port(), 0);
+                          CHECK_EQ(req.connection().remote().address(),
                                    net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().remote_port(), 0);
-                          CHECK_EQ(req.connection().listen_addr(),
+                          CHECK_EQ(req.connection().remote().port(), 0);
+                          CHECK_EQ(req.connection().listen().address(),
                                    net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().listen_port(), 0);
+                          CHECK_EQ(req.connection().listen().port(), 0);
                           co_return http_response(http::status::ok);
                         }))
                     .build();
