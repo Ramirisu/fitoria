@@ -109,7 +109,7 @@ deflate_middleware(Next&&) -> deflate_middleware<std::decay_t<Next>>;
 
 class deflate {
 public:
-  template <uncvref_same_as<deflate> Self, typename Next>
+  template <decay_to<deflate> Self, typename Next>
   friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
     return std::forward<Self>(self).new_middleware_impl(

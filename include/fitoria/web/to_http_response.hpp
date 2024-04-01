@@ -33,14 +33,14 @@ namespace to_http_response_ns {
     }
 
     template <typename T>
-      requires uncvref_same_as<T, http_response>
+      requires decay_to<T, http_response>
     auto operator()(T&& t) const -> http_response
     {
       return std::forward<T>(t);
     }
 
     template <typename T>
-      requires uncvref_same_as<T, std::string>
+      requires decay_to<T, std::string>
     auto operator()(T&& t) const -> http_response
     {
       return http_response(http::status::ok)

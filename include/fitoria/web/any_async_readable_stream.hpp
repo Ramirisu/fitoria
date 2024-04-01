@@ -55,9 +55,9 @@ class any_async_readable_stream {
 public:
   using is_async_readable_stream = void;
 
-  template <async_readable_stream AsyncReadableStream>
+  template <not_decay_to<any_async_readable_stream> AsyncReadableStream>
   any_async_readable_stream(AsyncReadableStream&& stream)
-    requires(!uncvref_same_as<AsyncReadableStream, any_async_readable_stream>)
+    requires async_readable_stream<AsyncReadableStream>
       : stream_(std::make_unique<derived<std::decay_t<AsyncReadableStream>>>(
           std::forward<AsyncReadableStream>(stream)))
   {

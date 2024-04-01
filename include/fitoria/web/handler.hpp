@@ -82,7 +82,7 @@ private:
 
 class handler {
 public:
-  template <uncvref_same_as<handler> Self, typename Next>
+  template <decay_to<handler> Self, typename Next>
   friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
     return std::forward<Self>(self).new_middleware_impl(

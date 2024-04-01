@@ -545,7 +545,7 @@ public:
   {
   }
 
-  template <uncvref_same_as<my_log> Self, typename Next>
+  template <decay_to<my_log> Self, typename Next>
   friend auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
   {
     return std::forward<Self>(self).new_middleware_impl(

@@ -31,7 +31,7 @@ class basic_shared_stream {
 
 public:
   template <typename Arg>
-    requires(!uncvref_same_as<Arg, basic_shared_stream>)
+    requires not_decay_to<Arg, basic_shared_stream>
   basic_shared_stream(Arg&& arg)
       : stream_(std::make_shared<Stream>(std::forward<Arg>(arg)))
   {

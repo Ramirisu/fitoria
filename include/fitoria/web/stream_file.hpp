@@ -50,7 +50,7 @@ public:
     co_return stream_file(std::move(file));
   }
 
-  template <uncvref_same_as<stream_file> Self>
+  template <decay_to<stream_file> Self>
   friend auto tag_invoke(to_http_response_t, Self&& self) -> http_response
   {
     return http_response(http::status::ok)

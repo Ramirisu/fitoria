@@ -16,14 +16,10 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename T, typename U>
-struct is_uncvref_same
-    : std::is_same<std::remove_cvref_t<T>, std::remove_cvref_t<U>> { };
+concept decay_to = std::same_as<std::decay_t<T>, U>;
 
 template <typename T, typename U>
-inline constexpr bool is_uncvref_same_v = is_uncvref_same<T, U>::value;
-
-template <typename T, typename U>
-concept uncvref_same_as = is_uncvref_same_v<T, U>;
+concept not_decay_to = (!decay_to<T, U>);
 
 template <typename T, template <typename...> class U>
 struct is_specialization_of : std::false_type { };
