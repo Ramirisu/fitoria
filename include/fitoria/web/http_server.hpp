@@ -39,7 +39,8 @@ public:
       Executor ex,
       router_type router,
       optional<int> max_listen_connections,
-      optional<std::chrono::milliseconds> client_request_timeout
+      optional<std::chrono::milliseconds> client_request_timeout,
+      optional<std::chrono::milliseconds> tls_handshake_timeout
 #if !FITORIA_NO_EXCEPTIONS
       ,
       optional<std::function<void(std::exception_ptr)>> exception_handler
@@ -51,6 +52,8 @@ public:
             static_cast<int>(net::socket_base::max_listen_connections)))
       , client_request_timeout_(
             client_request_timeout.value_or(std::chrono::seconds(5)))
+      , tls_handshake_timeout_(
+            tls_handshake_timeout.value_or(std::chrono::seconds(3)))
 #if !FITORIA_NO_EXCEPTIONS
       , exception_handler_(
             exception_handler.value_or(default_exception_handler))
@@ -74,6 +77,11 @@ public:
   std::chrono::milliseconds client_request_timeout() const noexcept
   {
     return client_request_timeout_;
+  }
+
+  std::chrono::milliseconds tls_handshake_timeout() const noexcept
+  {
+    return tls_handshake_timeout_;
   }
 
   http_server& bind(std::string_view addr, std::uint16_t port)
@@ -430,6 +438,7 @@ private:
   router_type router_;
   int max_listen_connections_;
   std::chrono::milliseconds client_request_timeout_;
+  std::chrono::milliseconds tls_handshake_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
   std::function<void(std::exception_ptr)> exception_handler_;
 #else
@@ -464,6 +473,13 @@ public:
   set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
   {
     client_request_timeout_ = timeout;
+    return *this;
+  }
+
+  http_server_builder&
+  set_tls_handshake_timeout(std::chrono::milliseconds timeout) noexcept
+  {
+    tls_handshake_timeout_ = timeout;
     return *this;
   }
 
@@ -520,6 +536,7 @@ public:
                        std::move(router_),
                        max_listen_connections_,
                        client_request_timeout_,
+                       tls_handshake_timeout_,
                        std::move(exception_handler_));
   }
 
@@ -528,6 +545,7 @@ private:
   router_type router_;
   optional<int> max_listen_connections_;
   optional<std::chrono::milliseconds> client_request_timeout_;
+  optional<std::chrono::milliseconds> tls_handshake_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
   optional<std::function<void(std::exception_ptr)>> exception_handler_;
 #else
