@@ -5,13 +5,14 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include <fitoria/core/config.hpp>
+
 #if defined(FITORIA_TARGET_WINDOWS)
 #include <Windows.h>
 #endif
 
-#include <fitoria/test/http_server_utils.hpp>
-
 #include <fitoria/fitoria.hpp>
+#include <fitoria/test/http_server_utils.hpp>
 
 #include <thread>
 
@@ -21,14 +22,13 @@ using namespace fitoria::test;
 
 int main()
 {
-  auto server = http_server::builder().build();
   net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+  auto server = http_server_builder(ioc).build();
+  server.bind("127.0.0.1", 8080);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
+
   std::this_thread::sleep_for(server_start_wait_time);
   ioc.stop();
 }

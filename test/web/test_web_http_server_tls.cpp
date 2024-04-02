@@ -22,37 +22,29 @@ TEST_SUITE_BEGIN("[fitoria.web.http_server.tls]");
 
 #if defined(FITORIA_HAS_OPENSSL)
 
-namespace {
-
-void configure_server(http_server::builder& builder)
-{
-  builder.serve(route::get<"/api/repos/{repo}">(
-      [](http_request& req, std::string body) -> net::awaitable<http_response> {
-        CHECK_EQ(req.method(), http::verb::get);
-        CHECK_EQ(req.path().size(), 1);
-        CHECK_EQ(req.path().at("repo"), "fitoria");
-        CHECK_EQ(req.path().match_pattern(), "/api/repos/{repo}");
-        CHECK_EQ(req.path().match_path(), "/api/repos/fitoria");
-        CHECK_EQ(req.fields().get(http::field::content_type),
-                 http::fields::content_type::plaintext());
-        CHECK_EQ(body, "hello world");
-        co_return http_response(http::status::ok);
-      }));
-}
-
-}
-
 void test_with_tls(net::ssl::context::method server_ssl_ver,
                    net::ssl::context::method client_ssl_ver)
 {
   const auto port = generate_port();
-  auto server = http_server::builder().configure(configure_server).build();
-  server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
   net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/api/repos/{repo}">(
+                [](http_request& req,
+                   std::string body) -> net::awaitable<http_response> {
+                  CHECK_EQ(req.method(), http::verb::get);
+                  CHECK_EQ(req.path().size(), 1);
+                  CHECK_EQ(req.path().at("repo"), "fitoria");
+                  CHECK_EQ(req.path().match_pattern(), "/api/repos/{repo}");
+                  CHECK_EQ(req.path().match_path(), "/api/repos/fitoria");
+                  CHECK_EQ(req.fields().get(http::field::content_type),
+                           http::fields::content_type::plaintext());
+                  CHECK_EQ(body, "hello world");
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+  server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });

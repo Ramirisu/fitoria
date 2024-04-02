@@ -25,7 +25,8 @@ TEST_SUITE_BEGIN("[fitoria.web.http_server]");
 TEST_CASE("builder")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .set_max_listen_connections(2048)
                     .set_client_request_timeout(std::chrono::seconds(1))
 #if !FITORIA_NO_EXCEPTIONS
@@ -45,11 +46,7 @@ TEST_CASE("builder")
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -67,13 +64,15 @@ TEST_CASE("builder")
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
       },
-      net::use_future);
+      net::use_future)
+      .get();
 }
 
 TEST_CASE("duplicate route")
 {
+  auto ioc = net::io_context();
   CHECK_THROWS_AS(
-      http_server::builder().serve(
+      auto server = http_server_builder(ioc).serve(
           scope<"">()
               .serve(route::get<"/">(
                   [](http_request&) -> net::awaitable<http_response> {
@@ -89,18 +88,15 @@ TEST_CASE("duplicate route")
 TEST_CASE("invalid target")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
                         [](http_request&) -> net::awaitable<http_response> {
                           co_return http_response(http::status::ok);
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -134,7 +130,8 @@ TEST_CASE("invalid target")
 TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::post<"/api/v1/post">(
                         [](std::string body) -> net::awaitable<http_response> {
                           CHECK_EQ(body, "text");
@@ -142,11 +139,7 @@ TEST_CASE("expect: 100-continue")
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -165,7 +158,8 @@ TEST_CASE("expect: 100-continue")
                        .value();
         CHECK_EQ(res.status_code(), http::status::ok);
       },
-      net::use_future);
+      net::use_future)
+      .get();
 }
 
 #if !FITORIA_NO_EXCEPTIONS
@@ -174,7 +168,8 @@ TEST_CASE("unhandled exception from handler")
 {
   bool got_exception = false;
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .set_exception_handler([&](std::exception_ptr ptr) {
                       if (ptr) {
                         try {
@@ -191,11 +186,7 @@ TEST_CASE("unhandled exception from handler")
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -225,8 +216,9 @@ TEST_CASE("generic request")
   const auto text = std::string_view("happy birthday");
 
   const auto port = generate_port();
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](http_request& req,
                     const connection_info& connection,
@@ -296,11 +288,7 @@ TEST_CASE("generic request")
                 }))
             .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -337,8 +325,9 @@ TEST_CASE("generic request")
 TEST_CASE("request to route accepting wildcard")
 {
   const auto port = generate_port();
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/api/v1/#wildcard">(
                 [=](const path_info& path_info)
                     -> net::awaitable<http_response> {
@@ -349,11 +338,7 @@ TEST_CASE("request to route accepting wildcard")
                 }))
             .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -380,8 +365,9 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
   const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::post<"/">(
                 [text](const http_request& req,
                        std::string data) -> net::awaitable<http_response> {
@@ -391,11 +377,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                 }))
             .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -419,18 +401,15 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
 TEST_CASE("response status only")
 {
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
                         [](http_request&) -> net::awaitable<http_response> {
                           co_return http_response(http::status::accepted);
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -459,8 +438,9 @@ TEST_CASE("response with plain text")
   const auto text = std::string_view("plain text");
 
   const auto port = generate_port();
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [text](http_request&) -> net::awaitable<http_response> {
                   co_return http_response(http::status::ok)
@@ -470,11 +450,7 @@ TEST_CASE("response with plain text")
                 }))
             .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
@@ -504,7 +480,8 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
   const auto text = std::string_view("abcdefghijklmnopqrstuvwxyz");
 
   const auto port = generate_port();
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
                         [text](http_request&) -> net::awaitable<http_response> {
                           co_return http_response(http::status::ok)
@@ -512,11 +489,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                         }))
                     .build();
   server.bind(server_ip, port);
-  net::io_context ioc;
-  net::co_spawn(
-      ioc,
-      [&]() -> net::awaitable<void> { co_await server.async_run(); },
-      net::detached);
+
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });

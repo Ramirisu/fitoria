@@ -11,6 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/coroutine_concept.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
 
@@ -29,106 +30,41 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+template <typename Executor>
 class http_server {
   using router_type = router<http_context&, net::awaitable<http_response>>;
 
 public:
-  class builder {
-    friend class http_server;
-
-  public:
-    http_server build()
-    {
-      return http_server(std::move(*this));
-    }
-
-    template <typename F>
-    builder& configure(F&& f)
-      requires std::invocable<F, builder&>
-    {
-      std::invoke(std::forward<F>(f), *this);
-      return *this;
-    }
-
-    builder& set_max_listen_connections(int num) noexcept
-    {
-      max_listen_connections_ = num;
-      return *this;
-    }
-
-    builder&
-    set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
-    {
-      client_request_timeout_ = timeout;
-      return *this;
-    }
-
+  http_server(
+      Executor ex,
+      router_type router,
+      optional<int> max_listen_connections,
+      optional<std::chrono::milliseconds> client_request_timeout
 #if !FITORIA_NO_EXCEPTIONS
-    template <typename F>
-    builder& set_exception_handler(F&& f)
-      requires std::invocable<F, std::exception_ptr>
-    {
-      exception_handler_.emplace(std::forward<F>(f));
-      return *this;
-    }
+      ,
+      optional<std::function<void(std::exception_ptr)>> exception_handler
 #endif
-
-    template <basic_fixed_string RoutePath,
-              typename... RouteServices,
-              typename Handler>
-    builder&
-    serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route)
-    {
-      if (auto res
-          = router_.try_insert(router_type::route_type(route.build(handler())));
-          !res) {
-        FITORIA_THROW_OR(std::system_error(res.error()), std::terminate());
-      }
-
-      return *this;
-    }
-
-    template <basic_fixed_string Path, typename... Services, typename... Routes>
-    builder& serve(
-        scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope)
-    {
-      std::apply(
-          [this](auto&&... routes) {
-            (this->serve(std::forward<decltype(routes)>(routes)), ...);
-          },
-          scope.routes());
-
-      return *this;
-    }
-
-  private:
-    static const char* name() noexcept
-    {
-      return "fitoria.builder";
-    }
-
-    optional<int> max_listen_connections_;
-    optional<std::chrono::milliseconds> client_request_timeout_;
-#if !FITORIA_NO_EXCEPTIONS
-    optional<std::function<void(std::exception_ptr)>> exception_handler_;
-#else
-    net::detached_t exception_handler_;
-#endif
-    router_type router_;
-  };
-
-  http_server(builder builder)
-      : max_listen_connections_(builder.max_listen_connections_.value_or(
-          static_cast<int>(net::socket_base::max_listen_connections)))
+      )
+      : ex_(std::move(ex))
+      , router_(std::move(router))
+      , max_listen_connections_(max_listen_connections.value_or(
+            static_cast<int>(net::socket_base::max_listen_connections)))
       , client_request_timeout_(
-            builder.client_request_timeout_.value_or(std::chrono::seconds(5)))
+            client_request_timeout.value_or(std::chrono::seconds(5)))
 #if !FITORIA_NO_EXCEPTIONS
       , exception_handler_(
-            builder.exception_handler_.value_or(default_exception_handler))
+            exception_handler.value_or(default_exception_handler))
 #endif
-      , router_(std::move(builder.router_))
   {
   }
+
+  http_server(const http_server&) = delete;
+
+  http_server& operator=(const http_server&) = delete;
+
+  http_server(http_server&&) = delete;
+
+  http_server& operator=(http_server&&) = delete;
 
   int max_listen_connections() const noexcept
   {
@@ -142,8 +78,10 @@ public:
 
   http_server& bind(std::string_view addr, std::uint16_t port)
   {
-    tasks_.push_back(
-        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)));
+    net::co_spawn(
+        ex_,
+        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
+        exception_handler_);
 
     return *this;
   }
@@ -152,86 +90,95 @@ public:
   http_server&
   bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
   {
-    tasks_.push_back(
+    net::co_spawn(
+        ex_,
         do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
-                  std::move(ssl_ctx)));
+                  std::move(ssl_ctx)),
+        exception_handler_);
 
     return *this;
   }
 #endif
 
-  void run(std::uint32_t threads = std::thread::hardware_concurrency())
+  template <typename F>
+    requires std::is_invocable_v<F, http_response>
+      && awaitable<std::invoke_result_t<F, http_response>>
+  void serve_request(std::string_view path, http_request req, F f) const
   {
-    log::info("[{}] starting server with {} workers", name(), threads);
-    net::io_context ioc(threads);
-    run_impl(ioc);
-    net::thread_pool tp(threads);
-    for (auto i = std::uint32_t(1); i < threads; ++i) {
-      net::post(tp, [&]() { ioc.run(); });
-    }
-    ioc.run();
+    auto target = [&]() -> std::string {
+      boost::urls::url url;
+      url.set_path(path);
+      url.set_query(req.query().to_string());
+      return std::string(url.encoded_target());
+    }();
+
+    net::co_spawn(
+        ex_,
+        serve_request_impl(std::move(req), std::move(target), std::move(f)),
+        net::detached);
   }
 
-  auto async_run() -> net::awaitable<void>
+private:
+  template <typename F>
+  auto serve_request_impl(http_request req, std::string target, F f) const
+      -> net::awaitable<void>
   {
-    log::info("[{}] starting server", name());
-    run_impl(co_await net::this_coro::executor);
-  }
-
-  auto async_serve_request(std::string_view path, http_request req) const
-      -> net::awaitable<http_response>
-  {
-    boost::urls::url url;
-    url.set_path(path);
-    url.set_query(req.query().to_string());
-
-    return do_handler(
+    auto res = co_await do_handler(
         connection_info {
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0) },
         req.method(),
-        std::string(url.encoded_target()),
+        target,
         std::move(req.fields()),
         std::move(req.body()));
+    co_await f(std::move(res));
   }
 
-private:
-  template <typename Executor>
-  void run_impl(Executor&& executor)
+  auto make_acceptor(const net::ip::tcp::endpoint& endpoint) const
+      -> expected<net::ip::tcp::acceptor, std::error_code>
   {
-    for (auto& task : tasks_) {
-      net::co_spawn(executor, std::move(task), exception_handler_);
+    auto acceptor = net::ip::tcp::acceptor(ex_);
+
+    boost::system::error_code ec;
+    acceptor.open(endpoint.protocol(), ec);
+    if (ec) {
+      return unexpected { ec };
     }
-    tasks_.clear();
-  }
 
-  auto new_acceptor(net::ip::tcp::endpoint endpoint) const
-      -> net::awaitable<net::ip::tcp::acceptor>
-  {
-    auto acceptor = net::ip::tcp::acceptor(co_await net::this_coro::executor);
+    acceptor.set_option(net::socket_base::reuse_address(true), ec);
+    if (ec) {
+      return unexpected { ec };
+    }
 
-    acceptor.open(endpoint.protocol());
-    acceptor.set_option(net::socket_base::reuse_address(true));
-    acceptor.bind(endpoint);
-    acceptor.listen(max_listen_connections_);
-    co_return acceptor;
+    acceptor.bind(endpoint, ec);
+    if (ec) {
+      return unexpected { ec };
+    }
+
+    acceptor.listen(max_listen_connections_, ec);
+    if (ec) {
+      return unexpected { ec };
+    }
+
+    return acceptor;
   }
 
   auto do_listen(net::ip::tcp::endpoint endpoint) const -> net::awaitable<void>
   {
-    auto acceptor = co_await new_acceptor(endpoint);
+    auto acceptor = make_acceptor(endpoint);
+    if (!acceptor) {
+      FITORIA_THROW_OR(std::system_error(acceptor.error()), std::terminated());
+    }
 
     for (;;) {
-      auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
-      if (ec) {
-        continue;
+      if (auto [ec, socket] = co_await acceptor->async_accept(net::use_ta);
+          !ec) {
+        net::co_spawn(
+            ex_,
+            do_session(net::shared_tcp_stream(std::move(socket)), endpoint),
+            exception_handler_);
       }
-
-      net::co_spawn(
-          acceptor.get_executor(),
-          do_session(net::shared_tcp_stream(std::move(socket)), endpoint),
-          exception_handler_);
     }
   }
 
@@ -239,20 +186,22 @@ private:
   auto do_listen(net::ip::tcp::endpoint endpoint,
                  net::ssl::context ssl_ctx) const -> net::awaitable<void>
   {
-    auto acceptor = co_await new_acceptor(endpoint);
+    auto acceptor = make_acceptor(endpoint);
+    if (!acceptor) {
+      FITORIA_THROW_OR(std::system_error(acceptor.error()), std::terminated());
+    }
+
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
     for (;;) {
-      auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
-      if (ec) {
-        continue;
+      if (auto [ec, socket] = co_await acceptor->async_accept(net::use_ta);
+          !ec) {
+        net::co_spawn(
+            ex_,
+            do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr),
+                       endpoint),
+            exception_handler_);
       }
-
-      net::co_spawn(
-          acceptor.get_executor(),
-          do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr),
-                     endpoint),
-          exception_handler_);
     }
   }
 #endif
@@ -477,7 +426,8 @@ private:
     return "fitoria.web.http_server";
   }
 
-  // from builder
+  Executor ex_;
+  router_type router_;
   int max_listen_connections_;
   std::chrono::milliseconds client_request_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
@@ -485,11 +435,106 @@ private:
 #else
   net::detached_t exception_handler_;
 #endif
-  router_type router_;
-
-  // others
-  std::vector<net::awaitable<void>> tasks_;
 };
+
+template <typename Executor = net::any_io_executor>
+class http_server_builder {
+public:
+  using router_type = router<http_context&, net::awaitable<http_response>>;
+
+  http_server_builder(const Executor& ex)
+      : ex_(ex)
+  {
+  }
+
+  template <typename ExecutionContext>
+    requires std::is_convertible_v<ExecutionContext&, net::execution_context&>
+  http_server_builder(ExecutionContext& context)
+      : ex_(context.get_executor())
+  {
+  }
+
+  http_server_builder& set_max_listen_connections(int num) noexcept
+  {
+    max_listen_connections_ = num;
+    return *this;
+  }
+
+  http_server_builder&
+  set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
+  {
+    client_request_timeout_ = timeout;
+    return *this;
+  }
+
+#if !FITORIA_NO_EXCEPTIONS
+  template <typename F>
+  http_server_builder& set_exception_handler(F&& f)
+    requires std::invocable<F, std::exception_ptr>
+  {
+    exception_handler_.emplace(std::forward<F>(f));
+    return *this;
+  }
+#endif
+
+  template <basic_fixed_string RoutePath,
+            typename... RouteServices,
+            typename Handler>
+  http_server_builder&
+  serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route)
+  {
+    if (auto res
+        = router_.try_insert(router_type::route_type(route.build(handler())));
+        !res) {
+      FITORIA_THROW_OR(std::system_error(res.error()), std::terminate());
+    }
+
+    return *this;
+  }
+
+  template <basic_fixed_string Path, typename... Services, typename... Routes>
+  http_server_builder& serve(
+      scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope) &
+  {
+    std::apply(
+        [this](auto&&... routes) {
+          (this->serve(std::forward<decltype(routes)>(routes)), ...);
+        },
+        scope.routes());
+
+    return *this;
+  }
+
+  template <basic_fixed_string Path, typename... Services, typename... Routes>
+  http_server_builder&& serve(
+      scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope) &&
+  {
+    serve(std::move(scope));
+
+    return std::move(*this);
+  }
+
+  http_server<Executor> build()
+  {
+    return http_server(std::move(ex_),
+                       std::move(router_),
+                       max_listen_connections_,
+                       client_request_timeout_,
+                       std::move(exception_handler_));
+  }
+
+private:
+  Executor ex_;
+  router_type router_;
+  optional<int> max_listen_connections_;
+  optional<std::chrono::milliseconds> client_request_timeout_;
+#if !FITORIA_NO_EXCEPTIONS
+  optional<std::function<void(std::exception_ptr)>> exception_handler_;
+#else
+  net::detached_t exception_handler_;
+#endif
+};
+
 }
 
 FITORIA_NAMESPACE_END

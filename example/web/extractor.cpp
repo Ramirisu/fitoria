@@ -118,13 +118,15 @@ int main()
                database::user_t { .password = "123456",
                                   .last_login_time = nullopt } });
 
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
                        .state(db))
             .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
             .build();
   server //
-      .bind("127.0.0.1", 8080)
-      .run();
+      .bind("127.0.0.1", 8080);
+
+  ioc.run();
 }

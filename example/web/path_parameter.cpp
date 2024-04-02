@@ -37,11 +37,13 @@ auto api(const http_request& req) -> net::awaitable<http_response>
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();
   server //
-      .bind("127.0.0.1", 8080)
-      .run();
+      .bind("127.0.0.1", 8080);
+
+  ioc.run();
 }

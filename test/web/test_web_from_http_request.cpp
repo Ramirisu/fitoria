@@ -31,8 +31,9 @@ struct date_t {
 
 TEST_CASE("connection_info")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">([](const connection_info& connection)
                                        -> net::awaitable<http_response> {
               CHECK_EQ(connection.local().address(),
@@ -48,35 +49,42 @@ TEST_CASE("connection_info")
             }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request(
+      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(co_await res.as_string(), "");
+      });
+
+  ioc.run();
 }
 
 TEST_CASE("path_info")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/{user}">([](const path_info& path_info)
                                              -> net::awaitable<http_response> {
-              CHECK_EQ(path_info.get("user"), "ramirisu");
+              CHECK_EQ(path_info.get("user"), "fitoria");
               co_return http_response(http::status::ok);
             }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/ramirisu", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/fitoria",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("path_of<T = std::tuple<Ts...>>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<std::tuple<std::string, std::string, std::string>>
                        path) -> net::awaitable<http_response> {
@@ -88,17 +96,21 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/1994/06/15", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/1994/06/15",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("path_of<T = std::tuple<Ts...>>, not match")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<std::tuple<std::string, std::string, std::string>>
                        path) -> net::awaitable<http_response> {
@@ -110,19 +122,24 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, not match")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/06/15", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::internal_server_error);
-  }());
+  server.serve_request("/06/15",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(),
+                                  http::status::internal_server_error);
+                         co_return;
+                       });
+
+  ioc.run();
 }
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("path_of<T = aggregate>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<date_t> path) -> net::awaitable<http_response> {
                   CHECK_EQ(
@@ -132,17 +149,21 @@ TEST_CASE("path_of<T = aggregate>")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/1994/06/15", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/1994/06/15",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("path_of<T = aggregate>, not match")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<date_t> path) -> net::awaitable<http_response> {
                   CHECK_EQ(
@@ -152,19 +173,24 @@ TEST_CASE("path_of<T = aggregate>, not match")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/06/15", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::internal_server_error);
-  }());
+  server.serve_request("/06/15",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(),
+                                  http::status::internal_server_error);
+                         co_return;
+                       });
+
+  ioc.run();
 }
 
 #endif
 
 TEST_CASE("query_map")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [](const query_map& query) -> net::awaitable<http_response> {
                   CHECK_EQ(query.get("year"), "1994");
@@ -174,23 +200,26 @@ TEST_CASE("query_map")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res
-        = co_await server.async_serve_request("/",
-                                              http_request(http::verb::get)
-                                                  .set_query("year", "1994")
-                                                  .set_query("month", "06")
-                                                  .set_query("day", "15"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/",
+                       http_request(http::verb::get)
+                           .set_query("year", "1994")
+                           .set_query("month", "06")
+                           .set_query("day", "15"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("query_of<T>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [](query_of<date_t> query) -> net::awaitable<http_response> {
                   CHECK_EQ(
@@ -200,23 +229,26 @@ TEST_CASE("query_of<T>")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res
-        = co_await server.async_serve_request("/",
-                                              http_request(http::verb::get)
-                                                  .set_query("year", "1994")
-                                                  .set_query("month", "06")
-                                                  .set_query("day", "15"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/",
+                       http_request(http::verb::get)
+                           .set_query("year", "1994")
+                           .set_query("month", "06")
+                           .set_query("day", "15"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 #endif
 
 TEST_CASE("http_fields")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [](const http_fields& fields) -> net::awaitable<http_response> {
                   CHECK_EQ(fields.get(http::field::connection), "close");
@@ -224,19 +256,22 @@ TEST_CASE("http_fields")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/",
-        http_request(http::verb::get)
-            .insert_field(http::field::connection, "close"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/",
+                       http_request(http::verb::get)
+                           .insert_field(http::field::connection, "close"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("state_of<T>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">([](state_of<std::string> st)
                                        -> net::awaitable<http_response> {
                      CHECK_EQ(st, "shared state");
@@ -244,16 +279,19 @@ TEST_CASE("state_of<T>")
                    }).state(std::string("shared state")))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request(
+      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(co_await res.as_string(), "");
+      });
+
+  ioc.run();
 }
 
 TEST_CASE("std::string")
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::post<"/">(
                         [](std::string text) -> net::awaitable<http_response> {
                           CHECK_EQ(text, "abc");
@@ -261,45 +299,58 @@ TEST_CASE("std::string")
                         }))
                     .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::post).set_body("abc"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request("/",
+                       http_request(http::verb::post).set_body("abc"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("std::vector<std::byte>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::post<"/">([](std::vector<std::byte> bytes)
                                         -> net::awaitable<http_response> {
               CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
               co_return http_response(http::status::ok);
             }))
             .build();
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::post).set_body("abc"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+
+  server.serve_request("/",
+                       http_request(http::verb::post).set_body("abc"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("std::vector<std::uint8_t>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::post<"/">([](std::vector<std::uint8_t> bytes)
                                         -> net::awaitable<http_response> {
               CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
               co_return http_response(http::status::ok);
             }))
             .build();
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::post).set_body("abc"));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+
+  server.serve_request("/",
+                       http_request(http::verb::post).set_body("abc"),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
+
+  ioc.run();
 }
 
 namespace {
@@ -348,8 +399,9 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 
 TEST_CASE("json_of<T>")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [](json_of<user_t> user) -> net::awaitable<http_response> {
                   CHECK_EQ(user.name, "Rina Hidaka");
@@ -358,34 +410,44 @@ TEST_CASE("json_of<T>")
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      const auto user = user_t {
-        .name = "Rina Hidaka",
-        .birth = "1994/06/15",
-      };
-      auto res = co_await server.async_serve_request(
-          "/", http_request(http::verb::get).set_json(user));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK_EQ(res.fields().get(http::field::content_type),
-               http::fields::content_type::json());
-      CHECK_EQ(co_await res.as_json<user_t>(), user);
-    }
-    {
-      const auto json = boost::json::value { { "name", "Rina Hidaka" },
-                                             { "birth", "1994/06/15" } };
-      auto res = co_await server.async_serve_request(
-          "/",
-          http_request(http::verb::get).set_body(boost::json::serialize(json)));
-      CHECK_EQ(res.status_code(), http::status::internal_server_error);
-    }
-    {
-      const auto json = boost::json::value { { "name", "Rina Hidaka" } };
-      auto res = co_await server.async_serve_request(
-          "/", http_request(http::verb::get).set_json(json));
-      CHECK_EQ(res.status_code(), http::status::internal_server_error);
-    }
-  }());
+  {
+    const auto user = user_t {
+      .name = "Rina Hidaka",
+      .birth = "1994/06/15",
+    };
+    server.serve_request("/",
+                         http_request(http::verb::get).set_json(user),
+                         [=](auto res) -> net::awaitable<void> {
+                           CHECK_EQ(res.status_code(), http::status::ok);
+                           CHECK_EQ(res.fields().get(http::field::content_type),
+                                    http::fields::content_type::json());
+                           CHECK_EQ(co_await res.template as_json<user_t>(),
+                                    user);
+                         });
+  }
+  {
+    const auto json = boost::json::value { { "name", "Rina Hidaka" },
+                                           { "birth", "1994/06/15" } };
+    server.serve_request(
+        "/",
+        http_request(http::verb::get).set_body(boost::json::serialize(json)),
+        [](auto res) -> net::awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::internal_server_error);
+          co_return;
+        });
+  }
+  {
+    const auto json = boost::json::value { { "name", "Rina Hidaka" } };
+    server.serve_request("/",
+                         http_request(http::verb::get).set_json(json),
+                         [](auto res) -> net::awaitable<void> {
+                           CHECK_EQ(res.status_code(),
+                                    http::status::internal_server_error);
+                           co_return;
+                         });
+  }
+
+  ioc.run();
 }
 
 TEST_SUITE_END();

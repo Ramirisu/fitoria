@@ -16,7 +16,8 @@ TEST_SUITE_BEGIN("[fitoria.web.connection_info]");
 
 TEST_CASE("connection_info")
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
                         [](http_request& req) -> net::awaitable<http_response> {
                           CHECK_EQ(req.connection().local().address(),
@@ -32,11 +33,13 @@ TEST_CASE("connection_info")
                         }))
                     .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    auto res = co_await server.async_serve_request(
-        "/", http_request(http::verb::get));
-    CHECK_EQ(res.status_code(), http::status::ok);
-  }());
+  server.serve_request(
+      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(co_await res.as_string(), "");
+      });
+
+  ioc.run();
 }
 
 TEST_SUITE_END();

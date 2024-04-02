@@ -16,8 +16,9 @@ TEST_SUITE_BEGIN("[fitoria.web.state]");
 
 TEST_CASE("state shares the same instance")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(
                 scope<>()
                     .state(std::string("original"))
@@ -46,18 +47,20 @@ TEST_CASE("state shares the same instance")
                         })))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/modify", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/check", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-    }
-  }());
+  server.serve_request("/modify",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         co_return;
+                       });
+  server.serve_request("/check",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         co_return;
+                       });
+
+  ioc.run();
 }
 
 TEST_CASE("state access order on global, scope and route")
@@ -66,8 +69,9 @@ TEST_CASE("state access order on global, scope and route")
     std::string_view value;
   };
 
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(
                 scope<>()
                     .state(shared_resource { "global" })
@@ -107,26 +111,26 @@ TEST_CASE("state access order on global, scope and route")
                                 }).state(shared_resource { "route" }))))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/global", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK_EQ(co_await res.as_string(), "global");
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/scope", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK_EQ(co_await res.as_string(), "scope");
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/route", http_request(http::verb::get));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK_EQ(co_await res.as_string(), "route");
-    }
-  }());
+  server.serve_request("/api/v1/global",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "global");
+                       });
+  server.serve_request("/api/v1/scope",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "scope");
+                       });
+  server.serve_request("/api/v1/route",
+                       http_request(http::verb::get),
+                       [](auto res) -> net::awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "route");
+                       });
+
+  ioc.run();
 }
 
 TEST_SUITE_END();

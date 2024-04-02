@@ -140,8 +140,9 @@ TEST_CASE("deflate middleware")
     0x0e, 0x09, 0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00
   };
 
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/get/{set_identity}/{chunked}/{empty_body}">(
                        [&](const http_request& req,
                            const path_info& path_info,
@@ -189,58 +190,60 @@ TEST_CASE("deflate middleware")
     { false, false, true }, { false, false, false },
   };
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    for (auto& test_case : test_cases) {
-      auto res = co_await server.async_serve_request(
-          fmt::format(
-              "/get/{}/{}/false", test_case.identity, test_case.chunked),
-          http_request(http::verb::get)
-              .set_field(http::field::content_encoding,
-                         http::fields::content_encoding::deflate())
-              .set_field(http::field::accept_encoding,
-                         http::fields::content_encoding::deflate())
-              .set_stream([&]() -> any_async_readable_stream {
-                auto s = std::span(compressed.data(), compressed.size());
-                if (test_case.send_chunked) {
-                  return async_readable_chunk_stream<5>(s);
-                }
-                return async_readable_vector_stream(s);
-              }()));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      if (test_case.identity) {
-        CHECK_EQ(res.fields().get(http::field::content_encoding),
-                 http::fields::content_encoding::identity());
-        CHECK_EQ(co_await res.as_string(), plain);
-      } else {
-        CHECK_EQ(res.fields().get(http::field::content_encoding),
-                 http::fields::content_encoding::deflate());
-        CHECK_EQ(co_await async_read_all_as<std::string>(
-                     middleware::detail::async_inflate_stream(
-                         std::move(res.body()))),
-                 plain);
-      }
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/get/false/false/true",
-          http_request(http::verb::get)
-              .set_field(http::field::content_encoding,
-                         http::fields::content_encoding::deflate())
-              .set_field(http::field::accept_encoding,
-                         http::fields::content_encoding::deflate())
-              .set_stream(async_readable_vector_stream(
-                  std::span(compressed.data(), compressed.size()))));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK(!res.fields().get(http::field::content_encoding));
-      CHECK_EQ(co_await res.as_string(), "");
-    }
-  });
+  for (auto& test_case : test_cases) {
+    server.serve_request(
+        fmt::format("/get/{}/{}/false", test_case.identity, test_case.chunked),
+        http_request(http::verb::get)
+            .set_field(http::field::content_encoding,
+                       http::fields::content_encoding::deflate())
+            .set_field(http::field::accept_encoding,
+                       http::fields::content_encoding::deflate())
+            .set_stream([&]() -> any_async_readable_stream {
+              auto s = std::span(compressed.data(), compressed.size());
+              if (test_case.send_chunked) {
+                return async_readable_chunk_stream<5>(s);
+              }
+              return async_readable_vector_stream(s);
+            }()),
+        [test_case, &plain](auto res) -> net::awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::ok);
+          if (test_case.identity) {
+            CHECK_EQ(res.fields().get(http::field::content_encoding),
+                     http::fields::content_encoding::identity());
+            CHECK_EQ(co_await res.as_string(), plain);
+          } else {
+            CHECK_EQ(res.fields().get(http::field::content_encoding),
+                     http::fields::content_encoding::deflate());
+            CHECK_EQ(co_await async_read_all_as<std::string>(
+                         middleware::detail::async_inflate_stream(
+                             std::move(res.body()))),
+                     plain);
+          }
+        });
+    server.serve_request(
+        "/get/false/false/true",
+        http_request(http::verb::get)
+            .set_field(http::field::content_encoding,
+                       http::fields::content_encoding::deflate())
+            .set_field(http::field::accept_encoding,
+                       http::fields::content_encoding::deflate())
+            .set_stream(async_readable_vector_stream(
+                std::span(compressed.data(), compressed.size()))),
+        [](auto res) -> net::awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK(!res.fields().get(http::field::content_encoding));
+          CHECK_EQ(co_await res.as_string(), "");
+        });
+  }
+
+  ioc.run();
 }
 
 TEST_CASE("deflate middleware: header vary")
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(
                 route::get<"/">([&](std::string body)
                                     -> net::awaitable<http_response> {
@@ -265,17 +268,20 @@ TEST_CASE("deflate middleware: header vary")
   };
 
   for (auto& test_case : test_cases) {
-    net::sync_wait([&]() -> net::awaitable<void> {
-      auto res = co_await server.async_serve_request(
-          "/",
-          http_request(http::verb::get)
-              .set_field(http::field::accept_encoding,
-                         http::fields::content_encoding::deflate())
-              .set_body(test_case.input));
-      CHECK_EQ(res.status_code(), http::status::ok);
-      CHECK_EQ(res.fields().get(http::field::vary), test_case.expected);
-    });
+    server.serve_request(
+        "/",
+        http_request(http::verb::get)
+            .set_field(http::field::accept_encoding,
+                       http::fields::content_encoding::deflate())
+            .set_body(test_case.input),
+        [test_case](auto res) -> net::awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.fields().get(http::field::vary), test_case.expected);
+          co_return;
+        });
   }
+
+  ioc.run();
 }
 
 TEST_SUITE_END();
