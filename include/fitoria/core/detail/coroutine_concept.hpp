@@ -19,10 +19,10 @@ namespace detail {
 
 template <typename Awaiter>
 concept awaiter = requires(Awaiter&& awaiter) {
-  // clang-format off
-  { awaiter.await_ready() } -> std::convertible_to<bool>;
+  {
+    awaiter.await_ready()
+  } -> std::convertible_to<bool>;
   awaiter.await_resume();
-  // clang-format on
 };
 
 template <typename Awaitable>
