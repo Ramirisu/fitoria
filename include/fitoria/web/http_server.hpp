@@ -231,7 +231,7 @@ private:
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
 
-    get_lowest_layer(*stream).expires_after(client_request_timeout_);
+    get_lowest_layer(*stream).expires_after(tls_handshake_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, net::use_ta);
     if (ec) {
