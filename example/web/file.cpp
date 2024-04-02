@@ -35,8 +35,7 @@ int main()
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/static/#file_path">(get_static_file))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

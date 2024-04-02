@@ -64,8 +64,7 @@ int main()
                     .serve(route::options<"/options">(options_handler))
                     .serve(route::any<"/any">(any_handler))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

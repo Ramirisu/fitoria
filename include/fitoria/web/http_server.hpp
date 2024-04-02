@@ -31,10 +31,14 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 template <typename Executor>
+class http_server_builder;
+
+template <typename Executor>
 class http_server {
+  friend class http_server_builder<Executor>;
+
   using router_type = router<http_context&, net::awaitable<http_response>>;
 
-public:
   http_server(
       Executor ex,
       router_type router,
@@ -61,6 +65,7 @@ public:
   {
   }
 
+public:
   http_server(const http_server&) = delete;
 
   http_server& operator=(const http_server&) = delete;
@@ -84,27 +89,36 @@ public:
     return tls_handshake_timeout_;
   }
 
-  http_server& bind(std::string_view addr, std::uint16_t port)
+  auto bind(std::string_view addr, std::uint16_t port)
+      -> expected<http_server&, std::error_code>
   {
-    net::co_spawn(
-        ex_,
-        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port)),
-        exception_handler_);
+    auto acceptor = make_acceptor(
+        net::ip::tcp::endpoint(net::ip::make_address(addr), port));
+    if (!acceptor) {
+      return unexpected { acceptor.error() };
+    }
 
-    return *this;
+    net::co_spawn(ex_, do_listen(std::move(*acceptor)), exception_handler_);
+
+    return expected<http_server&, std::error_code>(*this);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  http_server&
+  auto
   bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
+      -> expected<http_server&, std::error_code>
   {
-    net::co_spawn(
-        ex_,
-        do_listen(net::ip::tcp::endpoint(net::ip::make_address(addr), port),
-                  std::move(ssl_ctx)),
-        exception_handler_);
+    auto acceptor = make_acceptor(
+        net::ip::tcp::endpoint(net::ip::make_address(addr), port));
+    if (!acceptor) {
+      return unexpected { acceptor.error() };
+    }
 
-    return *this;
+    net::co_spawn(ex_,
+                  do_listen(std::move(*acceptor), std::move(ssl_ctx)),
+                  exception_handler_);
+
+    return expected<http_server&, std::error_code>(*this);
   }
 #endif
 
@@ -132,10 +146,9 @@ private:
       -> net::awaitable<void>
   {
     auto res = co_await do_handler(
-        connection_info {
+        connection_info(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0) },
+            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
         req.method(),
         target,
         std::move(req.fields()),
@@ -143,7 +156,7 @@ private:
     co_await f(std::move(res));
   }
 
-  auto make_acceptor(const net::ip::tcp::endpoint& endpoint) const
+  auto make_acceptor(net::ip::tcp::endpoint endpoint) const
       -> expected<net::ip::tcp::acceptor, std::error_code>
   {
     auto acceptor = net::ip::tcp::acceptor(ex_);
@@ -172,53 +185,39 @@ private:
     return acceptor;
   }
 
-  auto do_listen(net::ip::tcp::endpoint endpoint) const -> net::awaitable<void>
+  auto do_listen(net::ip::tcp::acceptor acceptor) const -> net::awaitable<void>
   {
-    auto acceptor = make_acceptor(endpoint);
-    if (!acceptor) {
-      FITORIA_THROW_OR(std::system_error(acceptor.error()), std::terminated());
-    }
-
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor->async_accept(net::use_ta);
+      if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
           !ec) {
-        net::co_spawn(
-            ex_,
-            do_session(net::shared_tcp_stream(std::move(socket)), endpoint),
-            exception_handler_);
+        net::co_spawn(ex_,
+                      do_session(net::shared_tcp_stream(std::move(socket))),
+                      exception_handler_);
       }
     }
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(net::ip::tcp::endpoint endpoint,
+  auto do_listen(net::ip::tcp::acceptor acceptor,
                  net::ssl::context ssl_ctx) const -> net::awaitable<void>
   {
-    auto acceptor = make_acceptor(endpoint);
-    if (!acceptor) {
-      FITORIA_THROW_OR(std::system_error(acceptor.error()), std::terminated());
-    }
-
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor->async_accept(net::use_ta);
+      if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
           !ec) {
         net::co_spawn(
             ex_,
-            do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr),
-                       endpoint),
+            do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr)),
             exception_handler_);
       }
     }
   }
 #endif
 
-  auto do_session(net::shared_tcp_stream stream,
-                  net::ip::tcp::endpoint listen_ep) const
-      -> net::awaitable<void>
+  auto do_session(net::shared_tcp_stream stream) const -> net::awaitable<void>
   {
-    if (auto ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
+    if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
@@ -227,9 +226,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(net::shared_ssl_stream stream,
-                  net::ip::tcp::endpoint listen_ep) const
-      -> net::awaitable<void>
+  auto do_session(net::shared_ssl_stream stream) const -> net::awaitable<void>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
@@ -241,7 +238,7 @@ private:
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
-    if (ec = co_await do_session_impl(stream, std::move(listen_ep)); ec) {
+    if (ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
@@ -253,8 +250,7 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_session_impl(Stream& stream, net::ip::tcp::endpoint listen_ep) const
-      -> net::awaitable<std::error_code>
+  auto do_session_impl(Stream& stream) const -> net::awaitable<std::error_code>
   {
     using boost::beast::flat_buffer;
     using boost::beast::get_lowest_layer;
@@ -296,8 +292,7 @@ private:
 
       auto res = co_await do_handler(
           connection_info(get_lowest_layer(*stream).socket().local_endpoint(),
-                          get_lowest_layer(*stream).socket().remote_endpoint(),
-                          std::move(listen_ep)),
+                          get_lowest_layer(*stream).socket().remote_endpoint()),
           method,
           std::move(target),
           std::move(fields),

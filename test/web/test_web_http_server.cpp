@@ -46,7 +46,7 @@ TEST_CASE("builder")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -70,12 +70,25 @@ TEST_CASE("builder")
       .get();
 }
 
+TEST_CASE("socket reuse address")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc).build();
+  CHECK(server.bind(server_ip, port));
+#if defined(FITORIA_TARGET_WINDOWS)
+  CHECK(server.bind(server_ip, port));
+#else
+  CHECK(!server.bind(server_ip, port));
+#endif
+}
+
 TEST_CASE("duplicate route")
 {
   auto ioc = net::io_context();
   CHECK_THROWS_AS(
       auto server = http_server_builder(ioc).serve(
-          scope<"">()
+          scope()
               .serve(route::get<"/">(
                   [](http_request&) -> net::awaitable<http_response> {
                     co_return http_response(http::status::ok);
@@ -97,7 +110,7 @@ TEST_CASE("invalid target")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -140,7 +153,7 @@ TEST_CASE("expect: 100-continue")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -187,7 +200,7 @@ TEST_CASE("unhandled exception from handler")
                           co_return http_response(http::status::ok);
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -233,9 +246,6 @@ TEST_CASE("generic request")
                              net::ip::make_address(server_ip));
                     CHECK_EQ(conn.remote().address(),
                              net::ip::make_address(server_ip));
-                    CHECK_EQ(conn.listen().address(),
-                             net::ip::make_address(server_ip));
-                    CHECK_EQ(conn.listen().port(), port);
                   };
                   test_connection(req.connection());
                   test_connection(connection);
@@ -289,7 +299,7 @@ TEST_CASE("generic request")
                       .insert_field(http::field::user_agent, "fitoria");
                 }))
             .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -339,7 +349,7 @@ TEST_CASE("request to route accepting wildcard")
                   co_return http_response(http::status::ok);
                 }))
             .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -378,7 +388,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   co_return http_response(http::status::ok);
                 }))
             .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -410,7 +420,7 @@ TEST_CASE("response status only")
                           co_return http_response(http::status::accepted);
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -451,7 +461,7 @@ TEST_CASE("response with plain text")
                       .set_body(text);
                 }))
             .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -490,7 +500,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                               .set_stream(async_readable_chunk_stream<5>(text));
                         }))
                     .build();
-  server.bind(server_ip, port);
+  CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });

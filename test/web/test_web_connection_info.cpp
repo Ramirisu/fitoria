@@ -26,9 +26,6 @@ TEST_CASE("connection_info")
                           CHECK_EQ(req.connection().remote().address(),
                                    net::ip::make_address("127.0.0.1"));
                           CHECK_EQ(req.connection().remote().port(), 0);
-                          CHECK_EQ(req.connection().listen().address(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().listen().port(), 0);
                           co_return http_response(http::status::ok);
                         }))
                     .build();

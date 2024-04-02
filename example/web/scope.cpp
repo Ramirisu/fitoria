@@ -50,8 +50,7 @@ int main()
                                .serve(route::post<"/register">(api::v2::reg))
                                .serve(route::post<"/login">(api::v2::login))))
             .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

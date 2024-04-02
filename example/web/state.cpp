@@ -95,8 +95,7 @@ int main()
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

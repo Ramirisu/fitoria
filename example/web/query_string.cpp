@@ -42,8 +42,7 @@ int main()
       = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
             .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

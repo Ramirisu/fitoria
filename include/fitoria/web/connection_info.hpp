@@ -21,12 +21,9 @@ class connection_info {
 public:
   connection_info() = default;
 
-  connection_info(net::ip::tcp::endpoint local,
-                  net::ip::tcp::endpoint remote,
-                  net::ip::tcp::endpoint listen)
+  connection_info(net::ip::tcp::endpoint local, net::ip::tcp::endpoint remote)
       : local_(std::move(local))
       , remote_(std::move(remote))
-      , listen_(std::move(listen))
   {
   }
 
@@ -40,15 +37,9 @@ public:
     return remote_;
   }
 
-  auto listen() const -> const net::ip::tcp::endpoint&
-  {
-    return listen_;
-  }
-
 private:
   net::ip::tcp::endpoint local_;
   net::ip::tcp::endpoint remote_;
-  net::ip::tcp::endpoint listen_;
 };
 
 }

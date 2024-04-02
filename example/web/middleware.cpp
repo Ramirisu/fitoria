@@ -81,8 +81,7 @@ int main()
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080);
+  server.bind("127.0.0.1", 8080);
 
   ioc.run();
 }

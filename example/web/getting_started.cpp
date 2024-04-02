@@ -26,14 +26,13 @@ int main()
                 }))
             .build();
 
-  server
-      .bind("127.0.0.1", 8080)
+  server.bind("127.0.0.1", 8080);
 #if defined(FITORIA_HAS_OPENSSL)
-      .bind_ssl("127.0.0.1",
-                8443,
-                cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
+  server.bind_ssl(
+      "127.0.0.1",
+      8443,
+      cert::get_server_ssl_ctx(net::ssl::context::method::tls_server));
 #endif
-      ;
 
   ioc.run();
 }
