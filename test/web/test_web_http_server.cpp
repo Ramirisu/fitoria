@@ -60,11 +60,12 @@ TEST_CASE("builder")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/"))
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -125,17 +126,17 @@ TEST_CASE("invalid target")
     net::co_spawn(
         ioc,
         [&]() -> net::awaitable<void> {
-          auto res
-              = (co_await http_client::get(
-                     to_local_url(boost::urls::scheme::http, port, test_case))
-                     .set_field(http::field::connection, "close")
-                     .set_plaintext("text")
-                     .async_send())
-                    .value();
-          CHECK_EQ(res.status_code(), http::status::not_found);
-          CHECK_EQ(res.fields().get(http::field::content_type),
+          auto res = co_await http_client()
+                         .set_method(http::verb::get)
+                         .set_url(to_local_url(
+                             boost::urls::scheme::http, port, test_case))
+                         .set_field(http::field::connection, "close")
+                         .set_plaintext("text")
+                         .async_send();
+          CHECK_EQ(res->status_code(), http::status::not_found);
+          CHECK_EQ(res->fields().get(http::field::content_type),
                    http::fields::content_type::plaintext());
-          CHECK_EQ(co_await res.as_string(), "request path is not found");
+          CHECK_EQ(co_await res->as_string(), "request path is not found");
         },
         net::use_future)
         .get();
@@ -163,15 +164,15 @@ TEST_CASE("expect: 100-continue")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::post(
-                        to_local_url(
-                            boost::urls::scheme::http, port, "/api/v1/post"))
-                        .set_field(http::field::expect, "100-continue")
-                        .set_field(http::field::connection, "close")
-                        .set_plaintext("text")
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+        auto res = co_await http_client()
+                       .set_method(http::verb::post)
+                       .set_url(to_local_url(
+                           boost::urls::scheme::http, port, "/api/v1/post"))
+                       .set_field(http::field::expect, "100-continue")
+                       .set_field(http::field::connection, "close")
+                       .set_plaintext("text")
+                       .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -210,8 +211,9 @@ TEST_CASE("unhandled exception from handler")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        CHECK(!(co_await http_client::get(
-                    to_local_url(boost::urls::scheme::http, port, "/"))
+        CHECK(!(co_await http_client()
+                    .set_method(http::verb::get)
+                    .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                     .set_field(http::field::connection, "close")
                     .set_plaintext("text")
                     .async_send()));
@@ -309,23 +311,23 @@ TEST_CASE("generic request")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::get(
-                        to_local_url(
-                            boost::urls::scheme::http,
-                            port,
-                            "/api/v1/users/RinaHidaka/filmography/years/2022"))
-                        .set_query("name", "Rina Hidaka")
-                        .set_query("birth", "1994/06/15")
-                        .set_field(http::field::connection, "close")
-                        .insert_field(http::field::user_agent,
-                                      BOOST_BEAST_VERSION_STRING)
-                        .insert_field(http::field::user_agent, "fitoria")
-                        .set_plaintext(text)
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+        auto res = co_await http_client()
+                       .set_method(http::verb::get)
+                       .set_url(to_local_url(
+                           boost::urls::scheme::http,
+                           port,
+                           "/api/v1/users/RinaHidaka/filmography/years/2022"))
+                       .set_query("name", "Rina Hidaka")
+                       .set_query("birth", "1994/06/15")
+                       .set_field(http::field::connection, "close")
+                       .insert_field(http::field::user_agent,
+                                     BOOST_BEAST_VERSION_STRING)
+                       .insert_field(http::field::user_agent, "fitoria")
+                       .set_plaintext(text)
+                       .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
         CHECK(range_in_set(
-            res.fields().equal_range(http::field::user_agent),
+            res->fields().equal_range(http::field::user_agent),
             [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
@@ -359,14 +361,13 @@ TEST_CASE("request to route accepting wildcard")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res
-            = (co_await http_client::get(to_local_url(boost::urls::scheme::http,
-                                                      port,
-                                                      "/api/v1/any/path"))
-                   .set_field(http::field::connection, "close")
-                   .async_send())
-                  .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+        auto res = co_await http_client()
+                       .set_method(http::verb::get)
+                       .set_url(to_local_url(
+                           boost::urls::scheme::http, port, "/api/v1/any/path"))
+                       .set_field(http::field::connection, "close")
+                       .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -398,13 +399,14 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::post(
-                        to_local_url(boost::urls::scheme::http, port, "/"))
-                        .set_field(http::field::connection, "close")
-                        .set_stream(async_readable_chunk_stream<5>(text))
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::post)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .set_stream(async_readable_chunk_stream<5>(text))
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -430,16 +432,17 @@ TEST_CASE("response status only")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/"))
-                        .set_field(http::field::connection, "close")
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::accepted);
-        CHECK_EQ(res.fields().get(http::field::connection), "close");
-        CHECK_EQ(res.fields().get(http::field::content_length), "0");
-        CHECK_EQ(res.body().size_hint(), std::size_t(0));
-        CHECK_EQ(co_await res.as_string(), "");
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::accepted);
+        CHECK_EQ(res->fields().get(http::field::connection), "close");
+        CHECK_EQ(res->fields().get(http::field::content_length), "0");
+        CHECK_EQ(res->body().size_hint(), std::size_t(0));
+        CHECK_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -471,17 +474,18 @@ TEST_CASE("response with plain text")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/"))
-                        .set_field(http::field::connection, "close")
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::connection), "close");
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK_EQ(res->fields().get(http::field::connection), "close");
+        CHECK_EQ(res->fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
-        CHECK_EQ(res.body().size_hint(), text.size());
-        CHECK_EQ(co_await res.as_string(), text);
+        CHECK_EQ(res->body().size_hint(), text.size());
+        CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)
       .get();
@@ -510,14 +514,15 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
   net::co_spawn(
       ioc,
       [&]() -> net::awaitable<void> {
-        auto res = (co_await http_client::get(
-                        to_local_url(boost::urls::scheme::http, port, "/"))
-                        .set_field(http::field::connection, "close")
-                        .async_send())
-                       .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!res.body().size_hint());
-        CHECK_EQ(co_await res.as_string(), text);
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!res->body().size_hint());
+        CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)
       .get();

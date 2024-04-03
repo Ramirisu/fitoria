@@ -54,13 +54,13 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
       ioc,
       [&]() -> net::awaitable<void> {
         auto res
-            = (co_await http_client::get(
-                   to_local_url(
-                       boost::urls::scheme::https, port, "/api/repos/fitoria"))
-                   .set_plaintext("hello world")
-                   .async_send(cert::get_client_ssl_ctx(client_ssl_ver)))
-                  .value();
-        CHECK_EQ(res.status_code(), http::status::ok);
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(
+                      boost::urls::scheme::https, port, "/api/repos/fitoria"))
+                  .set_plaintext("hello world")
+                  .async_send(cert::get_client_ssl_ctx(client_ssl_ver));
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();

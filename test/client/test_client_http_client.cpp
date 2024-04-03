@@ -21,23 +21,26 @@ TEST_SUITE_BEGIN("[fitoria.client.http_client]");
 
 TEST_CASE("resource")
 {
-  SUBCASE("http")
   {
-    auto c = http_client(http::verb::get, "http://httpbin.org/get");
+    auto c = http_client()
+                 .set_method(http::verb::get)
+                 .set_url("http://httpbin.org/get");
     CHECK_EQ(c.host().value(), "httpbin.org");
     CHECK_EQ(c.port().value(), 80);
     CHECK_EQ(c.path().value(), "/get");
   }
-  SUBCASE("https")
   {
-    auto c = http_client(http::verb::get, "https://httpbin.org/get");
+    auto c = http_client()
+                 .set_method(http::verb::get)
+                 .set_url("https://httpbin.org/get");
     CHECK_EQ(c.host().value(), "httpbin.org");
     CHECK_EQ(c.port().value(), 443);
     CHECK_EQ(c.path().value(), "/get");
   }
-  SUBCASE("percentage encoding")
   {
-    auto c = http_client(http::verb::get, "http://abc/def%20ghi");
+    auto c = http_client()
+                 .set_method(http::verb::get)
+                 .set_url("http://abc/def%20ghi");
     CHECK_EQ(c.host().value(), "abc");
     CHECK_EQ(c.port().value(), 80);
     CHECK_EQ(c.path().value(), "/def ghi");
@@ -46,7 +49,9 @@ TEST_CASE("resource")
 
 TEST_CASE("misc")
 {
-  auto c = http_client(http::verb::get, "http://httpbin.org/get");
+  auto c = http_client()
+               .set_method(http::verb::get)
+               .set_url("http://httpbin.org/get");
   CHECK_EQ(c.method(), http::verb::get);
   c.set_method(http::verb::post);
   CHECK_EQ(c.method(), http::verb::post);
@@ -79,54 +84,24 @@ TEST_CASE("misc")
   CHECK_EQ(cc.query().get("name"), "value");
 }
 
-TEST_CASE("methods")
-{
-  {
-    auto c = http_client::get("http://httpbin.org/get");
-    CHECK_EQ(c.method(), http::verb::get);
-  }
-  {
-    auto c = http_client::post("http://httpbin.org/post");
-    CHECK_EQ(c.method(), http::verb::post);
-  }
-  {
-    auto c = http_client::put("http://httpbin.org/put");
-    CHECK_EQ(c.method(), http::verb::put);
-  }
-  {
-    auto c = http_client::patch("http://httpbin.org/patch");
-    CHECK_EQ(c.method(), http::verb::patch);
-  }
-  {
-    auto c = http_client::delete_("http://httpbin.org/delete");
-    CHECK_EQ(c.method(), http::verb::delete_);
-  }
-  {
-    auto c = http_client::head("http://httpbin.org/head");
-    CHECK_EQ(c.method(), http::verb::head);
-  }
-  {
-    auto c = http_client::options("http://httpbin.org/options");
-    CHECK_EQ(c.method(), http::verb::options);
-  }
-}
-
 TEST_CASE("async_send")
 {
-  {
-    sync_wait([]() -> net::awaitable<void> {
-      auto res
-          = (co_await http_client::get("http://httpbin.org/get").async_send())
-                .value();
-      CHECK_EQ(res.status_code().value(), http::status::ok);
-      CHECK((co_await res.as_string())->size() > 0);
-    });
-  }
-  {
-    sync_wait([]() -> net::awaitable<void> {
-      CHECK(!(co_await http_client::get("").async_send()));
-    });
-  }
+  sync_wait([]() -> net::awaitable<void> {
+    auto res = co_await http_client()
+                   .set_method(http::verb::get)
+                   .set_url("http://httpbin.org/get")
+                   .async_send();
+    CHECK_EQ(res->status_code().value(), http::status::ok);
+    CHECK((co_await res->as_string())->size() > 0);
+  });
+
+  sync_wait([]() -> net::awaitable<void> {
+    CHECK(!(co_await http_client()
+                .set_method(http::verb::get)
+                .set_url("")
+                .async_send()));
+  });
+
 #if defined(FITORIA_HAS_OPENSSL)
   auto get_certs = []() {
     auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
@@ -134,32 +109,35 @@ TEST_CASE("async_send")
     cacert::add_builtin_cacerts(ssl_ctx);
     return ssl_ctx;
   };
-  {
-    sync_wait([&]() -> net::awaitable<void> {
-      auto res = (co_await http_client::get("https://httpbin.org/get")
-                      .async_send(get_certs()))
-                     .value();
-      CHECK_EQ(res.status_code().value(), http::status::ok);
-      CHECK((co_await res.as_string())->size() > 0);
-    });
-  }
-  {
-    sync_wait([&]() -> net::awaitable<void> {
-      CHECK(!(co_await http_client::get("").async_send(get_certs())));
-    });
-  }
+
+  sync_wait([&]() -> net::awaitable<void> {
+    auto res = co_await http_client()
+                   .set_method(http::verb::get)
+                   .set_url("https://httpbin.org/get")
+                   .async_send(get_certs());
+    CHECK_EQ(res->status_code().value(), http::status::ok);
+    CHECK((co_await res->as_string())->size() > 0);
+  });
+
+  sync_wait([&]() -> net::awaitable<void> {
+    CHECK(!(co_await http_client()
+                .set_method(http::verb::get)
+                .set_url("")
+                .async_send(get_certs())));
+  });
 #endif
 }
 
 TEST_CASE("request with body")
 {
   sync_wait([]() -> net::awaitable<void> {
-    auto res = (co_await http_client::post("http://httpbin.org/post")
-                    .set_body("echo")
-                    .async_send())
-                   .value();
-    CHECK_EQ(res.status_code().value(), http::status::ok);
-    auto body = co_await res.as_json();
+    auto res = co_await http_client()
+                   .set_method(http::verb::post)
+                   .set_url("http://httpbin.org/post")
+                   .set_body("echo")
+                   .async_send();
+    CHECK_EQ(res->status_code().value(), http::status::ok);
+    auto body = co_await res->as_json();
     CHECK_EQ(body->at("data"), "echo");
   });
 }
