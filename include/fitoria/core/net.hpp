@@ -23,8 +23,6 @@ using namespace boost::asio;
 
 constexpr auto use_ta = as_tuple(use_awaitable);
 
-using ws_tcp_stream = boost::beast::websocket::stream<boost::beast::tcp_stream>;
-
 template <typename Stream, bool HasSslCtx = false>
 class basic_shared_stream {
   std::shared_ptr<Stream> stream_;
@@ -59,11 +57,9 @@ public:
 };
 
 using shared_tcp_stream = basic_shared_stream<boost::beast::tcp_stream, false>;
-using shared_ws_tcp_stream = basic_shared_stream<ws_tcp_stream, false>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 using ssl_stream = boost::beast::ssl_stream<boost::beast::tcp_stream>;
-using ws_ssl_stream = boost::beast::websocket::stream<ssl_stream>;
 
 template <typename Stream>
 class basic_shared_stream<Stream, true> {
@@ -100,7 +96,6 @@ public:
 };
 
 using shared_ssl_stream = basic_shared_stream<ssl_stream, true>;
-using shared_ws_ssl_stream = basic_shared_stream<ws_ssl_stream, true>;
 
 #endif
 
