@@ -253,10 +253,7 @@ public:
       for (auto& state : *state_maps_) {
         if (auto it = state->find(std::type_index(typeid(T)));
             it != state->end()) {
-          try {
-            return std::any_cast<T&>(it->second);
-          } catch (const std::bad_any_cast&) {
-          }
+          return *std::any_cast<T>(&it->second);
         }
       }
     }
