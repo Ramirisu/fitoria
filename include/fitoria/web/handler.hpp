@@ -15,7 +15,6 @@
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/from_http_request.hpp>
-#include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
@@ -33,10 +32,10 @@ class handler_middleware<Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
     co_return co_await invoke_with_args(
-        co_await from_http_request<Args>(static_cast<http_request&>(ctx))...);
+        co_await from_http_request<Args>(req)...);
   }
 
 private:

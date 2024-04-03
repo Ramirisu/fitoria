@@ -16,7 +16,7 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 
-#include <fitoria/web/http_context.hpp>
+#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware/detail/async_gzip_stream.hpp>
 #include <fitoria/web/middleware_concept.hpp>
@@ -30,30 +30,30 @@ class gzip_middleware {
   friend class gzip;
 
 public:
-  auto operator()(http_context& c) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
-    if (c.request().fields().get(http::field::content_encoding)
+    if (req.fields().get(http::field::content_encoding)
         == http::fields::content_encoding::gzip()) {
-      if (c.request().body().size_hint()) {
+      if (req.body().size_hint()) {
         auto data = co_await async_read_all_as<std::vector<std::byte>>(
-            detail::async_gzip_inflate_stream(std::move(c.request().body())));
+            detail::async_gzip_inflate_stream(std::move(req.body())));
         if (!data || !*data) {
           co_return http_response(http::status::bad_request)
               .set_field(http::field::content_type,
                          http::fields::content_type::plaintext())
               .set_body("request body contains invalid gzip stream");
         }
-        c.request().set_field(http::field::content_length,
-                              std::to_string((*data)->size()));
-        c.request().set_stream(async_readable_vector_stream(std::move(**data)));
+        req.set_field(http::field::content_length,
+                      std::to_string((*data)->size()));
+        req.set_stream(async_readable_vector_stream(std::move(**data)));
       } else {
-        c.request().set_stream(
-            detail::async_gzip_inflate_stream(std::move(c.request().body())));
+        req.set_stream(
+            detail::async_gzip_inflate_stream(std::move(req.body())));
       }
-      c.request().fields().erase(http::field::content_encoding);
+      req.fields().erase(http::field::content_encoding);
     }
 
-    auto res = co_await next_(c);
+    auto res = co_await next_(req);
 
     if (res.body().size_hint() == std::size_t(0)) {
       co_return res;
@@ -63,7 +63,7 @@ public:
       co_return res;
     }
 
-    if (auto ac = c.request().fields().get(http::field::accept_encoding); ac
+    if (auto ac = req.fields().get(http::field::accept_encoding); ac
         && ac->find(http::fields::content_encoding::gzip())
             != std::string::npos) {
       if (res.body().size_hint()) {

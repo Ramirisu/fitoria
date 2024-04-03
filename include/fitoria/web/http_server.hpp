@@ -19,7 +19,7 @@
 
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/handler.hpp>
-#include <fitoria/web/http_context.hpp>
+#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
@@ -37,7 +37,7 @@ template <typename Executor>
 class http_server {
   friend class http_server_builder<Executor>;
 
-  using router_type = router<http_context&, net::awaitable<http_response>>;
+  using router_type = router<http_request&, net::awaitable<http_response>>;
 
   http_server(
       Executor ex,
@@ -344,8 +344,7 @@ private:
           std::move(fields),
           std::move(body),
           route->state_maps());
-      auto context = http_context(request);
-      co_return co_await route->operator()(context);
+      co_return co_await route->operator()(request);
     }
 
     co_return http_response(http::status::not_found)
@@ -444,7 +443,7 @@ private:
 template <typename Executor = net::any_io_executor>
 class http_server_builder {
 public:
-  using router_type = router<http_context&, net::awaitable<http_response>>;
+  using router_type = router<http_request&, net::awaitable<http_response>>;
 
   http_server_builder(const Executor& ex)
       : ex_(ex)

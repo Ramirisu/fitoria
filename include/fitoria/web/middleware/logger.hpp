@@ -16,7 +16,7 @@
 
 #include <fitoria/log/log.hpp>
 
-#include <fitoria/web/http_context.hpp>
+#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 
@@ -31,19 +31,19 @@ class logger_middleware {
 public:
   using clock_t = std::chrono::system_clock;
 
-  auto operator()(http_context& c) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
     auto start_time = clock_t::now();
 
-    auto res = co_await next_(c);
+    auto res = co_await next_(req);
 
     log::info("[fitoria.middleware.logger] {} {} {} {} {}B {} {:%T}s",
-              c.request().connection().remote().address().to_string(),
-              std::string(to_string(c.request().method())),
-              c.request().path().match_path(),
+              req.connection().remote().address().to_string(),
+              std::string(to_string(req.method())),
+              req.path().match_path(),
               res.status_code(),
               res.body().size_hint().value_or(0),
-              c.request().fields().get(http::field::user_agent).value_or(""),
+              req.fields().get(http::field::user_agent).value_or(""),
               std::chrono::floor<std::chrono::microseconds>(clock_t::now()
                                                             - start_time));
 

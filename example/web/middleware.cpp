@@ -15,11 +15,11 @@ class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
     // do something before the handler
 
-    auto res = co_await next_(ctx);
+    auto res = co_await next_(req);
 
     // do something after the handler
 

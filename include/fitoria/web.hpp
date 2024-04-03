@@ -15,7 +15,6 @@
 #include <fitoria/web/as_form.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/error.hpp>
-#include <fitoria/web/http_context.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>

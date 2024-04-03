@@ -16,7 +16,7 @@
 
 #include <fitoria/log.hpp>
 
-#include <fitoria/web/http_context.hpp>
+#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 
@@ -31,10 +31,10 @@ class exception_handler_middleware {
   friend class exception_handler;
 
 public:
-  auto operator()(http_context& c) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
     try {
-      co_return co_await next_(c);
+      co_return co_await next_(req);
     } catch (const std::exception& ex) {
       log::error("[fitoria.middleware.exception_handler] exception: {}",
                  ex.what());
