@@ -53,13 +53,11 @@ The library is ***experimental*** and still under development, not recommended f
 
 #include <fitoria/web.hpp>
 
-using namespace fitoria;
-using namespace fitoria::web;
-
 int main()
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/echo">(
                 [](std::string body) -> net::awaitable<http_response> {
                   co_return http_response(http::status::ok)
@@ -68,17 +66,16 @@ int main()
                       .set_body(body);
                 }))
             .build();
-  server
-      // Bind listen port 8080
-      .bind("127.0.0.1", 8080)
+
+  server.bind("127.0.0.1", 8080);
 #if defined(FITORIA_HAS_OPENSSL)
-      // Bind listen port 8443 with SSL enabled
-      .bind_ssl("127.0.0.1",
-                8443,
-                cert::get_server_ssl_ctx(net::ssl::context::method::tls_server))
+  server.bind_ssl(
+      "127.0.0.1",
+      8443,
+      cert::get_server_ssl_ctx(net::ssl::context::method::tls_server));
 #endif
-      // Start the server, `run()` will block current thread.
-      .run();
+
+  ioc.run();
 }
 
 ```
@@ -97,7 +94,8 @@ Register methods defined in `http::verb::*` by using `route::handle`, or simply 
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::handle<"/">(http::verb::get, get_handler))
                     .serve(route::get<"/get">(get_handler))
                     .serve(route::post<"/post">(post_handler))
@@ -108,10 +106,11 @@ int main()
                     .serve(route::options<"/options">(options_handler))
                     .serve(route::any<"/any">(any_handler))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
+
 
 ```
 
@@ -163,13 +162,14 @@ auto api(const http_request& req) -> net::awaitable<http_response>
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -197,13 +197,14 @@ auto get_user(const http_request& req) -> net::awaitable<http_response>
 
 int main()
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
             .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -234,12 +235,13 @@ auto api(const http_request& req, std::string body)
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::post<"/api/v1/login">(api::v1::login::api))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -326,15 +328,16 @@ int main()
 {
   auto cache = std::make_shared<cache::simple_cache_ptr>();
 
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(scope<"/cache">()
                                .state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -456,16 +459,18 @@ int main()
                database::user_t { .password = "123456",
                                   .last_login_time = nullopt } });
 
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
                        .state(db))
             .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
             .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
+
 
 ```
 
@@ -477,8 +482,9 @@ Grouping `route`s by `scope`. ([Code](https://github.com/Ramirisu/fitoria/blob/m
 
 int main()
 {
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(
                 scope<>()
                     .use(middleware::logger())
@@ -489,9 +495,9 @@ int main()
                                .serve(route::post<"/register">(api::v2::reg))
                                .serve(route::post<"/login">(api::v2::login))))
             .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -516,11 +522,11 @@ class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_context& ctx) const -> net::awaitable<http_response>
+  auto operator()(http_request& req) const -> net::awaitable<http_response>
   {
     // do something before the handler
 
-    auto res = co_await next_(ctx);
+    auto res = co_await next_(req);
 
     // do something after the handler
 
@@ -572,7 +578,8 @@ auto get_user(http_request& req) -> net::awaitable<http_response>
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(scope<"/api/v1">()
                                .use(middleware::logger())
 #if !FITORIA_NO_EXCEPTIONS
@@ -581,9 +588,9 @@ int main()
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -610,12 +617,13 @@ auto get_static_file(const path_info& pi)
 
 int main()
 {
-  auto server = http_server::builder()
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
                     .serve(route::get<"/static/#file_path">(get_static_file))
                     .build();
-  server //
-      .bind("127.0.0.1", 8080)
-      .run();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
 }
 
 ```
@@ -628,25 +636,17 @@ Use `net::signal_set` to handle signals to shutdown the server gracefully. ([Cod
 
 int main()
 {
-  auto server = http_server::builder().build();
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc).build();
   server.bind("127.0.0.1", 8080);
-
-  // Create the execution context and spawn coroutines on it
-  net::io_context ioc;
-  net::co_spawn(ioc, server.async_run(), net::detached);
 
   // Register signals to stop the execution context
   net::signal_set signal(ioc, SIGINT, SIGTERM);
   signal.async_wait([&](auto, auto) { ioc.stop(); });
 
-  // Run the execution context with thread pool
-  const std::uint32_t num_threads = std::thread::hardware_concurrency();
-  net::thread_pool tp(num_threads);
-  for (auto i = std::uint32_t(1); i < num_threads; ++i) {
-    net::post(tp, [&]() { ioc.run(); });
-  }
   ioc.run();
 }
+
 
 ```
 
@@ -660,21 +660,27 @@ int main()
 
 ```cpp
 
-int main()
-{
+  auto ioc = net::io_context();
   auto server
-      = http_server::builder()
+      = http_server_builder(ioc)
             .serve(route::post<"/api/v1/login">(
-                [](http_request& req,
+                [](const http_fields& fields,
                    std::string body) -> net::awaitable<http_response> {
-                  if (req.fields().get(http::field::content_type)
+                  if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
-                    co_return http_response(http::status::bad_request);
+                    co_return http_response(http::status::bad_request)
+                        .set_field(http::field::content_type,
+                                   http::fields::content_type::plaintext())
+                        .set_body("unexpected content-type");
+                    ;
                   }
                   auto user = as_form(body);
-                  if (!user || user->get("name") != "ramirisu"
+                  if (!user || user->get("name") != "fitoria"
                       || user->get("password") != "123456") {
-                    co_return http_response(http::status::unauthorized);
+                    co_return http_response(http::status::unauthorized)
+                        .set_field(http::field::content_type,
+                                   http::fields::content_type::plaintext())
+                        .set_body("incorrect user name or password");
                   }
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
@@ -684,47 +690,57 @@ int main()
                 }))
             .build();
 
-  net::sync_wait([&]() -> net::awaitable<void> {
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/login",
-          http_request(http::verb::post)
-              .set_field(http::field::content_type,
-                         http::fields::content_type::plaintext())
-              .set_body("name=ramirisu&password=123456"));
-      FITORIA_ASSERT(res.status_code() == http::status::bad_request);
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/login",
-          http_request(http::verb::post)
-              .set_field(http::field::content_type,
-                         http::fields::content_type::form_urlencoded())
-              .set_body("name=unknown&password=123"));
-      FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/login",
-          http_request(http::verb::post)
-              .set_field(http::field::content_type,
-                         http::fields::content_type::form_urlencoded())
-              .set_body("name=ramirisu&password=123"));
-      FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
-    }
-    {
-      auto res = co_await server.async_serve_request(
-          "/api/v1/login",
-          http_request(http::verb::post)
-              .set_field(http::field::content_type,
-                         http::fields::content_type::form_urlencoded())
-              .set_body("name=ramirisu&password=123456"));
-      FITORIA_ASSERT(res.status_code() == http::status::ok);
-      FITORIA_ASSERT(res.fields().get(http::field::content_type)
-                     == http::fields::content_type::plaintext());
-      FITORIA_ASSERT((co_await res.as_string()) == "ramirisu, login succeeded");
-    }
-  }());
+  server.serve_request(
+      "/api/v1/login",
+      http_request(http::verb::post)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::plaintext())
+          .set_body("name=fitoria&password=123456"),
+      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::bad_request);
+        FITORIA_ASSERT((co_await res.as_string()) == "unexpected content-type");
+        co_return;
+      });
+  server.serve_request(
+      "/api/v1/login",
+      http_request(http::verb::post)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::form_urlencoded())
+          .set_body("name=unknown&password=123456"),
+      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "incorrect user name or password");
+        co_return;
+      });
+  server.serve_request(
+      "/api/v1/login",
+      http_request(http::verb::post)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::form_urlencoded())
+          .set_body("name=fitoria&password=123"),
+      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "incorrect user name or password");
+        co_return;
+      });
+  server.serve_request(
+      "/api/v1/login",
+      http_request(http::verb::post)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::form_urlencoded())
+          .set_body("name=fitoria&password=123456"),
+      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::ok);
+        FITORIA_ASSERT(res.fields().get(http::field::content_type)
+                       == http::fields::content_type::plaintext());
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "fitoria, login succeeded");
+        co_return;
+      });
+
+  ioc.run();
 }
 
 ```
