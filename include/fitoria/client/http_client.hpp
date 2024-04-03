@@ -386,7 +386,8 @@ private:
       co_return unexpected { results.error() };
     }
 
-    auto stream = net::shared_tcp_stream(co_await net::this_coro::executor);
+    auto stream = std::make_shared<net::tcp_stream<Executor>>(
+        co_await net::this_coro::executor);
 
     stream->expires_after(request_timeout_);
     auto [ec, _] = co_await stream->async_connect(*results, net::use_ta);
@@ -410,7 +411,7 @@ private:
     }
 
     boost::system::error_code ec;
-    auto stream = net::shared_ssl_stream(
+    auto stream = std::make_shared<net::safe_ssl_stream<Executor>>(
         co_await net::this_coro::executor,
         std::make_shared<net::ssl::context>(std::move(ssl_ctx)));
 
@@ -444,7 +445,7 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_send_recv(Stream& stream)
+  auto do_send_recv(std::shared_ptr<Stream>& stream)
       -> net::awaitable<expected<http_response, std::error_code>>
   {
     using boost::beast::flat_buffer;
@@ -485,7 +486,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_sized_request(Stream& stream)
+  auto do_sized_request(std::shared_ptr<Stream>& stream)
       -> net::awaitable<expected<optional<http_response>, std::error_code>>
   {
     using boost::beast::error;
@@ -549,7 +550,7 @@ private:
   }
 
   template <typename Stream>
-  auto do_chunked_request(Stream& stream)
+  auto do_chunked_request(std::shared_ptr<Stream>& stream)
       -> net::awaitable<expected<optional<http_response>, std::error_code>>
   {
     using boost::beast::error;

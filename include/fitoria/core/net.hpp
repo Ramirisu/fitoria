@@ -23,79 +23,27 @@ using namespace boost::asio;
 
 constexpr auto use_ta = as_tuple(use_awaitable);
 
-template <typename Stream, bool HasSslCtx = false>
-class basic_shared_stream {
-  std::shared_ptr<Stream> stream_;
-
-public:
-  template <typename Arg>
-    requires not_decay_to<Arg, basic_shared_stream>
-  basic_shared_stream(Arg&& arg)
-      : stream_(std::make_shared<Stream>(std::forward<Arg>(arg)))
-  {
-  }
-
-  auto operator*() const noexcept -> const Stream&
-  {
-    return *stream_;
-  }
-
-  auto operator*() noexcept -> Stream&
-  {
-    return *stream_;
-  }
-
-  auto operator->() const noexcept -> const Stream*
-  {
-    return stream_.get();
-  }
-
-  auto operator->() noexcept -> Stream*
-  {
-    return stream_.get();
-  }
-};
-
-using shared_tcp_stream = basic_shared_stream<boost::beast::tcp_stream, false>;
+template <typename Executor>
+using tcp_stream = boost::beast::basic_stream<ip::tcp, Executor>;
 
 #if defined(FITORIA_HAS_OPENSSL)
-using ssl_stream = boost::beast::ssl_stream<boost::beast::tcp_stream>;
 
-template <typename Stream>
-class basic_shared_stream<Stream, true> {
-  std::shared_ptr<ssl::context> ssl_ctx_;
-  std::shared_ptr<Stream> stream_;
+template <typename Executor>
+using ssl_stream = boost::beast::ssl_stream<tcp_stream<Executor>>;
 
+template <typename Executor>
+class safe_ssl_stream : public ssl_stream<Executor> {
 public:
   template <typename Arg>
-  basic_shared_stream(Arg&& arg, std::shared_ptr<ssl::context> ssl_ctx)
-      : ssl_ctx_(std::move(ssl_ctx))
-      , stream_(std::make_shared<Stream>(std::forward<Arg>(arg), *ssl_ctx_))
+  safe_ssl_stream(Arg&& arg, std::shared_ptr<ssl::context> ssl_ctx)
+      : ssl_stream<Executor>(std::forward<Arg>(arg), *ssl_ctx)
+      , ssl_ctx_(std::move(ssl_ctx))
   {
   }
 
-  auto operator*() const noexcept -> const Stream&
-  {
-    return *stream_;
-  }
-
-  auto operator*() noexcept -> Stream&
-  {
-    return *stream_;
-  }
-
-  auto operator->() const noexcept -> const Stream*
-  {
-    return stream_.get();
-  }
-
-  auto operator->() noexcept -> Stream*
-  {
-    return stream_.get();
-  }
+private:
+  std::shared_ptr<ssl::context> ssl_ctx_;
 };
-
-using shared_ssl_stream = basic_shared_stream<ssl_stream, true>;
 
 #endif
 

@@ -191,7 +191,8 @@ private:
       if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
           !ec) {
         net::co_spawn(ex_,
-                      do_session(net::shared_tcp_stream(std::move(socket))),
+                      do_session(std::make_shared<net::tcp_stream<Executor>>(
+                          std::move(socket))),
                       exception_handler_);
       }
     }
@@ -208,14 +209,16 @@ private:
           !ec) {
         net::co_spawn(
             ex_,
-            do_session(net::shared_ssl_stream(std::move(socket), ssl_ctx_ptr)),
+            do_session(std::make_shared<net::safe_ssl_stream<Executor>>(
+                std::move(socket), ssl_ctx_ptr)),
             exception_handler_);
       }
     }
   }
 #endif
 
-  auto do_session(net::shared_tcp_stream stream) const -> net::awaitable<void>
+  auto do_session(std::shared_ptr<net::tcp_stream<Executor>> stream) const
+      -> net::awaitable<void>
   {
     if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
@@ -226,7 +229,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(net::shared_ssl_stream stream) const -> net::awaitable<void>
+  auto do_session(std::shared_ptr<net::safe_ssl_stream<Executor>> stream) const
+      -> net::awaitable<void>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
@@ -250,7 +254,8 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_session_impl(Stream& stream) const -> net::awaitable<std::error_code>
+  auto do_session_impl(std::shared_ptr<Stream>& stream) const
+      -> net::awaitable<std::error_code>
   {
     using boost::beast::flat_buffer;
     using boost::beast::get_lowest_layer;
@@ -319,11 +324,12 @@ private:
     co_return ec;
   }
 
-  net::awaitable<http_response> do_handler(connection_info connection_info,
-                                           http::verb method,
-                                           std::string target,
-                                           http_fields fields,
-                                           any_async_readable_stream body) const
+  auto do_handler(connection_info connection_info,
+                  http::verb method,
+                  std::string target,
+                  http_fields fields,
+                  any_async_readable_stream body) const
+      -> net::awaitable<http_response>
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
@@ -354,8 +360,9 @@ private:
   }
 
   template <typename Stream>
-  auto
-  do_sized_response(Stream& stream, http_response& res, bool keep_alive) const
+  auto do_sized_response(std::shared_ptr<Stream>& stream,
+                         http_response& res,
+                         bool keep_alive) const
       -> net::awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
@@ -384,8 +391,9 @@ private:
   }
 
   template <typename Stream>
-  auto
-  do_chunked_response(Stream& stream, http_response& res, bool keep_alive) const
+  auto do_chunked_response(std::shared_ptr<Stream>& stream,
+                           http_response& res,
+                           bool keep_alive) const
       -> net::awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
