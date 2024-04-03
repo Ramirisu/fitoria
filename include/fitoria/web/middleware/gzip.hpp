@@ -25,12 +25,12 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware {
 
-template <typename Next>
+template <typename Request, typename Response, typename Next>
 class gzip_middleware {
   friend class gzip;
 
 public:
-  auto operator()(http_request& req) const -> net::awaitable<http_response>
+  auto operator()(Request req) const -> Response
   {
     if (req.fields().get(http::field::content_encoding)
         == http::fields::content_encoding::gzip()) {
@@ -107,23 +107,26 @@ private:
   Next next_;
 };
 
-template <typename Next>
-gzip_middleware(Next&&) -> gzip_middleware<std::decay_t<Next>>;
-
 class gzip {
 public:
-  template <decay_to<gzip> Self, typename Next>
-  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  template <typename Request,
+            typename Response,
+            decay_to<gzip> Self,
+            typename Next>
+  friend auto
+  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_middleware_impl(
-        std::forward<Next>(next));
+    return std::forward<Self>(self)
+        .template new_middleware_impl<Request, Response>(
+            std::forward<Next>(next));
   }
 
 private:
-  template <typename Next>
+  template <typename Request, typename Response, typename Next>
   auto new_middleware_impl(Next&& next) const
   {
-    return gzip_middleware(std::forward<Next>(next));
+    return gzip_middleware<Request, Response, std::decay_t<Next>>(
+        std::forward<Next>(next));
   }
 };
 

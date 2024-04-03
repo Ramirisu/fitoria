@@ -10,12 +10,12 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-template <typename Next>
+template <typename Request, typename Response, typename Next>
 class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_request& req) const -> net::awaitable<http_response>
+  auto operator()(Request req) const -> Response
   {
     // do something before the handler
 
@@ -27,8 +27,9 @@ public:
   }
 
 private:
-  my_log_middleware(Next next, log::level lv)
-      : next_(std::move(next))
+  template <typename Next2>
+  my_log_middleware(Next2 next, log::level lv)
+      : next_(std::forward<Next2>(next))
       , lv_(lv)
   {
   }
@@ -44,18 +45,24 @@ public:
   {
   }
 
-  template <decay_to<my_log> Self, typename Next>
-  friend auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  template <typename Request,
+            typename Response,
+            decay_to<my_log> Self,
+            typename Next>
+  friend auto
+  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_middleware_impl(
-        std::forward<Next>(next));
+    return std::forward<Self>(self)
+        .template new_middleware_impl<Request, Response>(
+            std::forward<Next>(next));
   }
 
 private:
-  template <typename Next>
+  template <typename Request, typename Response, typename Next>
   auto new_middleware_impl(Next&& next) const
   {
-    return my_log_middleware(std::move(next), lv_);
+    return my_log_middleware<Request, Response, std::decay_t<Next>>(
+        std::move(next), lv_);
   }
 
   log::level lv_;

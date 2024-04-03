@@ -96,7 +96,7 @@ public:
         handler_);
   }
 
-  template <typename... AdditionalServices>
+  template <typename Request, typename Response, typename... AdditionalServices>
   auto build(AdditionalServices... additionalServices) const
   {
     return routable(
@@ -104,27 +104,34 @@ public:
         path_matcher(Path),
         state_maps_,
         std::apply(
-            [](auto... ss) { return build_service(std::move(ss)...); },
+            [](auto... ss) {
+              return build_service<Request, Response>(std::move(ss)...);
+            },
             reverse_tuple(std::tuple_cat(
                 services_,
                 std::tuple { std::move(additionalServices)..., handler_ }))));
   }
 
 private:
-  template <typename S0>
+  template <typename Request, typename Response, typename S0>
   static auto build_service(S0 s0)
   {
     return s0;
   }
 
-  template <typename S0, typename S1, typename... S>
+  template <typename Request,
+            typename Response,
+            typename S0,
+            typename S1,
+            typename... S>
   static auto build_service(S0 s0, S1 s1, S... ss)
   {
     if constexpr (sizeof...(S) > 0) {
-      return build_service(new_middleware(std::move(s1), std::move(s0)),
-                           std::move(ss)...);
+      return build_service<Request, Response>(
+          new_middleware<Request, Response>(std::move(s1), std::move(s0)),
+          std::move(ss)...);
     } else {
-      return new_middleware(std::move(s1), std::move(s0));
+      return new_middleware<Request, Response>(std::move(s1), std::move(s0));
     }
   }
 };

@@ -17,9 +17,13 @@ TEST_SUITE_BEGIN("[fitoria.web.scope]");
 
 TEST_CASE("method")
 {
-  auto handler = [](int) -> int { return 0; };
+  using req_type = int;
+  using res_type = int;
+  auto handler = [](req_type) -> res_type { return 0; };
   auto m = [](auto&& scope) {
-    return std::get<0>(scope.routes()).build().method();
+    return std::get<0>(scope.routes())
+        .template build<req_type, res_type>()
+        .method();
   };
 
   CHECK_EQ(
@@ -41,12 +45,12 @@ TEST_CASE("method")
            http::verb::unknown);
 }
 
-template <typename Next>
+template <typename Request, typename Response, typename Next>
 class adder_middleware {
   friend class adder;
 
 public:
-  auto operator()(int in) const -> int
+  auto operator()(Request in) const -> Response
   {
     return next_(in) + value_;
   }
@@ -63,9 +67,6 @@ private:
   int value_;
 };
 
-template <typename Next>
-adder_middleware(Next&&, int) -> adder_middleware<std::decay_t<Next>>;
-
 class adder {
 public:
   adder(int value)
@@ -73,18 +74,24 @@ public:
   {
   }
 
-  template <decay_to<adder> Self, typename Next>
-  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  template <typename Request,
+            typename Response,
+            decay_to<adder> Self,
+            typename Next>
+  friend auto
+  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_middleware_impl(
-        std::forward<Next>(next));
+    return std::forward<Self>(self)
+        .template new_middleware_impl<Request, Response>(
+            std::forward<Next>(next));
   }
 
 private:
-  template <typename Next>
+  template <typename Request, typename Response, typename Next>
   auto new_middleware_impl(Next&& next) const
   {
-    return adder_middleware(std::forward<Next>(next), value_);
+    return adder_middleware<Request, Response, std::decay_t<Next>>(
+        std::forward<Next>(next), value_);
   }
 
   int value_;
@@ -92,7 +99,9 @@ private:
 
 TEST_CASE("middleware & handler")
 {
-  auto h = [](int i) { return i + 1; };
+  using req_type = int;
+  using res_type = int;
+  auto h = [](req_type i) -> res_type { return i + 1; };
   auto l = adder(10);
   auto ag = adder(100);
   auto af = adder(1000);
@@ -123,7 +132,10 @@ TEST_CASE("middleware & handler")
                                           .serve(route::put<"/s011h">(h))));
 
   auto services = std::apply(
-      [](auto&&... routes) { return std::tuple { routes.build(adder(0))... }; },
+      [](auto&&... routes) {
+        return std::tuple { routes.template build<req_type, res_type>(
+            adder(0))... };
+      },
       router.routes());
 
   static_assert(std::tuple_size_v<decltype(services)> == 14);

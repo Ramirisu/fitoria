@@ -37,7 +37,9 @@ template <typename Executor>
 class http_server {
   friend class http_server_builder<Executor>;
 
-  using router_type = router<http_request&, net::awaitable<http_response>>;
+  using request_type = http_request&;
+  using response_type = net::awaitable<http_response, Executor>;
+  using router_type = router<request_type, response_type>;
 
   http_server(
       Executor ex,
@@ -143,7 +145,7 @@ public:
 private:
   template <typename F>
   auto serve_request_impl(http_request req, std::string target, F f) const
-      -> net::awaitable<void>
+      -> net::awaitable<void, Executor>
   {
     auto res = co_await do_handler(
         connection_info(
@@ -185,7 +187,8 @@ private:
     return acceptor;
   }
 
-  auto do_listen(net::ip::tcp::acceptor acceptor) const -> net::awaitable<void>
+  auto do_listen(net::ip::tcp::acceptor acceptor) const
+      -> net::awaitable<void, Executor>
   {
     for (;;) {
       if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
@@ -200,7 +203,8 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_listen(net::ip::tcp::acceptor acceptor,
-                 net::ssl::context ssl_ctx) const -> net::awaitable<void>
+                 net::ssl::context ssl_ctx) const
+      -> net::awaitable<void, Executor>
   {
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
@@ -218,7 +222,7 @@ private:
 #endif
 
   auto do_session(std::shared_ptr<net::tcp_stream<Executor>> stream) const
-      -> net::awaitable<void>
+      -> net::awaitable<void, Executor>
   {
     if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
@@ -230,7 +234,7 @@ private:
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_session(std::shared_ptr<net::safe_ssl_stream<Executor>> stream) const
-      -> net::awaitable<void>
+      -> net::awaitable<void, Executor>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
@@ -255,7 +259,7 @@ private:
 
   template <typename Stream>
   auto do_session_impl(std::shared_ptr<Stream>& stream) const
-      -> net::awaitable<std::error_code>
+      -> net::awaitable<std::error_code, Executor>
   {
     using boost::beast::flat_buffer;
     using boost::beast::get_lowest_layer;
@@ -307,7 +311,7 @@ private:
                                       client_request_timeout_));
 
       auto do_response
-          = [&]() -> net::awaitable<expected<void, std::error_code>> {
+          = [&]() -> net::awaitable<expected<void, std::error_code>, Executor> {
         return res.body().size_hint()
             ? do_sized_response(stream, res, keep_alive)
             : do_chunked_response(stream, res, keep_alive);
@@ -329,7 +333,7 @@ private:
                   std::string target,
                   http_fields fields,
                   any_async_readable_stream body) const
-      -> net::awaitable<http_response>
+      -> net::awaitable<http_response, Executor>
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
@@ -363,7 +367,7 @@ private:
   auto do_sized_response(std::shared_ptr<Stream>& stream,
                          http_response& res,
                          bool keep_alive) const
-      -> net::awaitable<expected<void, std::error_code>>
+      -> net::awaitable<expected<void, std::error_code>, Executor>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::response;
@@ -394,7 +398,7 @@ private:
   auto do_chunked_response(std::shared_ptr<Stream>& stream,
                            http_response& res,
                            bool keep_alive) const
-      -> net::awaitable<expected<void, std::error_code>>
+      -> net::awaitable<expected<void, std::error_code>, Executor>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
@@ -450,9 +454,11 @@ private:
 
 template <typename Executor = net::any_io_executor>
 class http_server_builder {
-public:
-  using router_type = router<http_request&, net::awaitable<http_response>>;
+  using request_type = http_request&;
+  using response_type = net::awaitable<http_response, Executor>;
+  using router_type = router<request_type, response_type>;
 
+public:
   http_server_builder(const Executor& ex)
       : ex_(ex)
   {
@@ -501,8 +507,8 @@ public:
   http_server_builder&
   serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route)
   {
-    if (auto res
-        = router_.try_insert(router_type::route_type(route.build(handler())));
+    if (auto res = router_.try_insert(typename router_type::route_type(
+            route.template build<request_type, response_type>(handler())));
         !res) {
       FITORIA_THROW_OR(std::system_error(res.error()), std::terminate());
     }
@@ -554,7 +560,6 @@ private:
   net::detached_t exception_handler_;
 #endif
 };
-
 }
 
 FITORIA_NAMESPACE_END

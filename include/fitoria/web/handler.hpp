@@ -24,15 +24,15 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Next, typename Args>
+template <typename Request, typename Response, typename Next, typename Args>
 class handler_middleware;
 
-template <typename Next, typename... Args>
-class handler_middleware<Next, std::tuple<Args...>> {
+template <typename Request, typename Response, typename Next, typename... Args>
+class handler_middleware<Request, Response, Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
-  auto operator()(http_request& req) const -> net::awaitable<http_response>
+  auto operator()(Request req) const -> Response
   {
     co_return co_await invoke_with_args(
         co_await from_http_request<Args>(req)...);
@@ -40,7 +40,7 @@ public:
 
 private:
   auto invoke_with_args(expected<Args, std::error_code>... args) const
-      -> net::awaitable<http_response>
+      -> Response
   {
     const auto pack
         = std::tuple<expected<Args, std::error_code>&...> { args... };
@@ -81,18 +81,25 @@ private:
 
 class handler {
 public:
-  template <decay_to<handler> Self, typename Next>
-  friend constexpr auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  template <typename Request,
+            typename Response,
+            decay_to<handler> Self,
+            typename Next>
+  friend auto
+  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_middleware_impl(
-        std::forward<Next>(next));
+    return std::forward<Self>(self)
+        .template new_middleware_impl<Request, Response>(
+            std::forward<Next>(next));
   }
 
 private:
-  template <typename Next>
+  template <typename Request, typename Response, typename Next>
   auto new_middleware_impl(Next&& next) const
   {
-    return handler_middleware<std::decay_t<Next>,
+    return handler_middleware<Request,
+                              Response,
+                              std::decay_t<Next>,
                               typename function_traits<Next>::args_type>(
         std::forward<Next>(next));
   }
