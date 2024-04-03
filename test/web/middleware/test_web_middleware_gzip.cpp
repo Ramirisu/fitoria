@@ -8,6 +8,7 @@
 #include <fitoria/test/test.hpp>
 
 #include <fitoria/test/async_readable_chunk_stream.hpp>
+#include <fitoria/test/http_server_utils.hpp>
 
 #if defined(FITORIA_HAS_ZLIB)
 
@@ -21,7 +22,7 @@ TEST_SUITE_BEGIN("[fitoria.web.middleware.gzip]");
 
 TEST_CASE("async_gzip_inflate_stream: in > out")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
       0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x4B, 0x4C,
       0x4A, 0x4E, 0x49, 0x4D, 0x4B, 0xCF, 0xC8, 0xCC, 0xCA, 0xCE, 0xC9, 0xCD,
@@ -44,7 +45,7 @@ TEST_CASE("async_gzip_inflate_stream: in > out")
 
 TEST_CASE("async_gzip_inflate_stream: in < out")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in
         = std::vector<std::uint8_t> { 0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x0a, 0x4b, 0x4c, 0x1c, 0x05,
@@ -62,7 +63,7 @@ TEST_CASE("async_gzip_inflate_stream: in < out")
 
 TEST_CASE("async_gzip_inflate_stream: eof stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -74,7 +75,7 @@ TEST_CASE("async_gzip_inflate_stream: eof stream")
 
 TEST_CASE("async_gzip_inflate_stream: empty stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -87,7 +88,7 @@ TEST_CASE("async_gzip_inflate_stream: empty stream")
 
 TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
     auto out = co_await async_read_all_as<std::string>(
@@ -100,7 +101,7 @@ TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
 
 TEST_CASE("async_gzip_deflate_stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::string_view(
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -115,7 +116,7 @@ TEST_CASE("async_gzip_deflate_stream")
 
 TEST_CASE("async_gzip_deflate_stream: eof stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_eof_stream()));
@@ -125,7 +126,7 @@ TEST_CASE("async_gzip_deflate_stream: eof stream")
 
 TEST_CASE("async_gzip_deflate_stream: empty stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_vector_stream()));

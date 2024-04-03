@@ -104,15 +104,6 @@ using shared_ws_ssl_stream = basic_shared_stream<ws_ssl_stream, true>;
 
 #endif
 
-template <typename Awaitable>
-void sync_wait(Awaitable&& awaitable)
-{
-  io_context ioc;
-  auto fut = co_spawn(ioc, std::forward<Awaitable>(awaitable), use_future);
-  ioc.run();
-  (void)fut.get();
-}
-
 }
 
 FITORIA_NAMESPACE_END

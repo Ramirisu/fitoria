@@ -11,10 +11,13 @@
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 
+#include <fitoria/test/http_server_utils.hpp>
+
 #include <fitoria/web/stream_file.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.stream_file]");
 
@@ -22,7 +25,7 @@ TEST_SUITE_BEGIN("[fitoria.web.stream_file]");
 
 TEST_CASE("stream_file")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     CHECK(!(co_await stream_file::async_open_readonly("abcdefghi")));
   });
 }

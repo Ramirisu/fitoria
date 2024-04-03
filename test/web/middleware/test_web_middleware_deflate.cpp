@@ -8,18 +8,20 @@
 #include <fitoria/test/test.hpp>
 
 #include <fitoria/test/async_readable_chunk_stream.hpp>
+#include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/web.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 using fitoria::test::async_readable_chunk_stream;
 
 TEST_SUITE_BEGIN("[fitoria.web.middleware.deflate]");
 
 TEST_CASE("async_inflate_stream: in > out")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
       0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b, 0xcf, 0xc8, 0xcc, 0xca,
       0xce, 0xc9, 0xcd, 0xcb, 0x2f, 0x28, 0x2c, 0x2a, 0x2e, 0x29, 0x2d,
@@ -41,7 +43,7 @@ TEST_CASE("async_inflate_stream: in > out")
 
 TEST_CASE("async_inflate_stream: in < out")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
                                                 0x23, 0x19, 0x00, 0x00 };
 
@@ -56,7 +58,7 @@ TEST_CASE("async_inflate_stream: in < out")
 
 TEST_CASE("async_inflate_stream: eof stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -67,7 +69,7 @@ TEST_CASE("async_inflate_stream: eof stream")
 
 TEST_CASE("async_inflate_stream: empty stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_all_as<std::string>(
@@ -80,7 +82,7 @@ TEST_CASE("async_inflate_stream: empty stream")
 
 TEST_CASE("async_inflate_stream: invalid deflate stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     // RFC-1951: BFINAL 0, BTYPE 11 (reserved)
     const auto in = std::vector<std::uint8_t> { 0x06 };
 
@@ -94,7 +96,7 @@ TEST_CASE("async_inflate_stream: invalid deflate stream")
 
 TEST_CASE("async_deflate_stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     const auto in = std::string_view(
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -109,7 +111,7 @@ TEST_CASE("async_deflate_stream")
 
 TEST_CASE("async_deflate_stream: eof stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(async_readable_eof_stream()));
     CHECK(!out);
@@ -118,7 +120,7 @@ TEST_CASE("async_deflate_stream: eof stream")
 
 TEST_CASE("async_deflate_stream: empty stream")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     auto out = co_await async_read_all_as<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
             async_readable_vector_stream()));

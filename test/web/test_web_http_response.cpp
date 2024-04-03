@@ -11,10 +11,13 @@
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 
+#include <fitoria/test/http_server_utils.hpp>
+
 #include <fitoria/web/http_response.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_response]");
 
@@ -66,7 +69,7 @@ void tag_invoke(const boost::json::value_from_tag&,
 
 TEST_CASE("set_json")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     {
       http_response res;
       res.set_json({ { "name", "Rina Hidaka" } });
@@ -86,7 +89,7 @@ TEST_CASE("set_json")
 
 TEST_CASE("as_string")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(co_await res.as_string(), "Hello World");
@@ -95,7 +98,7 @@ TEST_CASE("as_string")
 
 TEST_CASE("as_vector")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(co_await res.as_vector<std::uint8_t>(),
@@ -108,7 +111,7 @@ TEST_CASE("as_vector")
 
 TEST_CASE("as_file")
 {
-  net::sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> net::awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(*(co_await res.as_file("test_web_http_response.as_file.txt")), 11);

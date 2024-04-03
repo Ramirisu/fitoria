@@ -36,6 +36,15 @@ inline std::string to_local_url(boost::urls::scheme scheme,
   return fmt::format("{}://{}:{}{}", scheme_str, localhost, port, path);
 }
 
+template <typename Awaitable>
+void sync_wait(Awaitable&& awaitable)
+{
+  net::io_context ioc;
+  auto fut = co_spawn(ioc, std::forward<Awaitable>(awaitable), net::use_future);
+  ioc.run();
+  fut.get();
+}
+
 template <typename F>
   requires std::is_invocable_v<F>
 class [[maybe_unused]] scope_exit {

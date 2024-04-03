@@ -11,6 +11,8 @@
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 
+#include <fitoria/test/http_server_utils.hpp>
+
 #include <fitoria/web/async_readable_file_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
@@ -18,6 +20,7 @@
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.async_readable_stream]");
 
@@ -31,7 +34,7 @@ TEST_CASE("async_readable_file_stream")
         << data;
   }
 
-  net::sync_wait([&]() -> net::awaitable<void> {
+  sync_wait([&]() -> net::awaitable<void> {
     CHECK_EQ(co_await async_read_all_as<std::string>(async_readable_file_stream(
                  net::stream_file(co_await net::this_coro::executor,
                                   "test_web_async_readable_file_stream.txt",
