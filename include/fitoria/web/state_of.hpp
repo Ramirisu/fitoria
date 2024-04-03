@@ -24,8 +24,7 @@ template <typename T>
 class state_of : public T {
 public:
   static_assert(std::copy_constructible<T>);
-  static_assert(std::same_as<T, std::remove_cvref_t<T>>,
-                "T must not be cvref qualified");
+  static_assert(not_cvref<T>, "T must not be cvref qualified");
 
   state_of(T inner)
       : T(std::move(inner))

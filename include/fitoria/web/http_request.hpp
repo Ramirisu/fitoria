@@ -247,8 +247,7 @@ public:
   template <typename T>
   optional<T&> state() const
   {
-    static_assert(std::same_as<T, std::remove_cvref_t<T>>,
-                  "T must not be cvref qualified");
+    static_assert(not_cvref<T>, "T must not be cvref qualified");
     if (state_maps_) {
       for (auto& state : *state_maps_) {
         if (auto it = state->find(std::type_index(typeid(T)));

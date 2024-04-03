@@ -15,6 +15,9 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+template <typename T>
+concept not_cvref = std::same_as<T, std::remove_cvref_t<T>>;
+
 template <typename T, typename U>
 concept decay_to = std::same_as<std::decay_t<T>, U>;
 

@@ -84,8 +84,7 @@ namespace from_http_request_ns {
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
         -> net::awaitable<expected<R, std::error_code>>
-      requires(is_specialization_of_v<R, std::vector>
-               && std::same_as<R, std::remove_cvref_t<R>>)
+      requires(is_specialization_of_v<R, std::vector> && not_cvref<R>)
     {
       if (auto res = co_await async_read_all_as<R>(req.body()); res) {
         co_return std::move(*res);

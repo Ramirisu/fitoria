@@ -28,8 +28,7 @@ namespace web {
 template <typename T>
 class path_of : public T {
 public:
-  static_assert(std::same_as<T, std::remove_cvref_t<T>>,
-                "T must not be cvref qualified");
+  static_assert(not_cvref<T>, "T must not be cvref qualified");
 
   explicit path_of(T inner)
       : T(std::move(inner))
@@ -81,8 +80,7 @@ class path_of;
 template <typename... Ts>
 class path_of<std::tuple<Ts...>> : public std::tuple<Ts...> {
 public:
-  static_assert((std::same_as<Ts, std::remove_cvref_t<Ts>> && ...),
-                "Ts... must not be cvref qualified");
+  static_assert((not_cvref<Ts> && ...), "Ts... must not be cvref qualified");
 
   explicit path_of(std::tuple<Ts...> inner)
       : std::tuple<Ts...>(std::move(inner))
