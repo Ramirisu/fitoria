@@ -24,31 +24,34 @@ template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_until_eof(AsyncReadableStream&& stream)
     -> net::awaitable<expected<Container, std::error_code>>
 {
-  using value_type = typename Container::value_type;
-
   Container container;
 
   if (auto size = stream.size_hint(); size) {
     container.reserve(*size);
   }
 
-  auto buffer = std::array<value_type, 4096>();
-  auto size = co_await stream.async_read_some(net::buffer(buffer));
+  const std::size_t bufsize = 4096;
+  auto offset = container.size();
+  container.resize(offset + bufsize);
+  auto size = co_await stream.async_read_some(
+      net::buffer(container.data() + offset, bufsize));
   if (!size) {
     co_return unexpected { size.error() };
   }
 
   while (size) {
-    const auto offset = container.size();
     container.resize(offset + *size);
-    std::copy_n(buffer.begin(), *size, std::next(container.begin(), offset));
 
-    size = co_await stream.async_read_some(net::buffer(buffer));
+    offset = container.size();
+    container.resize(offset + bufsize);
+    size = co_await stream.async_read_some(
+        net::buffer(container.data() + offset, bufsize));
   }
 
   if (size.error() != make_error_code(net::error::eof)) {
     co_return unexpected { size.error() };
   }
+  container.resize(offset);
 
   co_return container;
 }
