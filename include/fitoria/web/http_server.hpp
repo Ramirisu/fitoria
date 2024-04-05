@@ -376,16 +376,24 @@ private:
 
     auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
     res.fields().to_impl(r);
+    r.keep_alive(keep_alive);
     if (auto data
         = co_await async_read_until_eof<std::vector<std::byte>>(res.body());
         data) {
       r.body() = std::move(*data);
+      r.prepare_payload();
+    } else if (data.error() == make_error_code(net::error::eof)) {
+      r.prepare_payload();
+
+      // boost.beast incorrectly handle some cases
+      // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
+      if (res.status_code().category() == http::status_class::informational
+          || res.status_code().value() == http::status::no_content) {
+        r.content_length(boost::none);
+      }
     } else {
-      // TODO: add this after do_null_body_response is done
-      // co_return unexpected { data.error() };
+      co_return unexpected { data.error() };
     }
-    r.keep_alive(keep_alive);
-    r.prepare_payload();
 
     get_lowest_layer(*stream).expires_after(client_request_timeout_);
     if (auto [ec, _] = co_await async_write(*stream, r, net::use_ta); ec) {
@@ -561,6 +569,7 @@ private:
   net::detached_t exception_handler_;
 #endif
 };
+
 }
 
 FITORIA_NAMESPACE_END

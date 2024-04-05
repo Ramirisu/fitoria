@@ -508,9 +508,10 @@ private:
         = co_await async_read_until_eof<std::vector<std::byte>>(body_);
         data) {
       req.body() = std::move(*data);
+    } else if (data.error() == make_error_code(net::error::eof)) {
+      // null body
     } else {
-      // TODO: add this after do_null_body_request is done
-      // co_return unexpected { data.error() };
+      co_return unexpected { data.error() };
     }
     req.prepare_payload();
 

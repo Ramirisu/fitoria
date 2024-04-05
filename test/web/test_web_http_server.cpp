@@ -66,7 +66,7 @@ TEST_CASE("builder")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(!(co_await res->as_string()));
+        CHECK_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -174,7 +174,7 @@ TEST_CASE("expect: 100-continue")
                        .set_plaintext("text")
                        .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(!(co_await res->as_string()));
+        CHECK_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -292,7 +292,6 @@ TEST_CASE("generic request")
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
-                  CHECK_EQ(req.body().size_hint(), text.size());
                   CHECK_EQ(body, "happy birthday");
                   auto buffer = std::array<std::byte, 4096>();
                   CHECK(!(co_await req.body().async_read_some(
@@ -336,7 +335,7 @@ TEST_CASE("generic request")
             [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
-        CHECK(!(co_await res->as_string()));
+        CHECK_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -374,7 +373,85 @@ TEST_CASE("request to route accepting wildcard")
                        .set_field(http::field::connection, "close")
                        .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(!(co_await res->as_string()));
+        CHECK_EQ(co_await res->as_string(), "");
+      },
+      net::use_future)
+      .get();
+}
+
+TEST_CASE("request with null body")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">(
+                [](http_request& req) -> net::awaitable<http_response> {
+                  CHECK_EQ(req.fields().get(http::field::connection), "close");
+                  CHECK(!req.fields().get(http::field::content_length));
+                  CHECK_EQ(req.body().size_hint(), std::size_t(0));
+                  CHECK_EQ(
+                      (co_await async_read_until_eof<std::string>(req.body()))
+                          .error(),
+                      make_error_code(net::error::eof));
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+  CHECK(server.bind(server_ip, port));
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> net::awaitable<void> {
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
+      },
+      net::use_future)
+      .get();
+}
+
+TEST_CASE("request with empty body")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::post<"/">([](const http_request& req, std::string str)
+                                        -> net::awaitable<http_response> {
+              CHECK_EQ(req.fields().get(http::field::connection), "close");
+              CHECK_EQ(req.fields().get(http::field::content_length), "0");
+              CHECK_EQ(req.body().size_hint(), std::size_t(0));
+              CHECK_EQ(str, "");
+              co_return http_response(http::status::ok);
+            }))
+            .build();
+  CHECK(server.bind(server_ip, port));
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> net::awaitable<void> {
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::post)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .set_plaintext("")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -391,6 +468,9 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
             .serve(route::post<"/">(
                 [text](const http_request& req,
                        std::string data) -> net::awaitable<http_response> {
+                  CHECK_EQ(req.fields().get(http::field::content_type),
+                           http::fields::content_type::plaintext());
+                  CHECK(!req.fields().get(http::field::content_length));
                   CHECK(!req.body().size_hint());
                   CHECK_EQ(data, text);
                   co_return http_response(http::status::ok);
@@ -411,10 +491,12 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   .set_method(http::verb::post)
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_field(http::field::connection, "close")
+                  .set_field(http::field::content_type,
+                             http::fields::content_type::plaintext())
                   .set_stream(async_readable_chunk_stream<5>(text))
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(!(co_await res->as_string()));
+        CHECK_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -427,7 +509,7 @@ TEST_CASE("response status only")
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
                         [](http_request&) -> net::awaitable<http_response> {
-                          co_return http_response(http::status::accepted);
+                          co_return http_response(http::status::no_content);
                         }))
                     .build();
   CHECK(server.bind(server_ip, port));
@@ -446,9 +528,9 @@ TEST_CASE("response status only")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_field(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::accepted);
+        CHECK_EQ(res->status_code(), http::status::no_content);
         CHECK_EQ(res->fields().get(http::field::connection), "close");
-        CHECK_EQ(res->fields().get(http::field::content_length), "0");
+        CHECK(!res->fields().get(http::field::content_length));
         CHECK_EQ(res->body().size_hint(), std::size_t(0));
         CHECK(!(co_await res->as_string()));
       },
@@ -492,6 +574,8 @@ TEST_CASE("response with plain text")
         CHECK_EQ(res->fields().get(http::field::connection), "close");
         CHECK_EQ(res->fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
+        CHECK_EQ(res->fields().get(http::field::content_length),
+                 std::to_string(text.size()));
         CHECK_EQ(res->body().size_hint(), text.size());
         CHECK_EQ(co_await res->as_string(), text);
       },
@@ -505,13 +589,16 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">(
-                        [text](http_request&) -> net::awaitable<http_response> {
-                          co_return http_response(http::status::ok)
-                              .set_stream(async_readable_chunk_stream<5>(text));
-                        }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">(
+                [text](http_request&) -> net::awaitable<http_response> {
+                  co_return http_response(http::status::ok)
+                      .set_field(http::field::content_type,
+                                 http::fields::content_type::plaintext())
+                      .set_stream(async_readable_chunk_stream<5>(text));
+                }))
+            .build();
   CHECK(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
@@ -529,6 +616,9 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .set_field(http::field::connection, "close")
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK_EQ(res->fields().get(http::field::content_type),
+                 http::fields::content_type::plaintext());
+        CHECK(!res->fields().get(http::field::content_length));
         CHECK(!res->body().size_hint());
         CHECK_EQ(co_await res->as_string(), text);
       },

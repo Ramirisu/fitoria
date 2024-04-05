@@ -38,6 +38,7 @@ public:
       , stream_(std::move(stream))
       , parser_(std::move(parser))
       , timeout_(timeout)
+      , return_0_at_first_call_(parser_->chunked() || parser_->content_length())
   {
   }
 
@@ -53,11 +54,11 @@ public:
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {
-    if (auto length = parser_->content_length(); length) {
-      return *length;
+    if (parser_->chunked()) {
+      return nullopt;
     }
 
-    return nullopt;
+    return parser_->content_length_remaining().value_or(0);
   }
 
   auto async_read_some(net::mutable_buffer buffer)
@@ -67,8 +68,17 @@ public:
     using boost::beast::http::async_read;
 
     if (parser_->is_done()) {
+      // must return 0 for the first call to this function for following cases:
+      //   1. chunked encoding with size of 0
+      //   2. content-length is presented and with value of 0
+      if (return_0_at_first_call_) {
+        return_0_at_first_call_ = false;
+        co_return std::size_t(0);
+      }
+
       co_return unexpected { make_error_code(net::error::eof) };
     }
+    return_0_at_first_call_ = false;
 
     parser_->get().body().data = buffer.data();
     parser_->get().body().size = buffer.size();
@@ -89,6 +99,7 @@ private:
   std::shared_ptr<Stream> stream_;
   std::unique_ptr<parser_t> parser_;
   std::chrono::milliseconds timeout_;
+  bool return_0_at_first_call_;
 };
 
 }
