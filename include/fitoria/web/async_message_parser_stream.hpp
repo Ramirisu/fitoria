@@ -60,32 +60,27 @@ public:
     return nullopt;
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::async_read;
 
     if (parser_->is_done()) {
-      co_return nullopt;
+      co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    boost::system::error_code ec;
-
-    // TODO: buffer size configurable ?
-    const std::size_t bufsize = 1024;
-    std::vector<std::byte> buf(bufsize);
-    parser_->get().body().data = buf.data();
-    parser_->get().body().size = buf.size();
+    parser_->get().body().data = buffer.data();
+    parser_->get().body().size = buffer.size();
 
     get_lowest_layer(*stream_).expires_after(timeout_);
-    std::tie(ec, std::ignore)
+    auto [ec, _]
         = co_await async_read(*stream_, buffer_, *parser_, net::use_ta);
-    const auto remaining = parser_->get().body().size;
     if (!ec || ec == http::error::need_buffer) {
-      buf.resize(bufsize - remaining);
-      co_return buf;
+      const auto remaining = parser_->get().body().size;
+      co_return buffer.size() - remaining;
     }
+
     co_return unexpected { ec };
   }
 

@@ -46,22 +46,15 @@ public:
     return nullopt;
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
-    const std::size_t bufsize = 1024;
-    std::vector<std::byte> buf(bufsize);
-    auto [ec, bytes] = co_await file_.async_read_some(
-        net::buffer(buf.data(), buf.size()), net::use_ta);
-    if (ec && ec != net::error::eof) {
-      co_return unexpected { ec };
+    auto [ec, size] = co_await file_.async_read_some(buffer, net::use_ta);
+    if (!ec) {
+      co_return size;
     }
-    if (ec != net::error::eof) {
-      buf.resize(bytes);
-      co_return buf;
-    }
-    file_.close();
-    co_return nullopt;
+
+    co_return unexpected { ec };
   }
 
 private:

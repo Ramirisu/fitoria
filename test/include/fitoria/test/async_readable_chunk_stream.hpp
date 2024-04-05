@@ -47,22 +47,24 @@ public:
     return nullopt;
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
-    if (written >= data_.size()) {
-      co_return nullopt;
+    if (offset_ >= data_.size()) {
+      co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    const auto chunk_size = std::min(ChunkSize, data_.size() - written);
-    auto sub = data_.subspan(written, chunk_size);
-    written += chunk_size;
-    co_return std::vector<std::byte>(sub.begin(), sub.end());
+    const auto size
+        = std::min({ ChunkSize, data_.size() - offset_, buffer.size() });
+    std::memcpy(buffer.data(), data_.data() + offset_, size);
+    offset_ += size;
+
+    co_return size;
   }
 
 private:
   std::span<const std::byte> data_;
-  std::size_t written = 0;
+  std::size_t offset_ = 0;
 };
 
 }

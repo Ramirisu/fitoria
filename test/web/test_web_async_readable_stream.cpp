@@ -13,6 +13,7 @@
 
 #include <fitoria/test/http_server_utils.hpp>
 
+#include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/async_readable_file_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
@@ -35,11 +36,12 @@ TEST_CASE("async_readable_file_stream")
   }
 
   sync_wait([&]() -> net::awaitable<void> {
-    CHECK_EQ(co_await async_read_all_as<std::string>(async_readable_file_stream(
-                 net::stream_file(co_await net::this_coro::executor,
-                                  "test_web_async_readable_file_stream.txt",
-                                  net::file_base::read_only))),
-             data);
+    CHECK_EQ(
+        co_await async_read_until_eof<std::string>(async_readable_file_stream(
+            net::stream_file(co_await net::this_coro::executor,
+                             "test_web_async_readable_file_stream.txt",
+                             net::file_base::read_only))),
+        data);
   }());
 }
 

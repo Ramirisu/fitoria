@@ -33,7 +33,7 @@ TEST_CASE("connection_info")
   server.serve_request(
       "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), "");
+        CHECK(!(co_await res.as_string()));
       });
 
   ioc.run();

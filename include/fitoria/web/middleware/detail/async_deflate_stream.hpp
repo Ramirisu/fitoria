@@ -31,63 +31,53 @@ public:
   {
   }
 
-  optional<std::size_t> size_hint() const noexcept
+  auto size_hint() const noexcept -> optional<std::size_t>
   {
     return next_.size_hint();
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
     namespace zlib = boost::beast::zlib;
 
-    auto chunk = co_await next_.async_read_next();
-    if (!chunk) {
-      co_return nullopt;
-    }
-    if (!*chunk) {
-      co_return unexpected { (*chunk).error() };
-    }
-    if ((*chunk)->empty()) {
-      co_return unexpected { make_error_code(zlib::error::stream_error) };
-    }
+    if (buffer_.size() < buffer.size()) {
+      auto size
+          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
+      if (!size) {
+        co_return unexpected { size.error() };
+      }
+      if (*size == 0) {
+        co_return unexpected { make_error_code(zlib::error::stream_error) };
+      }
 
-    const auto& in = **chunk;
-    std::vector<std::byte> out;
-    out.resize(std::max<std::size_t>(in.size(), 16));
+      buffer_.commit(*size);
+    }
 
     zlib::z_params p;
-    p.next_in = in.data();
-    p.avail_in = in.size();
-    p.next_out = out.data();
-    p.avail_out = out.size();
+    p.next_in = buffer_.cdata().data();
+    p.avail_in = buffer_.cdata().size();
+    p.next_out = buffer.data();
+    p.avail_out = buffer.size();
 
-    while (true) {
-      boost::system::error_code ec;
-      inflater_.write(p, zlib::Flush::sync, ec);
-      FITORIA_ASSERT(ec != zlib::error::stream_error);
+    boost::system::error_code ec;
+    inflater_.write(p, zlib::Flush::sync, ec);
+    FITORIA_ASSERT(ec != zlib::error::stream_error);
 
-      if (ec && ec != zlib::error::need_buffers
-          && ec != zlib::error::end_of_stream) {
-        co_return unexpected { ec };
-      }
-      if (p.avail_out > 0) {
-        break;
-      }
-
-      const auto size = out.size();
-      out.resize(size * 2);
-      p.next_out = out.data() + size;
-      p.avail_out = size;
+    if (ec && ec != zlib::error::need_buffers
+        && ec != zlib::error::end_of_stream) {
+      co_return unexpected { ec };
     }
 
-    out.resize(out.size() - p.avail_out);
-    co_return out;
+    buffer_.consume(buffer_.size() - p.avail_in);
+
+    co_return buffer.size() - p.avail_out;
   }
 
 private:
   NextLayer next_;
   boost::beast::zlib::inflate_stream inflater_;
+  boost::beast::flat_buffer buffer_;
 };
 
 template <typename NextLayer>
@@ -105,70 +95,53 @@ public:
   {
   }
 
-  bool is_chunked() const noexcept
-  {
-    return next_.is_chunked();
-  }
-
-  optional<std::size_t> size_hint() const noexcept
+  auto size_hint() const noexcept -> optional<std::size_t>
   {
     return next_.size_hint();
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
     namespace zlib = boost::beast::zlib;
 
-    auto chunk = co_await next_.async_read_next();
-    if (!chunk) {
-      co_return nullopt;
-    }
-    if (!*chunk) {
-      co_return unexpected { (*chunk).error() };
-    }
-    if ((*chunk)->empty()) {
-      co_return unexpected { make_error_code(zlib::error::stream_error) };
-    }
-
-    const auto& in = **chunk;
-    std::vector<std::byte> out;
-    out.resize(std::max<std::size_t>(in.size(), 16));
-
-    zlib::z_params p;
-    p.next_in = in.data();
-    p.avail_in = in.size();
-    p.next_out = out.data();
-    p.avail_out = out.size();
-
-    while (true) {
-      boost::system::error_code ec;
-      deflater_.write(p, zlib::Flush::sync, ec);
-      FITORIA_ASSERT(ec != zlib::error::stream_error);
-
-      if (p.avail_out > 0) {
-        break;
+    if (buffer_.size() < buffer.size()) {
+      auto size
+          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
+      if (!size) {
+        co_return unexpected { size.error() };
+      }
+      if (*size == 0) {
+        co_return unexpected { make_error_code(zlib::error::stream_error) };
       }
 
-      const auto size = out.size();
-      out.resize(size * 2);
-      p.next_out = out.data() + size;
-      p.avail_out = size;
+      buffer_.commit(*size);
     }
 
-    out.resize(out.size() - p.avail_out);
-    co_return out;
+    zlib::z_params p;
+    p.next_in = buffer_.cdata().data();
+    p.avail_in = buffer_.cdata().size();
+    p.next_out = buffer.data();
+    p.avail_out = buffer.size();
+
+    boost::system::error_code ec;
+    deflater_.write(p, zlib::Flush::sync, ec);
+    FITORIA_ASSERT(ec != zlib::error::stream_error);
+
+    buffer_.consume(buffer_.size() - p.avail_in);
+
+    co_return buffer.size() - p.avail_out;
   }
 
 private:
   NextLayer next_;
   boost::beast::zlib::deflate_stream deflater_;
+  boost::beast::flat_buffer buffer_;
 };
 
 template <typename NextLayer>
 async_deflate_stream(NextLayer&&)
     -> async_deflate_stream<std::decay_t<NextLayer>>;
-
 }
 
 FITORIA_NAMESPACE_END

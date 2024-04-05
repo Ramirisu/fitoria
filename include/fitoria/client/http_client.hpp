@@ -22,6 +22,7 @@
 #include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
+#include <fitoria/web/async_write_each_chunk.hpp>
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -35,7 +36,7 @@ namespace http = web::http;
 
 using web::any_async_readable_stream;
 using web::async_message_parser_stream;
-using web::async_read_all_as;
+using web::async_read_until_eof;
 using web::async_readable_eof_stream;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
@@ -503,12 +504,13 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     fields_.to_impl(req);
     req.set(http::field::host, resource_->host);
-    if (auto data = co_await async_read_all_as<std::vector<std::byte>>(body_);
+    if (auto data
+        = co_await async_read_until_eof<std::vector<std::byte>>(body_);
         data) {
-      if (!*data) {
-        co_return unexpected { (*data).error() };
-      }
-      req.body() = std::move(**data);
+      req.body() = std::move(*data);
+    } else {
+      // TODO: add this after do_null_body_request is done
+      // co_return unexpected { data.error() };
     }
     req.prepare_payload();
 

@@ -18,6 +18,7 @@
 #include <fitoria/log.hpp>
 
 #include <fitoria/web/async_message_parser_stream.hpp>
+#include <fitoria/web/async_write_each_chunk.hpp>
 #include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -375,13 +376,13 @@ private:
 
     auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
     res.fields().to_impl(r);
-    if (auto body
-        = co_await async_read_all_as<std::vector<std::byte>>(res.body());
-        body) {
-      if (!*body) {
-        co_return *body;
-      }
-      r.body() = std::move(**body);
+    if (auto data
+        = co_await async_read_until_eof<std::vector<std::byte>>(res.body());
+        data) {
+      r.body() = std::move(*data);
+    } else {
+      // TODO: add this after do_null_body_response is done
+      // co_return unexpected { data.error() };
     }
     r.keep_alive(keep_alive);
     r.prepare_payload();

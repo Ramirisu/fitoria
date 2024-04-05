@@ -137,8 +137,7 @@ TEST_CASE("request with body")
                    .set_body("echo")
                    .async_send();
     CHECK_EQ(res->status_code().value(), http::status::ok);
-    auto body = co_await res->as_json();
-    CHECK_EQ(body->at("data"), "echo");
+    CHECK_EQ((co_await res->as_json())->at("data"), "echo");
   });
 }
 

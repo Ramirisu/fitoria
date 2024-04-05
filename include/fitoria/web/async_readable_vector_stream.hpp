@@ -21,23 +21,28 @@ FITORIA_NAMESPACE_BEGIN
 namespace web {
 
 class async_readable_vector_stream {
+  struct data_t {
+    std::size_t offset;
+    std::vector<std::byte> buf;
+  };
+
 public:
   using is_async_readable_stream = void;
 
   async_readable_vector_stream()
-      : data_(std::vector<std::byte>())
+      : data_(data_t { .offset = 0, .buf = std::vector<std::byte>() })
   {
   }
 
   async_readable_vector_stream(std::vector<std::byte> data)
-      : data_(std::move(data))
+      : data_(data_t { .offset = 0, .buf = std::move(data) })
   {
   }
 
   template <typename T, std::size_t N>
   async_readable_vector_stream(std::span<T, N> s)
-      : data_(std::vector<std::byte>(std::as_bytes(s).begin(),
-                                     std::as_bytes(s).end()))
+      : async_readable_vector_stream(std::vector<std::byte>(
+          std::as_bytes(s).begin(), std::as_bytes(s).end()))
   {
   }
 
@@ -53,23 +58,33 @@ public:
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {
-    return data_.transform([](auto& data) { return data.size(); }).value_or(0);
-  }
-
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
-  {
     if (data_) {
-      auto data = std::move(*data_);
-      data_.reset();
-      co_return data;
+      return data_->buf.size() - data_->offset;
     }
 
-    co_return nullopt;
+    return 0;
+  }
+
+  auto async_read_some(net::mutable_buffer buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
+  {
+    if (data_) {
+      const auto size
+          = std::min(buffer.size(), data_->buf.size() - data_->offset);
+      std::memcpy(buffer.data(), (data_->buf.data() + data_->offset), size);
+      data_->offset += size;
+      if (data_->offset == data_->buf.size()) {
+        data_.reset();
+      }
+
+      co_return size;
+    }
+
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 
 private:
-  optional<std::vector<std::byte>> data_;
+  optional<data_t> data_;
 };
 }
 

@@ -49,7 +49,7 @@ TEST_CASE("connection_info")
   server.serve_request(
       "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), "");
+        CHECK(!(co_await res.as_string()));
       });
 
   ioc.run();
@@ -71,7 +71,7 @@ TEST_CASE("path_info")
                        http_request(http::verb::get),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -97,7 +97,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
                        http_request(http::verb::get),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -150,7 +150,7 @@ TEST_CASE("path_of<T = aggregate>")
                        http_request(http::verb::get),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -204,7 +204,7 @@ TEST_CASE("query_map")
                            .set_query("day", "15"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -233,7 +233,7 @@ TEST_CASE("query_of<T>")
                            .set_query("day", "15"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -258,7 +258,7 @@ TEST_CASE("http_fields")
                            .insert_field(http::field::connection, "close"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -279,7 +279,7 @@ TEST_CASE("state_of<T>")
   server.serve_request(
       "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), "");
+        CHECK(!(co_await res.as_string()));
       });
 
   ioc.run();
@@ -300,7 +300,7 @@ TEST_CASE("std::string")
                        http_request(http::verb::post).set_body("abc"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -322,7 +322,7 @@ TEST_CASE("std::vector<std::byte>")
                        http_request(http::verb::post).set_body("abc"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();
@@ -344,7 +344,7 @@ TEST_CASE("std::vector<std::uint8_t>")
                        http_request(http::verb::post).set_body("abc"),
                        [](auto res) -> net::awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), "");
+                         CHECK(!(co_await res.as_string()));
                        });
 
   ioc.run();

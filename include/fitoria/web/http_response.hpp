@@ -12,6 +12,8 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
+#include <fitoria/web/async_read_into_stream_file.hpp>
+#include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/detail/as_json.hpp>
@@ -133,22 +135,14 @@ public:
 
   auto as_string() -> net::awaitable<expected<std::string, std::error_code>>
   {
-    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
-      co_return *str;
-    }
-
-    co_return std::string();
+    return async_read_until_eof<std::string>(body_);
   }
 
   template <typename Byte>
   auto as_vector()
       -> net::awaitable<expected<std::vector<Byte>, std::error_code>>
   {
-    if (auto str = co_await async_read_all_as<std::vector<Byte>>(body()); str) {
-      co_return *str;
-    }
-
-    co_return std::vector<Byte>();
+    return async_read_until_eof<std::vector<Byte>>(body_);
   }
 
 #if defined(BOOST_ASIO_HAS_FILE)
@@ -163,25 +157,7 @@ public:
       co_return unexpected { ec };
     }
 
-    std::size_t total = 0;
-    for (auto next_chunk = co_await body_.async_read_next(); next_chunk;
-         next_chunk = co_await body_.async_read_next()) {
-      auto& nc = *next_chunk;
-      if (!nc) {
-        co_return unexpected { nc.error() };
-      }
-
-      std::size_t bytes_written = 0;
-      std::tie(ec, bytes_written) = co_await net::async_write(
-          file, net::const_buffer(nc->data(), nc->size()), net::use_ta);
-      if (ec) {
-        co_return unexpected { ec };
-      }
-
-      total += bytes_written;
-    }
-
-    co_return total;
+    co_return co_await async_read_into_stream_file(body_, file);
   }
 #endif
 
@@ -193,15 +169,11 @@ public:
       co_return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
-    if (auto str = co_await async_read_all_as<std::string>(body()); str) {
-      if (*str) {
-        co_return detail::as_json<T>(**str);
-      }
-
-      co_return unexpected { (*str).error() };
+    if (auto str = co_await async_read_until_eof<std::string>(body()); str) {
+      co_return detail::as_json<T>(*str);
+    } else {
+      co_return unexpected { str.error() };
     }
-
-    co_return detail::as_json<T>("");
   }
 
   template <std::size_t N>

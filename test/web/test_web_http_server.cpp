@@ -66,6 +66,7 @@ TEST_CASE("builder")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -173,6 +174,7 @@ TEST_CASE("expect: 100-continue")
                        .set_plaintext("text")
                        .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -292,8 +294,11 @@ TEST_CASE("generic request")
 
                   CHECK_EQ(req.body().size_hint(), text.size());
                   CHECK_EQ(body, "happy birthday");
-                  CHECK(!(co_await req.body().async_read_next()));
-                  CHECK(!(co_await async_read_all_as<std::string>(req.body())));
+                  auto buffer = std::array<std::byte, 4096>();
+                  CHECK(!(co_await req.body().async_read_some(
+                      net::buffer(buffer))));
+                  CHECK(!(
+                      co_await async_read_until_eof<std::string>(req.body())));
 
                   co_return http_response(http::status::ok)
                       .insert_field(http::field::user_agent,
@@ -331,6 +336,7 @@ TEST_CASE("generic request")
             [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -368,6 +374,7 @@ TEST_CASE("request to route accepting wildcard")
                        .set_field(http::field::connection, "close")
                        .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -407,6 +414,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   .set_stream(async_readable_chunk_stream<5>(text))
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -442,7 +450,7 @@ TEST_CASE("response status only")
         CHECK_EQ(res->fields().get(http::field::connection), "close");
         CHECK_EQ(res->fields().get(http::field::content_length), "0");
         CHECK_EQ(res->body().size_hint(), std::size_t(0));
-        CHECK_EQ(co_await res->as_string(), "");
+        CHECK(!(co_await res->as_string()));
       },
       net::use_future)
       .get();

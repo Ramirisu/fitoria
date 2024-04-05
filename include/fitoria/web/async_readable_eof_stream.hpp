@@ -37,10 +37,10 @@ public:
     return 0;
   }
 
-  auto async_read_next() -> net::awaitable<
-      optional<expected<std::vector<std::byte>, std::error_code>>>
+  auto async_read_some(net::mutable_buffer)
+      -> net::awaitable<expected<std::size_t, std::error_code>>
   {
-    co_return nullopt;
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 };
 
