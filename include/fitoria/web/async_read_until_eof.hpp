@@ -22,7 +22,7 @@ namespace web {
 
 template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_until_eof(AsyncReadableStream&& stream)
-    -> net::awaitable<expected<Container, std::error_code>>
+    -> awaitable<expected<Container, std::error_code>>
 {
   Container container;
 

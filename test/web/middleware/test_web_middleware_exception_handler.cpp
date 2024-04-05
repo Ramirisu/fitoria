@@ -21,27 +21,26 @@ TEST_CASE("exception_handler middleware")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(
-                scope<"/api">()
-                    .use(middleware::exception_handler())
-                    .serve(route::get<"/">(
-                        [&](std::string body) -> net::awaitable<http_response> {
-                          if (body.ends_with("true")) {
-                            throw std::exception();
-                          }
-                          co_return http_response(http::status::ok);
-                        })))
+            .serve(scope<"/api">()
+                       .use(middleware::exception_handler())
+                       .serve(route::get<"/">(
+                           [&](std::string body) -> awaitable<http_response> {
+                             if (body.ends_with("true")) {
+                               throw std::exception();
+                             }
+                             co_return http_response(http::status::ok);
+                           })))
             .build();
 
   server.serve_request("/api/",
                        http_request(http::verb::get).set_body("throw: false"),
-                       [](auto res) -> net::awaitable<void> {
+                       [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/api/",
                        http_request(http::verb::get).set_body("throw: true"),
-                       [](auto res) -> net::awaitable<void> {
+                       [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(),
                                   http::status::internal_server_error);
                          co_return;

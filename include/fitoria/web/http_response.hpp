@@ -133,21 +133,20 @@ public:
     return body_;
   }
 
-  auto as_string() -> net::awaitable<expected<std::string, std::error_code>>
+  auto as_string() -> awaitable<expected<std::string, std::error_code>>
   {
     return async_read_until_eof<std::string>(body_);
   }
 
   template <typename Byte>
-  auto as_vector()
-      -> net::awaitable<expected<std::vector<Byte>, std::error_code>>
+  auto as_vector() -> awaitable<expected<std::vector<Byte>, std::error_code>>
   {
     return async_read_until_eof<std::vector<Byte>>(body_);
   }
 
 #if defined(BOOST_ASIO_HAS_FILE)
   auto as_file(const std::string& path)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     auto file = net::stream_file(co_await net::this_coro::executor);
 
@@ -162,7 +161,7 @@ public:
 #endif
 
   template <typename T = boost::json::value>
-  auto as_json() -> net::awaitable<expected<T, std::error_code>>
+  auto as_json() -> awaitable<expected<T, std::error_code>>
   {
     if (fields().get(http::field::content_type)
         != http::fields::content_type::json()) {

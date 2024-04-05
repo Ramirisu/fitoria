@@ -69,7 +69,7 @@ void tag_invoke(const boost::json::value_from_tag&,
 
 TEST_CASE("set_json")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     {
       http_response res;
       res.set_json({ { "name", "Rina Hidaka" } });
@@ -89,7 +89,7 @@ TEST_CASE("set_json")
 
 TEST_CASE("as_string")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(co_await res.as_string(), "Hello World");
@@ -98,7 +98,7 @@ TEST_CASE("as_string")
 
 TEST_CASE("as_vector")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(co_await res.as_vector<std::uint8_t>(),
@@ -111,7 +111,7 @@ TEST_CASE("as_vector")
 
 TEST_CASE("as_file")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     http_response res;
     res.set_body("Hello World");
     CHECK_EQ(*(co_await res.as_file("test_web_http_response.as_file.txt")), 11);

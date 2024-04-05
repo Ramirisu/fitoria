@@ -31,19 +31,17 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Executor>
 class http_server_builder;
 
-template <typename Executor>
 class http_server {
-  friend class http_server_builder<Executor>;
+  friend class http_server_builder;
 
   using request_type = http_request&;
-  using response_type = net::awaitable<http_response, Executor>;
+  using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
 
   http_server(
-      Executor ex,
+      executor_type ex,
       router_type router,
       optional<int> max_listen_connections,
       optional<std::chrono::milliseconds> client_request_timeout,
@@ -127,7 +125,7 @@ public:
 
   template <typename F>
     requires std::is_invocable_v<F, http_response>
-      && awaitable<std::invoke_result_t<F, http_response>>
+      && co_awaitable<std::invoke_result_t<F, http_response>>
   void serve_request(std::string_view path, http_request req, F f) const
   {
     auto target = [&]() -> std::string {
@@ -146,7 +144,7 @@ public:
 private:
   template <typename F>
   auto serve_request_impl(http_request req, std::string target, F f) const
-      -> net::awaitable<void, Executor>
+      -> awaitable<void>
   {
     auto res = co_await do_handler(
         connection_info(
@@ -188,42 +186,38 @@ private:
     return acceptor;
   }
 
-  auto do_listen(net::ip::tcp::acceptor acceptor) const
-      -> net::awaitable<void, Executor>
+  auto do_listen(net::ip::tcp::acceptor acceptor) const -> awaitable<void>
   {
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
+      if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
           !ec) {
-        net::co_spawn(ex_,
-                      do_session(std::make_shared<net::tcp_stream<Executor>>(
-                          std::move(socket))),
-                      exception_handler_);
+        net::co_spawn(
+            ex_,
+            do_session(std::make_shared<tcp_stream>(std::move(socket))),
+            exception_handler_);
       }
     }
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_listen(net::ip::tcp::acceptor acceptor,
-                 net::ssl::context ssl_ctx) const
-      -> net::awaitable<void, Executor>
+                 net::ssl::context ssl_ctx) const -> awaitable<void>
   {
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor.async_accept(net::use_ta);
+      if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
           !ec) {
-        net::co_spawn(
-            ex_,
-            do_session(std::make_shared<net::safe_ssl_stream<Executor>>(
-                std::move(socket), ssl_ctx_ptr)),
-            exception_handler_);
+        net::co_spawn(ex_,
+                      do_session(std::make_shared<safe_ssl_stream>(
+                          std::move(socket), ssl_ctx_ptr)),
+                      exception_handler_);
       }
     }
   }
 #endif
 
-  auto do_session(std::shared_ptr<net::tcp_stream<Executor>> stream) const
-      -> net::awaitable<void, Executor>
+  auto do_session(std::shared_ptr<tcp_stream> stream) const -> awaitable<void>
   {
     if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
@@ -234,15 +228,15 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(std::shared_ptr<net::safe_ssl_stream<Executor>> stream) const
-      -> net::awaitable<void, Executor>
+  auto do_session(std::shared_ptr<safe_ssl_stream> stream) const
+      -> awaitable<void>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
 
     get_lowest_layer(*stream).expires_after(tls_handshake_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
-        net::ssl::stream_base::server, net::use_ta);
+        net::ssl::stream_base::server, use_awaitable);
     if (ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
@@ -251,7 +245,7 @@ private:
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
-    std::tie(ec) = co_await stream->async_shutdown(net::use_ta);
+    std::tie(ec) = co_await stream->async_shutdown(use_awaitable);
     if (ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
@@ -260,7 +254,7 @@ private:
 
   template <typename Stream>
   auto do_session_impl(std::shared_ptr<Stream>& stream) const
-      -> net::awaitable<std::error_code, Executor>
+      -> awaitable<std::error_code>
   {
     using boost::beast::flat_buffer;
     using boost::beast::get_lowest_layer;
@@ -278,7 +272,7 @@ private:
 
       get_lowest_layer(*stream).expires_after(client_request_timeout_);
       std::tie(ec, std::ignore)
-          = co_await async_read_header(*stream, buffer, *parser, net::use_ta);
+          = co_await async_read_header(*stream, buffer, *parser, use_awaitable);
       if (ec) {
         co_return ec;
       }
@@ -294,7 +288,7 @@ private:
         std::tie(ec, std::ignore) = co_await async_write(
             *stream,
             response<empty_body>(http::status::continue_, 11),
-            net::use_ta);
+            use_awaitable);
         if (ec) {
           co_return ec;
         }
@@ -311,8 +305,7 @@ private:
                                       std::move(parser),
                                       client_request_timeout_));
 
-      auto do_response
-          = [&]() -> net::awaitable<expected<void, std::error_code>, Executor> {
+      auto do_response = [&]() -> awaitable<expected<void, std::error_code>> {
         return res.body().size_hint()
             ? do_sized_response(stream, res, keep_alive)
             : do_chunked_response(stream, res, keep_alive);
@@ -334,7 +327,7 @@ private:
                   std::string target,
                   http_fields fields,
                   any_async_readable_stream body) const
-      -> net::awaitable<http_response, Executor>
+      -> awaitable<http_response>
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
@@ -368,7 +361,7 @@ private:
   auto do_sized_response(std::shared_ptr<Stream>& stream,
                          http_response& res,
                          bool keep_alive) const
-      -> net::awaitable<expected<void, std::error_code>, Executor>
+      -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::response;
@@ -396,7 +389,7 @@ private:
     }
 
     get_lowest_layer(*stream).expires_after(client_request_timeout_);
-    if (auto [ec, _] = co_await async_write(*stream, r, net::use_ta); ec) {
+    if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
       co_return unexpected { ec };
     }
 
@@ -407,7 +400,7 @@ private:
   auto do_chunked_response(std::shared_ptr<Stream>& stream,
                            http_response& res,
                            bool keep_alive) const
-      -> net::awaitable<expected<void, std::error_code>, Executor>
+      -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
@@ -422,7 +415,7 @@ private:
     auto ser = response_serializer<empty_body>(r);
 
     get_lowest_layer(*stream).expires_after(client_request_timeout_);
-    if (auto [ec, _] = co_await async_write_header(*stream, ser, net::use_ta);
+    if (auto [ec, _] = co_await async_write_header(*stream, ser, use_awaitable);
         ec) {
       co_return unexpected { ec };
     }
@@ -449,7 +442,7 @@ private:
     return "fitoria.web.http_server";
   }
 
-  Executor ex_;
+  executor_type ex_;
   router_type router_;
   int max_listen_connections_;
   std::chrono::milliseconds client_request_timeout_;
@@ -461,14 +454,13 @@ private:
 #endif
 };
 
-template <typename Executor = net::any_io_executor>
 class http_server_builder {
   using request_type = http_request&;
-  using response_type = net::awaitable<http_response, Executor>;
+  using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
 
 public:
-  http_server_builder(const Executor& ex)
+  http_server_builder(const executor_type& ex)
       : ex_(ex)
   {
   }
@@ -547,7 +539,7 @@ public:
     return std::move(*this);
   }
 
-  http_server<Executor> build()
+  http_server build()
   {
     return http_server(std::move(ex_),
                        std::move(router_),
@@ -558,7 +550,7 @@ public:
   }
 
 private:
-  Executor ex_;
+  executor_type ex_;
   router_type router_;
   optional<int> max_listen_connections_;
   optional<std::chrono::milliseconds> client_request_timeout_;

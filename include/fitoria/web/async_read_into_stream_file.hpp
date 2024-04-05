@@ -25,7 +25,7 @@ namespace web {
 template <async_readable_stream AsyncReadableStream>
 auto async_read_into_stream_file(AsyncReadableStream&& stream,
                                  net::stream_file& file)
-    -> net::awaitable<expected<std::size_t, std::error_code>>
+    -> awaitable<expected<std::size_t, std::error_code>>
 {
   std::size_t total = 0;
 
@@ -38,7 +38,7 @@ auto async_read_into_stream_file(AsyncReadableStream&& stream,
   while (size) {
     boost::system::error_code ec;
     std::tie(ec, std::ignore)
-        = co_await net::async_write(file, net::buffer(buffer), net::use_ta);
+        = co_await net::async_write(file, net::buffer(buffer), use_awaitable);
     if (ec) {
       co_return unexpected { ec };
     }

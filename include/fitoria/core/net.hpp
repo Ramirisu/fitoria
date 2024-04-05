@@ -17,37 +17,42 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace net {
+#if defined(FITORIA_USE_IO_CONTEXT_EXECUTOR)
+using executor_type = boost::asio::io_context::executor_type;
+#elif defined(FITORIA_USE_CUSTOM_EXECUTOR)
+using executor_type = FITORIA_USE_CUSTOM_EXECUTOR;
+#else
+using executor_type = boost::asio::any_io_executor;
+#endif
 
-using namespace boost::asio;
+template <typename T>
+using awaitable = boost::asio::awaitable<T, executor_type>;
 
-constexpr auto use_ta = as_tuple(use_awaitable);
+constexpr auto use_awaitable
+    = boost::asio::as_tuple_t<boost::asio::use_awaitable_t<executor_type>> {};
 
-template <typename Executor>
-using tcp_stream = boost::beast::basic_stream<ip::tcp, Executor>;
+using tcp_stream = boost::beast::basic_stream<boost::asio::ip::tcp>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 
-template <typename Executor>
-using ssl_stream = boost::beast::ssl_stream<tcp_stream<Executor>>;
+using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 
-template <typename Executor>
-class safe_ssl_stream : public ssl_stream<Executor> {
+class safe_ssl_stream : public ssl_stream {
 public:
   template <typename Arg>
-  safe_ssl_stream(Arg&& arg, std::shared_ptr<ssl::context> ssl_ctx)
-      : ssl_stream<Executor>(std::forward<Arg>(arg), *ssl_ctx)
+  safe_ssl_stream(Arg&& arg, std::shared_ptr<boost::asio::ssl::context> ssl_ctx)
+      : ssl_stream(std::forward<Arg>(arg), *ssl_ctx)
       , ssl_ctx_(std::move(ssl_ctx))
   {
   }
 
 private:
-  std::shared_ptr<ssl::context> ssl_ctx_;
+  std::shared_ptr<boost::asio::ssl::context> ssl_ctx_;
 };
 
 #endif
 
-}
+namespace net = boost::asio;
 
 FITORIA_NAMESPACE_END
 

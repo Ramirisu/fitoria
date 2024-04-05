@@ -24,7 +24,7 @@ template <typename AsyncWritableStream,
 auto async_write_each_chunk(AsyncWritableStream&& to,
                             AsyncReadableStream&& from,
                             std::chrono::milliseconds timeout)
-    -> net::awaitable<expected<void, std::error_code>>
+    -> awaitable<expected<void, std::error_code>>
 {
   using boost::beast::async_write;
   using boost::beast::get_lowest_layer;
@@ -38,7 +38,7 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
   while (size) {
     get_lowest_layer(to).expires_after(timeout);
     std::tie(ec, std::ignore) = co_await async_write(
-        to, make_chunk(net::buffer(buffer.data(), *size)), net::use_ta);
+        to, make_chunk(net::buffer(buffer.data(), *size)), use_awaitable);
     if (ec) {
       co_return unexpected { ec };
     }
@@ -51,7 +51,7 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
 
   get_lowest_layer(to).expires_after(timeout);
   std::tie(ec, std::ignore)
-      = co_await async_write(to, make_chunk_last(), net::use_ta);
+      = co_await async_write(to, make_chunk_last(), use_awaitable);
   if (ec) {
     co_return unexpected { ec };
   }

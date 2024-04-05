@@ -16,7 +16,7 @@
 FITORIA_NAMESPACE_BEGIN
 
 template <typename T>
-concept awaitable = detail::member_co_awaitable<T>
+concept co_awaitable = detail::member_co_awaitable<T>
     || detail::free_co_awaitable<T> || detail::awaiter<T>;
 
 template <typename T>

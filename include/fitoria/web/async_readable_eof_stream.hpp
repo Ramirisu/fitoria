@@ -38,7 +38,7 @@ public:
   }
 
   auto async_read_some(net::mutable_buffer)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     co_return unexpected { make_error_code(net::error::eof) };
   }

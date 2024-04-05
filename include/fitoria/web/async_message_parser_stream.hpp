@@ -62,7 +62,7 @@ public:
   }
 
   auto async_read_some(net::mutable_buffer buffer)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
     using boost::beast::http::async_read;
@@ -85,7 +85,7 @@ public:
 
     get_lowest_layer(*stream_).expires_after(timeout_);
     auto [ec, _]
-        = co_await async_read(*stream_, buffer_, *parser_, net::use_ta);
+        = co_await async_read(*stream_, buffer_, *parser_, use_awaitable);
     if (!ec || ec == http::error::need_buffer) {
       const auto remaining = parser_->get().body().size;
       co_return buffer.size() - remaining;

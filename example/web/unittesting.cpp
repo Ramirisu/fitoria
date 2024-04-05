@@ -17,7 +17,7 @@ int main()
       = http_server_builder(ioc)
             .serve(route::post<"/api/v1/login">(
                 [](const http_fields& fields,
-                   std::string body) -> net::awaitable<http_response> {
+                   std::string body) -> awaitable<http_response> {
                   if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request)
@@ -48,7 +48,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("name=fitoria&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::bad_request);
         FITORIA_ASSERT((co_await res.as_string()) == "unexpected content-type");
         co_return;
@@ -59,7 +59,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=unknown&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect user name or password");
@@ -71,7 +71,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect user name or password");
@@ -83,7 +83,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::ok);
         FITORIA_ASSERT(res.fields().get(http::field::content_type)
                        == http::fields::content_type::plaintext());

@@ -59,7 +59,7 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/echo">(
-                [](std::string body) -> net::awaitable<http_response> {
+                [](std::string body) -> awaitable<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
@@ -146,7 +146,7 @@ Use `http_request::path()` to access the route parameters. ([Code](https://githu
 ```cpp
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> awaitable<http_response>
 {
   auto user = req.path().get("user");
   if (!user) {
@@ -181,7 +181,7 @@ Use `http_request::query()` to access the query string parameters. ([Code](https
 ```cpp
 
 namespace api::v1::users {
-auto get_user(const http_request& req) -> net::awaitable<http_response>
+auto get_user(const http_request& req) -> awaitable<http_response>
 {
   auto user = req.query().get("user");
   if (!user) {
@@ -216,8 +216,7 @@ Use `as_form()` to parse the url-encoded form body. ([Code](https://github.com/R
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req, std::string body)
-    -> net::awaitable<http_response>
+auto api(const http_request& req, std::string body) -> awaitable<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
@@ -280,7 +279,7 @@ private:
 
 using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
-auto put(const http_request& req) -> net::awaitable<http_response>
+auto put(const http_request& req) -> awaitable<http_response>
 {
   auto key = req.path().get("key");
   auto value = req.path().get("value");
@@ -300,7 +299,7 @@ auto put(const http_request& req) -> net::awaitable<http_response>
   }
 }
 
-auto get(const http_request& req) -> net::awaitable<http_response>
+auto get(const http_request& req) -> awaitable<http_response>
 {
   auto key = req.path().get("key");
   if (!key) {
@@ -385,7 +384,7 @@ using ptr = std::shared_ptr<type>;
 namespace api::v1 {
 namespace users {
   auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
-      -> net::awaitable<http_response>
+      -> awaitable<http_response>
   {
     auto [user] = std::move(path);
     if (auto it = db->find(user); it != db->end()) {
@@ -434,7 +433,7 @@ namespace login {
   }
 
   auto api(state_of<database::ptr> db, json_of<body_type> body)
-      -> net::awaitable<http_response>
+      -> awaitable<http_response>
   {
     if (auto it = db->find(body.username);
         it != db->end() && it->second.password == body.password) {
@@ -470,7 +469,6 @@ int main()
 
   ioc.run();
 }
-
 
 ```
 
@@ -517,12 +515,12 @@ fitoria provides following build-in middlewares:
 
 ```cpp
 
-template <typename Next>
+template <typename Request, typename Response, typename Next>
 class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(http_request& req) const -> net::awaitable<http_response>
+  auto operator()(Request req) const -> Response
   {
     // do something before the handler
 
@@ -534,8 +532,9 @@ public:
   }
 
 private:
-  my_log_middleware(Next next, log::level lv)
-      : next_(std::move(next))
+  template <typename Next2>
+  my_log_middleware(Next2 next, log::level lv)
+      : next_(std::forward<Next2>(next))
       , lv_(lv)
   {
   }
@@ -551,24 +550,30 @@ public:
   {
   }
 
-  template <decay_to<my_log> Self, typename Next>
-  friend auto tag_invoke(new_middleware_t, Self&& self, Next&& next)
+  template <typename Request,
+            typename Response,
+            decay_to<my_log> Self,
+            typename Next>
+  friend auto
+  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
-    return std::forward<Self>(self).new_middleware_impl(
-        std::forward<Next>(next));
+    return std::forward<Self>(self)
+        .template new_middleware_impl<Request, Response>(
+            std::forward<Next>(next));
   }
 
 private:
-  template <typename Next>
+  template <typename Request, typename Response, typename Next>
   auto new_middleware_impl(Next&& next) const
   {
-    return my_log_middleware(std::move(next), lv_);
+    return my_log_middleware<Request, Response, std::decay_t<Next>>(
+        std::move(next), lv_);
   }
 
   log::level lv_;
 };
 
-auto get_user(http_request& req) -> net::awaitable<http_response>
+auto get_user(http_request& req) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok)
       .set_field(http::field::content_type,
@@ -602,7 +607,7 @@ Use `web::stream_file` to serve static files. ([Code](https://github.com/Ramiris
 ```cpp
 
 auto get_static_file(const path_info& pi)
-    -> net::awaitable<std::variant<stream_file, http_response>>
+    -> awaitable<std::variant<stream_file, http_response>>
 {
   auto path = pi.at("file_path");
   if (auto file = co_await stream_file::async_open_readonly(path); file) {
@@ -647,7 +652,6 @@ int main()
   ioc.run();
 }
 
-
 ```
 
 #### WebSockets
@@ -660,12 +664,14 @@ int main()
 
 ```cpp
 
+int main()
+{
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
             .serve(route::post<"/api/v1/login">(
                 [](const http_fields& fields,
-                   std::string body) -> net::awaitable<http_response> {
+                   std::string body) -> awaitable<http_response> {
                   if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
                     co_return http_response(http::status::bad_request)
@@ -696,7 +702,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("name=fitoria&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::bad_request);
         FITORIA_ASSERT((co_await res.as_string()) == "unexpected content-type");
         co_return;
@@ -707,7 +713,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=unknown&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect user name or password");
@@ -719,7 +725,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect user name or password");
@@ -731,7 +737,7 @@ int main()
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123456"),
-      []([[maybe_unused]] auto res) -> net::awaitable<void> {
+      []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::ok);
         FITORIA_ASSERT(res.fields().get(http::field::content_type)
                        == http::fields::content_type::plaintext());

@@ -37,7 +37,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<query_of<T>>, http_request& req)
-      -> net::awaitable<expected<query_of<T>, std::error_code>>
+      -> awaitable<expected<query_of<T>, std::error_code>>
   {
     co_return unpack_query(
         req.query(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});

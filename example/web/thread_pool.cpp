@@ -16,7 +16,7 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/">(
-                [](std::string body) -> net::awaitable<http_response> {
+                [](std::string body) -> awaitable<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())

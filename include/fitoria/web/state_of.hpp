@@ -32,7 +32,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<state_of<T>>, http_request& req)
-      -> net::awaitable<expected<state_of<T>, std::error_code>>
+      -> awaitable<expected<state_of<T>, std::error_code>>
   {
     if (auto result = req.state<T>(); result) {
       co_return state_of<T>(*result);

@@ -14,7 +14,6 @@
 
 using namespace fitoria;
 using namespace fitoria::client;
-using namespace fitoria::test::cert;
 using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.client.http_client]");
@@ -86,7 +85,7 @@ TEST_CASE("misc")
 
 TEST_CASE("async_send")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::get)
                    .set_url("http://httpbin.org/get")
@@ -95,7 +94,7 @@ TEST_CASE("async_send")
     CHECK((co_await res->as_string())->size() > 0);
   });
 
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     CHECK(!(co_await http_client()
                 .set_method(http::verb::get)
                 .set_url("")
@@ -110,7 +109,7 @@ TEST_CASE("async_send")
     return ssl_ctx;
   };
 
-  sync_wait([&]() -> net::awaitable<void> {
+  sync_wait([&]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::get)
                    .set_url("https://httpbin.org/get")
@@ -119,7 +118,7 @@ TEST_CASE("async_send")
     CHECK((co_await res->as_string())->size() > 0);
   });
 
-  sync_wait([&]() -> net::awaitable<void> {
+  sync_wait([&]() -> awaitable<void> {
     CHECK(!(co_await http_client()
                 .set_method(http::verb::get)
                 .set_url("")
@@ -130,7 +129,7 @@ TEST_CASE("async_send")
 
 TEST_CASE("request with body")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::post)
                    .set_url("http://httpbin.org/post")

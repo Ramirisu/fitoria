@@ -35,7 +35,7 @@ TEST_CASE("async_readable_file_stream")
         << data;
   }
 
-  sync_wait([&]() -> net::awaitable<void> {
+  sync_wait([&]() -> awaitable<void> {
     CHECK_EQ(
         co_await async_read_until_eof<std::string>(async_readable_file_stream(
             net::stream_file(co_await net::this_coro::executor,

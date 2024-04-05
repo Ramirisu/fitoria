@@ -10,42 +10,42 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto get_handler(http_request&) -> net::awaitable<http_response>
+auto get_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto post_handler(http_request&) -> net::awaitable<http_response>
+auto post_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto put_handler(http_request&) -> net::awaitable<http_response>
+auto put_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto patch_handler(http_request&) -> net::awaitable<http_response>
+auto patch_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto delete_handler(http_request&) -> net::awaitable<http_response>
+auto delete_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto head_handler(http_request&) -> net::awaitable<http_response>
+auto head_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto options_handler(http_request&) -> net::awaitable<http_response>
+auto options_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }
 
-auto any_handler(http_request&) -> net::awaitable<http_response>
+auto any_handler(http_request&) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok);
 }

@@ -37,7 +37,7 @@ public:
   }
 
   static auto async_open_readonly(const std::string& path)
-      -> net::awaitable<expected<stream_file, std::error_code>>
+      -> awaitable<expected<stream_file, std::error_code>>
   {
     auto file = net::stream_file(co_await net::this_coro::executor);
 

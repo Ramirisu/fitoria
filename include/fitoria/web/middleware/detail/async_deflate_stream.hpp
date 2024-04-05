@@ -37,7 +37,7 @@ public:
   }
 
   auto async_read_some(net::mutable_buffer buffer)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     namespace zlib = boost::beast::zlib;
 
@@ -101,7 +101,7 @@ public:
   }
 
   auto async_read_some(net::mutable_buffer buffer)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     namespace zlib = boost::beast::zlib;
 

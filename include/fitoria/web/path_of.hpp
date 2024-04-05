@@ -36,7 +36,7 @@ public:
   }
 
   friend auto tag_invoke(from_http_request_t<path_of<T>>, http_request& req)
-      -> net::awaitable<expected<path_of<T>, std::error_code>>
+      -> awaitable<expected<path_of<T>, std::error_code>>
   {
     co_return unpack_path(
         req.path(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
@@ -89,7 +89,7 @@ public:
 
   friend auto tag_invoke(from_http_request_t<path_of<std::tuple<Ts...>>>,
                          http_request& req)
-      -> net::awaitable<expected<path_of<std::tuple<Ts...>>, std::error_code>>
+      -> awaitable<expected<path_of<std::tuple<Ts...>>, std::error_code>>
   {
     co_return unpack_path(req.path(),
                           std::make_index_sequence<sizeof...(Ts)> {});

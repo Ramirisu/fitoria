@@ -28,7 +28,7 @@ concept async_readable_stream = requires(T t, net::mutable_buffer buffer) {
   } -> std::same_as<optional<std::size_t>>;
   {
     t.async_read_some(buffer)
-  } -> std::same_as<net::awaitable<expected<std::size_t, std::error_code>>>;
+  } -> std::same_as<awaitable<expected<std::size_t, std::error_code>>>;
 };
 
 }

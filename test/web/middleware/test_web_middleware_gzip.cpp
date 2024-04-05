@@ -22,7 +22,7 @@ TEST_SUITE_BEGIN("[fitoria.web.middleware.gzip]");
 
 TEST_CASE("async_gzip_inflate_stream: async_read_some")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
       0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x4B, 0x4C,
       0x4A, 0x4E, 0x49, 0x4D, 0x4B, 0xCF, 0xC8, 0xCC, 0xCA, 0xCE, 0xC9, 0xCD,
@@ -52,7 +52,7 @@ TEST_CASE("async_gzip_inflate_stream: async_read_some")
 
 TEST_CASE("async_gzip_inflate_stream: in > out")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
       0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x4B, 0x4C,
       0x4A, 0x4E, 0x49, 0x4D, 0x4B, 0xCF, 0xC8, 0xCC, 0xCA, 0xCE, 0xC9, 0xCD,
@@ -75,7 +75,7 @@ TEST_CASE("async_gzip_inflate_stream: in > out")
 
 TEST_CASE("async_gzip_inflate_stream: in < out")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in
         = std::vector<std::uint8_t> { 0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x0a, 0x4b, 0x4c, 0x1c, 0x05,
@@ -93,7 +93,7 @@ TEST_CASE("async_gzip_inflate_stream: in < out")
 
 TEST_CASE("async_gzip_inflate_stream: eof stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_until_eof<std::string>(
@@ -105,7 +105,7 @@ TEST_CASE("async_gzip_inflate_stream: eof stream")
 
 TEST_CASE("async_gzip_inflate_stream: empty stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
     auto out = co_await async_read_until_eof<std::string>(
@@ -118,7 +118,7 @@ TEST_CASE("async_gzip_inflate_stream: empty stream")
 
 TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
 
     auto out = co_await async_read_until_eof<std::string>(
@@ -130,7 +130,7 @@ TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
 
 TEST_CASE("async_gzip_deflate_stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     const auto in = std::string_view(
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -145,7 +145,7 @@ TEST_CASE("async_gzip_deflate_stream")
 
 TEST_CASE("async_gzip_deflate_stream: eof stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_eof_stream()));
@@ -155,7 +155,7 @@ TEST_CASE("async_gzip_deflate_stream: eof stream")
 
 TEST_CASE("async_gzip_deflate_stream: empty stream")
 {
-  sync_wait([]() -> net::awaitable<void> {
+  sync_wait([]() -> awaitable<void> {
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_vector_stream()));
@@ -185,7 +185,7 @@ TEST_CASE("gzip middleware")
                        [&]( // const http_request& req,
                            const path_info& path_info,
                            const http_fields& fields,
-                           std::string body) -> net::awaitable<http_response> {
+                           std::string body) -> awaitable<http_response> {
                          CHECK(!fields.get(http::field::content_encoding));
                          // TODO: chunk?
                          //  if (req.body().size_hint()) {
@@ -244,7 +244,7 @@ TEST_CASE("gzip middleware")
               }
               return async_readable_vector_stream(s);
             }()),
-        [test_case, &plain](auto res) -> net::awaitable<void> {
+        [test_case, &plain](auto res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
           if (test_case.identity) {
             CHECK_EQ(res.fields().get(http::field::content_encoding),
@@ -268,7 +268,7 @@ TEST_CASE("gzip middleware")
                        http::fields::content_encoding::gzip())
             .set_stream(async_readable_vector_stream(
                 std::span(compressed.data(), compressed.size()))),
-        [](auto res) -> net::awaitable<void> {
+        [](auto res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
           CHECK(!res.fields().get(http::field::content_encoding));
           CHECK(!(co_await res.as_string()));
@@ -285,7 +285,7 @@ TEST_CASE("gzip middleware: header vary")
       = http_server_builder(ioc)
             .serve(
                 route::get<"/">([&](std::string body)
-                                    -> net::awaitable<http_response> {
+                                    -> awaitable<http_response> {
                   auto res
                       = http_response(http::status::ok).set_body("hello world");
                   if (!body.empty()) {
@@ -312,7 +312,7 @@ TEST_CASE("gzip middleware: header vary")
                              .set_field(http::field::accept_encoding,
                                         http::fields::content_encoding::gzip())
                              .set_body(test_case.input),
-                         [test_case](auto res) -> net::awaitable<void> {
+                         [test_case](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(), http::status::ok);
                            CHECK_EQ(res.fields().get(http::field::vary),
                                     test_case.expected);

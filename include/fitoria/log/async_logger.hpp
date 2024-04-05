@@ -45,7 +45,8 @@ class async_logger {
   auto async_dequeue_and_write() -> net::awaitable<void>
   {
     for (;;) {
-      auto [ec, rec] = co_await channel_.async_receive(net::use_ta);
+      auto [ec, rec]
+          = co_await channel_.async_receive(net::as_tuple(net::use_awaitable));
       if (ec) {
         break;
       }
@@ -57,7 +58,7 @@ class async_logger {
   auto async_enqueue(record_ptr rec) -> net::awaitable<void>
   {
     [[maybe_unused]] auto [ec] = co_await channel_.async_send(
-        boost::system::error_code(), rec, net::use_ta);
+        boost::system::error_code(), rec, net::as_tuple(net::use_awaitable));
   }
 
   void log(record::clock_t::time_point time,

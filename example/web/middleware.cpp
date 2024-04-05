@@ -68,7 +68,7 @@ private:
   log::level lv_;
 };
 
-auto get_user(http_request& req) -> net::awaitable<http_response>
+auto get_user(http_request& req) -> awaitable<http_response>
 {
   co_return http_response(http::status::ok)
       .set_field(http::field::content_type,

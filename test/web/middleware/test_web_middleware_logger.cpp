@@ -22,7 +22,7 @@ TEST_CASE("logger middleware")
             .serve(scope()
                        .use(middleware::logger())
                        .serve(route::get<"/">(
-                           [&](http_request&) -> net::awaitable<http_response> {
+                           [&](http_request&) -> awaitable<http_response> {
                              co_return http_response(http::status::ok);
                            })))
             .build();
@@ -30,7 +30,7 @@ TEST_CASE("logger middleware")
   server.serve_request("/",
                        http_request(http::verb::get)
                            .set_field(http::field::user_agent, "fitoria"),
-                       [](auto res) -> net::awaitable<void> {
+                       [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          co_return;
                        });

@@ -25,8 +25,8 @@ TEST_CASE("http_response")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [](http_request&) -> net::awaitable<http_response> {
+            .serve(
+                route::get<"/">([](http_request&) -> awaitable<http_response> {
                   co_return http_response(http::status::ok)
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
@@ -35,7 +35,7 @@ TEST_CASE("http_response")
             .build();
 
   server.serve_request(
-      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+      "/", http_request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
@@ -48,15 +48,15 @@ TEST_CASE("http_response")
 TEST_CASE("std::string")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">(
-                        [](http_request&) -> net::awaitable<std::string> {
-                          co_return "OK";
-                        }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">([](http_request&) -> awaitable<std::string> {
+              co_return "OK";
+            }))
+            .build();
 
   server.serve_request(
-      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+      "/", http_request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
@@ -69,17 +69,16 @@ TEST_CASE("std::string")
 TEST_CASE("std::vector<std::byte>")
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [](http_request&) -> net::awaitable<std::vector<std::byte>> {
-                  co_return std::vector<std::byte> { std::byte('O'),
-                                                     std::byte('K') };
-                }))
-            .build();
+  auto server = http_server_builder(ioc)
+                    .serve(route::get<"/">(
+                        [](http_request&) -> awaitable<std::vector<std::byte>> {
+                          co_return std::vector<std::byte> { std::byte('O'),
+                                                             std::byte('K') };
+                        }))
+                    .build();
 
   server.serve_request(
-      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+      "/", http_request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.fields().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
@@ -95,13 +94,13 @@ TEST_CASE("std::vector<std::uint8_t>")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/">(
-                [](http_request&) -> net::awaitable<std::vector<std::uint8_t>> {
+                [](http_request&) -> awaitable<std::vector<std::uint8_t>> {
                   co_return std::vector<std::uint8_t> { 0x4f, 0x4b };
                 }))
             .build();
 
   server.serve_request(
-      "/", http_request(http::verb::get), [](auto res) -> net::awaitable<void> {
+      "/", http_request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.fields().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
@@ -118,7 +117,7 @@ TEST_CASE("std::variant")
       = http_server_builder(ioc)
             .serve(route::get<"/{text}">(
                 [](const path_info& path_info)
-                    -> net::awaitable<
+                    -> awaitable<
                         std::variant<std::string, std::vector<std::uint8_t>>> {
                   if (path_info.get("text") == "yes") {
                     co_return "OK";
@@ -127,22 +126,20 @@ TEST_CASE("std::variant")
                 }))
             .build();
 
-  server.serve_request("/yes",
-                       http_request(http::verb::get),
-                       [](auto res) -> net::awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.fields().get(http::field::content_type),
-                                  http::fields::content_type::plaintext());
-                         CHECK_EQ(co_await res.as_string(), "OK");
-                       });
-  server.serve_request("/no",
-                       http_request(http::verb::get),
-                       [](auto res) -> net::awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.fields().get(http::field::content_type),
-                                  http::fields::content_type::octet_stream());
-                         CHECK_EQ(co_await res.as_string(), "OK");
-                       });
+  server.serve_request(
+      "/yes", http_request(http::verb::get), [](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(res.fields().get(http::field::content_type),
+                 http::fields::content_type::plaintext());
+        CHECK_EQ(co_await res.as_string(), "OK");
+      });
+  server.serve_request(
+      "/no", http_request(http::verb::get), [](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(res.fields().get(http::field::content_type),
+                 http::fields::content_type::octet_stream());
+        CHECK_EQ(co_await res.as_string(), "OK");
+      });
 
   ioc.run();
 }
@@ -158,21 +155,20 @@ TEST_CASE("stream_file")
   }
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">(
-                        [](http_request&) -> net::awaitable<stream_file> {
-                          auto file = co_await stream_file::async_open_readonly(
-                              "test_web_to_http_response.stream_file.txt");
-                          co_return std::move(*file);
-                        }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">([](http_request&) -> awaitable<stream_file> {
+              auto file = co_await stream_file::async_open_readonly(
+                  "test_web_to_http_response.stream_file.txt");
+              co_return std::move(*file);
+            }))
+            .build();
 
-  server.serve_request("/",
-                       http_request(http::verb::get),
-                       [&](auto res) -> net::awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(co_await res.as_string(), data);
-                       });
+  server.serve_request(
+      "/", http_request(http::verb::get), [&](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(co_await res.as_string(), data);
+      });
 
   ioc.run();
 }

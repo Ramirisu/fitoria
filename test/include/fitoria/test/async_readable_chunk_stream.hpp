@@ -48,7 +48,7 @@ public:
   }
 
   auto async_read_some(net::mutable_buffer buffer)
-      -> net::awaitable<expected<std::size_t, std::error_code>>
+      -> awaitable<expected<std::size_t, std::error_code>>
   {
     if (offset_ >= data_.size()) {
       co_return unexpected { make_error_code(net::error::eof) };

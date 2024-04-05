@@ -17,8 +17,6 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace test::cert {
 
-using namespace fitoria::net;
-
 #if defined(FITORIA_HAS_OPENSSL)
 static const std::string key
     = "-----BEGIN PRIVATE KEY-----\n"

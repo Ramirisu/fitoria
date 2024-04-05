@@ -21,7 +21,7 @@ using namespace fitoria::web;
 // user: david
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> net::awaitable<http_response>
+auto api(const http_request& req) -> awaitable<http_response>
 {
   auto user = req.path().get("user");
   if (!user) {

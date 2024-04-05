@@ -16,7 +16,7 @@ using namespace fitoria;
 using namespace fitoria::web;
 
 auto get_static_file(const path_info& pi)
-    -> net::awaitable<std::variant<stream_file, http_response>>
+    -> awaitable<std::variant<stream_file, http_response>>
 {
   auto path = pi.at("file_path");
   if (auto file = co_await stream_file::async_open_readonly(path); file) {
