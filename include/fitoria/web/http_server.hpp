@@ -535,6 +535,8 @@ public:
 
   http_server build()
   {
+    router_.optimize();
+
     return http_server(std::move(ex_),
                        std::move(router_),
                        max_listen_connections_,

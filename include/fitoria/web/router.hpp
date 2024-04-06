@@ -18,6 +18,7 @@
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/path_matcher.hpp>
 
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -110,6 +111,26 @@ public:
       return unexpected { make_error_code(error::route_already_exists) };
     }
 
+    auto optimize_statics() -> std::size_t
+    {
+      std::size_t total = 0;
+
+      auto priority
+          = std::multimap<std::size_t, node, std::greater<std::size_t>>();
+      for (auto& node : statics_) {
+        auto count = node.optimize();
+        total += count;
+        priority.insert({ count, std::move(node) });
+      }
+      statics_.clear();
+
+      for (auto& [_, node] : priority) {
+        statics_.push_back(std::move(node));
+      }
+
+      return total;
+    }
+
     auto try_find_static(http::verb method, std::string_view path) const
         -> expected<const route_type&, std::error_code>
     {
@@ -171,6 +192,23 @@ public:
       return try_insert(std::move(route), 0);
     }
 
+    auto optimize() -> std::size_t
+    {
+      std::size_t total = optimize_statics();
+
+      if (!routes_.empty()) {
+        ++total;
+      }
+      if (params_) {
+        total += params_->optimize();
+      }
+      if (!wildcard_.empty()) {
+        ++total;
+      }
+
+      return total;
+    }
+
     auto try_find(http::verb method, std::string_view path) const
         -> expected<const route_type&, std::error_code>
     {
@@ -194,6 +232,11 @@ public:
   auto try_insert(route_type route) -> expected<void, std::error_code>
   {
     return root_.try_insert(std::move(route));
+  }
+
+  auto optimize() -> std::size_t
+  {
+    return root_.optimize();
   }
 
   auto try_find(http::verb method, std::string_view path) const

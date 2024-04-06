@@ -61,6 +61,30 @@ TEST_CASE("try_insert")
            exp_t(unexpect, error::route_already_exists));
 }
 
+TEST_CASE("optimize")
+{
+  router_type rt;
+  rt.try_insert(r<"/aaa">(http::verb::get, 0));
+  rt.try_insert(r<"/aab">(http::verb::get, 0));
+  rt.try_insert(r<"/aba">(http::verb::get, 0));
+  rt.try_insert(r<"/abb">(http::verb::get, 0));
+  rt.try_insert(r<"/baa">(http::verb::get, 0));
+  rt.try_insert(r<"/bab">(http::verb::get, 0));
+  rt.try_insert(r<"/bba">(http::verb::get, 0));
+  rt.try_insert(r<"/bbb">(http::verb::get, 0));
+  rt.try_insert(r<"/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/a/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/b/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/aa/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/ab/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/ba/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/bb/{x}">(http::verb::get, 0));
+  rt.try_insert(r<"/a#x">(http::verb::get, 0));
+  rt.try_insert(r<"/aa#x">(http::verb::get, 0));
+  rt.try_insert(r<"/aaa#x">(http::verb::get, 0));
+  CHECK_EQ(rt.optimize(), 18);
+}
+
 TEST_CASE("try_find")
 {
   router_type rt;
