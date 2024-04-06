@@ -36,13 +36,13 @@ public:
     std::unordered_map<http::verb, route_type> routes_;
     std::vector<node> statics_;
     std::unique_ptr<node> params_;
-    std::unique_ptr<node> wildcard_;
+    std::unordered_map<http::verb, route_type> wildcard_;
 
     auto try_insert(route_type route, path_tokens_t::size_type token_index)
         -> expected<void, std::error_code>
     {
       if (token_index == route.matcher().tokens().size()) {
-        return try_insert_route(std::move(route));
+        return try_insert_route(std::move(route), routes_);
       }
 
       auto& token = route.matcher().tokens()[token_index];
@@ -53,7 +53,8 @@ public:
         return try_insert_param(std::move(route), token_index);
       }
 
-      return try_insert_wildcard(std::move(route), token_index);
+      FITORIA_ASSERT(token_index == route.matcher().tokens().size() - 1);
+      return try_insert_route(std::move(route), wildcard_);
     }
 
     auto try_insert_static(route_type route,
@@ -97,20 +98,11 @@ public:
       return params_->try_insert(std::move(route), token_index + 1);
     }
 
-    auto try_insert_wildcard(route_type route,
-                             path_tokens_t::size_type token_index)
+    auto try_insert_route(route_type route,
+                          std::unordered_map<http::verb, route_type>& routes)
         -> expected<void, std::error_code>
     {
-      if (!wildcard_) {
-        wildcard_ = std::make_unique<node>();
-      }
-
-      return wildcard_->try_insert(std::move(route), token_index + 1);
-    }
-
-    auto try_insert_route(route_type route) -> expected<void, std::error_code>
-    {
-      if (auto [_, ok] = routes_.try_emplace(route.method(), std::move(route));
+      if (auto [_, ok] = routes.try_emplace(route.method(), std::move(route));
           ok) {
         return {};
       }
@@ -143,11 +135,16 @@ public:
       return unexpected { make_error_code(error::route_not_exists) };
     }
 
-    auto try_find_wildcard(http::verb method) const
+    auto try_find_route(
+        http::verb method,
+        const std::unordered_map<http::verb, route_type>& routes) const
         -> expected<const route_type&, std::error_code>
     {
-      if (wildcard_) {
-        return wildcard_->try_find(method, std::string_view());
+      if (auto it = routes.find(method); it != routes.end()) {
+        return expected<const route_type&, std::error_code>(it->second);
+      }
+      if (auto it = routes.find(http::verb::unknown); it != routes.end()) {
+        return expected<const route_type&, std::error_code>(it->second);
       }
 
       return unexpected { make_error_code(error::route_not_exists) };
@@ -178,19 +175,16 @@ public:
         -> expected<const route_type&, std::error_code>
     {
       if (path.empty()) {
-        if (auto it = routes_.find(method); it != routes_.end()) {
-          return expected<const route_type&, std::error_code>(it->second);
-        }
-        if (auto it = routes_.find(http::verb::unknown); it != routes_.end()) {
-          return expected<const route_type&, std::error_code>(it->second);
+        if (auto res = try_find_route(method, routes_); res) {
+          return res;
         }
 
-        return try_find_wildcard(method);
+        return try_find_route(method, wildcard_);
       }
 
       return try_find_static(method, path)
           .or_else([&](auto&&) { return try_find_param(method, path); })
-          .or_else([&](auto&&) { return try_find_wildcard(method); });
+          .or_else([&](auto&&) { return try_find_route(method, wildcard_); });
     }
   };
 
