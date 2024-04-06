@@ -22,8 +22,7 @@ namespace web {
 template <typename AsyncWritableStream,
           async_readable_stream AsyncReadableStream>
 auto async_write_each_chunk(AsyncWritableStream&& to,
-                            AsyncReadableStream&& from,
-                            std::chrono::milliseconds timeout)
+                            AsyncReadableStream&& from)
     -> awaitable<expected<void, std::error_code>>
 {
   using boost::beast::async_write;
@@ -36,7 +35,6 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
   auto buffer = std::array<std::byte, 4096>();
   auto size = co_await from.async_read_some(net::buffer(buffer));
   while (size) {
-    get_lowest_layer(to).expires_after(timeout);
     std::tie(ec, std::ignore) = co_await async_write(
         to, make_chunk(net::buffer(buffer.data(), *size)), use_awaitable);
     if (ec) {
@@ -49,7 +47,6 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
     co_return unexpected { size.error() };
   }
 
-  get_lowest_layer(to).expires_after(timeout);
   std::tie(ec, std::ignore)
       = co_await async_write(to, make_chunk_last(), use_awaitable);
   if (ec) {

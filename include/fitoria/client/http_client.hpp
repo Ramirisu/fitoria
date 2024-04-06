@@ -294,25 +294,6 @@ public:
     return std::move(*this);
   }
 
-  std::chrono::milliseconds expect_100_timeout() const noexcept
-  {
-    return expect100_timeout_;
-  }
-
-  http_client&
-  set_expect_100_timeout(std::chrono::milliseconds timeout) & noexcept
-  {
-    expect100_timeout_ = timeout;
-    return *this;
-  }
-
-  http_client&&
-  set_expect_100_timeout(std::chrono::milliseconds timeout) && noexcept
-  {
-    set_expect_100_timeout(timeout);
-    return std::move(*this);
-  }
-
   auto async_send() -> awaitable<expected<http_response, std::error_code>>
   {
     if (!resource_) {
@@ -369,6 +350,8 @@ private:
       expected<net::ip::basic_resolver_results<net::ip::tcp>, std::error_code>>
   {
     auto resolver = net::ip::tcp::resolver(co_await net::this_coro::executor);
+
+    // TODO: timeout?
     auto [ec, results] = co_await resolver.async_resolve(
         resource_->host, std::to_string(resource_->port), use_awaitable);
     if (ec) {
@@ -389,7 +372,7 @@ private:
     auto stream
         = std::make_shared<tcp_stream>(co_await net::this_coro::executor);
 
-    stream->expires_after(request_timeout_);
+    get_lowest_layer(*stream).expires_after(request_timeout_);
     auto [ec, _] = co_await stream->async_connect(*results, use_awaitable);
     if (ec) {
       log::debug("[{}] async_connect failed: {}", name(), ec.message());
@@ -432,7 +415,6 @@ private:
       co_return unexpected { ec };
     }
 
-    get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::client, use_awaitable);
     if (ec) {
@@ -468,7 +450,6 @@ private:
     flat_buffer buffer;
 
     auto parser = std::make_unique<response_parser<buffer_body>>();
-    get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_read_header(*stream, buffer, *parser, use_awaitable);
     if (ec) {
@@ -478,10 +459,8 @@ private:
 
     auto res = http_response(parser->get().result(),
                              http_fields::from_impl(parser->get()));
-    res.set_stream(async_message_parser_stream(std::move(buffer),
-                                               std::move(stream),
-                                               std::move(parser),
-                                               request_timeout_));
+    res.set_stream(async_message_parser_stream(
+        std::move(buffer), std::move(stream), std::move(parser)));
     co_return res;
   }
 
@@ -517,7 +496,6 @@ private:
     boost::system::error_code ec;
 
     auto ser = request_serializer<vector_body<std::byte>>(req);
-    get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, ser, use_awaitable);
     if (ec) {
@@ -528,7 +506,6 @@ private:
     if (use_expect) {
       flat_buffer buffer;
       response<vector_body<std::byte>> res;
-      get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read(*stream, buffer, res, use_awaitable);
       if (ec && ec != error::timeout) {
@@ -541,7 +518,6 @@ private:
       }
     }
 
-    get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write(*stream, ser, use_awaitable);
     if (ec) {
@@ -576,7 +552,6 @@ private:
     boost::system::error_code ec;
 
     auto serializer = request_serializer<empty_body>(req);
-    get_lowest_layer(*stream).expires_after(request_timeout_);
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, serializer, use_awaitable);
     if (ec) {
@@ -587,7 +562,6 @@ private:
     if (use_expect) {
       flat_buffer buffer;
       response<vector_body<std::byte>> res;
-      get_lowest_layer(*stream).expires_after(expect100_timeout_);
       std::tie(ec, std::ignore)
           = co_await async_read(*stream, buffer, res, use_awaitable);
       if (ec && ec != error::timeout) {
@@ -600,9 +574,7 @@ private:
       }
     }
 
-    if (auto res
-        = co_await async_write_each_chunk(*stream, body_, request_timeout_);
-        !res) {
+    if (auto res = co_await async_write_each_chunk(*stream, body_); !res) {
       log::debug(
           "[{}] async_write_each_chunk failed: {}", name(), ec.message());
       co_return unexpected { res.error() };
@@ -626,7 +598,6 @@ private:
   http_fields fields_;
   any_async_readable_stream body_ { async_readable_eof_stream() };
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
-  std::chrono::milliseconds expect100_timeout_ = std::chrono::seconds(1);
 };
 }
 

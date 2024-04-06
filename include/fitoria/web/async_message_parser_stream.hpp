@@ -32,12 +32,10 @@ public:
 
   async_message_parser_stream(boost::beast::flat_buffer buffer,
                               std::shared_ptr<Stream> stream,
-                              std::unique_ptr<parser_t> parser,
-                              std::chrono::milliseconds timeout)
+                              std::unique_ptr<parser_t> parser)
       : buffer_(std::move(buffer))
       , stream_(std::move(stream))
       , parser_(std::move(parser))
-      , timeout_(timeout)
       , return_0_at_first_call_(parser_->chunked() || parser_->content_length())
   {
   }
@@ -83,7 +81,6 @@ public:
     parser_->get().body().data = buffer.data();
     parser_->get().body().size = buffer.size();
 
-    get_lowest_layer(*stream_).expires_after(timeout_);
     auto [ec, _]
         = co_await async_read(*stream_, buffer_, *parser_, use_awaitable);
     if (!ec || ec == http::error::need_buffer) {
@@ -98,7 +95,6 @@ private:
   boost::beast::flat_buffer buffer_;
   std::shared_ptr<Stream> stream_;
   std::unique_ptr<parser_t> parser_;
-  std::chrono::milliseconds timeout_;
   bool return_0_at_first_call_;
 };
 

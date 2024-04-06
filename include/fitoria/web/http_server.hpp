@@ -284,7 +284,6 @@ private:
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end() && it->value() == "100-continue") {
-        get_lowest_layer(*stream).expires_after(client_request_timeout_);
         std::tie(ec, std::ignore) = co_await async_write(
             *stream,
             response<empty_body>(http::status::continue_, 11),
@@ -300,10 +299,8 @@ private:
           method,
           std::move(target),
           std::move(fields),
-          async_message_parser_stream(std::move(buffer),
-                                      stream,
-                                      std::move(parser),
-                                      client_request_timeout_));
+          async_message_parser_stream(
+              std::move(buffer), stream, std::move(parser)));
 
       auto do_response = [&]() -> awaitable<expected<void, std::error_code>> {
         return res.body().size_hint()
@@ -388,7 +385,6 @@ private:
       co_return unexpected { data.error() };
     }
 
-    get_lowest_layer(*stream).expires_after(client_request_timeout_);
     if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
       co_return unexpected { ec };
     }
@@ -414,14 +410,12 @@ private:
 
     auto ser = response_serializer<empty_body>(r);
 
-    get_lowest_layer(*stream).expires_after(client_request_timeout_);
     if (auto [ec, _] = co_await async_write_header(*stream, ser, use_awaitable);
         ec) {
       co_return unexpected { ec };
     }
 
-    co_return co_await async_write_each_chunk(
-        *stream, res.body(), client_request_timeout_);
+    co_return co_await async_write_each_chunk(*stream, res.body());
   }
 
 #if !FITORIA_NO_EXCEPTIONS

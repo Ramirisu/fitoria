@@ -73,10 +73,6 @@ TEST_CASE("misc")
   c.set_request_timeout(std::chrono::seconds(10));
   CHECK_EQ(c.request_timeout(), std::chrono::seconds(10));
 
-  CHECK_EQ(c.expect_100_timeout(), std::chrono::seconds(1));
-  c.set_expect_100_timeout(std::chrono::seconds(10));
-  CHECK_EQ(c.expect_100_timeout(), std::chrono::seconds(10));
-
   c.set_query("name", "value");
   CHECK_EQ(c.query().get("name"), "value");
   const auto& cc = c;
