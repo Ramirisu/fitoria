@@ -31,7 +31,11 @@ using awaitable = boost::asio::awaitable<T, executor_type>;
 constexpr auto use_awaitable
     = boost::asio::as_tuple_t<boost::asio::use_awaitable_t<executor_type>> {};
 
-using tcp_stream = boost::beast::basic_stream<boost::asio::ip::tcp>;
+using socket_acceptor
+    = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, executor_type>;
+
+using tcp_stream
+    = boost::beast::basic_stream<boost::asio::ip::tcp, executor_type>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 

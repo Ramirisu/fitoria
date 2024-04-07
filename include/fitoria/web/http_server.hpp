@@ -159,9 +159,9 @@ private:
   }
 
   auto make_acceptor(net::ip::tcp::endpoint endpoint) const
-      -> expected<net::ip::tcp::acceptor, std::error_code>
+      -> expected<socket_acceptor, std::error_code>
   {
-    auto acceptor = net::ip::tcp::acceptor(ex_);
+    auto acceptor = socket_acceptor(ex_);
 
     boost::system::error_code ec;
     acceptor.open(endpoint.protocol(), ec);
@@ -187,7 +187,7 @@ private:
     return acceptor;
   }
 
-  auto do_listen(net::ip::tcp::acceptor acceptor) const -> awaitable<void>
+  auto do_listen(socket_acceptor acceptor) const -> awaitable<void>
   {
     for (;;) {
       if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
@@ -201,8 +201,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(net::ip::tcp::acceptor acceptor,
-                 net::ssl::context ssl_ctx) const -> awaitable<void>
+  auto do_listen(socket_acceptor acceptor, net::ssl::context ssl_ctx) const
+      -> awaitable<void>
   {
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
