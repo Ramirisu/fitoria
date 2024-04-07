@@ -130,7 +130,7 @@ public:
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {
-    return next_.size_hint();
+    return nullopt;
   }
 
   auto async_read_some(net::mutable_buffer buffer)
@@ -138,16 +138,16 @@ public:
   {
     namespace zlib = boost::beast::zlib;
 
-    if (buffer_.size() < buffer.size()) {
-      auto size
-          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
+    auto hint = next_.size_hint() ? *next_.size_hint() : 4096;
+    if (hint == 0 && buffer_.size() == 0) {
+      co_return unexpected { make_error_code(net::error::eof) };
+    }
+
+    if (hint > 0) {
+      auto size = co_await next_.async_read_some(buffer_.prepare(hint));
       if (!size) {
         co_return unexpected { size.error() };
       }
-      if (*size == 0) {
-        co_return unexpected { make_error_code(zlib::error::stream_error) };
-      }
-
       buffer_.commit(*size);
     }
 
@@ -159,7 +159,6 @@ public:
 
     boost::system::error_code ec;
     inflater_.write(p, zlib::Flush::sync, ec);
-    FITORIA_ASSERT(ec != zlib::error::stream_error);
 
     if (ec && ec != zlib::error::need_buffers
         && ec != zlib::error::end_of_stream) {
@@ -236,7 +235,7 @@ public:
 
   auto size_hint() const noexcept -> optional<std::size_t>
   {
-    return next_.size_hint();
+    return nullopt;
   }
 
   auto async_read_some(net::mutable_buffer buffer)
@@ -244,16 +243,16 @@ public:
   {
     namespace zlib = boost::beast::zlib;
 
-    if (buffer_.size() < buffer.size()) {
-      auto size
-          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
+    auto hint = next_.size_hint() ? *next_.size_hint() : 4096;
+    if (hint == 0 && buffer_.size() == 0) {
+      co_return unexpected { make_error_code(net::error::eof) };
+    }
+
+    if (hint > 0) {
+      auto size = co_await next_.async_read_some(buffer_.prepare(hint));
       if (!size) {
         co_return unexpected { size.error() };
       }
-      if (*size == 0) {
-        co_return unexpected { make_error_code(zlib::error::stream_error) };
-      }
-
       buffer_.commit(*size);
     }
 
@@ -265,7 +264,11 @@ public:
 
     boost::system::error_code ec;
     deflater_.write(p, zlib::Flush::sync, ec);
-    FITORIA_ASSERT(ec != zlib::error::stream_error);
+
+    if (ec && ec != zlib::error::need_buffers
+        && ec != zlib::error::end_of_stream) {
+      co_return unexpected { ec };
+    }
 
     buffer_.consume(buffer_.size() - p.avail_in);
 

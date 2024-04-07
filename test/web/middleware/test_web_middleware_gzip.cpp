@@ -111,8 +111,7 @@ TEST_CASE("async_gzip_inflate_stream: empty stream")
     auto out = co_await async_read_until_eof<std::string>(
         middleware::detail::async_gzip_inflate_stream(
             async_readable_vector_stream()));
-    CHECK_EQ(out.error(),
-             make_error_code(boost::beast::zlib::error::stream_error));
+    CHECK_EQ(out.error(), make_error_code(net::error::eof));
   });
 }
 
@@ -159,8 +158,7 @@ TEST_CASE("async_gzip_deflate_stream: empty stream")
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_vector_stream()));
-    CHECK_EQ(out.error(),
-             make_error_code(boost::beast::zlib::error::stream_error));
+    CHECK_EQ(out.error(), make_error_code(net::error::eof));
   });
 }
 
