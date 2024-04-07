@@ -53,19 +53,21 @@ class http_client {
   };
 
 public:
-  http_client& set_url(std::string_view url) &
+  auto set_url(std::string_view url) & -> http_client&
   {
     resource_ = parse_uri(url);
     return *this;
   }
 
-  http_client&& set_url(std::string_view url) &&
+  auto set_url(std::string_view url) && -> http_client&&
   {
     set_url(url);
     return std::move(*this);
   }
 
-  http_client& set_url(std::string host, std::uint16_t port, std::string path) &
+  auto set_url(std::string host,
+               std::uint16_t port,
+               std::string path) & -> http_client&
   {
     resource_ = resource { .host = std::move(host),
                            .port = port,
@@ -73,167 +75,172 @@ public:
     return *this;
   }
 
-  http_client&&
-  set_url(std::string host, std::uint16_t port, std::string path) &&
+  auto set_url(std::string host,
+               std::uint16_t port,
+               std::string path) && -> http_client&&
   {
     set_url(std::move(host), port, std::move(path));
     return std::move(*this);
   }
 
-  expected<const std::string&, std::error_code> host() const noexcept
+  auto host() const noexcept -> expected<const std::string&, std::error_code>
   {
     return resource_.transform(
         [](const resource& res) -> const std::string& { return res.host; });
   }
 
-  expected<std::uint16_t, std::error_code> port() const noexcept
+  auto port() const noexcept -> expected<std::uint16_t, std::error_code>
   {
     return resource_.transform([](const resource& res) { return res.port; });
   }
 
-  expected<const std::string&, std::error_code> path() const noexcept
+  auto path() const noexcept -> expected<const std::string&, std::error_code>
   {
     return resource_.transform(
         [](const resource& res) -> const std::string& { return res.path; });
   }
 
-  query_map& query() noexcept
+  auto query() noexcept -> query_map&
   {
     return query_;
   }
 
-  const query_map& query() const noexcept
+  auto query() const noexcept -> const query_map&
   {
     return query_;
   }
 
-  http_client& set_query(std::string name, std::string value) &
+  auto set_query(std::string name, std::string value) & -> http_client&
   {
     query_.set(std::move(name), std::move(value));
     return *this;
   }
 
-  http_client&& set_query(std::string name, std::string value) &&
+  auto set_query(std::string name, std::string value) && -> http_client&&
   {
     set_query(std::move(name), std::move(value));
     return std::move(*this);
   }
 
-  http::verb method() const noexcept
+  auto method() const noexcept -> http::verb
   {
     return method_;
   }
 
-  http_client& set_method(http::verb method) &
+  auto set_method(http::verb method) & -> http_client&
   {
     method_ = method;
     return *this;
   }
 
-  http_client&& set_method(http::verb method) &&
+  auto set_method(http::verb method) && -> http_client&&
   {
     set_method(method);
     return std::move(*this);
   }
 
-  http_fields& fields() noexcept
+  auto fields() noexcept -> http_fields&
   {
     return fields_;
   }
 
-  const http_fields& fields() const noexcept
+  auto fields() const noexcept -> const http_fields&
   {
     return fields_;
   }
 
-  http_client& set_field(http::field name, std::string_view value) &
+  auto set_field(http::field name, std::string_view value) & -> http_client&
   {
     fields_.set(name, value);
     return *this;
   }
 
-  http_client&& set_field(http::field name, std::string_view value) &&
+  auto set_field(http::field name, std::string_view value) && -> http_client&&
   {
     set_field(name, value);
     return std::move(*this);
   }
 
-  http_client& set_field(std::string_view name, std::string_view value) &
+  auto set_field(std::string_view name,
+                 std::string_view value) & -> http_client&
   {
     fields_.set(name, value);
     return *this;
   }
 
-  http_client&& set_field(std::string_view name, std::string_view value) &&
+  auto set_field(std::string_view name,
+                 std::string_view value) && -> http_client&&
   {
     set_field(name, value);
     return std::move(*this);
   }
 
-  http_client& insert_field(http::field name, std::string_view value) &
+  auto insert_field(http::field name, std::string_view value) & -> http_client&
   {
     fields_.insert(name, value);
     return *this;
   }
 
-  http_client&& insert_field(http::field name, std::string_view value) &&
+  auto insert_field(http::field name,
+                    std::string_view value) && -> http_client&&
   {
     insert_field(name, value);
     return std::move(*this);
   }
 
-  http_client& insert_field(std::string name, std::string_view value) &
+  auto insert_field(std::string name, std::string_view value) & -> http_client&
   {
     fields_.insert(name, value);
     return *this;
   }
 
-  http_client&& insert_field(std::string name, std::string_view value) &&
+  auto insert_field(std::string name,
+                    std::string_view value) && -> http_client&&
   {
     insert_field(name, value);
     return std::move(*this);
   }
 
   template <std::size_t N>
-  http_client& set_body(std::span<const std::byte, N> bytes) &
+  auto set_body(std::span<const std::byte, N> bytes) & -> http_client&
   {
     body_ = async_readable_vector_stream(bytes);
     return *this;
   }
 
   template <std::size_t N>
-  http_client&& set_body(std::span<const std::byte, N> bytes) &&
+  auto set_body(std::span<const std::byte, N> bytes) && -> http_client&&
   {
     set_body(bytes);
     return std::move(*this);
   }
 
-  http_client& set_body(std::string_view sv) &
+  auto set_body(std::string_view sv) & -> http_client&
   {
     set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return *this;
   }
 
-  http_client&& set_body(std::string_view sv) &&
+  auto set_body(std::string_view sv) && -> http_client&&
   {
     set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return std::move(*this);
   }
 
-  http_client& set_plaintext(std::string_view sv) &
+  auto set_plaintext(std::string_view sv) & -> http_client&
   {
     set_field(http::field::content_type,
               http::fields::content_type::plaintext());
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
-  http_client&& set_plaintext(std::string_view sv) &&
+  auto set_plaintext(std::string_view sv) && -> http_client&&
   {
     set_plaintext(sv);
     return std::move(*this);
   }
 
-  http_client& set_json(const boost::json::value& jv) &
+  auto set_json(const boost::json::value& jv) & -> http_client&
   {
     set_field(http::field::content_type, http::fields::content_type::json());
     auto str = boost::json::serialize(jv);
@@ -241,7 +248,7 @@ public:
     return *this;
   }
 
-  http_client&& set_json(const boost::json::value& jv) &&
+  auto set_json(const boost::json::value& jv) && -> http_client&&
   {
     set_json(jv);
     return std::move(*this);
@@ -249,46 +256,47 @@ public:
 
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
-  http_client& set_json(const T& obj) &
+  auto set_json(const T& obj) & -> http_client&
   {
     return set_json(boost::json::value_from(obj));
   }
 
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
-  http_client&& set_json(const T& obj) &&
+  auto set_json(const T& obj) && -> http_client&&
   {
     set_json(obj);
     return std::move(*this);
   }
 
   template <async_readable_stream AsyncReadableStream>
-  http_client& set_stream(AsyncReadableStream&& stream) &
+  auto set_stream(AsyncReadableStream&& stream) & -> http_client&
   {
     body_ = std::forward<AsyncReadableStream>(stream);
     return *this;
   }
 
   template <async_readable_stream AsyncReadableStream>
-  http_client&& set_stream(AsyncReadableStream&& stream) &&
+  auto set_stream(AsyncReadableStream&& stream) && -> http_client&&
   {
     set_stream(std::forward<AsyncReadableStream>(stream));
     return std::move(*this);
   }
 
-  std::chrono::milliseconds request_timeout() const noexcept
+  auto request_timeout() const noexcept -> std::chrono::milliseconds
   {
     return request_timeout_;
   }
 
-  http_client& set_request_timeout(std::chrono::milliseconds timeout) & noexcept
+  auto set_request_timeout(std::chrono::milliseconds timeout) & noexcept
+      -> http_client&
   {
     request_timeout_ = timeout;
     return *this;
   }
 
-  http_client&&
-  set_request_timeout(std::chrono::milliseconds timeout) && noexcept
+  auto set_request_timeout(std::chrono::milliseconds timeout) && noexcept
+      -> http_client&&
   {
     set_request_timeout(timeout);
     return std::move(*this);
@@ -321,7 +329,8 @@ public:
   }
 
 private:
-  static expected<resource, std::error_code> parse_uri(std::string_view url)
+  static auto parse_uri(std::string_view url)
+      -> expected<resource, std::error_code>
   {
     auto res = boost::urls::parse_uri(url);
     if (!res) {
@@ -346,7 +355,7 @@ private:
                       std::string(res->path()) };
   }
 
-  auto do_resolve() const -> awaitable<
+  auto do_resolver() const -> awaitable<
       expected<net::ip::basic_resolver_results<net::ip::tcp>, std::error_code>>
   {
     auto resolver = net::ip::tcp::resolver(co_await net::this_coro::executor);
@@ -364,7 +373,7 @@ private:
 
   auto do_session() -> awaitable<expected<http_response, std::error_code>>
   {
-    auto results = co_await do_resolve();
+    auto results = co_await do_resolver();
     if (!results) {
       co_return unexpected { results.error() };
     }
@@ -379,7 +388,7 @@ private:
       co_return unexpected { ec };
     }
 
-    co_return co_await do_send_recv(stream);
+    co_return co_await do_http_request(stream);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
@@ -388,7 +397,7 @@ private:
   {
     using boost::beast::get_lowest_layer;
 
-    auto results = co_await do_resolve();
+    auto results = co_await do_resolver();
     if (!results) {
       co_return unexpected { results.error() };
     }
@@ -422,12 +431,12 @@ private:
       co_return unexpected { ec };
     }
 
-    co_return co_await do_send_recv(stream);
+    co_return co_await do_http_request(stream);
   }
 #endif
 
   template <typename Stream>
-  auto do_send_recv(std::shared_ptr<Stream>& stream)
+  auto do_http_request(std::shared_ptr<Stream>& stream)
       -> awaitable<expected<http_response, std::error_code>>
   {
     using boost::beast::flat_buffer;

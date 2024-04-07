@@ -75,23 +75,23 @@ public:
 
   http_server& operator=(http_server&&) = delete;
 
-  int max_listen_connections() const noexcept
+  auto max_listen_connections() const noexcept -> int
   {
     return max_listen_connections_;
   }
 
-  std::chrono::milliseconds client_request_timeout() const noexcept
+  auto client_request_timeout() const noexcept -> std::chrono::milliseconds
   {
     return client_request_timeout_;
   }
 
-  std::chrono::milliseconds tls_handshake_timeout() const noexcept
+  auto tls_handshake_timeout() const noexcept -> std::chrono::milliseconds
   {
     return tls_handshake_timeout_;
   }
 
-  auto bind(std::string_view addr, std::uint16_t port)
-      -> expected<http_server&, std::error_code>
+  auto bind(std::string_view addr, std::uint16_t port) const
+      -> expected<const http_server&, std::error_code>
   {
     auto acceptor = make_acceptor(
         net::ip::tcp::endpoint(net::ip::make_address(addr), port));
@@ -101,13 +101,14 @@ public:
 
     net::co_spawn(ex_, do_listen(std::move(*acceptor)), exception_handler_);
 
-    return expected<http_server&, std::error_code>(*this);
+    return expected<const http_server&, std::error_code>(*this);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto
-  bind_ssl(std::string_view addr, std::uint16_t port, net::ssl::context ssl_ctx)
-      -> expected<http_server&, std::error_code>
+  auto bind_ssl(std::string_view addr,
+                std::uint16_t port,
+                net::ssl::context ssl_ctx) const
+      -> expected<const http_server&, std::error_code>
   {
     auto acceptor = make_acceptor(
         net::ip::tcp::endpoint(net::ip::make_address(addr), port));
@@ -119,7 +120,7 @@ public:
                   do_listen(std::move(*acceptor), std::move(ssl_ctx)),
                   exception_handler_);
 
-    return expected<http_server&, std::error_code>(*this);
+    return expected<const http_server&, std::error_code>(*this);
   }
 #endif
 
@@ -466,41 +467,69 @@ public:
   {
   }
 
-  http_server_builder& set_max_listen_connections(int num) noexcept
+  auto set_max_listen_connections(int num) & noexcept -> http_server_builder&
   {
     max_listen_connections_ = num;
     return *this;
   }
 
-  http_server_builder&
-  set_client_request_timeout(std::chrono::milliseconds timeout) noexcept
+  auto set_max_listen_connections(int num) && noexcept -> http_server_builder&&
+  {
+    set_max_listen_connections(num);
+    return std::move(*this);
+  }
+
+  auto set_client_request_timeout(std::chrono::milliseconds timeout) & noexcept
+      -> http_server_builder&
   {
     client_request_timeout_ = timeout;
     return *this;
   }
 
-  http_server_builder&
-  set_tls_handshake_timeout(std::chrono::milliseconds timeout) noexcept
+  auto set_client_request_timeout(std::chrono::milliseconds timeout) && noexcept
+      -> http_server_builder&&
+  {
+    set_client_request_timeout(timeout);
+    return std::move(*this);
+  }
+
+  auto set_tls_handshake_timeout(std::chrono::milliseconds timeout) & noexcept
+      -> http_server_builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;
   }
 
+  auto set_tls_handshake_timeout(std::chrono::milliseconds timeout) && noexcept
+      -> http_server_builder&&
+  {
+    set_tls_handshake_timeout(timeout);
+    return std::move(*this);
+  }
+
 #if !FITORIA_NO_EXCEPTIONS
   template <typename F>
-  http_server_builder& set_exception_handler(F&& f)
     requires std::invocable<F, std::exception_ptr>
+  auto set_exception_handler(F&& f) & -> http_server_builder&
   {
     exception_handler_.emplace(std::forward<F>(f));
     return *this;
+  }
+
+  template <typename F>
+    requires std::invocable<F, std::exception_ptr>
+  auto set_exception_handler(F&& f) && -> http_server_builder&&
+  {
+    set_exception_handler(std::forward<F>(f));
+    return std::move(*this);
   }
 #endif
 
   template <basic_fixed_string RoutePath,
             typename... RouteServices,
             typename Handler>
-  http_server_builder&
-  serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route)
+  auto serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler>
+                 route) & -> http_server_builder&
   {
     if (auto res = router_.try_insert(typename router_type::route_type(
             route.template build<request_type, response_type>(handler())));
@@ -511,9 +540,20 @@ public:
     return *this;
   }
 
+  template <basic_fixed_string RoutePath,
+            typename... RouteServices,
+            typename Handler>
+  auto serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler>
+                 route) && -> http_server_builder&&
+  {
+    serve(std::move(route));
+
+    return std::move(*this);
+  }
+
   template <basic_fixed_string Path, typename... Services, typename... Routes>
-  http_server_builder& serve(
-      scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope) &
+  auto serve(scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>
+                 scope) & -> http_server_builder&
   {
     std::apply(
         [this](auto&&... routes) {
@@ -525,15 +565,15 @@ public:
   }
 
   template <basic_fixed_string Path, typename... Services, typename... Routes>
-  http_server_builder&& serve(
-      scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> scope) &&
+  auto serve(scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>
+                 scope) && -> http_server_builder&&
   {
     serve(std::move(scope));
 
     return std::move(*this);
   }
 
-  http_server build()
+  auto build() -> http_server
   {
     router_.optimize();
 
