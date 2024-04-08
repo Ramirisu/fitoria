@@ -85,6 +85,7 @@ int main()
 #if !FITORIA_NO_EXCEPTIONS
                                .use(middleware::exception_handler())
 #endif
+                               .use(middleware::decompress())
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
                     .build();

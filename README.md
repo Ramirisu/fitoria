@@ -502,14 +502,13 @@ int main()
 
 #### Middleware
 
-Use `scope::use(Service&&)` to configure middlewares for its `router`s. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
+Use `scope::use(Middleware&&)` to configure middlewares for child `route`s, or `route::use(Middleware&&)` to configure middlewares for itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
 fitoria provides following build-in middlewares:
 
 * `middleware::logger`
 * `middleware::exception_handler`
-* `middleware::deflate`
-* `middleware::gzip`
+* `middleware::decompress`
 
 > Implement `new_middleware_t` CPO to define custom middlewares.
 
@@ -590,6 +589,7 @@ int main()
 #if !FITORIA_NO_EXCEPTIONS
                                .use(middleware::exception_handler())
 #endif
+                               .use(middleware::decompress())
                                .use(my_log(log::level::info))
                                .serve(route::get<"/users/{user}">(get_user)))
                     .build();
@@ -889,11 +889,13 @@ CMake
 | FITORIA_ENABLE_CODECOV  | Enable code coverage build | ON/OFF |   OFF   |
 
 ```sh
+
 git clone https://github.com/Ramirisu/fitoria.git
 cd fitoria/
 cmake -B build -DFITORIA_BUILD_EXAMPLES=ON -DFITORIA_BUILD_TESTS=ON
 cmake --build build
 cd build && ctest && cd ..
+
 ```
 
 ## License

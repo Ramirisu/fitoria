@@ -18,28 +18,29 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <basic_fixed_string Path, typename Services, typename Routes>
+template <basic_fixed_string Path, typename Middlewares, typename Routes>
 class scope_impl;
 
-template <basic_fixed_string Path, typename... Services, typename... Routes>
-class scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>> {
+template <basic_fixed_string Path, typename... Middlewares, typename... Routes>
+class scope_impl<Path, std::tuple<Middlewares...>, std::tuple<Routes...>> {
   shared_state_map state_map_;
-  std::tuple<Services...> services_;
+  std::tuple<Middlewares...> middlewares_;
   std::tuple<Routes...> routes_;
 
 public:
-  scope_impl(std::tuple<Services...> services, std::tuple<Routes...> routes)
+  scope_impl(std::tuple<Middlewares...> middlewares,
+             std::tuple<Routes...> routes)
       : state_map_(std::make_shared<state_map>())
-      , services_(std::move(services))
+      , middlewares_(std::move(middlewares))
       , routes_(std::move(routes))
   {
   }
 
   scope_impl(shared_state_map state_map,
-             std::tuple<Services...> services,
+             std::tuple<Middlewares...> middlewares,
              std::tuple<Routes...> routes)
       : state_map_(std::move(state_map))
-      , services_(std::move(services))
+      , middlewares_(std::move(middlewares))
       , routes_(std::move(routes))
   {
   }
@@ -52,19 +53,19 @@ public:
     auto state_map = state_map_;
     (*state_map)[std::type_index(typeid(type))]
         = std::any(std::forward<State>(state));
-    return scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>(
-        std::move(state_map), services_, routes_);
+    return scope_impl<Path, std::tuple<Middlewares...>, std::tuple<Routes...>>(
+        std::move(state_map), middlewares_, routes_);
   }
 
-  template <typename Service>
-  auto use(Service&& service) const
+  template <typename Middleware>
+  auto use(Middleware&& mw) const
   {
     return scope_impl<Path,
-                      std::tuple<Services..., std::decay_t<Service>>,
+                      std::tuple<Middlewares..., std::decay_t<Middleware>>,
                       std::tuple<Routes...>>(
         state_map_,
-        std::tuple_cat(services_,
-                       std::tuple { std::forward<Service>(service) }),
+        std::tuple_cat(middlewares_,
+                       std::tuple { std::forward<Middleware>(mw) }),
         routes_);
   }
 
@@ -74,13 +75,14 @@ public:
   auto serve(
       route_impl<RoutePath, std::tuple<RouteServices...>, Handler> route) const
   {
-    auto new_route = route.template rebind_parent<Path>(state_map_, services_);
+    auto new_route
+        = route.template rebind_parent<Path>(state_map_, middlewares_);
 
     return scope_impl<Path,
-                      std::tuple<Services...>,
+                      std::tuple<Middlewares...>,
                       std::tuple<Routes..., decltype(new_route)>> {
       state_map_,
-      services_,
+      middlewares_,
       std::tuple_cat(routes_, std::tuple { std::move(new_route) }),
     };
   }
@@ -95,15 +97,15 @@ public:
     auto routes = std::apply(
         [this](auto&&... routes_) {
           return std::tuple { routes_.template rebind_parent<Path>(
-              state_map_, services_)... };
+              state_map_, middlewares_)... };
         },
         child.routes());
 
     return scope_impl<Path,
-                      std::tuple<Services...>,
+                      std::tuple<Middlewares...>,
                       decltype(std::tuple_cat(routes_, std::move(routes)))> {
       state_map_,
-      services_,
+      middlewares_,
       std::tuple_cat(routes_, std::move(routes)),
     };
   }

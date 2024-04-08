@@ -27,14 +27,14 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <basic_fixed_string Path, typename Services, typename Handler>
+template <basic_fixed_string Path, typename Middlewares, typename Handler>
 class route_impl;
 
-template <basic_fixed_string Path, typename... Services, typename Handler>
-class route_impl<Path, std::tuple<Services...>, Handler> {
+template <basic_fixed_string Path, typename... Middlewares, typename Handler>
+class route_impl<Path, std::tuple<Middlewares...>, Handler> {
   http::verb method_;
   std::vector<shared_state_map> state_maps_;
-  std::tuple<Services...> services_;
+  std::tuple<Middlewares...> middlewares_;
   Handler handler_;
 
 public:
@@ -42,11 +42,11 @@ public:
 
   route_impl(http::verb method,
              std::vector<shared_state_map> state_maps,
-             std::tuple<Services...> services,
+             std::tuple<Middlewares...> middlewares,
              Handler handler)
       : method_(method)
       , state_maps_(std::move(state_maps))
-      , services_(std::move(services))
+      , middlewares_(std::move(middlewares))
       , handler_(std::move(handler))
   {
   }
@@ -62,20 +62,20 @@ public:
     }
     (*state_maps.front())[std::type_index(typeid(type))]
         = std::any(std::forward<State>(state));
-    return route_impl<Path, std::tuple<Services...>, Handler>(
-        method_, std::move(state_maps), services_, handler_);
+    return route_impl<Path, std::tuple<Middlewares...>, Handler>(
+        method_, std::move(state_maps), middlewares_, handler_);
   }
 
-  template <typename Service>
-  auto use(Service&& service) const
+  template <typename Middleware>
+  auto use(Middleware&& mw) const
   {
     return route_impl<Path,
-                      std::tuple<Services..., std::decay_t<Service>>,
+                      std::tuple<Middlewares..., std::decay_t<Middleware>>,
                       Handler>(
         method_,
         state_maps_,
-        std::tuple_cat(services_,
-                       std::tuple { std::forward<Service>(service) }),
+        std::tuple_cat(middlewares_,
+                       std::tuple { std::forward<Middleware>(mw) }),
         handler_);
   }
 
@@ -88,11 +88,11 @@ public:
       state_maps.push_back(std::move(parent_state_map));
     }
     return route_impl<ParentPath + Path,
-                      std::tuple<ParentServices..., Services...>,
+                      std::tuple<ParentServices..., Middlewares...>,
                       Handler>(
         method_,
         std::move(state_maps),
-        std::tuple_cat(std::move(parent_services), services_),
+        std::tuple_cat(std::move(parent_services), middlewares_),
         handler_);
   }
 
@@ -108,7 +108,7 @@ public:
               return build_service<Request, Response>(std::move(ss)...);
             },
             reverse_tuple(std::tuple_cat(
-                services_,
+                middlewares_,
                 std::tuple { std::move(additionalServices)..., handler_ }))));
   }
 
