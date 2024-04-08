@@ -29,9 +29,8 @@
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_server.hpp>
 #include <fitoria/web/json_of.hpp>
-#include <fitoria/web/middleware/deflate.hpp>
+#include <fitoria/web/middleware/decompress.hpp>
 #include <fitoria/web/middleware/exception_handler.hpp>
-#include <fitoria/web/middleware/gzip.hpp>
 #include <fitoria/web/middleware/logger.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/path_info.hpp>

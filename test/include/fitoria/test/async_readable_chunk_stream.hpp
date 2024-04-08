@@ -30,13 +30,20 @@ public:
   using is_async_readable_stream = void;
 
   async_readable_chunk_stream(std::string_view sv)
-      : data_(std::as_bytes(std::span(sv.data(), sv.size())))
+      : async_readable_chunk_stream(
+          std::as_bytes(std::span(sv.data(), sv.size())))
+  {
+  }
+
+  async_readable_chunk_stream(std::vector<std::byte> vec)
+      : data_(std::move(vec))
   {
   }
 
   template <typename T, std::size_t N>
   async_readable_chunk_stream(std::span<T, N> s)
-      : data_(std::as_bytes(s))
+      : async_readable_chunk_stream(std::vector<std::byte>(
+          std::as_bytes(s).begin(), std::as_bytes(s).end()))
   {
   }
 
@@ -63,7 +70,7 @@ public:
   }
 
 private:
-  std::span<const std::byte> data_;
+  std::vector<std::byte> data_;
   std::size_t offset_ = 0;
 };
 

@@ -160,8 +160,10 @@ public:
     boost::system::error_code ec;
     inflater_.write(p, zlib::Flush::sync, ec);
 
-    if (ec && ec != zlib::error::need_buffers
-        && ec != zlib::error::end_of_stream) {
+    if (ec == zlib::error::need_buffers || ec == zlib::error::end_of_stream) {
+      ec = {};
+    }
+    if (ec) {
       co_return unexpected { ec };
     }
 
@@ -265,8 +267,10 @@ public:
     boost::system::error_code ec;
     deflater_.write(p, zlib::Flush::sync, ec);
 
-    if (ec && ec != zlib::error::need_buffers
-        && ec != zlib::error::end_of_stream) {
+    if (ec == zlib::error::need_buffers || ec == zlib::error::end_of_stream) {
+      ec = {};
+    }
+    if (ec) {
       co_return unexpected { ec };
     }
 
