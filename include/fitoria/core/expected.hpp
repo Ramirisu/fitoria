@@ -399,9 +399,9 @@ public:
              && !std::is_trivially_destructible_v<E>)
   {
     if (has_value()) {
-      this->val_.~T();
+      std::destroy_at(std::addressof(this->val_));
     } else {
-      this->err_.~E();
+      std::destroy_at(std::addressof(this->err_));
     }
   }
 
@@ -410,7 +410,7 @@ public:
              && std::is_trivially_destructible_v<E>)
   {
     if (has_value()) {
-      this->val_.~T();
+      std::destroy_at(std::addressof(this->val_));
     }
   }
 
@@ -419,7 +419,7 @@ public:
              && !std::is_trivially_destructible_v<E>)
   {
     if (!has_value()) {
-      this->err_.~E();
+      std::destroy_at(std::addressof(this->err_));
     }
   }
 
@@ -1174,7 +1174,7 @@ public:
     requires(!std::is_trivially_destructible_v<E>)
   {
     if (!has_value()) {
-      this->err_.~E();
+      std::destroy_at(std::addressof(this->err_));
     }
   }
 
@@ -1777,7 +1777,7 @@ public:
     requires(!std::is_trivially_destructible_v<E>)
   {
     if (!has_value()) {
-      this->err_.~E();
+      std::destroy_at(std::addressof(this->err_));
     }
   }
 

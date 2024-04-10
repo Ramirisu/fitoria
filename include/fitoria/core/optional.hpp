@@ -169,7 +169,7 @@ public:
     requires(!std::is_trivially_destructible_v<T>)
   {
     if (has_value()) {
-      this->val_.~T();
+      std::destroy_at(std::addressof(this->val_));
     }
   }
 
@@ -550,7 +550,7 @@ public:
   constexpr void reset() noexcept
   {
     if (has_value()) {
-      this->val_.~T();
+      std::destroy_at(std::addressof(this->val_));
       this->has_ = false;
     }
   }
