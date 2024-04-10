@@ -80,6 +80,32 @@ protected:
     p.total_out = stream_->total_out;
   }
 
+  int to_native(boost::beast::zlib::Flush flush)
+  {
+    using boost::beast::zlib::Flush;
+
+    switch (flush) {
+    case Flush::none:
+      return Z_NO_FLUSH;
+    case Flush::block:
+      return Z_BLOCK;
+    case Flush::partial:
+      return Z_PARTIAL_FLUSH;
+    case Flush::sync:
+      return Z_SYNC_FLUSH;
+    case Flush::full:
+      return Z_FULL_FLUSH;
+    case Flush::finish:
+      return Z_FINISH;
+    case Flush::trees:
+      return Z_TREES;
+    default:
+      break;
+    }
+
+    return Z_NO_FLUSH;
+  }
+
   std::unique_ptr<z_stream> stream_;
 };
 
@@ -119,21 +145,19 @@ public:
              boost::system::error_code& ec)
   {
     to_native(p);
-    ec = from_native_error(::inflate(&*stream_, static_cast<int>(flush)));
+    ec = from_native_error(::inflate(&*stream_, to_native(flush)));
     from_native(p);
   }
 };
 
-class async_gzip_deflate_stream_base {
-protected:
-  enum flags : std::uint32_t {
+template <async_readable_stream NextLayer>
+class async_gzip_inflate_stream {
+  enum state : std::uint32_t {
+    none = 0,
     need_more_input_buffer = 1,
     need_more_output_buffer = 2,
   };
-};
 
-template <async_readable_stream NextLayer>
-class async_gzip_inflate_stream : public async_gzip_deflate_stream_base {
 public:
   using is_async_readable_stream = void;
 
@@ -157,18 +181,18 @@ public:
 
     FITORIA_ASSERT(buffer.size() > 0);
 
-    if (flag_ == 0) {
+    if (state_ == none) {
       co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    if (flag_ & need_more_input_buffer) {
+    if (state_ & need_more_input_buffer) {
       auto size
           = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (!size) {
+      if (size) {
+        buffer_.commit(*size);
+      } else {
         co_return unexpected { size.error() };
       }
-
-      buffer_.commit(*size);
     }
 
     auto p = z_params();
@@ -182,14 +206,16 @@ public:
 
     if (ec) {
       if (ec == error::end_of_stream) {
-        flag_ &= ~need_more_input_buffer;
-        flag_ &= ~need_more_output_buffer;
+        state_ &= ~need_more_input_buffer;
+        state_ &= ~need_more_output_buffer;
       } else if (ec == error::need_buffers) {
+        state_ &= ~need_more_input_buffer;
+        state_ &= ~need_more_output_buffer;
         if (p.avail_in == 0) {
-          flag_ |= need_more_input_buffer;
+          state_ |= need_more_input_buffer;
         }
         if (p.avail_out == 0) {
-          flag_ |= need_more_output_buffer;
+          state_ |= need_more_output_buffer;
         }
       } else {
         co_return unexpected { ec };
@@ -204,7 +230,7 @@ private:
   NextLayer next_;
   gzip_inflate_stream inflater_;
   boost::beast::flat_buffer buffer_;
-  std::uint32_t flag_ = need_more_input_buffer;
+  std::uint32_t state_ = need_more_input_buffer;
 };
 
 template <typename NextLayer>
@@ -253,13 +279,19 @@ public:
              boost::system::error_code& ec)
   {
     to_native(p);
-    ec = from_native_error(::deflate(&*stream_, static_cast<int>(flush)));
+    ec = from_native_error(::deflate(&*stream_, to_native(flush)));
     from_native(p);
   }
 };
 
 template <async_readable_stream NextLayer>
-class async_gzip_deflate_stream : public async_gzip_deflate_stream_base {
+class async_gzip_deflate_stream {
+  enum state : std::uint32_t {
+    none = 0,
+    input_is_not_eof = 1,
+    need_more_output_buffer = 2,
+  };
+
 public:
   using is_async_readable_stream = void;
 
@@ -283,18 +315,20 @@ public:
 
     FITORIA_ASSERT(buffer.size() > 0);
 
-    if (flag_ == 0) {
+    if (state_ == none) {
       co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    if (flag_ & need_more_input_buffer) {
+    if (state_ & input_is_not_eof) {
       auto size
           = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (!size) {
+      if (size) {
+        buffer_.commit(*size);
+      } else if (size.error() == make_error_code(net::error::eof)) {
+        state_ &= ~input_is_not_eof;
+      } else {
         co_return unexpected { size.error() };
       }
-
-      buffer_.commit(*size);
     }
 
     auto p = z_params();
@@ -303,22 +337,31 @@ public:
     p.next_out = buffer.data();
     p.avail_out = buffer.size();
 
-    boost::system::error_code ec;
-    deflater_.write(p, Flush::sync, ec);
+    if (state_ & input_is_not_eof) {
+      boost::system::error_code ec;
+      deflater_.write(p, Flush::none, ec);
 
-    if (ec) {
-      if (ec == error::end_of_stream) {
-        flag_ &= ~need_more_input_buffer;
-        flag_ &= ~need_more_output_buffer;
-      } else if (ec == error::need_buffers) {
-        if (p.avail_in == 0) {
-          flag_ |= need_more_input_buffer;
-        }
-        if (p.avail_out == 0) {
-          flag_ |= need_more_output_buffer;
+      if (ec) {
+        co_return unexpected { ec };
+      } else {
+        state_ |= need_more_output_buffer;
+      }
+    } else {
+      boost::system::error_code ec;
+      deflater_.write(p, Flush::finish, ec);
+
+      if (ec) {
+        if (ec == error::end_of_stream) {
+          state_ &= ~need_more_output_buffer;
+        } else if (ec == error::need_buffers) {
+          if (p.avail_out == 0) {
+            state_ |= need_more_output_buffer;
+          }
+        } else {
+          co_return unexpected { ec };
         }
       } else {
-        co_return unexpected { ec };
+        state_ |= need_more_output_buffer;
       }
     }
 
@@ -329,7 +372,7 @@ public:
   NextLayer next_;
   gzip_deflate_stream deflater_;
   boost::beast::flat_buffer buffer_;
-  std::uint32_t flag_ = need_more_input_buffer;
+  std::uint32_t state_ = input_is_not_eof;
 };
 
 template <typename NextLayer>

@@ -21,7 +21,7 @@ using fitoria::test::async_readable_chunk_stream;
 
 TEST_SUITE_BEGIN("[fitoria.web.middleware.detail.deflate]");
 
-TEST_CASE("async_inflate_stream: async_read_some")
+TEST_CASE("inflate: 1 byte buffer")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
@@ -51,7 +51,7 @@ TEST_CASE("async_inflate_stream: async_read_some")
   });
 }
 
-TEST_CASE("async_inflate_stream: in > out")
+TEST_CASE("inflate: in > out")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
@@ -73,7 +73,7 @@ TEST_CASE("async_inflate_stream: in > out")
   });
 }
 
-TEST_CASE("async_inflate_stream: in < out")
+TEST_CASE("inflate: in < out")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x4b, 0x4c, 0x1c, 0x05,
@@ -86,7 +86,7 @@ TEST_CASE("async_inflate_stream: in < out")
   });
 }
 
-TEST_CASE("async_inflate_stream: eof stream")
+TEST_CASE("inflate: eof stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
@@ -98,7 +98,7 @@ TEST_CASE("async_inflate_stream: eof stream")
   });
 }
 
-TEST_CASE("async_inflate_stream: invalid stream")
+TEST_CASE("inflate: invalid stream")
 {
   sync_wait([]() -> awaitable<void> {
     // RFC-1951: BFINAL 0, BTYPE 11 (reserved)
@@ -112,7 +112,7 @@ TEST_CASE("async_inflate_stream: invalid stream")
   });
 }
 
-TEST_CASE("async_deflate_stream")
+TEST_CASE("deflate: valid stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::string_view(
@@ -127,13 +127,13 @@ TEST_CASE("async_deflate_stream")
   });
 }
 
-TEST_CASE("async_deflate_stream: eof stream")
+TEST_CASE("deflate: eof stream")
 {
   sync_wait([]() -> awaitable<void> {
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
         middleware::detail::async_deflate_stream(
             async_readable_vector_stream()));
-    CHECK_EQ(out.error(), make_error_code(net::error::eof));
+    CHECK_EQ(out, std::vector<std::uint8_t> { 0x03, 0x00 });
   });
 }
 

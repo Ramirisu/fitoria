@@ -22,7 +22,7 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.middleware.detail.gzip]");
 
-TEST_CASE("async_gzip_inflate_stream: async_read_some")
+TEST_CASE("inflate: 1 byte buffer")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
@@ -53,7 +53,7 @@ TEST_CASE("async_gzip_inflate_stream: async_read_some")
   });
 }
 
-TEST_CASE("async_gzip_inflate_stream: in > out")
+TEST_CASE("inflate: in > out")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {
@@ -77,7 +77,7 @@ TEST_CASE("async_gzip_inflate_stream: in > out")
   });
 }
 
-TEST_CASE("async_gzip_inflate_stream: in < out")
+TEST_CASE("inflate: in < out")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in
@@ -94,7 +94,7 @@ TEST_CASE("async_gzip_inflate_stream: in < out")
   });
 }
 
-TEST_CASE("async_gzip_inflate_stream: eof stream")
+TEST_CASE("inflate: eof stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
@@ -106,7 +106,7 @@ TEST_CASE("async_gzip_inflate_stream: eof stream")
   });
 }
 
-TEST_CASE("async_gzip_inflate_stream: invalid stream")
+TEST_CASE("inflate: invalid stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
@@ -118,7 +118,7 @@ TEST_CASE("async_gzip_inflate_stream: invalid stream")
   });
 }
 
-TEST_CASE("async_gzip_deflate_stream")
+TEST_CASE("deflate: valid stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::string_view(
@@ -133,13 +133,30 @@ TEST_CASE("async_gzip_deflate_stream")
   });
 }
 
-TEST_CASE("async_gzip_deflate_stream: eof stream")
+TEST_CASE("deflate: eof stream")
 {
   sync_wait([]() -> awaitable<void> {
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
         middleware::detail::async_gzip_deflate_stream(
             async_readable_vector_stream()));
-    CHECK_EQ(out.error(), make_error_code(net::error::eof));
+    auto& vec = out.value();
+    CHECK_EQ(vec[0], 0x1f);
+    CHECK_EQ(vec[1], 0x8b);
+    CHECK_EQ(vec[2], 0x08);
+    CHECK_EQ(vec[3], 0x00);
+    // skip 4 byte time
+    CHECK_EQ(vec[8], 0x02);
+    // skip 1 byte os
+    CHECK_EQ(vec[10], 0x03);
+    CHECK_EQ(vec[11], 0x00);
+    CHECK_EQ(vec[12], 0x00);
+    CHECK_EQ(vec[13], 0x00);
+    CHECK_EQ(vec[14], 0x00);
+    CHECK_EQ(vec[15], 0x00);
+    CHECK_EQ(vec[16], 0x00);
+    CHECK_EQ(vec[17], 0x00);
+    CHECK_EQ(vec[18], 0x00);
+    CHECK_EQ(vec[19], 0x00);
   });
 }
 

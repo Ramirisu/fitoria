@@ -20,16 +20,14 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::middleware::detail {
 
-class async_deflate_stream_base {
-protected:
-  enum flags : std::uint32_t {
+template <async_readable_stream NextLayer>
+class async_inflate_stream {
+  enum state : std::uint32_t {
+    none = 0,
     need_more_input_buffer = 1,
     need_more_output_buffer = 2,
   };
-};
 
-template <async_readable_stream NextLayer>
-class async_inflate_stream : public async_deflate_stream_base {
 public:
   using is_async_readable_stream = void;
 
@@ -53,18 +51,18 @@ public:
 
     FITORIA_ASSERT(buffer.size() > 0);
 
-    if (flag_ == 0) {
+    if (state_ == none) {
       co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    if (flag_ & need_more_input_buffer) {
+    if (state_ & need_more_input_buffer) {
       auto size
           = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (!size) {
+      if (size) {
+        buffer_.commit(*size);
+      } else {
         co_return unexpected { size.error() };
       }
-
-      buffer_.commit(*size);
     }
 
     auto p = z_params();
@@ -78,14 +76,16 @@ public:
 
     if (ec) {
       if (ec == error::end_of_stream) {
-        flag_ &= ~need_more_input_buffer;
-        flag_ &= ~need_more_output_buffer;
+        state_ &= ~need_more_input_buffer;
+        state_ &= ~need_more_output_buffer;
       } else if (ec == error::need_buffers) {
+        state_ &= ~need_more_input_buffer;
+        state_ &= ~need_more_output_buffer;
         if (p.avail_in == 0) {
-          flag_ |= need_more_input_buffer;
+          state_ |= need_more_input_buffer;
         }
         if (p.avail_out == 0) {
-          flag_ |= need_more_output_buffer;
+          state_ |= need_more_output_buffer;
         }
       } else {
         co_return unexpected { ec };
@@ -100,7 +100,7 @@ private:
   NextLayer next_;
   boost::beast::zlib::inflate_stream inflater_;
   boost::beast::flat_buffer buffer_;
-  std::uint32_t flag_ = need_more_input_buffer;
+  std::uint32_t state_ = need_more_input_buffer;
 };
 
 template <typename NextLayer>
@@ -108,7 +108,13 @@ async_inflate_stream(NextLayer&&)
     -> async_inflate_stream<std::decay_t<NextLayer>>;
 
 template <async_readable_stream NextLayer>
-class async_deflate_stream : public async_deflate_stream_base {
+class async_deflate_stream {
+  enum state : std::uint32_t {
+    none = 0,
+    input_is_not_eof = 1,
+    need_more_output_buffer = 2,
+  };
+
 public:
   using is_async_readable_stream = void;
 
@@ -132,18 +138,20 @@ public:
 
     FITORIA_ASSERT(buffer.size() > 0);
 
-    if (flag_ == 0) {
+    if (state_ == none) {
       co_return unexpected { make_error_code(net::error::eof) };
     }
 
-    if (flag_ & need_more_input_buffer) {
+    if (state_ & input_is_not_eof) {
       auto size
           = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (!size) {
+      if (size) {
+        buffer_.commit(*size);
+      } else if (size.error() == make_error_code(net::error::eof)) {
+        state_ &= ~input_is_not_eof;
+      } else {
         co_return unexpected { size.error() };
       }
-
-      buffer_.commit(*size);
     }
 
     auto p = z_params();
@@ -152,22 +160,31 @@ public:
     p.next_out = buffer.data();
     p.avail_out = buffer.size();
 
-    boost::system::error_code ec;
-    deflater_.write(p, Flush::sync, ec);
+    if (state_ & input_is_not_eof) {
+      boost::system::error_code ec;
+      deflater_.write(p, Flush::none, ec);
 
-    if (ec) {
-      if (ec == error::end_of_stream) {
-        flag_ &= ~need_more_input_buffer;
-        flag_ &= ~need_more_output_buffer;
-      } else if (ec == error::need_buffers) {
-        if (p.avail_in == 0) {
-          flag_ |= need_more_input_buffer;
-        }
-        if (p.avail_out == 0) {
-          flag_ |= need_more_output_buffer;
+      if (ec) {
+        co_return unexpected { ec };
+      } else {
+        state_ |= need_more_output_buffer;
+      }
+    } else {
+      boost::system::error_code ec;
+      deflater_.write(p, Flush::finish, ec);
+
+      if (ec) {
+        if (ec == error::end_of_stream) {
+          state_ &= ~need_more_output_buffer;
+        } else if (ec == error::need_buffers) {
+          if (p.avail_out == 0) {
+            state_ |= need_more_output_buffer;
+          }
+        } else {
+          co_return unexpected { ec };
         }
       } else {
-        co_return unexpected { ec };
+        state_ |= need_more_output_buffer;
       }
     }
 
@@ -179,7 +196,7 @@ private:
   NextLayer next_;
   boost::beast::zlib::deflate_stream deflater_;
   boost::beast::flat_buffer buffer_;
-  std::uint32_t flag_ = need_more_input_buffer;
+  std::uint32_t state_ = input_is_not_eof;
 };
 
 template <typename NextLayer>
