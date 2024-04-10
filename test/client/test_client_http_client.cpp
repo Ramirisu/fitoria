@@ -23,16 +23,16 @@ TEST_CASE("resource")
   {
     auto c = http_client()
                  .set_method(http::verb::get)
-                 .set_url("http://httpbin.org/get");
-    CHECK_EQ(c.host().value(), "httpbin.org");
+                 .set_url("http://httpbun.com/get");
+    CHECK_EQ(c.host().value(), "httpbun.com");
     CHECK_EQ(c.port().value(), 80);
     CHECK_EQ(c.path().value(), "/get");
   }
   {
     auto c = http_client()
                  .set_method(http::verb::get)
-                 .set_url("https://httpbin.org/get");
-    CHECK_EQ(c.host().value(), "httpbin.org");
+                 .set_url("https://httpbun.com/get");
+    CHECK_EQ(c.host().value(), "httpbun.com");
     CHECK_EQ(c.port().value(), 443);
     CHECK_EQ(c.path().value(), "/get");
   }
@@ -50,7 +50,7 @@ TEST_CASE("misc")
 {
   auto c = http_client()
                .set_method(http::verb::get)
-               .set_url("http://httpbin.org/get");
+               .set_url("http://httpbun.com/get");
   CHECK_EQ(c.method(), http::verb::get);
   c.set_method(http::verb::post);
   CHECK_EQ(c.method(), http::verb::post);
@@ -84,10 +84,10 @@ TEST_CASE("async_send")
   sync_wait([]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::get)
-                   .set_url("http://httpbin.org/get")
+                   .set_url("http://httpbun.com/get")
                    .async_send();
     CHECK_EQ(res->status_code().value(), http::status::ok);
-    CHECK((co_await res->as_string())->size() > 0);
+    CHECK(!(co_await res->as_string())->empty());
   });
 
   sync_wait([]() -> awaitable<void> {
@@ -108,10 +108,10 @@ TEST_CASE("async_send")
   sync_wait([&]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::get)
-                   .set_url("https://httpbin.org/get")
+                   .set_url("https://httpbun.com/get")
                    .async_send(get_certs());
     CHECK_EQ(res->status_code().value(), http::status::ok);
-    CHECK((co_await res->as_string())->size() > 0);
+    CHECK(!(co_await res->as_string())->empty());
   });
 
   sync_wait([&]() -> awaitable<void> {
@@ -128,7 +128,7 @@ TEST_CASE("request with body")
   sync_wait([]() -> awaitable<void> {
     auto res = co_await http_client()
                    .set_method(http::verb::post)
-                   .set_url("http://httpbin.org/post")
+                   .set_url("http://httpbun.com/post")
                    .set_body("echo")
                    .async_send();
     CHECK_EQ(res->status_code().value(), http::status::ok);

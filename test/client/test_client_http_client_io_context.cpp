@@ -23,7 +23,7 @@ TEST_CASE("compile with io_context")
   sync_wait([]() -> net::awaitable<void, net::io_context::executor_type> {
     auto res = co_await http_client()
                    .set_method(http::verb::post)
-                   .set_url("http://httpbin.org/post")
+                   .set_url("http://httpbun.com/post")
                    .set_body("echo")
                    .async_send();
     CHECK_EQ(res->status_code().value(), http::status::ok);
