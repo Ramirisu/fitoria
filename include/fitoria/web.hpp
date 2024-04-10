@@ -17,7 +17,6 @@
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
 #include <fitoria/web/async_read_until_eof.hpp>
-#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_file_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>

@@ -14,7 +14,6 @@
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
 #include <fitoria/web/async_read_until_eof.hpp>
-#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
@@ -123,69 +122,86 @@ public:
     return std::move(*this);
   }
 
-  any_async_readable_stream& body() noexcept
+  optional<any_async_readable_stream&> body() noexcept
   {
-    return body_;
+    return optional<any_async_readable_stream&>(body_);
   }
 
-  const any_async_readable_stream& body() const noexcept
+  optional<const any_async_readable_stream&> body() const noexcept
   {
-    return body_;
+    return optional<const any_async_readable_stream&>(body_);
   }
 
   auto as_string() -> awaitable<expected<std::string, std::error_code>>
   {
-    return async_read_until_eof<std::string>(body_);
+    if (body_) {
+      co_return co_await async_read_until_eof<std::string>(*body_);
+    }
+
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 
   template <typename Byte>
   auto as_vector() -> awaitable<expected<std::vector<Byte>, std::error_code>>
   {
-    return async_read_until_eof<std::vector<Byte>>(body_);
+    if (body_) {
+      co_return co_await async_read_until_eof<std::vector<Byte>>(*body_);
+    }
+
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 
 #if defined(BOOST_ASIO_HAS_FILE)
   auto as_file(const std::string& path)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
-    auto file = net::stream_file(co_await net::this_coro::executor);
+    if (body_) {
+      auto file = net::stream_file(co_await net::this_coro::executor);
 
-    boost::system::error_code ec;
-    file.open(path, net::file_base::create | net::file_base::write_only, ec);
-    if (ec) {
-      co_return unexpected { ec };
+      boost::system::error_code ec;
+      file.open(path, net::file_base::create | net::file_base::write_only, ec);
+      if (ec) {
+        co_return unexpected { ec };
+      }
+
+      co_return co_await async_read_into_stream_file(*body_, file);
     }
 
-    co_return co_await async_read_into_stream_file(body_, file);
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 #endif
 
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (fields().get(http::field::content_type)
-        != http::fields::content_type::json()) {
-      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    if (body_) {
+      if (fields().get(http::field::content_type)
+          != http::fields::content_type::json()) {
+        co_return unexpected { make_error_code(
+            error::unexpected_content_type) };
+      }
+
+      if (auto str = co_await async_read_until_eof<std::string>(*body_); str) {
+        co_return detail::as_json<T>(*str);
+      } else {
+        co_return unexpected { str.error() };
+      }
     }
 
-    if (auto str = co_await async_read_until_eof<std::string>(body()); str) {
-      co_return detail::as_json<T>(*str);
-    } else {
-      co_return unexpected { str.error() };
-    }
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 
   template <std::size_t N>
   http_response& set_body(std::span<const std::byte, N> bytes) &
   {
-    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
+    body_.emplace(async_readable_vector_stream(bytes));
     return *this;
   }
 
   template <std::size_t N>
   http_response&& set_body(std::span<const std::byte, N> bytes) &&
   {
-    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
+    set_body(bytes);
     return std::move(*this);
   }
 
@@ -233,21 +249,21 @@ public:
   template <async_readable_stream AsyncReadableStream>
   http_response& set_stream(AsyncReadableStream&& stream) &
   {
-    body_ = std::forward<AsyncReadableStream>(stream);
+    body_.emplace(std::forward<AsyncReadableStream>(stream));
     return *this;
   }
 
   template <async_readable_stream AsyncReadableStream>
   http_response&& set_stream(AsyncReadableStream&& stream) &&
   {
-    body_ = std::forward<AsyncReadableStream>(stream);
+    set_stream(std::forward<AsyncReadableStream>(stream));
     return std::move(*this);
   }
 
 private:
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_eof_stream() };
+  optional<any_async_readable_stream> body_;
 };
 
 }

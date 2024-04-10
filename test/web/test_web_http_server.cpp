@@ -293,10 +293,10 @@ TEST_CASE("generic request")
 
                   CHECK_EQ(body, "happy birthday");
                   auto buffer = std::array<std::byte, 4096>();
-                  CHECK(!(co_await req.body().async_read_some(
+                  CHECK(!(co_await req.body()->async_read_some(
                       net::buffer(buffer))));
                   CHECK(!(
-                      co_await async_read_until_eof<std::string>(req.body())));
+                      co_await async_read_until_eof<std::string>(*req.body())));
 
                   co_return http_response(http::status::ok)
                       .insert_field(http::field::user_agent,
@@ -387,11 +387,7 @@ TEST_CASE("request with null body")
                 [](http_request& req) -> awaitable<http_response> {
                   CHECK_EQ(req.fields().get(http::field::connection), "close");
                   CHECK(!req.fields().get(http::field::content_length));
-                  CHECK_EQ(req.body().size_hint(), std::size_t(0));
-                  CHECK_EQ(
-                      (co_await async_read_until_eof<std::string>(req.body()))
-                          .error(),
-                      make_error_code(net::error::eof));
+                  CHECK(!req.body());
                   co_return http_response(http::status::ok);
                 }))
             .build();
@@ -427,7 +423,7 @@ TEST_CASE("request with empty body")
                                         -> awaitable<http_response> {
               CHECK_EQ(req.fields().get(http::field::connection), "close");
               CHECK_EQ(req.fields().get(http::field::content_length), "0");
-              CHECK_EQ(req.body().size_hint(), std::size_t(0));
+              CHECK(req.body()->is_sized());
               CHECK_EQ(str, "");
               co_return http_response(http::status::ok);
             }))
@@ -468,7 +464,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                           CHECK_EQ(req.fields().get(http::field::content_type),
                                    http::fields::content_type::plaintext());
                           CHECK(!req.fields().get(http::field::content_length));
-                          CHECK(!req.body().size_hint());
+                          CHECK(!req.body()->is_sized());
                           CHECK_EQ(data, text);
                           co_return http_response(http::status::ok);
                         }))
@@ -528,7 +524,7 @@ TEST_CASE("response status only")
         CHECK_EQ(res->status_code(), http::status::no_content);
         CHECK_EQ(res->fields().get(http::field::connection), "close");
         CHECK(!res->fields().get(http::field::content_length));
-        CHECK_EQ(res->body().size_hint(), std::size_t(0));
+        CHECK(!res->body());
         CHECK(!(co_await res->as_string()));
       },
       net::use_future)
@@ -573,7 +569,7 @@ TEST_CASE("response with plain text")
                  http::fields::content_type::plaintext());
         CHECK_EQ(res->fields().get(http::field::content_length),
                  std::to_string(text.size()));
-        CHECK_EQ(res->body().size_hint(), text.size());
+        CHECK(res->body()->is_sized());
         CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)
@@ -616,7 +612,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
         CHECK_EQ(res->fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK(!res->fields().get(http::field::content_length));
-        CHECK(!res->body().size_hint());
+        CHECK(!res->body()->is_sized());
         CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)

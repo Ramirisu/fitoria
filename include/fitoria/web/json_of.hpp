@@ -34,17 +34,22 @@ public:
   friend auto tag_invoke(from_http_request_t<json_of<T>>, http_request& req)
       -> awaitable<expected<json_of<T>, std::error_code>>
   {
-    if (req.fields().get(http::field::content_type)
-        != http::fields::content_type::json()) {
-      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    if (req.body()) {
+      if (req.fields().get(http::field::content_type)
+          != http::fields::content_type::json()) {
+        co_return unexpected { make_error_code(
+            error::unexpected_content_type) };
+      }
+
+      if (auto str = co_await async_read_until_eof<std::string>(*req.body());
+          str) {
+        co_return detail::as_json<T>(*str);
+      } else {
+        co_return unexpected { str.error() };
+      }
     }
 
-    if (auto str = co_await async_read_until_eof<std::string>(req.body());
-        str) {
-      co_return detail::as_json<T>(*str);
-    } else {
-      co_return unexpected { str.error() };
-    }
+    co_return unexpected { make_error_code(net::error::eof) };
   }
 };
 

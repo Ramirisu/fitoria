@@ -76,7 +76,11 @@ namespace from_http_request_ns {
         -> awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, std::string>)
     {
-      return async_read_until_eof<R>(req.body());
+      if (req.body()) {
+        co_return co_await async_read_until_eof<R>(*req.body());
+      }
+
+      co_return unexpected { make_error_code(net::error::eof) };
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
@@ -84,7 +88,12 @@ namespace from_http_request_ns {
       requires(is_specialization_of_v<R, std::vector>)
     {
       static_assert(not_cvref<R>, "R must not be cvref qualified");
-      return async_read_until_eof<R>(req.body());
+
+      if (req.body()) {
+        co_return co_await async_read_until_eof<R>(*req.body());
+      }
+
+      co_return unexpected { make_error_code(net::error::eof) };
     }
   };
 

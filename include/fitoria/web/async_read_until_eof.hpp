@@ -25,26 +25,14 @@ auto async_read_until_eof(AsyncReadableStream&& stream)
 {
   detail::dynamic_buffer<Container> buffer;
 
-  auto get_size_hint = [&]() -> std::size_t {
-    if (auto size = stream.size_hint(); size) {
-      return *size;
-    }
-    return 4096;
-  };
-
-  auto hint = get_size_hint();
-  auto size = co_await stream.async_read_some(buffer.prepare(hint));
+  const std::size_t bufsize = 4096;
+  auto size = co_await stream.async_read_some(buffer.prepare(bufsize));
   if (!size) {
     co_return unexpected { size.error() };
   }
   while (size) {
     buffer.commit(*size);
-
-    hint = get_size_hint();
-    if (hint == 0) {
-      break;
-    }
-    size = co_await stream.async_read_some(buffer.prepare(hint));
+    size = co_await stream.async_read_some(buffer.prepare(bufsize));
   }
   if (!size && size.error() != make_error_code(net::error::eof)) {
     co_return unexpected { size.error() };

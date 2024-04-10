@@ -23,7 +23,7 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
-    virtual auto size_hint() const noexcept -> optional<std::size_t> = 0;
+    virtual auto is_sized() const noexcept -> bool = 0;
     virtual auto async_read_some(net::mutable_buffer)
         -> awaitable<expected<std::size_t, std::error_code>>
         = 0;
@@ -37,9 +37,9 @@ class any_async_readable_stream {
     {
     }
 
-    auto size_hint() const noexcept -> optional<std::size_t> override
+    auto is_sized() const noexcept -> bool override
     {
-      return stream_.size_hint();
+      return stream_.is_sized();
     }
 
     auto async_read_some(net::mutable_buffer buffer)
@@ -72,9 +72,9 @@ public:
 
   any_async_readable_stream& operator=(any_async_readable_stream&&) = default;
 
-  auto size_hint() const noexcept -> optional<std::size_t>
+  auto is_sized() const noexcept -> bool
   {
-    return stream_->size_hint();
+    return stream_->is_sized();
   }
 
   auto async_read_some(net::mutable_buffer buffer)

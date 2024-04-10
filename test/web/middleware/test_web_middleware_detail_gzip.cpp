@@ -12,7 +12,9 @@
 
 #if defined(FITORIA_HAS_ZLIB)
 
-#include <fitoria/web.hpp>
+#include <fitoria/web/async_read_until_eof.hpp>
+#include <fitoria/web/async_readable_vector_stream.hpp>
+#include <fitoria/web/middleware/detail/async_gzip_stream.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
@@ -35,18 +37,19 @@ TEST_CASE("async_gzip_inflate_stream: async_read_some")
 
     auto stream = middleware::detail::async_gzip_inflate_stream(
         async_readable_vector_stream(std::span(in.begin(), in.size())));
-    auto buffer = std::array<char, 4>();
+    auto buffer = std::array<char, 1>();
     auto out = std::string();
     auto size = co_await stream.async_read_some(net::buffer(buffer));
     while (size) {
       out.append(buffer.data(), *size);
       size = co_await stream.async_read_some(net::buffer(buffer));
     }
-    CHECK_EQ(size.error(), make_error_code(net::error::eof));
 
-    const auto exp = std::string_view(
-        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    CHECK_EQ(out, exp);
+    CHECK_EQ(size.error(), make_error_code(net::error::eof));
+    CHECK_EQ(
+        out,
+        std::string_view(
+            "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
   });
 }
 
@@ -67,9 +70,10 @@ TEST_CASE("async_gzip_inflate_stream: in > out")
         middleware::detail::async_gzip_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
 
-    const auto exp = std::string_view(
-        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    CHECK_EQ(out, exp);
+    CHECK_EQ(
+        out,
+        std::string_view(
+            "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
   });
 }
 
@@ -86,24 +90,11 @@ TEST_CASE("async_gzip_inflate_stream: in < out")
         middleware::detail::async_gzip_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
 
-    const auto exp = std::string(512, 'a');
-    CHECK_EQ(out, exp);
+    CHECK_EQ(out, std::string(512, 'a'));
   });
 }
 
 TEST_CASE("async_gzip_inflate_stream: eof stream")
-{
-  sync_wait([]() -> awaitable<void> {
-    const auto in = std::vector<std::uint8_t> {};
-
-    auto out = co_await async_read_until_eof<std::string>(
-        middleware::detail::async_gzip_inflate_stream(
-            async_readable_eof_stream()));
-    CHECK_EQ(out.error(), make_error_code(net::error::eof));
-  });
-}
-
-TEST_CASE("async_gzip_inflate_stream: empty stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
@@ -115,7 +106,7 @@ TEST_CASE("async_gzip_inflate_stream: empty stream")
   });
 }
 
-TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
+TEST_CASE("async_gzip_inflate_stream: invalid stream")
 {
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> { 0x00, 0x01, 0x02, 0x03 };
@@ -123,7 +114,7 @@ TEST_CASE("async_gzip_inflate_stream: invalid gzip stream")
     auto out = co_await async_read_until_eof<std::string>(
         middleware::detail::async_gzip_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
-    CHECK(!out);
+    CHECK_EQ(out.error(), make_error_code(boost::beast::zlib::error::general));
   });
 }
 
@@ -143,16 +134,6 @@ TEST_CASE("async_gzip_deflate_stream")
 }
 
 TEST_CASE("async_gzip_deflate_stream: eof stream")
-{
-  sync_wait([]() -> awaitable<void> {
-    auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(
-        middleware::detail::async_gzip_deflate_stream(
-            async_readable_eof_stream()));
-    CHECK_EQ(out.error(), make_error_code(net::error::eof));
-  });
-}
-
-TEST_CASE("async_gzip_deflate_stream: empty stream")
 {
   sync_wait([]() -> awaitable<void> {
     auto out = co_await async_read_until_eof<std::vector<std::uint8_t>>(

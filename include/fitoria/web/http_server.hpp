@@ -154,7 +154,10 @@ private:
         req.method(),
         target,
         std::move(req.fields()),
-        std::move(req.body()));
+        req.body().and_then(
+            [](auto& body) -> optional<any_async_readable_stream> {
+              return std::move(body);
+            }));
     co_await f(std::move(res));
   }
 
@@ -300,11 +303,17 @@ private:
           method,
           std::move(target),
           std::move(fields),
-          async_message_parser_stream(
-              std::move(buffer), stream, std::move(parser)));
+          [&]() -> optional<any_async_readable_stream> {
+            if (parser->get().has_content_length() || parser->get().chunked()) {
+              return async_message_parser_stream(
+                  std::move(buffer), stream, std::move(parser));
+            }
+
+            return nullopt;
+          }());
 
       auto do_response = [&]() -> awaitable<expected<void, std::error_code>> {
-        return res.body().size_hint()
+        return (!res.body() || res.body()->is_sized())
             ? do_sized_response(stream, res, keep_alive)
             : do_chunked_response(stream, res, keep_alive);
       };
@@ -324,7 +333,7 @@ private:
                   http::verb method,
                   std::string target,
                   http_fields fields,
-                  any_async_readable_stream body) const
+                  optional<any_async_readable_stream> body) const
       -> awaitable<http_response>
   {
     auto req_url = boost::urls::parse_origin_form(target);
@@ -362,18 +371,30 @@ private:
       -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
+    using boost::beast::http::empty_body;
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
-    auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
-    res.fields().to_impl(r);
-    r.keep_alive(keep_alive);
-    if (auto data
-        = co_await async_read_until_eof<std::vector<std::byte>>(res.body());
-        data) {
-      r.body() = std::move(*data);
+    if (res.body()) {
+      auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
+      res.fields().to_impl(r);
+      r.keep_alive(keep_alive);
+      if (auto data
+          = co_await async_read_until_eof<std::vector<std::byte>>(*res.body());
+          data) {
+        r.body() = std::move(*data);
+      } else if (data.error() != make_error_code(net::error::eof)) {
+        co_return unexpected { data.error() };
+      }
       r.prepare_payload();
-    } else if (data.error() == make_error_code(net::error::eof)) {
+
+      if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
+        co_return unexpected { ec };
+      }
+    } else {
+      auto r = response<empty_body>(res.status_code().value(), 11);
+      res.fields().to_impl(r);
+      r.keep_alive(keep_alive);
       r.prepare_payload();
 
       // boost.beast incorrectly handle some cases
@@ -382,12 +403,10 @@ private:
           || res.status_code().value() == http::status::no_content) {
         r.content_length(boost::none);
       }
-    } else {
-      co_return unexpected { data.error() };
-    }
 
-    if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
-      co_return unexpected { ec };
+      if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
+        co_return unexpected { ec };
+      }
     }
 
     co_return expected<void, std::error_code>();

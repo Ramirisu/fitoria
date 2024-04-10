@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/optional.hpp>
+
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
 #include <array>
@@ -22,7 +24,7 @@ namespace web {
 template <typename AsyncWritableStream,
           async_readable_stream AsyncReadableStream>
 auto async_write_each_chunk(AsyncWritableStream&& to,
-                            AsyncReadableStream&& from)
+                            optional<AsyncReadableStream> from)
     -> awaitable<expected<void, std::error_code>>
 {
   using boost::beast::async_write;
@@ -32,19 +34,21 @@ auto async_write_each_chunk(AsyncWritableStream&& to,
 
   boost::system::error_code ec;
 
-  auto buffer = std::array<std::byte, 4096>();
-  auto size = co_await from.async_read_some(net::buffer(buffer));
-  while (size) {
-    std::tie(ec, std::ignore) = co_await async_write(
-        to, make_chunk(net::buffer(buffer.data(), *size)), use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
-    }
+  if (from) {
+    auto buffer = std::array<std::byte, 4096>();
+    auto size = co_await from->async_read_some(net::buffer(buffer));
+    while (size) {
+      std::tie(ec, std::ignore) = co_await async_write(
+          to, make_chunk(net::buffer(buffer.data(), *size)), use_awaitable);
+      if (ec) {
+        co_return unexpected { ec };
+      }
 
-    size = co_await from.async_read_some(net::buffer(buffer));
-  }
-  if (size.error() != make_error_code(net::error::eof)) {
-    co_return unexpected { size.error() };
+      size = co_await from->async_read_some(net::buffer(buffer));
+    }
+    if (size.error() != make_error_code(net::error::eof)) {
+      co_return unexpected { size.error() };
+    }
   }
 
   std::tie(ec, std::ignore)

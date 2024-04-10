@@ -41,9 +41,9 @@ public:
 
   async_readable_file_stream& operator=(async_readable_file_stream&&) = default;
 
-  auto size_hint() const noexcept -> optional<std::size_t>
+  auto is_sized() const noexcept -> bool
   {
-    return nullopt;
+    return false;
   }
 
   auto async_read_some(net::mutable_buffer buffer)

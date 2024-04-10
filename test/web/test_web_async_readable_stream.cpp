@@ -14,7 +14,6 @@
 #include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/web/async_read_until_eof.hpp>
-#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_file_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
@@ -27,10 +26,10 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.async_readable_stream]");
 
-TEST_CASE("async_readable_eof_stream")
+TEST_CASE("async_readable_vector_stream: read empty")
 {
   sync_wait([&]() -> awaitable<void> {
-    auto stream = async_readable_eof_stream();
+    auto stream = async_readable_vector_stream();
     auto buffer = std::array<std::byte, 4096>();
     CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
              make_error_code(net::error::eof));
@@ -39,7 +38,7 @@ TEST_CASE("async_readable_eof_stream")
   });
 }
 
-TEST_CASE("async_readable_vector_stream: empty")
+TEST_CASE("async_readable_vector_stream: read chunk by chunk")
 {
   sync_wait([&]() -> awaitable<void> {
     auto stream = async_readable_vector_stream(
@@ -51,20 +50,6 @@ TEST_CASE("async_readable_vector_stream: empty")
              std::size_t(4));
     CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))),
              std::size_t(1));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
-  });
-}
-
-TEST_CASE("async_readable_vector_stream")
-{
-  sync_wait([&]() -> awaitable<void> {
-    auto stream = async_readable_vector_stream();
-    auto buffer = std::array<std::byte, 4096>();
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))),
-             std::size_t(0));
     CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
              make_error_code(net::error::eof));
     CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),

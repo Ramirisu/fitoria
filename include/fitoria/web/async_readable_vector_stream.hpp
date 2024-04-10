@@ -29,21 +29,24 @@ class async_readable_vector_stream {
 public:
   using is_async_readable_stream = void;
 
-  async_readable_vector_stream()
-      : data_(data_t { .offset = 0, .buf = std::vector<std::byte>() })
-  {
-  }
+  async_readable_vector_stream() = default;
 
   async_readable_vector_stream(std::vector<std::byte> data)
-      : data_(data_t { .offset = 0, .buf = std::move(data) })
   {
+    if (!data.empty()) {
+      data_.emplace(data_t { .offset = 0, .buf = std::move(data) });
+    }
   }
 
   template <typename T, std::size_t N>
   async_readable_vector_stream(std::span<T, N> s)
-      : async_readable_vector_stream(std::vector<std::byte>(
-          std::as_bytes(s).begin(), std::as_bytes(s).end()))
   {
+    auto b = std::as_bytes(s);
+    if (!b.empty()) {
+      data_.emplace();
+      data_->offset = 0;
+      data_->buf = std::vector<std::byte>(b.begin(), b.end());
+    }
   }
 
   async_readable_vector_stream(const async_readable_vector_stream&) = default;
@@ -56,13 +59,9 @@ public:
   async_readable_vector_stream& operator=(async_readable_vector_stream&&)
       = default;
 
-  auto size_hint() const noexcept -> optional<std::size_t>
+  auto is_sized() const noexcept -> bool
   {
-    if (data_) {
-      return data_->buf.size() - data_->offset;
-    }
-
-    return 0;
+    return true;
   }
 
   auto async_read_some(net::mutable_buffer buffer)

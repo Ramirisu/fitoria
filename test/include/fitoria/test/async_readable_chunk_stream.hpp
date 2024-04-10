@@ -47,11 +47,11 @@ public:
   {
   }
 
-  auto size_hint() const noexcept -> optional<std::size_t>
+  auto is_sized() const noexcept -> bool
   {
-    // return `nullopt` here to tell serializer to do chunked transfer encoding
+    // return `false` here to tell serializer to do chunked transfer encoding
     // even though we know the exact size of the stream is `data_.size()`.
-    return nullopt;
+    return false;
   }
 
   auto async_read_some(net::mutable_buffer buffer)

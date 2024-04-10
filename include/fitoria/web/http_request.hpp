@@ -15,7 +15,6 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
-#include <fitoria/web/async_readable_eof_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
@@ -41,7 +40,7 @@ public:
                http::verb method,
                query_map query,
                http_fields fields,
-               any_async_readable_stream body,
+               optional<any_async_readable_stream> body,
                const std::vector<shared_state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , path_info_(std::move(path_info))
@@ -165,27 +164,27 @@ public:
     return std::move(*this);
   }
 
-  any_async_readable_stream& body() noexcept
+  optional<any_async_readable_stream&> body() noexcept
   {
-    return body_;
+    return optional<any_async_readable_stream&>(body_);
   }
 
-  const any_async_readable_stream& body() const noexcept
+  optional<const any_async_readable_stream&> body() const noexcept
   {
-    return body_;
+    return optional<const any_async_readable_stream&>(body_);
   }
 
   template <std::size_t N>
   http_request& set_body(std::span<const std::byte, N> bytes) &
   {
-    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
+    body_.emplace(async_readable_vector_stream(bytes));
     return *this;
   }
 
   template <std::size_t N>
   http_request&& set_body(std::span<const std::byte, N> bytes) &&
   {
-    body_ = any_async_readable_stream(async_readable_vector_stream(bytes));
+    set_body(bytes);
     return std::move(*this);
   }
 
@@ -233,14 +232,14 @@ public:
   template <async_readable_stream AsyncReadableStream>
   http_request& set_stream(AsyncReadableStream&& stream) &
   {
-    body_ = std::forward<AsyncReadableStream>(stream);
+    body_.emplace(std::forward<AsyncReadableStream>(stream));
     return *this;
   }
 
   template <async_readable_stream AsyncReadableStream>
   http_request&& set_stream(AsyncReadableStream&& stream) &&
   {
-    body_ = std::forward<AsyncReadableStream>(stream);
+    set_stream(std::forward<AsyncReadableStream>(stream));
     return std::move(*this);
   }
 
@@ -266,7 +265,7 @@ private:
   http::verb method_;
   query_map query_;
   http_fields fields_;
-  any_async_readable_stream body_ { async_readable_eof_stream() };
+  optional<any_async_readable_stream> body_;
   optional<const std::vector<shared_state_map>&> state_maps_;
 };
 
