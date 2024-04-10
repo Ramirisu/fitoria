@@ -14,7 +14,6 @@
 #include <fitoria/core/net.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
-#include <fitoria/web/http/http.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

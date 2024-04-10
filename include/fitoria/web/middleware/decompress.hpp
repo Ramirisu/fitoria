@@ -18,6 +18,7 @@
 
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/middleware/detail/async_brotli_inflate_stream.hpp>
 #include <fitoria/web/middleware/detail/async_deflate_stream.hpp>
 #include <fitoria/web/middleware/detail/async_gzip_stream.hpp>
 #include <fitoria/web/middleware_concept.hpp>
@@ -45,6 +46,11 @@ public:
         } else if (encoding == http::fields::content_encoding::gzip()) {
           req.set_stream(
               detail::async_gzip_inflate_stream(std::move(*req.body())));
+#endif
+#if defined(FITORIA_HAS_BROTLI)
+        } else if (encoding == http::fields::content_encoding::brotli()) {
+          req.set_stream(
+              detail::async_brotli_inflate_stream(std::move(*req.body())));
 #endif
         } else if (encoding == http::fields::content_encoding::identity()) {
         } else {

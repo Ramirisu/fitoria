@@ -9,12 +9,14 @@ option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
 option(FITORIA_BUILD_TESTS "Build tests" OFF)
 option(FITORIA_DISABLE_OPENSSL "Do not use OpenSSL" OFF)
 option(FITORIA_DISABLE_ZLIB "Do not use zlib" OFF)
+option(FITORIA_DISABLE_BROTLI "Do not use brotli" OFF)
 option(FITORIA_ENABLE_CODECOV "Enable codecov build" OFF)
 
 message(STATUS "[fitoria] FITORIA_BUILD_EXAMPLES = ${FITORIA_BUILD_EXAMPLES}")
 message(STATUS "[fitoria] FITORIA_BUILD_TESTS = ${FITORIA_BUILD_TESTS}")
 message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
 message(STATUS "[fitoria] FITORIA_DISABLE_ZLIB = ${FITORIA_DISABLE_ZLIB}")
+message(STATUS "[fitoria] FITORIA_DISABLE_BROTLI = ${FITORIA_DISABLE_BROTLI}")
 message(STATUS "[fitoria] FITORIA_ENABLE_CODECOV = ${FITORIA_ENABLE_CODECOV}")
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -43,6 +45,19 @@ if(NOT FITORIA_DISABLE_ZLIB)
 
   if(ZLIB_FOUND)
     set(FITORIA_USE_ZLIB ON)
+  endif()
+endif()
+
+# [dep.lib] brotli
+if(NOT FITORIA_DISABLE_BROTLI)
+  message(STATUS "[fitoria] [dep.lib.brotli] trying to find brotli")
+  find_package(unofficial-brotli)
+  message(
+    STATUS
+      "[fitoria] [dep.lib.brotli] brotli found = ${unofficial-brotli_FOUND}")
+
+  if(unofficial-brotli_FOUND)
+    set(FITORIA_USE_BROTLI ON)
   endif()
 endif()
 
@@ -84,6 +99,12 @@ endif()
 if(FITORIA_USE_ZLIB)
   target_compile_definitions(fitoria INTERFACE FITORIA_HAS_ZLIB)
   target_link_libraries(fitoria INTERFACE ZLIB::ZLIB)
+endif()
+
+if(FITORIA_USE_BROTLI)
+  target_compile_definitions(fitoria INTERFACE FITORIA_HAS_BROTLI)
+  target_link_libraries(fitoria INTERFACE unofficial::brotli::brotlidec
+                                          unofficial::brotli::brotlienc)
 endif()
 
 if(WIN32)

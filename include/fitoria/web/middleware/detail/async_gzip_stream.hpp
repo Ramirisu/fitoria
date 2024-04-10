@@ -16,7 +16,6 @@
 #include <fitoria/core/net.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
-#include <fitoria/web/http/http.hpp>
 
 #include <system_error>
 

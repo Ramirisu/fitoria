@@ -502,13 +502,13 @@ int main()
 
 #### Middleware
 
-Use `scope::use(Middleware&&)` to configure middlewares for child `route`s, or `route::use(Middleware&&)` to configure middlewares for itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
+Use `scope::use(Middleware&&)` to configure middlewares for its child `route`s, or `route::use(Middleware&&)` to configure middlewares for itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/middleware.cpp))
 
 fitoria provides following build-in middlewares:
 
 * `middleware::logger`
 * `middleware::exception_handler`
-* `middleware::decompress`
+* `middleware::decompress` (`deflate`, `gzip` and `brotli`)
 
 > Implement `new_middleware_t` CPO to define custom middlewares.
 
@@ -873,7 +873,8 @@ Dependencies
 | `boost::json`  | `1.84` or later | JSON serialization/deserialization |                 |     required      |
 | `boost::regex` | `1.84` or later | Route parsing                      |                 |     required      |
 |  `boost::pfr`  | `1.84` or later | `web::path<T>` extractor           |                 |     optional      |
-|     `zlib`     |                 | Built-in middleware gzip           |                 |     optional      |
+|     `zlib`     |                 | `web::middleware::decompress`      |                 |     optional      |
+|    `brotli`    |                 | `web::middleware::decompress`      |                 |     optional      |
 |     `fmt`      | `10.x` or later | Log formatting                     | `fitoria::fmt`  |     required      |
 |   `OpenSSL`    |                 | Secure networking                  |                 |     optional      |
 |   `doctest`    |                 | Unit testing                       |                 |     optional      |

@@ -127,6 +127,8 @@ TEST_CASE("gzip")
   ioc.run();
 }
 
+#endif
+
 TEST_CASE("decompress")
 {
   const auto plain = std::string_view(
@@ -150,6 +152,7 @@ TEST_CASE("decompress")
   const auto test_cases = std::vector<test_case_t> { { false }, { true } };
 
   for (auto& test_case : test_cases) {
+#if defined(FITORIA_HAS_ZLIB)
     server.serve_request(
         "/",
         http_request(http::verb::post)
@@ -198,11 +201,57 @@ TEST_CASE("decompress")
           CHECK_EQ(res.status_code(), http::status::ok);
           co_return;
         });
+#endif
+
+#if defined(FITORIA_HAS_BROTLI)
+    server.serve_request(
+        "/",
+        http_request(http::verb::post)
+            .set_field(http::field::content_encoding,
+                       fmt::format("{}, {}, {}",
+                                   http::fields::content_encoding::deflate(),
+                                   http::fields::content_encoding::identity(),
+                                   http::fields::content_encoding::brotli()))
+            .set_stream(get_stream(
+                test_case.chunked,
+                std::vector<std::uint8_t> {
+                    0x8b, 0x1f, 0x80, 0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b,
+                    0xcf, 0xc8, 0xcc, 0xca, 0xce, 0xc9, 0xcd, 0xcb, 0x2f, 0x28,
+                    0x2c, 0x2a, 0x2e, 0x29, 0x2d, 0x2b, 0xaf, 0xa8, 0xac, 0x32,
+                    0x30, 0x34, 0x32, 0x36, 0x31, 0x35, 0x33, 0xb7, 0xb0, 0x74,
+                    0x74, 0x72, 0x76, 0x71, 0x75, 0x73, 0xf7, 0xf0, 0xf4, 0xf2,
+                    0xf6, 0xf1, 0xf5, 0xf3, 0x0f, 0x08, 0x0c, 0x0a, 0x0e, 0x09,
+                    0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00, 0x03 })),
+        [](auto res) -> awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::ok);
+          co_return;
+        });
+    server.serve_request(
+        "/",
+        http_request(http::verb::post)
+            .set_field(http::field::content_encoding,
+                       fmt::format("{}, {}, {}",
+                                   http::fields::content_encoding::brotli(),
+                                   http::fields::content_encoding::identity(),
+                                   http::fields::content_encoding::deflate()))
+            .set_stream(get_stream(
+                test_case.chunked,
+                std::vector<std::uint8_t> {
+                    0xeb, 0x96, 0x6b, 0x48, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b,
+                    0xcf, 0xc8, 0xcc, 0xca, 0xce, 0xc9, 0xcd, 0xcb, 0x2f, 0x28,
+                    0x2c, 0x2a, 0x2e, 0x29, 0x2d, 0x2b, 0xaf, 0xa8, 0xac, 0x32,
+                    0x30, 0x34, 0x32, 0x36, 0x31, 0x35, 0x33, 0xb7, 0xb0, 0x74,
+                    0x74, 0x72, 0x76, 0x71, 0x75, 0x73, 0xf7, 0xf0, 0xf4, 0xf2,
+                    0xf6, 0xf1, 0xf5, 0xf3, 0x0f, 0x08, 0x0c, 0x0a, 0x0e, 0x09,
+                    0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x62, 0x06, 0x00 })),
+        [](auto res) -> awaitable<void> {
+          CHECK_EQ(res.status_code(), http::status::ok);
+          co_return;
+        });
+#endif
   }
 
   ioc.run();
 }
-
-#endif
 
 TEST_SUITE_END();

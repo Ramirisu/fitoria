@@ -96,6 +96,11 @@ namespace fields {
     {
       return "gzip";
     }
+
+    inline std::string_view brotli() noexcept
+    {
+      return "brotli";
+    }
   }
 
   namespace authorization {

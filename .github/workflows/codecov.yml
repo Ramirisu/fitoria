@@ -48,6 +48,7 @@ jobs:
           vcpkg install openssl:x64-linux
           vcpkg install fmt:x64-linux
           vcpkg install zlib:x64-linux
+          vcpkg install brotli:x64-linux
           vcpkg install doctest:x64-linux
           vcpkg install liburing:x64-linux
 
