@@ -6,28 +6,24 @@
 //
 #pragma once
 
-#ifndef FITORIA_LOG_ASYNC_WRITER_HPP
-#define FITORIA_LOG_ASYNC_WRITER_HPP
+#ifndef FITORIA_LOG_CONFIG_HPP
+#define FITORIA_LOG_CONFIG_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/log/config.hpp>
-
-#include <fitoria/log/record.hpp>
-
 FITORIA_NAMESPACE_BEGIN
 
 namespace log {
 
-class async_writer {
-public:
-  virtual ~async_writer() = default;
+using executor_type = boost::asio::system_context::executor_type;
 
-  virtual auto async_write(record_ptr rec) -> awaitable<void> = 0;
-};
+template <typename T>
+using awaitable = boost::asio::awaitable<T, executor_type>;
 
+constexpr auto use_awaitable
+    = boost::asio::as_tuple_t<boost::asio::use_awaitable_t<executor_type>> {};
 }
 
 FITORIA_NAMESPACE_END

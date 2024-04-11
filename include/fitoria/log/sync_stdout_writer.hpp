@@ -32,7 +32,7 @@ public:
 
   ~sync_stdout_writer() override = default;
 
-  auto async_write(record_ptr rec) -> net::awaitable<void> override
+  auto async_write(record_ptr rec) -> awaitable<void> override
   {
     file_ << this->fmter_.format(rec);
 

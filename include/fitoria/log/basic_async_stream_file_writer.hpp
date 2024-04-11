@@ -31,7 +31,7 @@ public:
 
   ~basic_async_stream_file_writer() override = default;
 
-  auto async_write(record_ptr rec) -> net::awaitable<void> override
+  auto async_write(record_ptr rec) -> awaitable<void> override
   {
     auto output = this->fmter_.format(rec);
 

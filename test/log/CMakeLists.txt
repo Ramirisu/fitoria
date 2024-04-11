@@ -1,3 +1,6 @@
+fitoria_add_test(NAME test_log_async_stdout_writer_io_context SRCS
+                 test_log_async_stdout_writer_io_context.cpp)
+fitoria_try_target_link_liburing(test_log_async_stdout_writer_io_context)
 fitoria_add_test(NAME test_log_async_stdout_writer SRCS
                  test_log_async_stdout_writer.cpp)
 fitoria_try_target_link_liburing(test_log_async_stdout_writer)

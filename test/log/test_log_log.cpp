@@ -11,7 +11,6 @@
 
 #include <semaphore>
 
-using namespace fitoria;
 using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.log]");
@@ -22,7 +21,7 @@ class test_writer : public async_writer {
 public:
   ~test_writer() override = default;
 
-  auto async_write(record_ptr rec) -> net::awaitable<void> override
+  auto async_write(record_ptr rec) -> awaitable<void> override
   {
     is_called_ = true;
     output_ += rec->msg;

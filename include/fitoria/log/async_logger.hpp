@@ -28,25 +28,26 @@ FITORIA_NAMESPACE_BEGIN
 namespace log {
 
 class async_logger {
-  using channel_t = net::experimental::concurrent_channel<void(
-      boost::system::error_code, record_ptr)>;
+  using channel_t
+      = net::experimental::concurrent_channel<executor_type,
+                                              void(boost::system::error_code,
+                                                   record_ptr)>;
 
   std::vector<std::shared_ptr<async_writer>> writers_;
   filter filter_;
   channel_t channel_;
 
-  auto async_write_to_all(record_ptr rec) -> net::awaitable<void>
+  auto async_write_to_all(record_ptr rec) -> awaitable<void>
   {
     for (auto& writer : writers_) {
       co_await writer->async_write(rec);
     }
   }
 
-  auto async_dequeue_and_write() -> net::awaitable<void>
+  auto async_dequeue_and_write() -> awaitable<void>
   {
     for (;;) {
-      auto [ec, rec]
-          = co_await channel_.async_receive(net::as_tuple(net::use_awaitable));
+      auto [ec, rec] = co_await channel_.async_receive(use_awaitable);
       if (ec) {
         break;
       }
@@ -55,10 +56,10 @@ class async_logger {
     }
   }
 
-  auto async_enqueue(record_ptr rec) -> net::awaitable<void>
+  auto async_enqueue(record_ptr rec) -> awaitable<void>
   {
     [[maybe_unused]] auto [ec] = co_await channel_.async_send(
-        boost::system::error_code(), rec, net::as_tuple(net::use_awaitable));
+        boost::system::error_code(), rec, use_awaitable);
   }
 
   void log(record::clock_t::time_point time,
