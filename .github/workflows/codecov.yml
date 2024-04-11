@@ -64,7 +64,9 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
             -DFITORIA_BUILD_EXAMPLES=OFF \
             -DFITORIA_BUILD_TESTS=ON \
+            -DFITORIA_DISABLE_OPENSSL=OFF \
             -DFITORIA_DISABLE_ZLIB=OFF \
+            -DFITORIA_DISABLE_BROTLI=OFF \
             -DFITORIA_ENABLE_CODECOV=ON
 
       - name: Build

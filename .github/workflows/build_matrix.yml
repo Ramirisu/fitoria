@@ -19,9 +19,26 @@ jobs:
         build_type: [Debug, Release]
         generator: [Ninja]
         disable_openssl: [ON, OFF]
+        disable_zlib: [OFF]
+        disable_brotli: [OFF]
         exclude:
           - os_cxx: { os: windows-2022, cxx: cl }
             build_type: Debug
+        include:
+          - os_cxx: { os: ubuntu-22.04, cxx: g++-13 }
+            std: 20
+            build_type: Debug
+            generator: Ninja
+            disable_openssl: ON
+            disable_zlib: ON
+            disable_brotli: ON
+          - os_cxx: { os: ubuntu-22.04, cxx: g++-13 }
+            std: 20
+            build_type: Release
+            generator: Ninja
+            disable_openssl: ON
+            disable_zlib: ON
+            disable_brotli: ON
 
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +136,8 @@ jobs:
             -DFITORIA_BUILD_EXAMPLES=ON \
             -DFITORIA_BUILD_TESTS=ON \
             -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }} \
-            -DFITORIA_DISABLE_ZLIB=OFF
+            -DFITORIA_DISABLE_ZLIB=${{ matrix.disable_zlib }} \
+            -DFITORIA_DISABLE_BROTLI=${{ matrix.disable_brotli }}
 
       - name: Build
         shell: bash

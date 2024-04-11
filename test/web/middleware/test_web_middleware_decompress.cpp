@@ -151,7 +151,7 @@ TEST_CASE("decompress")
 
   const auto test_cases = std::vector<test_case_t> { { false }, { true } };
 
-  for (auto& test_case : test_cases) {
+  for ([[maybe_unused]] auto& test_case : test_cases) {
 #if defined(FITORIA_HAS_ZLIB)
     server.serve_request(
         "/",
