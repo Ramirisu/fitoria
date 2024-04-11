@@ -39,28 +39,26 @@ class http_server {
   using request_type = http_request&;
   using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
-
-  http_server(
-      executor_type ex,
-      router_type router,
-      optional<int> max_listen_connections,
-      optional<std::chrono::milliseconds> client_request_timeout,
-      optional<std::chrono::milliseconds> tls_handshake_timeout
-#if !FITORIA_NO_EXCEPTIONS
-      ,
-      optional<std::function<void(std::exception_ptr)>> exception_handler
+#if FITORIA_NO_EXCEPTIONS
+  using exception_handler_t = net::detached_t;
+#else
+  using exception_handler_t = std::function<void(std::exception_ptr)>;
 #endif
-      )
+
+  http_server(executor_type ex,
+              router_type router,
+              optional<int> max_listen_connections,
+              optional<std::chrono::milliseconds> client_request_timeout,
+              optional<std::chrono::milliseconds> tls_handshake_timeout,
+              optional<exception_handler_t> exception_handler)
       : ex_(std::move(ex))
       , router_(std::move(router))
       , max_listen_connections_(max_listen_connections.value_or(
             static_cast<int>(net::socket_base::max_listen_connections)))
       , client_request_timeout_(client_request_timeout)
       , tls_handshake_timeout_(tls_handshake_timeout)
-#if !FITORIA_NO_EXCEPTIONS
       , exception_handler_(
             exception_handler.value_or(default_exception_handler))
-#endif
   {
   }
 
@@ -442,7 +440,9 @@ private:
     co_return co_await async_write_each_chunk(*stream, res.body());
   }
 
-#if !FITORIA_NO_EXCEPTIONS
+#if FITORIA_NO_EXCEPTIONS
+  static constexpr auto default_exception_handler = exception_handler_t {};
+#else
   static void default_exception_handler(std::exception_ptr ptr)
   {
     if (ptr) {
@@ -465,17 +465,18 @@ private:
   int max_listen_connections_;
   optional<std::chrono::milliseconds> client_request_timeout_;
   optional<std::chrono::milliseconds> tls_handshake_timeout_;
-#if !FITORIA_NO_EXCEPTIONS
-  std::function<void(std::exception_ptr)> exception_handler_;
-#else
-  net::detached_t exception_handler_;
-#endif
+  exception_handler_t exception_handler_;
 };
 
 class http_server_builder {
   using request_type = http_request&;
   using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
+#if FITORIA_NO_EXCEPTIONS
+  using exception_handler_t = net::detached_t;
+#else
+  using exception_handler_t = std::function<void(std::exception_ptr)>;
+#endif
 
 public:
   http_server_builder(const executor_type& ex)
@@ -620,11 +621,7 @@ private:
       = std::chrono::seconds(5);
   optional<std::chrono::milliseconds> tls_handshake_timeout_
       = std::chrono::seconds(5);
-#if !FITORIA_NO_EXCEPTIONS
-  optional<std::function<void(std::exception_ptr)>> exception_handler_;
-#else
-  net::detached_t exception_handler_;
-#endif
+  optional<exception_handler_t> exception_handler_;
 };
 
 }
