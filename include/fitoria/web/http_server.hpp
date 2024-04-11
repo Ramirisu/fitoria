@@ -55,10 +55,8 @@ class http_server {
       , router_(std::move(router))
       , max_listen_connections_(max_listen_connections.value_or(
             static_cast<int>(net::socket_base::max_listen_connections)))
-      , client_request_timeout_(
-            client_request_timeout.value_or(std::chrono::seconds(5)))
-      , tls_handshake_timeout_(
-            tls_handshake_timeout.value_or(std::chrono::seconds(3)))
+      , client_request_timeout_(client_request_timeout)
+      , tls_handshake_timeout_(tls_handshake_timeout)
 #if !FITORIA_NO_EXCEPTIONS
       , exception_handler_(
             exception_handler.value_or(default_exception_handler))
@@ -80,12 +78,14 @@ public:
     return max_listen_connections_;
   }
 
-  auto client_request_timeout() const noexcept -> std::chrono::milliseconds
+  auto client_request_timeout() const noexcept
+      -> optional<std::chrono::milliseconds>
   {
     return client_request_timeout_;
   }
 
-  auto tls_handshake_timeout() const noexcept -> std::chrono::milliseconds
+  auto tls_handshake_timeout() const noexcept
+      -> optional<std::chrono::milliseconds>
   {
     return tls_handshake_timeout_;
   }
@@ -238,7 +238,9 @@ private:
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
 
-    get_lowest_layer(*stream).expires_after(tls_handshake_timeout_);
+    if (tls_handshake_timeout_) {
+      get_lowest_layer(*stream).expires_after(*tls_handshake_timeout_);
+    }
     std::tie(ec) = co_await stream->async_handshake(
         net::ssl::stream_base::server, use_awaitable);
     if (ec) {
@@ -274,7 +276,9 @@ private:
       auto parser = std::make_unique<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
-      get_lowest_layer(*stream).expires_after(client_request_timeout_);
+      if (client_request_timeout_) {
+        get_lowest_layer(*stream).expires_after(*client_request_timeout_);
+      }
       std::tie(ec, std::ignore)
           = co_await async_read_header(*stream, buffer, *parser, use_awaitable);
       if (ec) {
@@ -459,8 +463,8 @@ private:
   executor_type ex_;
   router_type router_;
   int max_listen_connections_;
-  std::chrono::milliseconds client_request_timeout_;
-  std::chrono::milliseconds tls_handshake_timeout_;
+  optional<std::chrono::milliseconds> client_request_timeout_;
+  optional<std::chrono::milliseconds> tls_handshake_timeout_;
 #if !FITORIA_NO_EXCEPTIONS
   std::function<void(std::exception_ptr)> exception_handler_;
 #else
@@ -498,28 +502,32 @@ public:
     return std::move(*this);
   }
 
-  auto set_client_request_timeout(std::chrono::milliseconds timeout) & noexcept
+  auto set_client_request_timeout(
+      optional<std::chrono::milliseconds> timeout) & noexcept
       -> http_server_builder&
   {
     client_request_timeout_ = timeout;
     return *this;
   }
 
-  auto set_client_request_timeout(std::chrono::milliseconds timeout) && noexcept
+  auto set_client_request_timeout(
+      optional<std::chrono::milliseconds> timeout) && noexcept
       -> http_server_builder&&
   {
     set_client_request_timeout(timeout);
     return std::move(*this);
   }
 
-  auto set_tls_handshake_timeout(std::chrono::milliseconds timeout) & noexcept
+  auto set_tls_handshake_timeout(
+      optional<std::chrono::milliseconds> timeout) & noexcept
       -> http_server_builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;
   }
 
-  auto set_tls_handshake_timeout(std::chrono::milliseconds timeout) && noexcept
+  auto set_tls_handshake_timeout(
+      optional<std::chrono::milliseconds> timeout) && noexcept
       -> http_server_builder&&
   {
     set_tls_handshake_timeout(timeout);
@@ -608,8 +616,10 @@ private:
   executor_type ex_;
   router_type router_;
   optional<int> max_listen_connections_;
-  optional<std::chrono::milliseconds> client_request_timeout_;
-  optional<std::chrono::milliseconds> tls_handshake_timeout_;
+  optional<std::chrono::milliseconds> client_request_timeout_
+      = std::chrono::seconds(5);
+  optional<std::chrono::milliseconds> tls_handshake_timeout_
+      = std::chrono::seconds(5);
 #if !FITORIA_NO_EXCEPTIONS
   optional<std::function<void(std::exception_ptr)>> exception_handler_;
 #else
