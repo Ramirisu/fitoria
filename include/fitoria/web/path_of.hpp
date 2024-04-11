@@ -11,6 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/from_string.hpp>
 #include <fitoria/web/from_http_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
@@ -82,8 +83,8 @@ class path_of<std::tuple<Ts...>> : public std::tuple<Ts...> {
 public:
   static_assert((not_cvref<Ts> && ...), "Ts... must not be cvref qualified");
 
-  explicit path_of(std::tuple<Ts...> inner)
-      : std::tuple<Ts...>(std::move(inner))
+  path_of(Ts... ts)
+      : std::tuple<Ts...>(std::move(ts)...)
   {
   }
 
@@ -102,11 +103,38 @@ private:
       -> expected<path_of<std::tuple<Ts...>>, std::error_code>
   {
     if (sizeof...(Is) == path_info.size()) {
-      return path_of<std::tuple<Ts...>>(
-          std::tuple<Ts...> { path_info.at(Is)... });
+      auto args = std::tuple<expected<Ts, std::error_code>...> {
+        from_string<Ts>(path_info.at(Is))...
+      };
+
+      if (auto err = get_error_of<0, sizeof...(Is)>(args); err) {
+        return unexpected { *err };
+      }
+
+      return std::apply(
+          [](auto&... ts) -> path_of<std::tuple<Ts...>> {
+            return path_of<std::tuple<Ts...>> { std::move(ts.value())... };
+          },
+          args);
     }
 
     return unexpected { make_error_code(error::path_extraction_error) };
+  }
+
+  template <std::size_t I, std::size_t Count>
+  static auto
+  get_error_of(const std::tuple<expected<Ts, std::error_code>...>& args)
+      -> optional<std::error_code>
+  {
+    if constexpr (I < Count) {
+      if (auto arg = std::get<I>(args); !arg) {
+        return arg.error();
+      }
+
+      return get_error_of<I + 1, Count>(args);
+    } else {
+      return nullopt;
+    }
   }
 };
 

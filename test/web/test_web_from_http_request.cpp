@@ -82,17 +82,17 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
-                [](path_of<std::tuple<std::string, std::string, std::string>>
-                       path) -> awaitable<http_response> {
+                [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
+                    -> awaitable<http_response> {
                   auto [year, month, day] = std::move(path);
-                  CHECK_EQ(year, "1994");
-                  CHECK_EQ(month, "06");
-                  CHECK_EQ(day, "15");
+                  CHECK_EQ(year, 1994);
+                  CHECK_EQ(month, "June");
+                  CHECK_EQ(day, 15);
                   co_return http_response(http::status::ok);
                 }))
             .build();
 
-  server.serve_request("/1994/06/15",
+  server.serve_request("/1994/June/15",
                        http_request(http::verb::get),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
@@ -102,7 +102,34 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
   ioc.run();
 }
 
-TEST_CASE("path_of<T = std::tuple<Ts...>>, not match")
+TEST_CASE("path_of<T = std::tuple<Ts...>>, from_string conversion error")
+{
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/{year}/{month}/{day}">(
+                [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
+                    -> awaitable<http_response> {
+                  auto [year, month, day] = std::move(path);
+                  CHECK_EQ(year, 2147483648);
+                  CHECK_EQ(month, "June");
+                  CHECK_EQ(day, 15);
+                  co_return http_response(http::status::ok);
+                }))
+            .build();
+
+  server.serve_request("/2147483648/June/15",
+                       http_request(http::verb::get),
+                       [](auto res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(),
+                                  http::status::internal_server_error);
+                         co_return;
+                       });
+
+  ioc.run();
+}
+
+TEST_CASE("path_of<T = std::tuple<Ts...>>, nb of params do not match")
 {
   auto ioc = net::io_context();
   auto server
