@@ -45,18 +45,18 @@ auto put(const http_request& req) -> awaitable<http_response>
   auto key = req.path().get("key");
   auto value = req.path().get("value");
   if (!key || !value) {
-    co_return http_response(http::status::bad_request);
+    co_return http_response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response(http::status::internal_server_error);
+    co_return http_response::internal_server_error().build();
   }
 
   if ((*cache)->put(*key, *value)) {
-    co_return http_response(http::status::created);
+    co_return http_response::created().build();
   } else {
-    co_return http_response(http::status::accepted);
+    co_return http_response::accepted().build();
   }
 }
 
@@ -64,21 +64,21 @@ auto get(const http_request& req) -> awaitable<http_response>
 {
   auto key = req.path().get("key");
   if (!key) {
-    co_return http_response(http::status::bad_request);
+    co_return http_response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response(http::status::internal_server_error);
+    co_return http_response::internal_server_error().build();
   }
 
   if (auto value = (*cache)->get(*key); value) {
-    co_return http_response(http::status::ok)
+    co_return http_response::ok()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body(*value);
   } else {
-    co_return http_response(http::status::not_found);
+    co_return http_response::not_found().build();
   }
 }
 

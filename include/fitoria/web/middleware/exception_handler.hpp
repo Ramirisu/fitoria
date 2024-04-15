@@ -40,7 +40,7 @@ public:
                  ex.what());
     }
 
-    co_return http_response(http::status::internal_server_error);
+    co_return http_response::internal_server_error().build();
   }
 
 private:

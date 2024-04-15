@@ -32,7 +32,7 @@ TEST_CASE("state shares the same instance")
                             CHECK_EQ(*state, std::string("original"));
                             *state = "modifed";
                           }
-                          co_return http_response(http::status::ok);
+                          co_return http_response::ok().build();
                         }))
                     .serve(route::get<"/check">(
                         [](http_request& req) -> awaitable<http_response> {
@@ -43,7 +43,7 @@ TEST_CASE("state shares the same instance")
                           if (state) {
                             CHECK_EQ(*state, std::string("modifed"));
                           }
-                          co_return http_response(http::status::ok);
+                          co_return http_response::ok().build();
                         })))
             .build();
 
@@ -79,7 +79,7 @@ TEST_CASE("state access order on global, scope and route")
                             .serve(route::get<
                                    "/global">([](http_request& req)
                                                   -> awaitable<http_response> {
-                              co_return http_response(http::status::ok)
+                              co_return http_response::ok()
                                   .set_field(
                                       http::field::content_type,
                                       http::fields::content_type::plaintext())
@@ -90,7 +90,7 @@ TEST_CASE("state access order on global, scope and route")
                             .serve(route::get<
                                    "/scope">([](http_request& req)
                                                  -> awaitable<http_response> {
-                              co_return http_response(http::status::ok)
+                              co_return http_response::ok()
                                   .set_field(
                                       http::field::content_type,
                                       http::fields::content_type::plaintext())
@@ -101,7 +101,7 @@ TEST_CASE("state access order on global, scope and route")
                                 route::get<
                                     "/route">([](http_request& req)
                                                   -> awaitable<http_response> {
-                                  co_return http_response(http::status::ok)
+                                  co_return http_response::ok()
                                       .set_field(http::field::content_type,
                                                  http::fields::content_type::
                                                      plaintext())

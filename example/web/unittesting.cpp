@@ -20,7 +20,7 @@ int main()
                    std::string body) -> awaitable<http_response> {
                   if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
-                    co_return http_response(http::status::bad_request)
+                    co_return http_response::bad_request()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("unexpected content-type");
@@ -29,12 +29,12 @@ int main()
                   auto user = as_form(body);
                   if (!user || user->get("name") != "fitoria"
                       || user->get("password") != "123456") {
-                    co_return http_response(http::status::unauthorized)
+                    co_return http_response::unauthorized()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("incorrect user name or password");
                   }
-                  co_return http_response(http::status::ok)
+                  co_return http_response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body(fmt::format("{}, login succeeded",

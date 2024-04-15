@@ -27,7 +27,7 @@ TEST_CASE("http_response")
       = http_server_builder(ioc)
             .serve(
                 route::get<"/">([](http_request&) -> awaitable<http_response> {
-                  co_return http_response(http::status::ok)
+                  co_return http_response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body("OK");

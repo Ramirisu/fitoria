@@ -52,7 +52,7 @@ TEST_CASE("deflate")
                                                 -> awaitable<http_response> {
                              CHECK(!fields.get(http::field::content_encoding));
                              CHECK_EQ(body, plain);
-                             co_return http_response(http::status::ok);
+                             co_return http_response::ok().build();
                            }).use(middleware::decompress()))
                     .build();
 
@@ -101,7 +101,7 @@ TEST_CASE("gzip")
                                                 -> awaitable<http_response> {
                              CHECK(!fields.get(http::field::content_encoding));
                              CHECK_EQ(body, plain);
-                             co_return http_response(http::status::ok);
+                             co_return http_response::ok().build();
                            }).use(middleware::decompress()))
                     .build();
 
@@ -141,7 +141,7 @@ TEST_CASE("decompress")
                                                 -> awaitable<http_response> {
                              CHECK(!fields.get(http::field::content_encoding));
                              CHECK_EQ(body, plain);
-                             co_return http_response(http::status::ok);
+                             co_return http_response::ok().build();
                            }).use(middleware::decompress()))
                     .build();
 

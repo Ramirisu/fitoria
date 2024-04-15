@@ -49,18 +49,18 @@ namespace users {
     auto [user] = std::move(path);
     if (auto it = db->find(user); it != db->end()) {
       if (it->second.last_login_time) {
-        co_return http_response(http::status::ok)
+        co_return http_response::ok()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("{:%FT%TZ}", *(it->second.last_login_time)));
       } else {
-        co_return http_response(http::status::internal_server_error)
+        co_return http_response::internal_server_error()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("User [{}] never logins.", user));
       }
     }
-    co_return http_response(http::status::not_found)
+    co_return http_response::not_found()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User does not exist.");
@@ -98,12 +98,12 @@ namespace login {
     if (auto it = db->find(body.username);
         it != db->end() && it->second.password == body.password) {
       it->second.last_login_time = database::clock_t::now();
-      co_return http_response(http::status::ok)
+      co_return http_response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("Login succeeded.");
     }
-    co_return http_response(http::status::unauthorized)
+    co_return http_response::unauthorized()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User name or password is incorrect.");

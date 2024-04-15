@@ -25,10 +25,10 @@ auto api(const http_request& req) -> awaitable<http_response>
 {
   auto user = req.path().get("user");
   if (!user) {
-    co_return http_response(http::status::bad_request);
+    co_return http_response::bad_request().build();
   }
 
-  co_return http_response(http::status::ok)
+  co_return http_response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}", user.value()));

@@ -14,23 +14,23 @@ namespace api {
 namespace v1 {
   auto reg(http_request&) -> awaitable<http_response>
   {
-    co_return http_response(http::status::created);
+    co_return http_response::created().build();
   }
 
   auto login(http_request&) -> awaitable<http_response>
   {
-    co_return http_response(http::status::ok);
+    co_return http_response::ok().build();
   }
 }
 namespace v2 {
   auto reg(http_request&) -> awaitable<http_response>
   {
-    co_return http_response(http::status::created);
+    co_return http_response::created().build();
   }
 
   auto login(http_request&) -> awaitable<http_response>
   {
-    co_return http_response(http::status::ok);
+    co_return http_response::ok().build();
   }
 }
 }

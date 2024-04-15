@@ -33,7 +33,7 @@ TEST_CASE("compile with io_context")
                             -> net::awaitable<http_response,
                                               net::io_context::executor_type> {
                           CHECK_EQ(str, "");
-                          co_return http_response(http::status::ok);
+                          co_return http_response::ok().build();
                         }))
                     .build();
   CHECK(server.bind(server_ip, port));

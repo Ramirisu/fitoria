@@ -40,7 +40,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                   CHECK_EQ(req.fields().get(http::field::content_type),
                            http::fields::content_type::plaintext());
                   CHECK_EQ(body, "hello world");
-                  co_return http_response(http::status::ok);
+                  co_return http_response::ok().build();
                 }))
             .build();
   server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));

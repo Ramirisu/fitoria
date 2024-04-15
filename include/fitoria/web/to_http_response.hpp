@@ -43,7 +43,7 @@ namespace to_http_response_ns {
       requires decay_to<T, std::string>
     auto operator()(T&& t) const -> http_response
     {
-      return http_response(http::status::ok)
+      return http_response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body(std::forward<T>(t));
@@ -53,7 +53,7 @@ namespace to_http_response_ns {
       requires is_specialization_of_v<T, std::vector>
     auto operator()(T&& t) const -> http_response
     {
-      return http_response(http::status::ok)
+      return http_response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::octet_stream())
           .set_body(std::as_bytes(std::span(t.begin(), t.end())));

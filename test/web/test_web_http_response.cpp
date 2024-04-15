@@ -18,35 +18,54 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_response]");
 
+TEST_CASE("builder")
+{
+  auto res = http_response::ok().build();
+  auto builder
+      = res.builder().set_status_code(http::status::internal_server_error);
+  CHECK_EQ(builder.build().status_code(), http::status::internal_server_error);
+}
+
 TEST_CASE("status_code")
 {
-  {
-    http_response res;
-    CHECK_EQ(res.status_code(), http::status::ok);
-    res.set_status_code(http::status::not_found);
-    CHECK_EQ(res.status_code(), http::status::not_found);
-  }
-  {
-    http_response res(http::status::not_found);
-    CHECK_EQ(res.status_code(), http::status::not_found);
-  }
+  auto res = http_response::ok().build();
+  CHECK_EQ(res.status_code(), http::status::ok);
+}
+
+TEST_CASE("insert_field")
+{
+  auto res = http_response::ok()
+                 .insert_field(http::field::content_type,
+                               http::fields::content_type::plaintext())
+                 .insert_field("content-encoding",
+                               http::fields::content_encoding::deflate())
+                 .build();
+  CHECK_EQ(res.fields().get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(res.fields().get("Content-Type"),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(res.fields().get(http::field::content_encoding),
+           http::fields::content_encoding::deflate());
+  CHECK_EQ(res.fields().get("Content-Encoding"),
+           http::fields::content_encoding::deflate());
 }
 
 TEST_CASE("set_field")
 {
-  {
-    http_response res;
-    res.set_field(http::field::content_type,
-                  http::fields::content_type::plaintext());
-    CHECK_EQ(res.fields().get(http::field::content_type),
-             http::fields::content_type::plaintext());
-  }
-  {
-    http_response res;
-    res.set_field("Content-Type", http::fields::content_type::plaintext());
-    CHECK_EQ(res.fields().get(http::field::content_type),
-             http::fields::content_type::plaintext());
-  }
+  auto res = http_response::ok()
+                 .set_field(http::field::content_type,
+                            http::fields::content_type::plaintext())
+                 .set_field("content-encoding",
+                            http::fields::content_encoding::deflate())
+                 .build();
+  CHECK_EQ(res.fields().get(http::field::content_type),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(res.fields().get("Content-Type"),
+           http::fields::content_type::plaintext());
+  CHECK_EQ(res.fields().get(http::field::content_encoding),
+           http::fields::content_encoding::deflate());
+  CHECK_EQ(res.fields().get("Content-Encoding"),
+           http::fields::content_encoding::deflate());
 }
 
 struct user_t {
@@ -68,43 +87,24 @@ TEST_CASE("set_json")
 {
   sync_wait([]() -> awaitable<void> {
     {
-      http_response res;
-      res.set_json({ { "name", "Rina Hidaka" } });
-      CHECK_EQ(res.fields().get(http::field::content_type),
-               http::fields::content_type::json());
+      auto res = http_response::ok().set_json({ { "name", "Rina Hidaka" } });
       CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
                R"({"name":"Rina Hidaka"})");
     }
     {
-      http_response res;
-      res.set_json(user_t { .name = "Rina Hidaka" });
-      CHECK_EQ(res.fields().get(http::field::content_type),
-               http::fields::content_type::json());
+      auto res = http_response::ok().set_json(user_t { .name = "Rina Hidaka" });
       CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
                R"({"name":"Rina Hidaka"})");
     }
   });
 }
 
-TEST_CASE("set_body: string")
+TEST_CASE("set_body")
 {
   sync_wait([]() -> awaitable<void> {
-    http_response res;
-    res.set_body("Hello World");
+    auto res = http_response::ok().set_body("Hello World");
     CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
              "Hello World");
-  });
-}
-
-TEST_CASE("set_body: vector")
-{
-  sync_wait([]() -> awaitable<void> {
-    http_response res;
-    res.set_body("Hello World");
-    CHECK_EQ(
-        co_await async_read_until_eof<std::vector<std::uint8_t>>(*res.body()),
-        std::vector<std::uint8_t> {
-            'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' });
   });
 }
 

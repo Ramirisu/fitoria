@@ -344,7 +344,7 @@ private:
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
-      co_return http_response(http::status::bad_request)
+      co_return http_response::bad_request()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("request target is invalid");
@@ -364,7 +364,7 @@ private:
       co_return co_await route->operator()(request);
     }
 
-    co_return http_response(http::status::not_found)
+    co_return http_response::not_found()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("request path is not found");

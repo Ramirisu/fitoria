@@ -23,7 +23,7 @@ TEST_CASE("logger middleware")
                        .use(middleware::logger())
                        .serve(route::get<"/">(
                            [&](http_request&) -> awaitable<http_response> {
-                             co_return http_response(http::status::ok);
+                             co_return http_response::ok().build();
                            })))
             .build();
 

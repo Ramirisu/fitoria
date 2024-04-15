@@ -12,42 +12,42 @@ using namespace fitoria::web;
 
 auto get_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto post_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto put_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto patch_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto delete_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto head_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto options_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 auto any_handler(http_request&) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok);
+  co_return http_response::ok().build();
 }
 
 int main()

@@ -53,7 +53,7 @@ public:
   template <decay_to<stream_file> Self>
   friend auto tag_invoke(to_http_response_t, Self&& self) -> http_response
   {
-    return http_response(http::status::ok)
+    return http_response::ok()
         .set_field(http::field::content_type,
                    http::fields::content_type::octet_stream())
         .set_stream(async_readable_file_stream(self.release()));

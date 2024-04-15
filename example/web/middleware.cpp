@@ -70,7 +70,7 @@ private:
 
 auto get_user(http_request& req) -> awaitable<http_response>
 {
-  co_return http_response(http::status::ok)
+  co_return http_response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(req.path().get("user").value_or("{{unknown}}"));

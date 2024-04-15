@@ -28,7 +28,7 @@ TEST_CASE("exception_handler middleware")
                              if (body.ends_with("true")) {
                                throw std::exception();
                              }
-                             co_return http_response(http::status::ok);
+                             co_return http_response::ok().build();
                            })))
             .build();
 

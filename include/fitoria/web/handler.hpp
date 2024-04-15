@@ -45,7 +45,7 @@ private:
     const auto pack
         = std::tuple<expected<Args, std::error_code>&...> { args... };
     if (auto err = get_error_of<0>(pack); err) {
-      co_return http_response(http::status::internal_server_error)
+      co_return http_response::internal_server_error()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body(err->message());
