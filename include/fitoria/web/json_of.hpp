@@ -38,7 +38,7 @@ public:
       if (req.fields().get(http::field::content_type)
           != http::fields::content_type::json()) {
         co_return unexpected { make_error_code(
-            error::unexpected_content_type) };
+            error::unexpected_content_type_json) };
       }
 
       if (auto str = co_await async_read_until_eof<std::string>(*req.body());

@@ -24,8 +24,9 @@
 #include <fitoria/web/async_write_each_chunk.hpp>
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/query_map.hpp>
+
+#include <fitoria/client/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -40,7 +41,6 @@ using web::async_readable_stream;
 using web::async_readable_vector_stream;
 using web::async_write_each_chunk;
 using web::http_fields;
-using web::http_response;
 using web::query_map;
 
 class http_client {
@@ -464,14 +464,18 @@ private:
       co_return unexpected { ec };
     }
 
-    auto res = http_response(parser->get().result(),
-                             http_fields::from_impl(parser->get()));
-    if (parser->get().has_content_length() || parser->get().chunked()) {
-      res.set_stream(async_message_parser_stream(
-          std::move(buffer), std::move(stream), std::move(parser)));
-    }
-
-    co_return res;
+    auto status = parser->get().result();
+    auto fields = http_fields::from_impl(parser->get());
+    co_return http_response(
+        status,
+        std::move(fields),
+        [&]() -> optional<any_async_readable_stream> {
+          if (parser->get().has_content_length() || parser->get().chunked()) {
+            return async_message_parser_stream(
+                std::move(buffer), std::move(stream), std::move(parser));
+          }
+          return nullopt;
+        }());
   }
 
   template <typename Stream>
@@ -523,8 +527,10 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(res.result(), http_fields::from_impl(res))
-            .set_stream(async_readable_vector_stream(std::move(res.body())));
+        co_return http_response(
+            res.result(),
+            http_fields::from_impl(res),
+            async_readable_vector_stream(std::move(res.body())));
       }
     }
 
@@ -579,8 +585,10 @@ private:
         co_return unexpected { ec };
       }
       if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(res.result(), http_fields::from_impl(res))
-            .set_stream(async_readable_vector_stream(std::move(res.body())));
+        co_return http_response(
+            res.result(),
+            http_fields::from_impl(res),
+            async_readable_vector_stream(std::move(res.body())));
       }
     }
 

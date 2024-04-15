@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_ERROR_HPP
-#define FITORIA_WEB_ERROR_HPP
+#ifndef FITORIA_CLIENT_ERROR_HPP
+#define FITORIA_CLIENT_ERROR_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -15,14 +15,10 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web {
+namespace client {
 
 enum class error {
-  route_already_exists,
-  route_not_exists,
   unexpected_content_type_json,
-  path_extraction_error,
-  state_not_found,
 };
 
 class error_category : public std::error_category {
@@ -31,23 +27,15 @@ public:
 
   const char* name() const noexcept override
   {
-    return "fitoria.web.error";
+    return "fitoria.client.error";
   }
 
   std::string message(int condition) const override
   {
     switch (static_cast<error>(condition)) {
-    case error::route_already_exists:
-      return "the route being registered already exists";
-    case error::route_not_exists:
-      return "the route being searched doesn't exist";
     case error::unexpected_content_type_json:
       return "unexpected Content-Type received, expected \"Content-Type: "
              "application/json\"";
-    case error::path_extraction_error:
-      return "path extraction error";
-    case error::state_not_found:
-      return "the state being obtained doesn't exist";
     default:
       break;
     }
@@ -66,11 +54,8 @@ inline std::error_code make_error_code(error e)
 
 FITORIA_NAMESPACE_END
 
-namespace std {
-
 template <>
-struct is_error_code_enum<FITORIA_NAMESPACE::web::error> : std::true_type { };
-
-}
+struct std::is_error_code_enum<FITORIA_NAMESPACE::client::error>
+    : std::true_type { };
 
 #endif

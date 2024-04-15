@@ -24,6 +24,7 @@
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
+#include <fitoria/web/test/http_response.hpp>
 
 #include <system_error>
 
@@ -122,10 +123,13 @@ public:
   }
 #endif
 
-  template <typename F>
-    requires std::is_invocable_v<F, http_response>
-      && co_awaitable<std::invoke_result_t<F, http_response>>
-  void serve_request(std::string_view path, http_request req, F f) const
+  template <typename ResponseHandler>
+    requires std::is_invocable_v<ResponseHandler, test::http_response>
+      && co_awaitable<
+                 std::invoke_result_t<ResponseHandler, test::http_response>>
+  void serve_request(std::string_view path,
+                     http_request req,
+                     ResponseHandler handler) const
   {
     auto target = [&]() -> std::string {
       boost::urls::url url;
@@ -134,18 +138,19 @@ public:
       return std::string(url.encoded_target());
     }();
 
-    net::co_spawn(
-        ex_,
-        serve_request_impl(std::move(req), std::move(target), std::move(f)),
-        net::detached);
+    net::co_spawn(ex_,
+                  serve_request_impl(
+                      std::move(req), std::move(target), std::move(handler)),
+                  net::detached);
   }
 
 private:
-  template <typename F>
-  auto serve_request_impl(http_request req, std::string target, F f) const
-      -> awaitable<void>
+  template <typename ResponseHandler>
+  auto serve_request_impl(http_request req,
+                          std::string target,
+                          ResponseHandler handler) const -> awaitable<void>
   {
-    auto res = co_await do_handler(
+    co_await handler(test::http_response(co_await do_handler(
         connection_info(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
@@ -155,8 +160,7 @@ private:
         req.body().and_then(
             [](auto& body) -> optional<any_async_readable_stream> {
               return std::move(body);
-            }));
-    co_await f(std::move(res));
+            }))));
   }
 
   auto make_acceptor(net::ip::tcp::endpoint endpoint) const

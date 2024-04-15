@@ -7,12 +7,9 @@
 
 #include <fitoria/test/test.hpp>
 
-#if defined(FITORIA_TARGET_LINUX)
-#define BOOST_ASIO_HAS_IO_URING
-#endif
-
 #include <fitoria/test/http_server_utils.hpp>
 
+#include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/http_response.hpp>
 
 using namespace fitoria;
@@ -75,49 +72,40 @@ TEST_CASE("set_json")
       res.set_json({ { "name", "Rina Hidaka" } });
       CHECK_EQ(res.fields().get(http::field::content_type),
                http::fields::content_type::json());
-      CHECK_EQ(co_await res.as_string(), R"({"name":"Rina Hidaka"})");
+      CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+               R"({"name":"Rina Hidaka"})");
     }
     {
       http_response res;
       res.set_json(user_t { .name = "Rina Hidaka" });
       CHECK_EQ(res.fields().get(http::field::content_type),
                http::fields::content_type::json());
-      CHECK_EQ(co_await res.as_string(), R"({"name":"Rina Hidaka"})");
+      CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+               R"({"name":"Rina Hidaka"})");
     }
   });
 }
 
-TEST_CASE("as_string")
+TEST_CASE("set_body: string")
 {
   sync_wait([]() -> awaitable<void> {
     http_response res;
     res.set_body("Hello World");
-    CHECK_EQ(co_await res.as_string(), "Hello World");
+    CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+             "Hello World");
   });
 }
 
-TEST_CASE("as_vector")
+TEST_CASE("set_body: vector")
 {
   sync_wait([]() -> awaitable<void> {
     http_response res;
     res.set_body("Hello World");
-    CHECK_EQ(co_await res.as_vector<std::uint8_t>(),
-             std::vector<std::uint8_t> {
-                 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' });
+    CHECK_EQ(
+        co_await async_read_until_eof<std::vector<std::uint8_t>>(*res.body()),
+        std::vector<std::uint8_t> {
+            'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' });
   });
 }
-
-#if defined(BOOST_ASIO_HAS_FILE)
-
-TEST_CASE("as_file")
-{
-  sync_wait([]() -> awaitable<void> {
-    http_response res;
-    res.set_body("Hello World");
-    CHECK_EQ(*(co_await res.as_file("test_web_http_response.as_file.txt")), 11);
-  });
-}
-
-#endif
 
 TEST_SUITE_END();
