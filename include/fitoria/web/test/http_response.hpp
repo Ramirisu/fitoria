@@ -29,10 +29,12 @@ public:
   http_response(web::http_response response)
       : status_code_(response.status_code())
       , fields_(std::move(response.fields()))
-      , body_(response.body().transform(
-            [](auto& stream) -> any_async_readable_stream {
-              return std::move(stream);
-            }))
+      , body_(response.body()
+                  .and_then(
+                      [](auto& body) -> optional<any_async_readable_stream> {
+                        return std::move(body);
+                      })
+                  .value_or(async_readable_vector_stream()))
   {
   }
 
@@ -71,68 +73,52 @@ public:
 
   auto as_string() -> awaitable<expected<std::string, std::error_code>>
   {
-    if (body_) {
-      co_return co_await web::async_read_until_eof<std::string>(*body_);
-    }
-
-    co_return unexpected { make_error_code(net::error::eof) };
+    return web::async_read_until_eof<std::string>(body_);
   }
 
   template <typename Byte>
   auto as_vector() -> awaitable<expected<std::vector<Byte>, std::error_code>>
   {
-    if (body_) {
-      co_return co_await web::async_read_until_eof<std::vector<Byte>>(*body_);
-    }
-
-    co_return unexpected { make_error_code(net::error::eof) };
+    return web::async_read_until_eof<std::vector<Byte>>(body_);
   }
 
 #if defined(BOOST_ASIO_HAS_FILE)
   auto as_file(const std::string& path)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
-    if (body_) {
-      auto file = net::stream_file(co_await net::this_coro::executor);
+    auto file = net::stream_file(co_await net::this_coro::executor);
 
-      boost::system::error_code ec;
-      file.open(path, net::file_base::create | net::file_base::write_only, ec);
-      if (ec) {
-        co_return unexpected { ec };
-      }
-
-      co_return co_await async_read_into_stream_file(*body_, file);
+    boost::system::error_code ec;
+    file.open(path, net::file_base::create | net::file_base::write_only, ec);
+    if (ec) {
+      co_return unexpected { ec };
     }
 
-    co_return unexpected { make_error_code(net::error::eof) };
+    co_return co_await async_read_into_stream_file(body_, file);
   }
 #endif
 
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (body_) {
-      if (fields().get(web::http::field::content_type)
-          != web::http::fields::content_type::json()) {
-        co_return unexpected { make_error_code(
-            web::error::unexpected_content_type_json) };
-      }
-
-      if (auto str = co_await web::async_read_until_eof<std::string>(*body_);
-          str) {
-        co_return web::detail::as_json<T>(*str);
-      } else {
-        co_return unexpected { str.error() };
-      }
+    if (fields().get(web::http::field::content_type)
+        != web::http::fields::content_type::json()) {
+      co_return unexpected { make_error_code(
+          web::error::unexpected_content_type_json) };
     }
 
-    co_return unexpected { make_error_code(net::error::eof) };
+    if (auto str = co_await web::async_read_until_eof<std::string>(body_);
+        str) {
+      co_return web::detail::as_json<T>(*str);
+    } else {
+      co_return unexpected { str.error() };
+    }
   }
 
 private:
   web::http::status_code status_code_ = web::http::status::ok;
   web::http_fields fields_;
-  optional<web::any_async_readable_stream> body_;
+  web::any_async_readable_stream body_;
 };
 
 }
