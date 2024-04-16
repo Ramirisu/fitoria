@@ -293,10 +293,10 @@ TEST_CASE("generic request")
 
                   CHECK_EQ(body, "happy birthday");
                   auto buffer = std::array<std::byte, 4096>();
-                  CHECK(!(co_await req.body()->async_read_some(
+                  CHECK(!(co_await req.body().async_read_some(
                       net::buffer(buffer))));
                   CHECK(!(
-                      co_await async_read_until_eof<std::string>(*req.body())));
+                      co_await async_read_until_eof<std::string>(req.body())));
 
                   co_return http_response::ok()
                       .insert_field(http::field::user_agent,
@@ -384,13 +384,13 @@ TEST_CASE("request with null body")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [](http_request& req) -> awaitable<http_response> {
-                  CHECK_EQ(req.fields().get(http::field::connection), "close");
-                  CHECK(!req.fields().get(http::field::content_length));
-                  CHECK(!req.body());
-                  co_return http_response::ok().build();
-                }))
+            .serve(route::get<"/">([](http_request& req)
+                                       -> awaitable<http_response> {
+              CHECK_EQ(req.fields().get(http::field::connection), "close");
+              CHECK(!req.fields().get(http::field::content_length));
+              CHECK(!(co_await async_read_until_eof<std::string>(req.body())));
+              co_return http_response::ok().build();
+            }))
             .build();
   CHECK(server.bind(server_ip, port));
 
@@ -424,7 +424,7 @@ TEST_CASE("request with empty body")
                                         -> awaitable<http_response> {
               CHECK_EQ(req.fields().get(http::field::connection), "close");
               CHECK_EQ(req.fields().get(http::field::content_length), "0");
-              CHECK(req.body()->is_sized());
+              CHECK(req.body().is_sized());
               CHECK_EQ(str, "");
               co_return http_response::ok().build();
             }))
@@ -465,7 +465,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                           CHECK_EQ(req.fields().get(http::field::content_type),
                                    http::fields::content_type::plaintext());
                           CHECK(!req.fields().get(http::field::content_length));
-                          CHECK(!req.body()->is_sized());
+                          CHECK(!req.body().is_sized());
                           CHECK_EQ(data, text);
                           co_return http_response::ok().build();
                         }))

@@ -34,23 +34,22 @@ class decompress_middleware {
 public:
   auto operator()(Request req) const -> Response
   {
-    if (auto str = req.fields().get(http::field::content_encoding);
-        req.body() && str) {
+    if (auto str = req.fields().get(http::field::content_encoding); str) {
       auto encodings = web::detail::split_of(*str, ",");
       std::reverse(encodings.begin(), encodings.end());
 
       for (auto& encoding : encodings) {
         if (encoding == http::fields::content_encoding::deflate()) {
-          req.set_stream(detail::async_inflate_stream(std::move(*req.body())));
+          req.set_stream(detail::async_inflate_stream(std::move(req.body())));
 #if defined(FITORIA_HAS_ZLIB)
         } else if (encoding == http::fields::content_encoding::gzip()) {
           req.set_stream(
-              detail::async_gzip_inflate_stream(std::move(*req.body())));
+              detail::async_gzip_inflate_stream(std::move(req.body())));
 #endif
 #if defined(FITORIA_HAS_BROTLI)
         } else if (encoding == http::fields::content_encoding::brotli()) {
           req.set_stream(
-              detail::async_brotli_inflate_stream(std::move(*req.body())));
+              detail::async_brotli_inflate_stream(std::move(req.body())));
 #endif
         } else if (encoding == http::fields::content_encoding::identity()) {
         } else {

@@ -23,7 +23,7 @@ namespace web {
 class async_readable_vector_stream {
   struct data_t {
     std::size_t offset;
-    std::vector<std::byte> buf;
+    std::vector<std::byte> buffer;
   };
 
 public:
@@ -34,7 +34,7 @@ public:
   async_readable_vector_stream(std::vector<std::byte> data)
   {
     if (!data.empty()) {
-      data_.emplace(data_t { .offset = 0, .buf = std::move(data) });
+      data_.emplace(data_t { .offset = 0, .buffer = std::move(data) });
     }
   }
 
@@ -45,7 +45,7 @@ public:
     if (!b.empty()) {
       data_.emplace();
       data_->offset = 0;
-      data_->buf = std::vector<std::byte>(b.begin(), b.end());
+      data_->buffer = std::vector<std::byte>(b.begin(), b.end());
     }
   }
 
@@ -69,10 +69,10 @@ public:
   {
     if (data_) {
       const auto size
-          = std::min(buffer.size(), data_->buf.size() - data_->offset);
-      std::memcpy(buffer.data(), (data_->buf.data() + data_->offset), size);
+          = std::min(buffer.size(), data_->buffer.size() - data_->offset);
+      std::memcpy(buffer.data(), (data_->buffer.data() + data_->offset), size);
       data_->offset += size;
-      if (data_->offset == data_->buf.size()) {
+      if (data_->offset == data_->buffer.size()) {
         data_.reset();
       }
 

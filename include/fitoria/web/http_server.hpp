@@ -157,10 +157,7 @@ private:
         req.method(),
         target,
         std::move(req.fields()),
-        req.body().and_then(
-            [](auto& body) -> optional<any_async_readable_stream> {
-              return std::move(body);
-            }))));
+        std::move(req.body()))));
   }
 
   auto make_acceptor(net::ip::tcp::endpoint endpoint) const
@@ -309,13 +306,13 @@ private:
           method,
           std::move(target),
           std::move(fields),
-          [&]() -> optional<any_async_readable_stream> {
+          [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
               return async_message_parser_stream(
                   std::move(buffer), stream, std::move(parser));
             }
 
-            return nullopt;
+            return async_readable_vector_stream();
           }());
 
       auto do_response = [&]() -> awaitable<expected<void, std::error_code>> {
@@ -339,7 +336,7 @@ private:
                   http::verb method,
                   std::string target,
                   http_fields fields,
-                  optional<any_async_readable_stream> body) const
+                  any_async_readable_stream body) const
       -> awaitable<http_response>
   {
     auto req_url = boost::urls::parse_origin_form(target);

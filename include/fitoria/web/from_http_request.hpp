@@ -16,8 +16,8 @@
 #include <fitoria/core/tag_invoke.hpp>
 #include <fitoria/core/type_traits.hpp>
 
+#include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/http_request.hpp>
-#include <fitoria/web/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -76,11 +76,7 @@ namespace from_http_request_ns {
         -> awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, std::string>)
     {
-      if (req.body()) {
-        co_return co_await async_read_until_eof<R>(*req.body());
-      }
-
-      co_return unexpected { make_error_code(net::error::eof) };
+      return async_read_until_eof<R>(req.body());
     }
 
     friend auto tag_invoke(from_http_request_t<R>, http_request& req)
@@ -89,11 +85,7 @@ namespace from_http_request_ns {
     {
       static_assert(not_cvref<R>, "R must not be cvref qualified");
 
-      if (req.body()) {
-        co_return co_await async_read_until_eof<R>(*req.body());
-      }
-
-      co_return unexpected { make_error_code(net::error::eof) };
+      return async_read_until_eof<R>(req.body());
     }
   };
 
