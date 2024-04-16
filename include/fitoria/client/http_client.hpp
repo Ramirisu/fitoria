@@ -467,14 +467,12 @@ private:
     auto status = parser->get().result();
     auto fields = http_fields::from_impl(parser->get());
     co_return http_response(
-        status,
-        std::move(fields),
-        [&]() -> optional<any_async_readable_stream> {
+        status, std::move(fields), [&]() -> any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
             return async_message_parser_stream(
                 std::move(buffer), std::move(stream), std::move(parser));
           }
-          return nullopt;
+          return async_readable_vector_stream();
         }());
   }
 

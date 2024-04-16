@@ -525,7 +525,7 @@ TEST_CASE("response status only")
         CHECK_EQ(res->status_code(), http::status::no_content);
         CHECK_EQ(res->fields().get(http::field::connection), "close");
         CHECK(!res->fields().get(http::field::content_length));
-        CHECK(!res->body());
+        CHECK(!(co_await async_read_until_eof<std::string>(res->body())));
         CHECK(!(co_await res->as_string()));
       },
       net::use_future)
@@ -570,7 +570,7 @@ TEST_CASE("response with plain text")
                  http::fields::content_type::plaintext());
         CHECK_EQ(res->fields().get(http::field::content_length),
                  std::to_string(text.size()));
-        CHECK(res->body()->is_sized());
+        CHECK(res->body().is_sized());
         CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)
@@ -613,7 +613,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
         CHECK_EQ(res->fields().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK(!res->fields().get(http::field::content_length));
-        CHECK(!res->body()->is_sized());
+        CHECK(!res->body().is_sized());
         CHECK_EQ(co_await res->as_string(), text);
       },
       net::use_future)
