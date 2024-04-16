@@ -442,7 +442,6 @@ private:
       -> awaitable<expected<http_response, std::error_code>>
   {
     using boost::beast::flat_buffer;
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
@@ -460,14 +459,11 @@ private:
       co_return std::move(**exp);
     }
 
-    boost::system::error_code ec;
     flat_buffer buffer;
-
     auto parser = std::make_unique<response_parser<buffer_body>>();
-    std::tie(ec, std::ignore)
+    auto [ec, _]
         = co_await async_read_header(*stream, buffer, *parser, use_awaitable);
     if (ec) {
-      log::debug("[{}] async_read_header failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
@@ -487,15 +483,9 @@ private:
   auto do_sized_request(std::shared_ptr<Stream>& stream)
       -> awaitable<expected<optional<http_response>, std::error_code>>
   {
-    using boost::beast::error;
-    using boost::beast::flat_buffer;
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
-    using boost::beast::http::response;
     using boost::beast::http::vector_body;
-
-    bool use_expect = fields_.get(http::field::expect) == "100-continue";
 
     auto req = request<vector_body<std::byte>>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
@@ -516,31 +506,19 @@ private:
     std::tie(ec, std::ignore)
         = co_await async_write_header(*stream, ser, use_awaitable);
     if (ec) {
-      log::debug("[{}] async_write_header failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    if (use_expect) {
-      flat_buffer buffer;
-      response<vector_body<std::byte>> res;
-      std::tie(ec, std::ignore)
-          = co_await async_read(*stream, buffer, res, use_awaitable);
-      if (ec && ec != error::timeout) {
-        log::debug("[{}] async_read failed: {}", name(), ec.message());
-        co_return unexpected { ec };
-      }
-      if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(
-            res.result(),
-            http_fields::from_impl(res),
-            async_readable_vector_stream(std::move(res.body())));
+    if (fields_.get(http::field::expect) == "100-continue") {
+      if (auto res = co_await handle_expect_100_response(stream);
+          !res || *res) {
+        co_return res;
       }
     }
 
     std::tie(ec, std::ignore)
         = co_await async_write(*stream, ser, use_awaitable);
     if (ec) {
-      log::debug("[{}] async_write failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
@@ -551,16 +529,9 @@ private:
   auto do_chunked_request(std::shared_ptr<Stream>& stream)
       -> awaitable<expected<optional<http_response>, std::error_code>>
   {
-    using boost::beast::error;
-    using boost::beast::flat_buffer;
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
     using boost::beast::http::request;
     using boost::beast::http::request_serializer;
-    using boost::beast::http::response;
-    using boost::beast::http::vector_body;
-
-    bool use_expect = fields_.get(http::field::expect) == "100-continue";
 
     auto req = request<empty_body>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
@@ -568,36 +539,47 @@ private:
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
-    boost::system::error_code ec;
-
     auto serializer = request_serializer<empty_body>(req);
-    std::tie(ec, std::ignore)
+    auto [ec, _]
         = co_await async_write_header(*stream, serializer, use_awaitable);
     if (ec) {
-      log::debug("[{}] async_write_header failed: {}", name(), ec.message());
       co_return unexpected { ec };
     }
 
-    if (use_expect) {
-      flat_buffer buffer;
-      response<vector_body<std::byte>> res;
-      std::tie(ec, std::ignore)
-          = co_await async_read(*stream, buffer, res, use_awaitable);
-      if (ec && ec != error::timeout) {
-        log::debug("[{}] async_read failed: {}", name(), ec.message());
-        co_return unexpected { ec };
-      }
-      if (!ec && res.result() != http::status::continue_) {
-        co_return http_response(
-            res.result(),
-            http_fields::from_impl(res),
-            async_readable_vector_stream(std::move(res.body())));
+    if (fields_.get(http::field::expect) == "100-continue") {
+      if (auto res = co_await handle_expect_100_response(stream);
+          !res || *res) {
+        co_return res;
       }
     }
 
     if (auto res = co_await async_write_chunks(*stream, body_.stream()); !res) {
-      log::debug("[{}] async_write_chunks failed: {}", name(), ec.message());
       co_return unexpected { res.error() };
+    }
+
+    co_return nullopt;
+  }
+
+  template <typename Stream>
+  static auto handle_expect_100_response(std::shared_ptr<Stream> stream)
+      -> awaitable<expected<optional<http_response>, std::error_code>>
+  {
+    using boost::beast::error;
+    using boost::beast::flat_buffer;
+    using boost::beast::http::response;
+    using boost::beast::http::vector_body;
+
+    flat_buffer buffer;
+    response<vector_body<std::byte>> res;
+    auto [ec, _] = co_await async_read(*stream, buffer, res, use_awaitable);
+    if (ec && ec != error::timeout) {
+      co_return unexpected { ec };
+    }
+    if (!ec && res.result() != http::status::continue_) {
+      co_return http_response(
+          res.result(),
+          http_fields::from_impl(res),
+          async_readable_vector_stream(std::move(res.body())));
     }
 
     co_return nullopt;
