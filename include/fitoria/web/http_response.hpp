@@ -16,6 +16,7 @@
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/http.hpp>
+#include <fitoria/web/http_body.hpp>
 #include <fitoria/web/http_fields.hpp>
 
 #include <span>
@@ -31,11 +32,11 @@ class http_response {
 
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  optional<any_async_readable_stream> body_;
+  http_body body_;
 
   http_response(http::status_code status_code,
                 http_fields fields,
-                optional<any_async_readable_stream> body)
+                http_body body)
       : status_code_(status_code)
       , fields_(std::move(fields))
       , body_(std::move(body))
@@ -68,14 +69,14 @@ public:
     return fields_;
   }
 
-  auto body() noexcept -> optional<any_async_readable_stream&>
+  auto body() noexcept -> http_body&
   {
-    return optional<any_async_readable_stream&>(body_);
+    return body_;
   }
 
-  auto body() const noexcept -> optional<const any_async_readable_stream&>
+  auto body() const noexcept -> const http_body&
   {
-    return optional<const any_async_readable_stream&>(body_);
+    return body_;
   }
 
   auto builder() -> http_response_builder;
@@ -149,11 +150,11 @@ class http_response_builder {
 
   http::status_code status_code_ = http::status::ok;
   http_fields fields_;
-  optional<any_async_readable_stream> body_;
+  http_body body_;
 
   http_response_builder(http::status_code status_code,
                         http_fields fields,
-                        optional<any_async_readable_stream> body)
+                        http_body body)
       : status_code_(status_code)
       , fields_(std::move(fields))
       , body_(std::move(body))
@@ -252,7 +253,8 @@ public:
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) -> http_response
   {
-    body_.emplace(async_readable_vector_stream(bytes));
+    body_ = http_body(http_body::sized { bytes.size() },
+                      async_readable_vector_stream(bytes));
     return build();
   }
 
@@ -278,7 +280,8 @@ public:
   template <async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) -> http_response
   {
-    body_.emplace(std::forward<AsyncReadableStream>(stream));
+    body_ = http_body(http_body::chunked(),
+                      std::forward<AsyncReadableStream>(stream));
     return build();
   }
 };

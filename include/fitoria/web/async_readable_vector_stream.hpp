@@ -59,11 +59,6 @@ public:
   async_readable_vector_stream& operator=(async_readable_vector_stream&&)
       = default;
 
-  auto is_sized() const noexcept -> bool
-  {
-    return true;
-  }
-
   auto async_read_some(net::mutable_buffer buffer)
       -> awaitable<expected<std::size_t, std::error_code>>
   {

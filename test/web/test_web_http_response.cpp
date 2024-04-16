@@ -88,12 +88,12 @@ TEST_CASE("set_json")
   sync_wait([]() -> awaitable<void> {
     {
       auto res = http_response::ok().set_json({ { "name", "Rina Hidaka" } });
-      CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+      CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
                R"({"name":"Rina Hidaka"})");
     }
     {
       auto res = http_response::ok().set_json(user_t { .name = "Rina Hidaka" });
-      CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+      CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
                R"({"name":"Rina Hidaka"})");
     }
   });
@@ -103,7 +103,7 @@ TEST_CASE("set_body")
 {
   sync_wait([]() -> awaitable<void> {
     auto res = http_response::ok().set_body("Hello World");
-    CHECK_EQ(co_await async_read_until_eof<std::string>(*res.body()),
+    CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
              "Hello World");
   });
 }

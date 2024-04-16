@@ -35,6 +35,21 @@ auto reverse_tuple(std::tuple<Ts...> t)
                             std::make_index_sequence<sizeof...(Ts)>());
 }
 
+template <typename... Ts>
+class overloaded : public Ts... {
+public:
+  template <typename... Ts2>
+  overloaded(Ts2&&... ts)
+      : Ts(std::forward<Ts2>(ts))...
+  {
+  }
+
+  using Ts::operator()...;
+};
+
+template <typename... Ts>
+overloaded(Ts&&...) -> overloaded<std::decay_t<Ts>...>;
+
 FITORIA_NAMESPACE_END
 
 #endif

@@ -50,11 +50,6 @@ public:
   async_message_parser_stream& operator=(async_message_parser_stream&&)
       = default;
 
-  auto is_sized() const noexcept -> bool
-  {
-    return !parser_->chunked();
-  }
-
   auto async_read_some(net::mutable_buffer buffer)
       -> awaitable<expected<std::size_t, std::error_code>>
   {

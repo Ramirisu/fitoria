@@ -24,9 +24,6 @@ template <typename T>
 concept async_readable_stream = requires(T t, net::mutable_buffer buffer) {
   typename std::remove_cvref_t<T>::is_async_readable_stream;
   {
-    t.is_sized()
-  } -> std::same_as<bool>;
-  {
     t.async_read_some(buffer)
   } -> std::same_as<awaitable<expected<std::size_t, std::error_code>>>;
 };

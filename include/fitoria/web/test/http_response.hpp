@@ -29,12 +29,7 @@ public:
   http_response(web::http_response response)
       : status_code_(response.status_code())
       , fields_(std::move(response.fields()))
-      , body_(response.body()
-                  .and_then(
-                      [](auto& body) -> optional<any_async_readable_stream> {
-                        return std::move(body);
-                      })
-                  .value_or(async_readable_vector_stream()))
+      , body_(std::move(response.body().stream()))
   {
   }
 

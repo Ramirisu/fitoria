@@ -21,8 +21,9 @@
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
-#include <fitoria/web/async_write_each_chunk.hpp>
+#include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/http/http.hpp>
+#include <fitoria/web/http_body.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 
@@ -39,7 +40,8 @@ using web::async_message_parser_stream;
 using web::async_read_until_eof;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
-using web::async_write_each_chunk;
+using web::async_write_chunks;
+using web::http_body;
 using web::http_fields;
 using web::query_map;
 
@@ -202,7 +204,8 @@ public:
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) & -> http_client&
   {
-    body_.emplace(async_readable_vector_stream(bytes));
+    body_ = http_body(http_body::sized { bytes.size() },
+                      async_readable_vector_stream(bytes));
     return *this;
   }
 
@@ -270,7 +273,8 @@ public:
   template <async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) & -> http_client&
   {
-    body_.emplace(std::forward<AsyncReadableStream>(stream));
+    body_ = http_body(http_body::chunked(),
+                      std::forward<AsyncReadableStream>(stream));
     return *this;
   }
 
@@ -442,12 +446,15 @@ private:
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
-    auto do_request =
-        [&]() -> awaitable<expected<optional<http_response>, std::error_code>> {
-      return (!body_ || body_->is_sized()) ? do_sized_request(stream)
-                                           : do_chunked_request(stream);
-    };
-    if (auto exp = co_await do_request(); !exp) {
+    if (auto exp = co_await std::visit(
+            overloaded {
+                [&](http_body::null) { return do_sized_request(stream); },
+                [&](http_body::sized) { return do_sized_request(stream); },
+                [&](http_body::chunked) {
+                  return do_chunked_request(stream);
+                } },
+            body_.size());
+        !exp) {
       co_return unexpected { exp.error() };
     } else if (*exp) {
       co_return std::move(**exp);
@@ -494,14 +501,12 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     fields_.to_impl(req);
     req.set(http::field::host, resource_->host);
-    if (body_) {
-      if (auto data
-          = co_await async_read_until_eof<std::vector<std::byte>>(*body_);
-          data) {
-        req.body() = std::move(*data);
-      } else if (data.error() != make_error_code(net::error::eof)) {
-        co_return unexpected { data.error() };
-      }
+    if (auto data
+        = co_await async_read_until_eof<std::vector<std::byte>>(body_.stream());
+        data) {
+      req.body() = std::move(*data);
+    } else if (data.error() != make_error_code(net::error::eof)) {
+      co_return unexpected { data.error() };
     }
     req.prepare_payload();
 
@@ -590,10 +595,8 @@ private:
       }
     }
 
-    if (auto res = co_await async_write_each_chunk(*stream, std::move(body_));
-        !res) {
-      log::debug(
-          "[{}] async_write_each_chunk failed: {}", name(), ec.message());
+    if (auto res = co_await async_write_chunks(*stream, body_.stream()); !res) {
+      log::debug("[{}] async_write_chunks failed: {}", name(), ec.message());
       co_return unexpected { res.error() };
     }
 
@@ -613,7 +616,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
-  optional<any_async_readable_stream> body_;
+  http_body body_;
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
 }

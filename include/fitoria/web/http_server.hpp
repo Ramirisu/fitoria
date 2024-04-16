@@ -18,7 +18,7 @@
 #include <fitoria/log.hpp>
 
 #include <fitoria/web/async_message_parser_stream.hpp>
-#include <fitoria/web/async_write_each_chunk.hpp>
+#include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/handler.hpp>
 #include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
@@ -315,12 +315,19 @@ private:
             return async_readable_vector_stream();
           }());
 
-      auto do_response = [&]() -> awaitable<expected<void, std::error_code>> {
-        return (!res.body() || res.body()->is_sized())
-            ? do_sized_response(stream, res, keep_alive)
-            : do_chunked_response(stream, res, keep_alive);
-      };
-      if (auto exp = co_await do_response(); !exp) {
+      if (auto exp = co_await std::visit(
+              overloaded {
+                  [&](http_body::null) {
+                    return do_null_body_response(stream, res, keep_alive);
+                  },
+                  [&](http_body::sized) {
+                    return do_sized_response(stream, res, keep_alive);
+                  },
+                  [&](http_body::chunked) {
+                    return do_chunked_response(stream, res, keep_alive);
+                  } },
+              res.body().size());
+          !exp) {
         co_return exp.error();
       }
 
@@ -368,48 +375,58 @@ private:
   }
 
   template <typename Stream>
+  auto do_null_body_response(std::shared_ptr<Stream>& stream,
+                             http_response& res,
+                             bool keep_alive) const
+      -> awaitable<expected<void, std::error_code>>
+  {
+    using boost::beast::get_lowest_layer;
+    using boost::beast::http::empty_body;
+    using boost::beast::http::response;
+
+    auto r = response<empty_body>(res.status_code().value(), 11);
+    res.fields().to_impl(r);
+    r.keep_alive(keep_alive);
+    r.prepare_payload();
+
+    // boost.beast incorrectly handle some cases
+    // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
+    if (res.status_code().category() == http::status_class::informational
+        || res.status_code().value() == http::status::no_content) {
+      r.content_length(boost::none);
+    }
+
+    if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
+      co_return unexpected { ec };
+    }
+
+    co_return expected<void, std::error_code>();
+  }
+
+  template <typename Stream>
   auto do_sized_response(std::shared_ptr<Stream>& stream,
                          http_response& res,
                          bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::get_lowest_layer;
-    using boost::beast::http::empty_body;
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
-    if (res.body()) {
-      auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
-      res.fields().to_impl(r);
-      r.keep_alive(keep_alive);
-      if (auto data
-          = co_await async_read_until_eof<std::vector<std::byte>>(*res.body());
-          data) {
-        r.body() = std::move(*data);
-      } else if (data.error() != make_error_code(net::error::eof)) {
-        co_return unexpected { data.error() };
-      }
-      r.prepare_payload();
+    auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
+    res.fields().to_impl(r);
+    if (auto data = co_await async_read_until_eof<std::vector<std::byte>>(
+            res.body().stream());
+        data) {
+      r.body() = std::move(*data);
+    } else if (data.error() != make_error_code(net::error::eof)) {
+      co_return unexpected { data.error() };
+    }
+    r.keep_alive(keep_alive);
+    r.prepare_payload();
 
-      if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
-        co_return unexpected { ec };
-      }
-    } else {
-      auto r = response<empty_body>(res.status_code().value(), 11);
-      res.fields().to_impl(r);
-      r.keep_alive(keep_alive);
-      r.prepare_payload();
-
-      // boost.beast incorrectly handle some cases
-      // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
-      if (res.status_code().category() == http::status_class::informational
-          || res.status_code().value() == http::status::no_content) {
-        r.content_length(boost::none);
-      }
-
-      if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
-        co_return unexpected { ec };
-      }
+    if (auto [ec, _] = co_await async_write(*stream, r, use_awaitable); ec) {
+      co_return unexpected { ec };
     }
 
     co_return expected<void, std::error_code>();
@@ -438,7 +455,7 @@ private:
       co_return unexpected { ec };
     }
 
-    co_return co_await async_write_each_chunk(*stream, res.body());
+    co_return co_await async_write_chunks(*stream, res.body().stream());
   }
 
 #if FITORIA_NO_EXCEPTIONS

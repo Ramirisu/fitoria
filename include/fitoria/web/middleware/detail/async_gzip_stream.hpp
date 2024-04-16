@@ -166,11 +166,6 @@ public:
   {
   }
 
-  auto is_sized() const noexcept -> bool
-  {
-    return false;
-  }
-
   auto async_read_some(net::mutable_buffer buffer)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
@@ -298,11 +293,6 @@ public:
   async_gzip_deflate_stream(NextLayer2&& next)
       : next_(std::forward<NextLayer2>(next))
   {
-  }
-
-  auto is_sized() const noexcept -> bool
-  {
-    return false;
   }
 
   auto async_read_some(net::mutable_buffer buffer)
