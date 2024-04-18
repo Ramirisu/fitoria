@@ -44,7 +44,7 @@ int main()
 
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("name=fitoria&password=123456"),
@@ -55,7 +55,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=unknown&password=123456"),
@@ -67,7 +67,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123"),
@@ -79,7 +79,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123456"),

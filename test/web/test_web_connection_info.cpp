@@ -19,7 +19,7 @@ TEST_CASE("connection_info")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
-                        [](http_request& req) -> awaitable<http_response> {
+                        [](request& req) -> awaitable<http_response> {
                           CHECK_EQ(req.connection().local().address(),
                                    net::ip::make_address("127.0.0.1"));
                           CHECK_EQ(req.connection().local().port(), 0);
@@ -31,7 +31,7 @@ TEST_CASE("connection_info")
                     .build();
 
   server.serve_request(
-      "/", http_request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK(!(co_await res.as_string()));
       });

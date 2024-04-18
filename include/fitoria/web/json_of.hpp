@@ -15,7 +15,7 @@
 
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
-#include <fitoria/web/from_http_request.hpp>
+#include <fitoria/web/from_request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -31,7 +31,7 @@ public:
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<json_of<T>>, http_request& req)
+  friend auto tag_invoke(from_request_t<json_of<T>>, request& req)
       -> awaitable<expected<json_of<T>, std::error_code>>
   {
     if (req.fields().get(http::field::content_type)

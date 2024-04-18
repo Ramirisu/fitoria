@@ -24,7 +24,6 @@
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http_fields.hpp>
-#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/http_server.hpp>
 #include <fitoria/web/json_of.hpp>
@@ -36,6 +35,7 @@
 #include <fitoria/web/path_of.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/query_of.hpp>
+#include <fitoria/web/request.hpp>
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>

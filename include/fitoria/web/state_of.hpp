@@ -13,7 +13,7 @@
 
 #include <fitoria/core/expected.hpp>
 
-#include <fitoria/web/from_http_request.hpp>
+#include <fitoria/web/from_request.hpp>
 #include <fitoria/web/state_map.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -31,7 +31,7 @@ public:
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<state_of<T>>, http_request& req)
+  friend auto tag_invoke(from_request_t<state_of<T>>, request& req)
       -> awaitable<expected<state_of<T>, std::error_code>>
   {
     if (auto result = req.state<T>(); result) {

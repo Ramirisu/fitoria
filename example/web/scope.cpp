@@ -12,23 +12,23 @@ using namespace fitoria::web;
 
 namespace api {
 namespace v1 {
-  auto reg(http_request&) -> awaitable<http_response>
+  auto reg() -> awaitable<http_response>
   {
     co_return http_response::created().build();
   }
 
-  auto login(http_request&) -> awaitable<http_response>
+  auto login() -> awaitable<http_response>
   {
     co_return http_response::ok().build();
   }
 }
 namespace v2 {
-  auto reg(http_request&) -> awaitable<http_response>
+  auto reg() -> awaitable<http_response>
   {
     co_return http_response::created().build();
   }
 
-  auto login(http_request&) -> awaitable<http_response>
+  auto login() -> awaitable<http_response>
   {
     co_return http_response::ok().build();
   }

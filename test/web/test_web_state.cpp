@@ -23,7 +23,7 @@ TEST_CASE("state shares the same instance")
                 scope<>()
                     .state(std::string("original"))
                     .serve(route::get<"/modify">(
-                        [](http_request& req) -> awaitable<http_response> {
+                        [](request& req) -> awaitable<http_response> {
                           auto state = req.state<std::string>();
                           static_assert(std::same_as<decltype(state),
                                                      optional<std::string&>>);
@@ -35,7 +35,7 @@ TEST_CASE("state shares the same instance")
                           co_return http_response::ok().build();
                         }))
                     .serve(route::get<"/check">(
-                        [](http_request& req) -> awaitable<http_response> {
+                        [](request& req) -> awaitable<http_response> {
                           auto state = req.state<std::string>();
                           static_assert(std::same_as<decltype(state),
                                                      optional<std::string&>>);
@@ -47,14 +47,13 @@ TEST_CASE("state shares the same instance")
                         })))
             .build();
 
-  server.serve_request("/modify",
-                       http_request(http::verb::get),
-                       [](auto res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
-                         co_return;
-                       });
   server.serve_request(
-      "/check", http_request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/modify", request(http::verb::get), [](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        co_return;
+      });
+  server.serve_request(
+      "/check", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         co_return;
       });
@@ -76,30 +75,28 @@ TEST_CASE("state access order on global, scope and route")
                     .state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()
-                            .serve(route::get<
-                                   "/global">([](http_request& req)
-                                                  -> awaitable<http_response> {
-                              co_return http_response::ok()
-                                  .set_field(
-                                      http::field::content_type,
-                                      http::fields::content_type::plaintext())
-                                  .set_body(
-                                      req.state<shared_resource>()->value);
-                            }))
+                            .serve(route::get<"/global">(
+                                [](request& req) -> awaitable<http_response> {
+                                  co_return http_response::ok()
+                                      .set_field(http::field::content_type,
+                                                 http::fields::content_type::
+                                                     plaintext())
+                                      .set_body(
+                                          req.state<shared_resource>()->value);
+                                }))
                             .state(shared_resource { "scope" })
-                            .serve(route::get<
-                                   "/scope">([](http_request& req)
-                                                 -> awaitable<http_response> {
-                              co_return http_response::ok()
-                                  .set_field(
-                                      http::field::content_type,
-                                      http::fields::content_type::plaintext())
-                                  .set_body(
-                                      req.state<shared_resource>()->value);
-                            }))
+                            .serve(route::get<"/scope">(
+                                [](request& req) -> awaitable<http_response> {
+                                  co_return http_response::ok()
+                                      .set_field(http::field::content_type,
+                                                 http::fields::content_type::
+                                                     plaintext())
+                                      .set_body(
+                                          req.state<shared_resource>()->value);
+                                }))
                             .serve(
                                 route::get<
-                                    "/route">([](http_request& req)
+                                    "/route">([](request& req)
                                                   -> awaitable<http_response> {
                                   co_return http_response::ok()
                                       .set_field(http::field::content_type,
@@ -111,19 +108,19 @@ TEST_CASE("state access order on global, scope and route")
             .build();
 
   server.serve_request("/api/v1/global",
-                       http_request(http::verb::get),
+                       request(http::verb::get),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "global");
                        });
   server.serve_request("/api/v1/scope",
-                       http_request(http::verb::get),
+                       request(http::verb::get),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "scope");
                        });
   server.serve_request("/api/v1/route",
-                       http_request(http::verb::get),
+                       request(http::verb::get),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "route");

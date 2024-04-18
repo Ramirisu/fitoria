@@ -30,8 +30,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/api/repos/{repo}">(
-                [](http_request& req,
-                   std::string body) -> awaitable<http_response> {
+                [](request& req, std::string body) -> awaitable<http_response> {
                   CHECK_EQ(req.method(), http::verb::get);
                   CHECK_EQ(req.path().size(), 1);
                   CHECK_EQ(req.path().at("repo"), "fitoria");

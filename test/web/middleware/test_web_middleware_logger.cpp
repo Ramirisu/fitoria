@@ -19,21 +19,21 @@ TEST_CASE("logger middleware")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(scope()
-                       .use(middleware::logger())
-                       .serve(route::get<"/">(
-                           [&](http_request&) -> awaitable<http_response> {
-                             co_return http_response::ok().build();
-                           })))
+            .serve(
+                scope()
+                    .use(middleware::logger())
+                    .serve(route::get<"/">([&]() -> awaitable<http_response> {
+                      co_return http_response::ok().build();
+                    })))
             .build();
 
-  server.serve_request("/",
-                       http_request(http::verb::get)
-                           .set_field(http::field::user_agent, "fitoria"),
-                       [](auto res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
-                         co_return;
-                       });
+  server.serve_request(
+      "/",
+      request(http::verb::get).set_field(http::field::user_agent, "fitoria"),
+      [](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        co_return;
+      });
 
   ioc.run();
 }

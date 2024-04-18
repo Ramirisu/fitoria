@@ -11,7 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/from_http_request.hpp>
+#include <fitoria/web/from_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 #include <boost/pfr.hpp>
@@ -36,7 +36,7 @@ public:
     return inner_;
   }
 
-  friend auto tag_invoke(from_http_request_t<query_of<T>>, http_request& req)
+  friend auto tag_invoke(from_request_t<query_of<T>>, request& req)
       -> awaitable<expected<query_of<T>, std::error_code>>
   {
     co_return unpack_query(

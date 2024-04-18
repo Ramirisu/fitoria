@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_REQUEST_HPP
-#define FITORIA_WEB_HTTP_REQUEST_HPP
+#ifndef FITORIA_WEB_REQUEST_HPP
+#define FITORIA_WEB_REQUEST_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -28,20 +28,20 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class http_request {
+class request {
 public:
-  http_request(http::verb method)
+  request(http::verb method)
       : method_(method)
   {
   }
 
-  http_request(connection_info conn_info,
-               path_info path_info,
-               http::verb method,
-               query_map query,
-               http_fields fields,
-               any_async_readable_stream body,
-               const std::vector<shared_state_map>& state_maps)
+  request(connection_info conn_info,
+          path_info path_info,
+          http::verb method,
+          query_map query,
+          http_fields fields,
+          any_async_readable_stream body,
+          const std::vector<shared_state_map>& state_maps)
       : conn_info_(std::move(conn_info))
       , path_info_(std::move(path_info))
       , method_(method)
@@ -72,13 +72,13 @@ public:
     return method_;
   }
 
-  auto set_method(http::verb method) & noexcept -> http_request&
+  auto set_method(http::verb method) & noexcept -> request&
   {
     method_ = method;
     return *this;
   }
 
-  auto set_method(http::verb method) && noexcept -> http_request&&
+  auto set_method(http::verb method) && noexcept -> request&&
   {
     method_ = method;
     return std::move(*this);
@@ -94,13 +94,13 @@ public:
     return query_;
   }
 
-  auto set_query(std::string name, std::string value) & -> http_request&
+  auto set_query(std::string name, std::string value) & -> request&
   {
     query_.set(std::move(name), std::move(value));
     return *this;
   };
 
-  auto set_query(std::string name, std::string value) && -> http_request&&
+  auto set_query(std::string name, std::string value) && -> request&&
   {
     query_.set(std::move(name), std::move(value));
     return std::move(*this);
@@ -116,51 +116,49 @@ public:
     return fields_;
   }
 
-  auto set_field(std::string name, std::string_view value) & -> http_request&
+  auto set_field(std::string name, std::string_view value) & -> request&
   {
     fields_.set(std::move(name), value);
     return *this;
   }
 
-  auto set_field(std::string name, std::string_view value) && -> http_request&&
+  auto set_field(std::string name, std::string_view value) && -> request&&
   {
     fields_.set(std::move(name), value);
     return std::move(*this);
   }
 
-  auto set_field(http::field name, std::string_view value) & -> http_request&
+  auto set_field(http::field name, std::string_view value) & -> request&
   {
     fields_.set(name, value);
     return *this;
   }
 
-  auto set_field(http::field name, std::string_view value) && -> http_request&&
+  auto set_field(http::field name, std::string_view value) && -> request&&
   {
     fields_.set(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(std::string name, std::string_view value) & -> http_request&
+  auto insert_field(std::string name, std::string_view value) & -> request&
   {
     fields_.insert(std::move(name), value);
     return *this;
   }
 
-  auto insert_field(std::string name,
-                    std::string_view value) && -> http_request&&
+  auto insert_field(std::string name, std::string_view value) && -> request&&
   {
     fields_.insert(std::move(name), value);
     return std::move(*this);
   }
 
-  auto insert_field(http::field name, std::string_view value) & -> http_request&
+  auto insert_field(http::field name, std::string_view value) & -> request&
   {
     fields_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(http::field name,
-                    std::string_view value) && -> http_request&&
+  auto insert_field(http::field name, std::string_view value) && -> request&&
   {
     fields_.insert(name, value);
     return std::move(*this);
@@ -177,32 +175,32 @@ public:
   }
 
   template <std::size_t N>
-  auto set_body(std::span<const std::byte, N> bytes) & -> http_request&
+  auto set_body(std::span<const std::byte, N> bytes) & -> request&
   {
     body_ = async_readable_vector_stream(bytes);
     return *this;
   }
 
   template <std::size_t N>
-  auto set_body(std::span<const std::byte, N> bytes) && -> http_request&&
+  auto set_body(std::span<const std::byte, N> bytes) && -> request&&
   {
     set_body(bytes);
     return std::move(*this);
   }
 
-  auto set_body(std::string_view sv) & -> http_request&
+  auto set_body(std::string_view sv) & -> request&
   {
     set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return *this;
   }
 
-  auto set_body(std::string_view sv) && -> http_request&&
+  auto set_body(std::string_view sv) && -> request&&
   {
     set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
     return std::move(*this);
   }
 
-  auto set_json(const boost::json::value& jv) & -> http_request&
+  auto set_json(const boost::json::value& jv) & -> request&
   {
     set_field(http::field::content_type, http::fields::content_type::json());
     auto str = boost::json::serialize(jv);
@@ -210,7 +208,7 @@ public:
     return *this;
   }
 
-  auto set_json(const boost::json::value& jv) && -> http_request&&
+  auto set_json(const boost::json::value& jv) && -> request&&
   {
     set_json(jv);
     return std::move(*this);
@@ -218,28 +216,28 @@ public:
 
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
-  auto set_json(const T& obj) & -> http_request&
+  auto set_json(const T& obj) & -> request&
   {
     return set_json(boost::json::value_from(obj));
   }
 
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
-  auto set_json(const T& obj) && -> http_request&&
+  auto set_json(const T& obj) && -> request&&
   {
     set_json(boost::json::value_from(obj));
     return std::move(*this);
   }
 
   template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) & -> http_request&
+  auto set_stream(AsyncReadableStream&& stream) & -> request&
   {
     body_ = std::forward<AsyncReadableStream>(stream);
     return *this;
   }
 
   template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) && -> http_request&&
+  auto set_stream(AsyncReadableStream&& stream) && -> request&&
   {
     set_stream(std::forward<AsyncReadableStream>(stream));
     return std::move(*this);

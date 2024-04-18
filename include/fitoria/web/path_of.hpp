@@ -12,7 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/from_string.hpp>
-#include <fitoria/web/from_http_request.hpp>
+#include <fitoria/web/from_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
 #include <boost/pfr.hpp>
@@ -36,7 +36,7 @@ public:
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<path_of<T>>, http_request& req)
+  friend auto tag_invoke(from_request_t<path_of<T>>, request& req)
       -> awaitable<expected<path_of<T>, std::error_code>>
   {
     co_return unpack_path(
@@ -88,8 +88,8 @@ public:
   {
   }
 
-  friend auto tag_invoke(from_http_request_t<path_of<std::tuple<Ts...>>>,
-                         http_request& req)
+  friend auto tag_invoke(from_request_t<path_of<std::tuple<Ts...>>>,
+                         request& req)
       -> awaitable<expected<path_of<std::tuple<Ts...>>, std::error_code>>
   {
     co_return unpack_path(req.path(),

@@ -24,7 +24,7 @@ using namespace fitoria::web;
 // clang-format on
 
 namespace api::v1::login {
-auto api(const http_request& req, std::string body) -> awaitable<http_response>
+auto api(const request& req, std::string body) -> awaitable<http_response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {

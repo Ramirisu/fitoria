@@ -16,9 +16,9 @@
 
 #include <fitoria/log.hpp>
 
-#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
+#include <fitoria/web/request.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

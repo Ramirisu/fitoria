@@ -41,10 +41,9 @@ TEST_CASE("builder")
                       }
                     })
 #endif
-                    .serve(route::get<"/">(
-                        [&](http_request&) -> awaitable<http_response> {
-                          co_return http_response::ok().build();
-                        }))
+                    .serve(route::get<"/">([&]() -> awaitable<http_response> {
+                      co_return http_response::ok().build();
+                    }))
                     .build();
   CHECK(server.bind(server_ip, port));
 
@@ -88,17 +87,16 @@ TEST_CASE("socket reuse address")
 TEST_CASE("duplicate route")
 {
   auto ioc = net::io_context();
-  CHECK_THROWS_AS(auto server = http_server_builder(ioc).serve(
-                      scope()
-                          .serve(route::get<"/">(
-                              [](http_request&) -> awaitable<http_response> {
-                                co_return http_response::ok().build();
-                              }))
-                          .serve(route::get<"/">(
-                              [](http_request&) -> awaitable<http_response> {
-                                co_return http_response::ok().build();
-                              }))),
-                  std::system_error);
+  CHECK_THROWS_AS(
+      auto server = http_server_builder(ioc).serve(
+          scope()
+              .serve(route::get<"/">([]() -> awaitable<http_response> {
+                co_return http_response::ok().build();
+              }))
+              .serve(route::get<"/">([]() -> awaitable<http_response> {
+                co_return http_response::ok().build();
+              }))),
+      std::system_error);
 }
 
 TEST_CASE("invalid target")
@@ -107,7 +105,7 @@ TEST_CASE("invalid target")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
-                        [](http_request&) -> awaitable<http_response> {
+                        []() -> awaitable<http_response> {
                           co_return http_response::ok().build();
                         }))
                     .build();
@@ -196,11 +194,10 @@ TEST_CASE("unhandled exception from handler")
                         }
                       }
                     })
-                    .serve(route::get<"/">(
-                        [](http_request&) -> awaitable<http_response> {
-                          throw std::exception();
-                          co_return http_response::ok().build();
-                        }))
+                    .serve(route::get<"/">([]() -> awaitable<http_response> {
+                      throw std::exception();
+                      co_return http_response::ok().build();
+                    }))
                     .build();
   CHECK(server.bind(server_ip, port));
 
@@ -238,7 +235,7 @@ TEST_CASE("generic request")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
-                [=](http_request& req,
+                [=](request& req,
                     const connection_info& connection,
                     const path_info& path,
                     const query_map& query,
@@ -273,7 +270,7 @@ TEST_CASE("generic request")
                     CHECK_EQ(query.at("birth"), "1994/06/15");
                   };
                   test_query(req.query());
-                  test_query(static_cast<const http_request&>(req).query());
+                  test_query(static_cast<const request&>(req).query());
                   test_query(query);
 
                   auto test_fields = [](auto& fields) {
@@ -282,7 +279,7 @@ TEST_CASE("generic request")
                   };
 
                   test_fields(req.fields());
-                  test_fields(static_cast<const http_request&>(req).fields());
+                  test_fields(static_cast<const request&>(req).fields());
                   test_fields(fields);
 
                   CHECK(range_in_set(
@@ -384,13 +381,14 @@ TEST_CASE("request with null body")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">([](http_request& req)
-                                       -> awaitable<http_response> {
-              CHECK_EQ(req.fields().get(http::field::connection), "close");
-              CHECK(!req.fields().get(http::field::content_length));
-              CHECK(!(co_await async_read_until_eof<std::string>(req.body())));
-              co_return http_response::ok().build();
-            }))
+            .serve(
+                route::get<"/">([](request& req) -> awaitable<http_response> {
+                  CHECK_EQ(req.fields().get(http::field::connection), "close");
+                  CHECK(!req.fields().get(http::field::content_length));
+                  CHECK(!(
+                      co_await async_read_until_eof<std::string>(req.body())));
+                  co_return http_response::ok().build();
+                }))
             .build();
   CHECK(server.bind(server_ip, port));
 
@@ -420,7 +418,7 @@ TEST_CASE("request with empty body")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::post<"/">([](const http_request& req, std::string str)
+            .serve(route::post<"/">([](const request& req, std::string str)
                                         -> awaitable<http_response> {
               CHECK_EQ(req.fields().get(http::field::connection), "close");
               CHECK_EQ(req.fields().get(http::field::content_length), "0");
@@ -459,7 +457,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::post<"/">(
-                        [text](const http_request& req,
+                        [text](const request& req,
                                std::string data) -> awaitable<http_response> {
                           CHECK_EQ(req.fields().get(http::field::content_type),
                                    http::fields::content_type::plaintext());
@@ -499,10 +497,9 @@ TEST_CASE("response status only")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">(
-                        [](http_request&) -> awaitable<http_response> {
-                          co_return http_response::no_content().build();
-                        }))
+                    .serve(route::get<"/">([]() -> awaitable<http_response> {
+                      co_return http_response::no_content().build();
+                    }))
                     .build();
   CHECK(server.bind(server_ip, port));
 
@@ -538,13 +535,12 @@ TEST_CASE("response with plain text")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [text](http_request&) -> awaitable<http_response> {
-                  co_return http_response::ok()
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body(text);
-                }))
+            .serve(route::get<"/">([text]() -> awaitable<http_response> {
+              co_return http_response::ok()
+                  .set_field(http::field::content_type,
+                             http::fields::content_type::plaintext())
+                  .set_body(text);
+            }))
             .build();
   CHECK(server.bind(server_ip, port));
 
@@ -582,13 +578,12 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [text](http_request&) -> awaitable<http_response> {
-                  co_return http_response::ok()
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_stream(async_readable_chunk_stream<5>(text));
-                }))
+            .serve(route::get<"/">([text]() -> awaitable<http_response> {
+              co_return http_response::ok()
+                  .set_field(http::field::content_type,
+                             http::fields::content_type::plaintext())
+                  .set_stream(async_readable_chunk_stream<5>(text));
+            }))
             .build();
   CHECK(server.bind(server_ip, port));
 

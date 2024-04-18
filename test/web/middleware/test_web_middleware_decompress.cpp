@@ -65,7 +65,7 @@ TEST_CASE("deflate")
   for (auto& test_case : test_cases) {
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        http::fields::content_encoding::deflate())
             .set_stream(get_stream(test_case.chunked, compressed)),
@@ -114,7 +114,7 @@ TEST_CASE("gzip")
   for (auto& test_case : test_cases) {
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        http::fields::content_encoding::gzip())
             .set_stream(get_stream(test_case.chunked, compressed)),
@@ -155,7 +155,7 @@ TEST_CASE("decompress")
 #if defined(FITORIA_HAS_ZLIB)
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        fmt::format("{}, {}, {}",
                                    http::fields::content_encoding::deflate(),
@@ -179,7 +179,7 @@ TEST_CASE("decompress")
         });
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        fmt::format("{}, {}, {}",
                                    http::fields::content_encoding::gzip(),
@@ -206,7 +206,7 @@ TEST_CASE("decompress")
 #if defined(FITORIA_HAS_BROTLI)
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        fmt::format("{}, {}, {}",
                                    http::fields::content_encoding::deflate(),
@@ -228,7 +228,7 @@ TEST_CASE("decompress")
         });
     server.serve_request(
         "/",
-        http_request(http::verb::post)
+        request(http::verb::post)
             .set_field(http::field::content_encoding,
                        fmt::format("{}, {}, {}",
                                    http::fields::content_encoding::brotli(),

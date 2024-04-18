@@ -14,10 +14,10 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
 
-#include <fitoria/web/from_http_request.hpp>
-#include <fitoria/web/http_request.hpp>
+#include <fitoria/web/from_request.hpp>
 #include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
+#include <fitoria/web/request.hpp>
 #include <fitoria/web/to_http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -34,8 +34,7 @@ class handler_middleware<Request, Response, Next, std::tuple<Args...>> {
 public:
   auto operator()(Request req) const -> Response
   {
-    co_return co_await invoke_with_args(
-        co_await from_http_request<Args>(req)...);
+    co_return co_await invoke_with_args(co_await from_request<Args>(req)...);
   }
 
 private:

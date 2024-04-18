@@ -20,8 +20,8 @@
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/handler.hpp>
-#include <fitoria/web/http_request.hpp>
 #include <fitoria/web/http_response.hpp>
+#include <fitoria/web/request.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/test/http_response.hpp>
@@ -37,7 +37,7 @@ class http_server_builder;
 class http_server {
   friend class http_server_builder;
 
-  using request_type = http_request&;
+  using request_type = request&;
   using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
 #if FITORIA_NO_EXCEPTIONS
@@ -128,7 +128,7 @@ public:
       && co_awaitable<
                  std::invoke_result_t<ResponseHandler, test::http_response>>
   void serve_request(std::string_view path,
-                     http_request req,
+                     request req,
                      ResponseHandler handler) const
   {
     auto target = [&]() -> std::string {
@@ -146,7 +146,7 @@ public:
 
 private:
   template <typename ResponseHandler>
-  auto serve_request_impl(http_request req,
+  auto serve_request_impl(request req,
                           std::string target,
                           ResponseHandler handler) const -> awaitable<void>
   {
@@ -355,17 +355,17 @@ private:
     }
 
     if (auto route = router_.try_find(method, req_url.value().path()); route) {
-      auto request = http_request(
-          std::move(connection_info),
-          path_info(std::string(route->matcher().pattern()),
-                    req_url->path(),
-                    route->matcher().match(req_url->path()).value()),
-          method,
-          query_map::from(req_url->params()),
-          std::move(fields),
-          std::move(body),
-          route->state_maps());
-      co_return co_await route->operator()(request);
+      auto req
+          = request(std::move(connection_info),
+                    path_info(std::string(route->matcher().pattern()),
+                              req_url->path(),
+                              route->matcher().match(req_url->path()).value()),
+                    method,
+                    query_map::from(req_url->params()),
+                    std::move(fields),
+                    std::move(body),
+                    route->state_maps());
+      co_return co_await route->operator()(req);
     }
 
     co_return http_response::not_found()
@@ -487,7 +487,7 @@ private:
 };
 
 class http_server_builder {
-  using request_type = http_request&;
+  using request_type = request&;
   using response_type = awaitable<http_response>;
   using router_type = router<request_type, response_type>;
 #if FITORIA_NO_EXCEPTIONS
