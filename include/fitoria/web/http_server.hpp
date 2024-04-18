@@ -20,11 +20,11 @@
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/handler.hpp>
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/request.hpp>
+#include <fitoria/web/response.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
-#include <fitoria/web/test/http_response.hpp>
+#include <fitoria/web/test_response.hpp>
 
 #include <system_error>
 
@@ -38,7 +38,7 @@ class http_server {
   friend class http_server_builder;
 
   using request_type = request&;
-  using response_type = awaitable<http_response>;
+  using response_type = awaitable<response>;
   using router_type = router<request_type, response_type>;
 #if FITORIA_NO_EXCEPTIONS
   using exception_handler_t = net::detached_t;
@@ -124,9 +124,8 @@ public:
 #endif
 
   template <typename ResponseHandler>
-    requires std::is_invocable_v<ResponseHandler, test::http_response>
-      && co_awaitable<
-                 std::invoke_result_t<ResponseHandler, test::http_response>>
+    requires std::is_invocable_v<ResponseHandler, test_response>
+      && co_awaitable<std::invoke_result_t<ResponseHandler, test_response>>
   void serve_request(std::string_view path,
                      request req,
                      ResponseHandler handler) const
@@ -150,7 +149,7 @@ private:
                           std::string target,
                           ResponseHandler handler) const -> awaitable<void>
   {
-    co_await handler(test::http_response(co_await do_handler(
+    co_await handler(test_response(co_await do_handler(
         connection_info(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
@@ -343,12 +342,11 @@ private:
                   http::verb method,
                   std::string target,
                   http_fields fields,
-                  any_async_readable_stream body) const
-      -> awaitable<http_response>
+                  any_async_readable_stream body) const -> awaitable<response>
   {
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
-      co_return http_response::bad_request()
+      co_return response::bad_request()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("request target is invalid");
@@ -368,7 +366,7 @@ private:
       co_return co_await route->operator()(req);
     }
 
-    co_return http_response::not_found()
+    co_return response::not_found()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("request path is not found");
@@ -376,7 +374,7 @@ private:
 
   template <typename Stream>
   auto do_null_body_response(std::shared_ptr<Stream>& stream,
-                             http_response& res,
+                             response& res,
                              bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
@@ -405,7 +403,7 @@ private:
 
   template <typename Stream>
   auto do_sized_response(std::shared_ptr<Stream>& stream,
-                         http_response& res,
+                         response& res,
                          bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
@@ -434,7 +432,7 @@ private:
 
   template <typename Stream>
   auto do_chunked_response(std::shared_ptr<Stream>& stream,
-                           http_response& res,
+                           response& res,
                            bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
@@ -488,7 +486,7 @@ private:
 
 class http_server_builder {
   using request_type = request&;
-  using response_type = awaitable<http_response>;
+  using response_type = awaitable<response>;
   using router_type = router<request_type, response_type>;
 #if FITORIA_NO_EXCEPTIONS
   using exception_handler_t = net::detached_t;

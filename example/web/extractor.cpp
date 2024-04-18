@@ -44,23 +44,23 @@ using ptr = std::shared_ptr<type>;
 namespace api::v1 {
 namespace users {
   auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
-      -> awaitable<http_response>
+      -> awaitable<response>
   {
     auto [user] = std::move(path);
     if (auto it = db->find(user); it != db->end()) {
       if (it->second.last_login_time) {
-        co_return http_response::ok()
+        co_return response::ok()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("{:%FT%TZ}", *(it->second.last_login_time)));
       } else {
-        co_return http_response::internal_server_error()
+        co_return response::internal_server_error()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("User [{}] never logins.", user));
       }
     }
-    co_return http_response::not_found()
+    co_return response::not_found()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User does not exist.");
@@ -93,17 +93,17 @@ namespace login {
   }
 
   auto api(state_of<database::ptr> db, json_of<body_type> body)
-      -> awaitable<http_response>
+      -> awaitable<response>
   {
     if (auto it = db->find(body.username);
         it != db->end() && it->second.password == body.password) {
       it->second.last_login_time = database::clock_t::now();
-      co_return http_response::ok()
+      co_return response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("Login succeeded.");
     }
-    co_return http_response::unauthorized()
+    co_return response::unauthorized()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User name or password is incorrect.");

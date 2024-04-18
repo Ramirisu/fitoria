@@ -19,12 +19,11 @@ TEST_CASE("logger middleware")
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(
-                scope()
-                    .use(middleware::logger())
-                    .serve(route::get<"/">([&]() -> awaitable<http_response> {
-                      co_return http_response::ok().build();
-                    })))
+            .serve(scope()
+                       .use(middleware::logger())
+                       .serve(route::get<"/">([&]() -> awaitable<response> {
+                         co_return response::ok().build();
+                       })))
             .build();
 
   server.serve_request(

@@ -21,14 +21,14 @@ using namespace fitoria::web;
 // user: david
 
 namespace api::v1::users::get_user {
-auto api(const request& req) -> awaitable<http_response>
+auto api(const request& req) -> awaitable<response>
 {
   auto user = req.path().get("user");
   if (!user) {
-    co_return http_response::bad_request().build();
+    co_return response::bad_request().build();
   }
 
-  co_return http_response::ok()
+  co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}", user.value()));

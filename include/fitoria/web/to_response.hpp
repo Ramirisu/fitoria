@@ -6,44 +6,43 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_TO_HTTP_RESPONSE_HPP
-#define FITORIA_WEB_TO_HTTP_RESPONSE_HPP
+#ifndef FITORIA_WEB_TO_RESPONSE_HPP
+#define FITORIA_WEB_TO_RESPONSE_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/tag_invoke.hpp>
 
-#include <fitoria/web/http_response.hpp>
+#include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-namespace to_http_response_ns {
-  struct to_http_response_t {
+namespace to_response_ns {
+  struct to_response_t {
     template <typename T>
-      requires is_tag_invocable_v<to_http_response_t, T>
+      requires is_tag_invocable_v<to_response_t, T>
     auto operator()(T&& t) const
-        noexcept(is_nothrow_tag_invocable_v<to_http_response_t, T>)
-            -> http_response
+        noexcept(is_nothrow_tag_invocable_v<to_response_t, T>) -> response
     {
-      static_assert(std::same_as<tag_invoke_result_t<to_http_response_t, T>,
-                                 http_response>);
+      static_assert(
+          std::same_as<tag_invoke_result_t<to_response_t, T>, response>);
       return tag_invoke(*this, std::forward<T>(t));
     }
 
     template <typename T>
-      requires decay_to<T, http_response>
-    auto operator()(T&& t) const -> http_response
+      requires decay_to<T, response>
+    auto operator()(T&& t) const -> response
     {
       return std::forward<T>(t);
     }
 
     template <typename T>
       requires decay_to<T, std::string>
-    auto operator()(T&& t) const -> http_response
+    auto operator()(T&& t) const -> response
     {
-      return http_response::ok()
+      return response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body(std::forward<T>(t));
@@ -51,9 +50,9 @@ namespace to_http_response_ns {
 
     template <typename T>
       requires is_specialization_of_v<T, std::vector>
-    auto operator()(T&& t) const -> http_response
+    auto operator()(T&& t) const -> response
     {
-      return http_response::ok()
+      return response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::octet_stream())
           .set_body(std::as_bytes(std::span(t.begin(), t.end())));
@@ -61,10 +60,10 @@ namespace to_http_response_ns {
 
     template <typename T>
       requires is_specialization_of_v<T, std::variant>
-    auto operator()(T&& t) const -> http_response
+    auto operator()(T&& t) const -> response
     {
       return std::visit(
-          [this]<typename Arg>(Arg&& arg) -> http_response {
+          [this]<typename Arg>(Arg&& arg) -> response {
             return (*this)(std::forward<Arg>(arg));
           },
           std::forward<T>(t));
@@ -72,8 +71,8 @@ namespace to_http_response_ns {
   };
 }
 
-using to_http_response_ns::to_http_response_t;
-inline constexpr to_http_response_t to_http_response {};
+using to_response_ns::to_response_t;
+inline constexpr to_response_t to_response {};
 
 }
 

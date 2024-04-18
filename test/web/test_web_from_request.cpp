@@ -32,18 +32,19 @@ struct date_t {
 TEST_CASE("connection_info")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">([](const connection_info& connection)
-                                               -> awaitable<http_response> {
-                      CHECK_EQ(connection.local().address(),
-                               net::ip::make_address("127.0.0.1"));
-                      CHECK_EQ(connection.local().port(), 0);
-                      CHECK_EQ(connection.remote().address(),
-                               net::ip::make_address("127.0.0.1"));
-                      CHECK_EQ(connection.remote().port(), 0);
-                      co_return http_response::ok().build();
-                    }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">(
+                [](const connection_info& connection) -> awaitable<response> {
+                  CHECK_EQ(connection.local().address(),
+                           net::ip::make_address("127.0.0.1"));
+                  CHECK_EQ(connection.local().port(), 0);
+                  CHECK_EQ(connection.remote().address(),
+                           net::ip::make_address("127.0.0.1"));
+                  CHECK_EQ(connection.remote().port(), 0);
+                  co_return response::ok().build();
+                }))
+            .build();
 
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {
@@ -57,14 +58,13 @@ TEST_CASE("connection_info")
 TEST_CASE("path_info")
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server_builder(ioc)
-            .serve(route::get<"/{user}">(
-                [](const path_info& path_info) -> awaitable<http_response> {
-                  CHECK_EQ(path_info.get("user"), "fitoria");
-                  co_return http_response::ok().build();
-                }))
-            .build();
+  auto server = http_server_builder(ioc)
+                    .serve(route::get<"/{user}">(
+                        [](const path_info& path_info) -> awaitable<response> {
+                          CHECK_EQ(path_info.get("user"), "fitoria");
+                          co_return response::ok().build();
+                        }))
+                    .build();
 
   server.serve_request(
       "/fitoria", request(http::verb::get), [](auto res) -> awaitable<void> {
@@ -82,12 +82,12 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
       = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
-                    -> awaitable<http_response> {
+                    -> awaitable<response> {
                   auto [year, month, day] = std::move(path);
                   CHECK_EQ(year, 1994);
                   CHECK_EQ(month, "June");
                   CHECK_EQ(day, 15);
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -108,12 +108,12 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, from_string conversion error")
       = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
-                    -> awaitable<http_response> {
+                    -> awaitable<response> {
                   auto [year, month, day] = std::move(path);
                   CHECK_EQ(year, 2147483648);
                   CHECK_EQ(month, "June");
                   CHECK_EQ(day, 15);
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -135,12 +135,12 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, nb of params do not match")
       = http_server_builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<std::tuple<std::string, std::string, std::string>>
-                       path) -> awaitable<http_response> {
+                       path) -> awaitable<response> {
                   auto [year, month, day] = std::move(path);
                   CHECK_EQ(year, "06");
                   CHECK_EQ(month, "06");
                   CHECK_EQ(day, "15");
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -161,11 +161,11 @@ TEST_CASE("path_of<T = aggregate>")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
-                [](path_of<date_t> path) -> awaitable<http_response> {
+                [](path_of<date_t> path) -> awaitable<response> {
                   CHECK_EQ(
                       path,
                       date_t { .month = "06", .day = "15", .year = "1994" });
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -184,11 +184,11 @@ TEST_CASE("path_of<T = aggregate>, not match")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/{month}/{day}">(
-                [](path_of<date_t> path) -> awaitable<http_response> {
+                [](path_of<date_t> path) -> awaitable<response> {
                   CHECK_EQ(
                       path,
                       date_t { .month = "06", .day = "15", .year = "1994" });
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -208,11 +208,11 @@ TEST_CASE("query_map")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
-                        [](const query_map& query) -> awaitable<http_response> {
+                        [](const query_map& query) -> awaitable<response> {
                           CHECK_EQ(query.get("year"), "1994");
                           CHECK_EQ(query.get("month"), "06");
                           CHECK_EQ(query.get("day"), "15");
-                          co_return http_response::ok().build();
+                          co_return response::ok().build();
                         }))
                     .build();
 
@@ -237,11 +237,11 @@ TEST_CASE("query_of<T>")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/">(
-                [](query_of<date_t> query) -> awaitable<http_response> {
+                [](query_of<date_t> query) -> awaitable<response> {
                   CHECK_EQ(
                       query.get(),
                       date_t { .month = "06", .day = "15", .year = "1994" });
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -266,9 +266,9 @@ TEST_CASE("http_fields")
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/">(
-                [](const http_fields& fields) -> awaitable<http_response> {
+                [](const http_fields& fields) -> awaitable<response> {
                   CHECK_EQ(fields.get(http::field::connection), "close");
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -288,9 +288,9 @@ TEST_CASE("state_of<T>")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/">([](state_of<std::string> st)
-                                               -> awaitable<http_response> {
+                                               -> awaitable<response> {
                              CHECK_EQ(st, "shared state");
-                             co_return http_response::ok().build();
+                             co_return response::ok().build();
                            }).state(std::string("shared state")))
                     .build();
 
@@ -308,9 +308,9 @@ TEST_CASE("std::string")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::post<"/">(
-                        [](std::string text) -> awaitable<http_response> {
+                        [](std::string text) -> awaitable<response> {
                           CHECK_EQ(text, "abc");
-                          co_return http_response::ok().build();
+                          co_return response::ok().build();
                         }))
                     .build();
 
@@ -330,9 +330,9 @@ TEST_CASE("std::vector<std::byte>")
   auto server
       = http_server_builder(ioc)
             .serve(route::post<"/">(
-                [](std::vector<std::byte> bytes) -> awaitable<http_response> {
+                [](std::vector<std::byte> bytes) -> awaitable<response> {
                   CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
-                  co_return http_response::ok().build();
+                  co_return response::ok().build();
                 }))
             .build();
 
@@ -349,13 +349,14 @@ TEST_CASE("std::vector<std::byte>")
 TEST_CASE("std::vector<std::uint8_t>")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::post<"/">([](std::vector<std::uint8_t> bytes)
-                                                -> awaitable<http_response> {
-                      CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
-                      co_return http_response::ok().build();
-                    }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::post<"/">(
+                [](std::vector<std::uint8_t> bytes) -> awaitable<response> {
+                  CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
+                  co_return response::ok().build();
+                }))
+            .build();
 
   server.serve_request("/",
                        request(http::verb::post).set_body("abc"),
@@ -416,10 +417,10 @@ TEST_CASE("json_of<T>")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(route::get<"/">(
-                        [](json_of<user_t> user) -> awaitable<http_response> {
+                        [](json_of<user_t> user) -> awaitable<response> {
                           CHECK_EQ(user.name, "Rina Hidaka");
                           CHECK_EQ(user.birth, "1994/06/15");
-                          co_return http_response::ok().set_json(user);
+                          co_return response::ok().set_json(user);
                         }))
                     .build();
 

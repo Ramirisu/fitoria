@@ -10,44 +10,44 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto get_handler() -> awaitable<http_response>
+auto get_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto post_handler() -> awaitable<http_response>
+auto post_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto put_handler() -> awaitable<http_response>
+auto put_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto patch_handler() -> awaitable<http_response>
+auto patch_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto delete_handler() -> awaitable<http_response>
+auto delete_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto head_handler() -> awaitable<http_response>
+auto head_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto options_handler() -> awaitable<http_response>
+auto options_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
-auto any_handler() -> awaitable<http_response>
+auto any_handler() -> awaitable<response>
 {
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 
 int main()

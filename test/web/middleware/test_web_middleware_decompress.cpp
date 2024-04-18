@@ -46,15 +46,16 @@ TEST_CASE("deflate")
   };
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::post<"/">([&](const http_fields& fields,
-                                                std::string body)
-                                                -> awaitable<http_response> {
-                             CHECK(!fields.get(http::field::content_encoding));
-                             CHECK_EQ(body, plain);
-                             co_return http_response::ok().build();
-                           }).use(middleware::decompress()))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(
+                route::post<"/">([&](const http_fields& fields,
+                                     std::string body) -> awaitable<response> {
+                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK_EQ(body, plain);
+                  co_return response::ok().build();
+                }).use(middleware::decompress()))
+            .build();
 
   struct test_case_t {
     bool chunked;
@@ -95,15 +96,16 @@ TEST_CASE("gzip")
   };
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::post<"/">([&](const http_fields& fields,
-                                                std::string body)
-                                                -> awaitable<http_response> {
-                             CHECK(!fields.get(http::field::content_encoding));
-                             CHECK_EQ(body, plain);
-                             co_return http_response::ok().build();
-                           }).use(middleware::decompress()))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(
+                route::post<"/">([&](const http_fields& fields,
+                                     std::string body) -> awaitable<response> {
+                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK_EQ(body, plain);
+                  co_return response::ok().build();
+                }).use(middleware::decompress()))
+            .build();
 
   struct test_case_t {
     bool chunked;
@@ -135,15 +137,16 @@ TEST_CASE("decompress")
       "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::post<"/">([&](const http_fields& fields,
-                                                std::string body)
-                                                -> awaitable<http_response> {
-                             CHECK(!fields.get(http::field::content_encoding));
-                             CHECK_EQ(body, plain);
-                             co_return http_response::ok().build();
-                           }).use(middleware::decompress()))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(
+                route::post<"/">([&](const http_fields& fields,
+                                     std::string body) -> awaitable<response> {
+                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK_EQ(body, plain);
+                  co_return response::ok().build();
+                }).use(middleware::decompress()))
+            .build();
 
   struct test_case_t {
     bool chunked;

@@ -15,13 +15,12 @@ int main()
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/">(
-                [](std::string body) -> awaitable<http_response> {
-                  co_return http_response::ok()
-                      .set_field(http::field::content_type,
-                                 http::fields::content_type::plaintext())
-                      .set_body(body);
-                }))
+            .serve(route::get<"/">([](std::string body) -> awaitable<response> {
+              co_return response::ok()
+                  .set_field(http::field::content_type,
+                             http::fields::content_type::plaintext())
+                  .set_body(body);
+            }))
             .build();
   server.bind("127.0.0.1", 8080);
 

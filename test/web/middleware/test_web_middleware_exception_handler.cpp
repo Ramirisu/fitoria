@@ -24,11 +24,11 @@ TEST_CASE("exception_handler middleware")
             .serve(scope<"/api">()
                        .use(middleware::exception_handler())
                        .serve(route::get<"/">(
-                           [&](std::string body) -> awaitable<http_response> {
+                           [&](std::string body) -> awaitable<response> {
                              if (body.ends_with("true")) {
                                throw std::exception();
                              }
-                             co_return http_response::ok().build();
+                             co_return response::ok().build();
                            })))
             .build();
 

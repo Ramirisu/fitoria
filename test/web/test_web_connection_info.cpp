@@ -17,18 +17,18 @@ TEST_SUITE_BEGIN("[fitoria.web.connection_info]");
 TEST_CASE("connection_info")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">(
-                        [](request& req) -> awaitable<http_response> {
-                          CHECK_EQ(req.connection().local().address(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().local().port(), 0);
-                          CHECK_EQ(req.connection().remote().address(),
-                                   net::ip::make_address("127.0.0.1"));
-                          CHECK_EQ(req.connection().remote().port(), 0);
-                          co_return http_response::ok().build();
-                        }))
-                    .build();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">([](request& req) -> awaitable<response> {
+              CHECK_EQ(req.connection().local().address(),
+                       net::ip::make_address("127.0.0.1"));
+              CHECK_EQ(req.connection().local().port(), 0);
+              CHECK_EQ(req.connection().remote().address(),
+                       net::ip::make_address("127.0.0.1"));
+              CHECK_EQ(req.connection().remote().port(), 0);
+              co_return response::ok().build();
+            }))
+            .build();
 
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {

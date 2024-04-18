@@ -16,9 +16,9 @@
 
 #include <fitoria/log.hpp>
 
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/request.hpp>
+#include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -40,7 +40,7 @@ public:
                  ex.what());
     }
 
-    co_return http_response::internal_server_error().build();
+    co_return response::internal_server_error().build();
   }
 
 private:

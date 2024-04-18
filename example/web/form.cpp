@@ -24,19 +24,19 @@ using namespace fitoria::web;
 // clang-format on
 
 namespace api::v1::login {
-auto api(const request& req, std::string body) -> awaitable<http_response>
+auto api(const request& req, std::string body) -> awaitable<response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
-    co_return http_response::bad_request().build();
+    co_return response::bad_request().build();
   }
   auto user = as_form(body);
   if (!user || user->get("name") != "ramirisu"
       || user->get("password") != "123456") {
-    co_return http_response::unauthorized().build();
+    co_return response::unauthorized().build();
   }
 
-  co_return http_response::ok().build();
+  co_return response::ok().build();
 }
 }
 

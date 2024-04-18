@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_TEST_HTTP_RESPONSE_HPP
-#define FITORIA_WEB_TEST_HTTP_RESPONSE_HPP
+#ifndef FITORIA_WEB_TEST_RESPONSE_HPP
+#define FITORIA_WEB_TEST_RESPONSE_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -18,28 +18,28 @@
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
-#include <fitoria/web/http_response.hpp>
+#include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web::test {
+namespace web {
 
-class http_response {
+class test_response {
 public:
-  http_response(web::http_response response)
+  test_response(web::response response)
       : status_code_(response.status_code())
       , fields_(std::move(response.fields()))
       , body_(std::move(response.body().stream()))
   {
   }
 
-  http_response(const http_response&) = delete;
+  test_response(const test_response&) = delete;
 
-  http_response& operator=(const http_response&) = delete;
+  test_response& operator=(const test_response&) = delete;
 
-  http_response(http_response&&) = default;
+  test_response(test_response&&) = default;
 
-  http_response& operator=(http_response&&) = default;
+  test_response& operator=(test_response&&) = default;
 
   auto status_code() const noexcept -> web::http::status_code
   {

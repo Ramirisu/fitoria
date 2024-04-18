@@ -10,17 +10,17 @@
 #include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/web/async_read_until_eof.hpp>
-#include <fitoria/web/http_response.hpp>
+#include <fitoria/web/response.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
 
-TEST_SUITE_BEGIN("[fitoria.web.http_response]");
+TEST_SUITE_BEGIN("[fitoria.web.response]");
 
 TEST_CASE("builder")
 {
-  auto res = http_response::ok().build();
+  auto res = response::ok().build();
   auto builder
       = res.builder().set_status_code(http::status::internal_server_error);
   CHECK_EQ(builder.build().status_code(), http::status::internal_server_error);
@@ -28,13 +28,13 @@ TEST_CASE("builder")
 
 TEST_CASE("status_code")
 {
-  auto res = http_response::ok().build();
+  auto res = response::ok().build();
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
 TEST_CASE("insert_field")
 {
-  auto res = http_response::ok()
+  auto res = response::ok()
                  .insert_field(http::field::content_type,
                                http::fields::content_type::plaintext())
                  .insert_field("content-encoding",
@@ -52,7 +52,7 @@ TEST_CASE("insert_field")
 
 TEST_CASE("set_field")
 {
-  auto res = http_response::ok()
+  auto res = response::ok()
                  .set_field(http::field::content_type,
                             http::fields::content_type::plaintext())
                  .set_field("content-encoding",
@@ -87,12 +87,12 @@ TEST_CASE("set_json")
 {
   sync_wait([]() -> awaitable<void> {
     {
-      auto res = http_response::ok().set_json({ { "name", "Rina Hidaka" } });
+      auto res = response::ok().set_json({ { "name", "Rina Hidaka" } });
       CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
                R"({"name":"Rina Hidaka"})");
     }
     {
-      auto res = http_response::ok().set_json(user_t { .name = "Rina Hidaka" });
+      auto res = response::ok().set_json(user_t { .name = "Rina Hidaka" });
       CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
                R"({"name":"Rina Hidaka"})");
     }
@@ -102,7 +102,7 @@ TEST_CASE("set_json")
 TEST_CASE("set_body")
 {
   sync_wait([]() -> awaitable<void> {
-    auto res = http_response::ok().set_body("Hello World");
+    auto res = response::ok().set_body("Hello World");
     CHECK_EQ(co_await async_read_until_eof<std::string>(res.body().stream()),
              "Hello World");
   });

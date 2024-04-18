@@ -68,9 +68,9 @@ private:
   log::level lv_;
 };
 
-auto get_user(request& req) -> awaitable<http_response>
+auto get_user(request& req) -> awaitable<response>
 {
-  co_return http_response::ok()
+  co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(req.path().get("user").value_or("{{unknown}}"));

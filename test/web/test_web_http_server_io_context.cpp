@@ -30,10 +30,10 @@ TEST_CASE("compile with io_context")
   auto server = http_server_builder(ioc)
                     .serve(route::post<"/">(
                         [](std::string str)
-                            -> net::awaitable<http_response,
+                            -> net::awaitable<response,
                                               net::io_context::executor_type> {
                           CHECK_EQ(str, "");
-                          co_return http_response::ok().build();
+                          co_return response::ok().build();
                         }))
                     .build();
   CHECK(server.bind(server_ip, port));

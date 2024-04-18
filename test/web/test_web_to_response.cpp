@@ -20,12 +20,12 @@ using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("[fitoria.web.to_http_response]");
 
-TEST_CASE("http_response")
+TEST_CASE("response")
 {
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
-                    .serve(route::get<"/">([]() -> awaitable<http_response> {
-                      co_return http_response::ok()
+                    .serve(route::get<"/">([]() -> awaitable<response> {
+                      co_return response::ok()
                           .set_field(http::field::content_type,
                                      http::fields::content_type::plaintext())
                           .set_body("OK");

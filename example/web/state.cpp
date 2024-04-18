@@ -40,45 +40,45 @@ private:
 
 using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
-auto put(const request& req) -> awaitable<http_response>
+auto put(const request& req) -> awaitable<response>
 {
   auto key = req.path().get("key");
   auto value = req.path().get("value");
   if (!key || !value) {
-    co_return http_response::bad_request().build();
+    co_return response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response::internal_server_error().build();
+    co_return response::internal_server_error().build();
   }
 
   if ((*cache)->put(*key, *value)) {
-    co_return http_response::created().build();
+    co_return response::created().build();
   } else {
-    co_return http_response::accepted().build();
+    co_return response::accepted().build();
   }
 }
 
-auto get(const request& req) -> awaitable<http_response>
+auto get(const request& req) -> awaitable<response>
 {
   auto key = req.path().get("key");
   if (!key) {
-    co_return http_response::bad_request().build();
+    co_return response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response::internal_server_error().build();
+    co_return response::internal_server_error().build();
   }
 
   if (auto value = (*cache)->get(*key); value) {
-    co_return http_response::ok()
+    co_return response::ok()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body(*value);
   } else {
-    co_return http_response::not_found().build();
+    co_return response::not_found().build();
   }
 }
 

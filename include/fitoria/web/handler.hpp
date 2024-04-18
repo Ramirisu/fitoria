@@ -15,10 +15,10 @@
 #include <fitoria/core/type_traits.hpp>
 
 #include <fitoria/web/from_request.hpp>
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/request.hpp>
-#include <fitoria/web/to_http_response.hpp>
+#include <fitoria/web/response.hpp>
+#include <fitoria/web/to_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -44,14 +44,13 @@ private:
     const auto pack
         = std::tuple<expected<Args, std::error_code>&...> { args... };
     if (auto err = get_error_of<0>(pack); err) {
-      co_return http_response::internal_server_error()
+      co_return response::internal_server_error()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body(err->message());
     }
 
-    co_return to_http_response(
-        co_await next_(std::forward<Args>(args.value())...));
+    co_return to_response(co_await next_(std::forward<Args>(args.value())...));
   }
 
   template <std::size_t I>

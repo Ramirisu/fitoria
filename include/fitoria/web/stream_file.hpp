@@ -14,7 +14,7 @@
 #include <fitoria/core/net.hpp>
 
 #include <fitoria/web/async_readable_file_stream.hpp>
-#include <fitoria/web/to_http_response.hpp>
+#include <fitoria/web/to_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -51,9 +51,9 @@ public:
   }
 
   template <decay_to<stream_file> Self>
-  friend auto tag_invoke(to_http_response_t, Self&& self) -> http_response
+  friend auto tag_invoke(to_response_t, Self&& self) -> response
   {
-    return http_response::ok()
+    return response::ok()
         .set_field(http::field::content_type,
                    http::fields::content_type::octet_stream())
         .set_stream(async_readable_file_stream(self.release()));

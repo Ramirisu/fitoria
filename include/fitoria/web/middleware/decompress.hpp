@@ -16,13 +16,12 @@
 
 #include <fitoria/web/detail/string.hpp>
 
-#include <fitoria/web/http_response.hpp>
 #include <fitoria/web/middleware/detail/async_brotli_inflate_stream.hpp>
 #include <fitoria/web/middleware/detail/async_deflate_stream.hpp>
 #include <fitoria/web/middleware/detail/async_gzip_stream.hpp>
 #include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/request.hpp>
-
+#include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

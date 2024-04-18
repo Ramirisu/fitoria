@@ -18,8 +18,8 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/echo">(
-                [](std::string body) -> awaitable<http_response> {
-                  co_return http_response::ok()
+                [](std::string body) -> awaitable<response> {
+                  co_return response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body(body);

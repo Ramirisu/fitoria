@@ -17,10 +17,10 @@ int main()
       = http_server_builder(ioc)
             .serve(route::post<"/api/v1/login">(
                 [](const http_fields& fields,
-                   std::string body) -> awaitable<http_response> {
+                   std::string body) -> awaitable<response> {
                   if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
-                    co_return http_response::bad_request()
+                    co_return response::bad_request()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("unexpected content-type");
@@ -29,12 +29,12 @@ int main()
                   auto user = as_form(body);
                   if (!user || user->get("name") != "fitoria"
                       || user->get("password") != "123456") {
-                    co_return http_response::unauthorized()
+                    co_return response::unauthorized()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("incorrect user name or password");
                   }
-                  co_return http_response::ok()
+                  co_return response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body(fmt::format("{}, login succeeded",
