@@ -6,7 +6,7 @@
 ![platform](https://img.shields.io/badge/platform-windows%2Flinux%2Fmacos-blue)
 ![license](https://img.shields.io/badge/license-BSL--1.0-blue)
 
-**fitoria** is an HTTP web framework built on top of C++20 coroutine.
+**fitoria** is a modern C++20, cross-platform web framework.
 
 The library is ***experimental*** and still under development, not recommended for production use.
 
@@ -18,7 +18,7 @@ The library is ***experimental*** and still under development, not recommended f
     - [Quick Start](#quick-start)
       - [HTTP Server](#http-server)
       - [HTTP Client](#http-client)
-    - [HTTP Server](#http-server-1)
+    - [Web](#web)
       - [Method](#method)
       - [Route](#route)
       - [Path Parameter](#path-parameter)
@@ -59,8 +59,8 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/echo">(
-                [](std::string body) -> awaitable<http_response> {
-                  co_return http_response(http::status::ok)
+                [](std::string body) -> awaitable<response> {
+                  co_return response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body(body);
@@ -84,7 +84,9 @@ int main()
 
 ***TODO:***
 
-### HTTP Server
+### Web
+
+Namespace `fitoria::web::*` provides web utilities.
 
 #### Method
 
@@ -132,28 +134,28 @@ route::get<"/api/v1/{param}x">(handler) // error: static_assert failed: 'invalid
 
 Route 
 
-|     Type      | Priority |         Example         | Format                                                                                   |                                                                                                                   |
-| :-----------: | :------: | :---------------------: | :--------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
-|    Static     |    1     | `/api/v1/user/ramirisu` |                                                                                          |                                                                                                                   |
-| Parameterized |    2     |  `/api/v1/user/{user}`  | A name parameter enclosed within `{}`.                                                   | If a request path matches more than one parameterized routes, the one with longer static prefix will be returned. |
-|   Wildcard    |    3     |     `/api/v1/#any`      | A name parameter follow by `#`. Note that wildcard must be the last segment of the path. |                                                                                                                   |
+|     Type      | Priority |        Example         | Format                                                                                   |                                                                                                                   |
+| :-----------: | :------: | :--------------------: | :--------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+|    Static     |    1     | `/api/v1/user/fitoria` |                                                                                          |                                                                                                                   |
+| Parameterized |    2     | `/api/v1/user/{user}`  | A name parameter enclosed within `{}`.                                                   | If a request path matches more than one parameterized routes, the one with longer static prefix will be returned. |
+|   Wildcard    |    3     |     `/api/v1/#any`     | A name parameter follow by `#`. Note that wildcard must be the last segment of the path. |                                                                                                                   |
 
 
 #### Path Parameter
 
-Use `http_request::path()` to access the route parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp))
+Use `request::path()` to access the route parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp))
 
 ```cpp
 
 namespace api::v1::users::get_user {
-auto api(const http_request& req) -> awaitable<http_response>
+auto api(const request& req) -> awaitable<response>
 {
   auto user = req.path().get("user");
   if (!user) {
-    co_return http_response(http::status::bad_request);
+    co_return response::bad_request().build();
   }
 
-  co_return http_response(http::status::ok)
+  co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}", user.value()));
@@ -176,19 +178,19 @@ int main()
 
 #### Query String Parameters
 
-Use `http_request::query()` to access the query string parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp))
+Use `request::query()` to access the query string parameters. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp))
 
 ```cpp
 
 namespace api::v1::users {
-auto get_user(const http_request& req) -> awaitable<http_response>
+auto get_user(const request& req) -> awaitable<response>
 {
   auto user = req.query().get("user");
   if (!user) {
-    co_return http_response(http::status::bad_request);
+    co_return response::bad_request().build();
   }
 
-  co_return http_response(http::status::ok)
+  co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}", user.value()));
@@ -216,19 +218,19 @@ Use `as_form()` to parse the url-encoded form body. ([Code](https://github.com/R
 ```cpp
 
 namespace api::v1::login {
-auto api(const http_request& req, std::string body) -> awaitable<http_response>
+auto api(const request& req, std::string body) -> awaitable<response>
 {
   if (req.fields().get(http::field::content_type)
       != http::fields::content_type::form_urlencoded()) {
-    co_return http_response(http::status::bad_request);
+    co_return response::bad_request().build();
   }
   auto user = as_form(body);
   if (!user || user->get("name") != "ramirisu"
       || user->get("password") != "123456") {
-    co_return http_response(http::status::unauthorized);
+    co_return response::unauthorized().build();
   }
 
-  co_return http_response(http::status::ok);
+  co_return response::ok().build();
 }
 }
 
@@ -279,45 +281,45 @@ private:
 
 using simple_cache_ptr = std::shared_ptr<simple_cache>;
 
-auto put(const http_request& req) -> awaitable<http_response>
+auto put(const request& req) -> awaitable<response>
 {
   auto key = req.path().get("key");
   auto value = req.path().get("value");
   if (!key || !value) {
-    co_return http_response(http::status::bad_request);
+    co_return response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response(http::status::internal_server_error);
+    co_return response::internal_server_error().build();
   }
 
   if ((*cache)->put(*key, *value)) {
-    co_return http_response(http::status::created);
+    co_return response::created().build();
   } else {
-    co_return http_response(http::status::accepted);
+    co_return response::accepted().build();
   }
 }
 
-auto get(const http_request& req) -> awaitable<http_response>
+auto get(const request& req) -> awaitable<response>
 {
   auto key = req.path().get("key");
   if (!key) {
-    co_return http_response(http::status::bad_request);
+    co_return response::bad_request().build();
   }
 
   auto cache = req.state<simple_cache_ptr>();
   if (!cache) {
-    co_return http_response(http::status::internal_server_error);
+    co_return response::internal_server_error().build();
   }
 
   if (auto value = (*cache)->get(*key); value) {
-    co_return http_response(http::status::ok)
+    co_return response::ok()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body(*value);
   } else {
-    co_return http_response(http::status::not_found);
+    co_return response::not_found().build();
   }
 }
 
@@ -343,25 +345,25 @@ int main()
 
 #### Extractor
 
-Extractors provide a more convenient way to help user access information from `http_request`. Users can specify as many extractors as compiler allows per handler. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp))
+Extractors provide a more convenient way to help user access information from `request`. Users can specify as many extractors as compiler allows per handler. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor.cpp))
 
 Built-in Extractors:
 
 | Extractor              | Description                                             | Body Extractor |                                                                                                                                                                       |
 | :--------------------- | :------------------------------------------------------ | :------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `web::http_request`    | Extract whole `http_request`.                           |       no       |                                                                                                                                                                       |
+| `web::request`         | Extract whole `request`.                                |       no       |                                                                                                                                                                       |
 | `web::connection_info` | Extract connection info.                                |       no       |                                                                                                                                                                       |
 | `web::path_info`       | Extract path info parameter.                            |       no       |                                                                                                                                                                       |
 | `web::path_of<T>`      | Extract path parameter into type `T`.                   |       no       | `T = std::tuple<Ts...>`, parameters are extracted in the order where they are in the path.<br/> `T = aggregate`, parameters are extracted to the field of their name. |
 | `web::query_map`       | Extract query string parameters.                        |       no       |                                                                                                                                                                       |
 | `web::query_of<T>`     | Extract query string parameters into type `T`           |       no       | `T = aggregate`, parameters are extracted to the field of their name.                                                                                                 |
 | `web::http_fields`     | Extract fields from request headers.                    |       no       |                                                                                                                                                                       |
-| `web::state_of<T>`     | Extract shared state of type `T`.                       |       no       | Note that unlike `http_request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                             |
+| `web::state_of<T>`     | Extract shared state of type `T`.                       |       no       | Note that unlike `request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                                  |
 | `std::string`          | Extract body as `std::string`.                          |      yes       |                                                                                                                                                                       |
 | `std::vector<T>`       | Extract body as `std::vector<T>`.                       |      yes       |                                                                                                                                                                       |
 | `web::json_of<T>`      | Extract body and parse it into json and convert to `T`. |      yes       |                                                                                                                                                                       |
 
-> Implement `from_http_request_t` CPO to define custom extractors.
+> Implement `from_request_t` CPO to define custom extractors.
 
 > The ***body extractor*** can only be used at most once in the request handlers since it consumes the body.
 
@@ -384,23 +386,23 @@ using ptr = std::shared_ptr<type>;
 namespace api::v1 {
 namespace users {
   auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
-      -> awaitable<http_response>
+      -> awaitable<response>
   {
     auto [user] = std::move(path);
     if (auto it = db->find(user); it != db->end()) {
       if (it->second.last_login_time) {
-        co_return http_response(http::status::ok)
+        co_return response::ok()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("{:%FT%TZ}", *(it->second.last_login_time)));
       } else {
-        co_return http_response(http::status::internal_server_error)
+        co_return response::internal_server_error()
             .set_field(http::field::content_type,
                        http::fields::content_type::plaintext())
             .set_body(fmt::format("User [{}] never logins.", user));
       }
     }
-    co_return http_response(http::status::not_found)
+    co_return response::not_found()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User does not exist.");
@@ -433,17 +435,17 @@ namespace login {
   }
 
   auto api(state_of<database::ptr> db, json_of<body_type> body)
-      -> awaitable<http_response>
+      -> awaitable<response>
   {
     if (auto it = db->find(body.username);
         it != db->end() && it->second.password == body.password) {
       it->second.last_login_time = database::clock_t::now();
-      co_return http_response(http::status::ok)
+      co_return response::ok()
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("Login succeeded.");
     }
-    co_return http_response(http::status::unauthorized)
+    co_return response::unauthorized()
         .set_field(http::field::content_type,
                    http::fields::content_type::plaintext())
         .set_body("User name or password is incorrect.");
@@ -572,9 +574,9 @@ private:
   log::level lv_;
 };
 
-auto get_user(http_request& req) -> awaitable<http_response>
+auto get_user(request& req) -> awaitable<response>
 {
-  co_return http_response(http::status::ok)
+  co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(req.path().get("user").value_or("{{unknown}}"));
@@ -607,14 +609,14 @@ Use `web::stream_file` to serve static files. ([Code](https://github.com/Ramiris
 ```cpp
 
 auto get_static_file(const path_info& pi)
-    -> awaitable<std::variant<stream_file, http_response>>
+    -> awaitable<std::variant<stream_file, response>>
 {
   auto path = pi.at("file_path");
   if (auto file = co_await stream_file::async_open_readonly(path); file) {
     co_return std::move(*file);
   }
 
-  co_return http_response(http::status::not_found)
+  co_return response::not_found()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
       .set_body(fmt::format("Requsted file was not found: \"{}\"", path));
@@ -660,7 +662,7 @@ int main()
 
 #### Unit Testing
 
-`http::async_serve_request()` can consume the `http_request` directly without creating TCP connections. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
+`http_server::serve_request()` can consume the `request` directly without creating TCP connections. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp))
 
 ```cpp
 
@@ -671,10 +673,10 @@ int main()
       = http_server_builder(ioc)
             .serve(route::post<"/api/v1/login">(
                 [](const http_fields& fields,
-                   std::string body) -> awaitable<http_response> {
+                   std::string body) -> awaitable<response> {
                   if (fields.get(http::field::content_type)
                       != http::fields::content_type::form_urlencoded()) {
-                    co_return http_response(http::status::bad_request)
+                    co_return response::bad_request()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("unexpected content-type");
@@ -683,12 +685,12 @@ int main()
                   auto user = as_form(body);
                   if (!user || user->get("name") != "fitoria"
                       || user->get("password") != "123456") {
-                    co_return http_response(http::status::unauthorized)
+                    co_return response::unauthorized()
                         .set_field(http::field::content_type,
                                    http::fields::content_type::plaintext())
                         .set_body("incorrect user name or password");
                   }
-                  co_return http_response(http::status::ok)
+                  co_return response::ok()
                       .set_field(http::field::content_type,
                                  http::fields::content_type::plaintext())
                       .set_body(fmt::format("{}, login succeeded",
@@ -698,7 +700,7 @@ int main()
 
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::plaintext())
           .set_body("name=fitoria&password=123456"),
@@ -709,7 +711,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=unknown&password=123456"),
@@ -721,7 +723,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123"),
@@ -733,7 +735,7 @@ int main()
       });
   server.serve_request(
       "/api/v1/login",
-      http_request(http::verb::post)
+      request(http::verb::post)
           .set_field(http::field::content_type,
                      http::fields::content_type::form_urlencoded())
           .set_body("name=fitoria&password=123456"),
