@@ -18,14 +18,15 @@
 
 #include <fitoria/log/log.hpp>
 
+#include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/http_body.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
+
 
 #include <fitoria/client/http_response.hpp>
 
@@ -36,12 +37,12 @@ namespace client {
 namespace http = web::http;
 
 using web::any_async_readable_stream;
+using web::any_body;
 using web::async_message_parser_stream;
 using web::async_read_until_eof;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
 using web::async_write_chunks;
-using web::http_body;
 using web::http_fields;
 using web::query_map;
 
@@ -204,8 +205,8 @@ public:
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) & -> http_client&
   {
-    body_ = http_body(http_body::sized { bytes.size() },
-                      async_readable_vector_stream(bytes));
+    body_ = any_body(any_body::sized { bytes.size() },
+                     async_readable_vector_stream(bytes));
     return *this;
   }
 
@@ -273,8 +274,8 @@ public:
   template <async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) & -> http_client&
   {
-    body_ = http_body(http_body::chunked(),
-                      std::forward<AsyncReadableStream>(stream));
+    body_ = any_body(any_body::chunked(),
+                     std::forward<AsyncReadableStream>(stream));
     return *this;
   }
 
@@ -447,11 +448,9 @@ private:
 
     if (auto exp = co_await std::visit(
             overloaded {
-                [&](http_body::null) { return do_sized_request(stream); },
-                [&](http_body::sized) { return do_sized_request(stream); },
-                [&](http_body::chunked) {
-                  return do_chunked_request(stream);
-                } },
+                [&](any_body::null) { return do_sized_request(stream); },
+                [&](any_body::sized) { return do_sized_request(stream); },
+                [&](any_body::chunked) { return do_chunked_request(stream); } },
             body_.size());
         !exp) {
       co_return unexpected { exp.error() };
@@ -598,7 +597,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
-  http_body body_;
+  any_body body_;
   std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
 };
 }

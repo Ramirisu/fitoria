@@ -316,13 +316,13 @@ private:
 
       if (auto exp = co_await std::visit(
               overloaded {
-                  [&](http_body::null) {
+                  [&](any_body::null) {
                     return do_null_body_response(stream, res, keep_alive);
                   },
-                  [&](http_body::sized) {
+                  [&](any_body::sized) {
                     return do_sized_response(stream, res, keep_alive);
                   },
-                  [&](http_body::chunked) {
+                  [&](any_body::chunked) {
                     return do_chunked_response(stream, res, keep_alive);
                   } },
               res.body().size());

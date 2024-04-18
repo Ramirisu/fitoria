@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_BODY_HPP
-#define FITORIA_WEB_HTTP_BODY_HPP
+#ifndef FITORIA_WEB_ANY_BODY_HPP
+#define FITORIA_WEB_ANY_BODY_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -20,7 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class http_body {
+class any_body {
 public:
   struct null { };
 
@@ -32,25 +32,25 @@ public:
 
   using size_type = std::variant<null, sized, chunked>;
 
-  http_body()
+  any_body()
       : size_(null {})
       , stream_(async_readable_vector_stream())
   {
   }
 
-  http_body(size_type size, any_async_readable_stream stream)
+  any_body(size_type size, any_async_readable_stream stream)
       : size_(std::move(size))
       , stream_(std::move(stream))
   {
   }
 
-  http_body(const http_body&) = delete;
+  any_body(const any_body&) = delete;
 
-  http_body& operator=(const http_body&) = delete;
+  any_body& operator=(const any_body&) = delete;
 
-  http_body(http_body&&) = default;
+  any_body(any_body&&) = default;
 
-  http_body& operator=(http_body&&) = default;
+  any_body& operator=(any_body&&) = default;
 
   auto size() noexcept -> size_type&
   {
