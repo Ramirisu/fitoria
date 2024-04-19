@@ -16,9 +16,9 @@
 
 #include <fitoria/log.hpp>
 
-#include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/request.hpp>
 #include <fitoria/web/response.hpp>
+#include <fitoria/web/to_middleware.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -60,16 +60,16 @@ public:
             decay_to<exception_handler> Self,
             typename Next>
   friend auto
-  tag_invoke(new_middleware_t<Request, Response>, Self&& self, Next&& next)
+  tag_invoke(to_middleware_t<Request, Response>, Self&& self, Next&& next)
   {
     return std::forward<Self>(self)
-        .template new_middleware_impl<Request, Response>(
+        .template to_middleware_impl<Request, Response>(
             std::forward<Next>(next));
   }
 
 private:
   template <typename Request, typename Response, typename Next>
-  auto new_middleware_impl(Next&& next) const
+  auto to_middleware_impl(Next&& next) const
   {
     return exception_handler_middleware<Request, Response, std::decay_t<Next>>(
         std::forward<Next>(next));

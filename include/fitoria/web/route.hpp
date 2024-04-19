@@ -15,11 +15,11 @@
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/web/http/http.hpp>
-#include <fitoria/web/middleware_concept.hpp>
 #include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/path_parser.hpp>
 #include <fitoria/web/routable.hpp>
 #include <fitoria/web/state_map.hpp>
+#include <fitoria/web/to_middleware.hpp>
 
 #include <tuple>
 
@@ -128,10 +128,10 @@ private:
   {
     if constexpr (sizeof...(S) > 0) {
       return build_service<Request, Response>(
-          new_middleware<Request, Response>(std::move(s1), std::move(s0)),
+          to_middleware<Request, Response>(std::move(s1), std::move(s0)),
           std::move(ss)...);
     } else {
-      return new_middleware<Request, Response>(std::move(s1), std::move(s0));
+      return to_middleware<Request, Response>(std::move(s1), std::move(s0));
     }
   }
 };
