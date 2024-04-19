@@ -43,8 +43,8 @@ using ptr = std::shared_ptr<type>;
 
 namespace api::v1 {
 namespace users {
-  auto api(path_of<std::tuple<std::string>> path, state_of<database::ptr> db)
-      -> awaitable<response>
+  auto api(path_of<std::tuple<std::string>> path,
+           state_of<database::ptr> db) -> awaitable<response>
   {
     auto [user] = std::move(path);
     if (auto it = db->find(user); it != db->end()) {
@@ -92,8 +92,8 @@ namespace login {
                        .password = std::string(password->get_string()) };
   }
 
-  auto api(state_of<database::ptr> db, json_of<body_type> body)
-      -> awaitable<response>
+  auto api(state_of<database::ptr> db,
+           json_of<body_type> body) -> awaitable<response>
   {
     if (auto it = db->find(body.username);
         it != db->end() && it->second.password == body.password) {
@@ -122,8 +122,9 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
-                       .state(db))
-            .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
+                       .use_state(db))
+            .serve(
+                route::post<"/api/v1/login">(api::v1::login::api).use_state(db))
             .build();
   server.bind("127.0.0.1", 8080);
 

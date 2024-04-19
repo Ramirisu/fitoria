@@ -13,7 +13,7 @@
 
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/path_matcher.hpp>
-#include <fitoria/web/state_map.hpp>
+#include <fitoria/web/state_storage.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -25,11 +25,11 @@ public:
   template <typename Service2>
   routable(http::verb method,
            path_matcher matcher,
-           std::vector<shared_state_map> state_maps,
+           state_storage states,
            Service2&& service)
       : method_(method)
       , matcher_(std::move(matcher))
-      , state_maps_(std::move(state_maps))
+      , states_(std::move(states))
       , service_(std::forward<Service2>(service))
   {
   }
@@ -44,9 +44,9 @@ public:
     return matcher_;
   }
 
-  auto state_maps() const noexcept -> const std::vector<shared_state_map>&
+  auto states() const noexcept -> const state_storage&
   {
-    return state_maps_;
+    return states_;
   }
 
   auto service() const noexcept -> const Service&
@@ -57,12 +57,12 @@ public:
 private:
   http::verb method_;
   path_matcher matcher_;
-  std::vector<shared_state_map> state_maps_;
+  state_storage states_;
   Service service_;
 };
 
 template <typename Service>
-routable(http::verb, path_matcher, std::vector<shared_state_map>, Service&&)
+routable(http::verb, path_matcher, state_storage, Service&&)
     -> routable<std::decay_t<Service>>;
 }
 

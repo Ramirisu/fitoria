@@ -21,7 +21,7 @@ TEST_CASE("state shares the same instance")
       = http_server_builder(ioc)
             .serve(
                 scope<>()
-                    .state(std::string("original"))
+                    .use_state(std::string("original"))
                     .serve(route::get<"/modify">(
                         [](request& req) -> awaitable<response> {
                           auto state = req.state<std::string>();
@@ -72,7 +72,7 @@ TEST_CASE("state access order on global, scope and route")
       = http_server_builder(ioc)
             .serve(
                 scope<>()
-                    .state(shared_resource { "global" })
+                    .use_state(shared_resource { "global" })
                     .serve(
                         scope<"/api/v1">()
                             .serve(route::get<"/global">(
@@ -84,7 +84,7 @@ TEST_CASE("state access order on global, scope and route")
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
-                            .state(shared_resource { "scope" })
+                            .use_state(shared_resource { "scope" })
                             .serve(route::get<"/scope">(
                                 [](request& req) -> awaitable<response> {
                                   co_return response::ok()
@@ -94,18 +94,18 @@ TEST_CASE("state access order on global, scope and route")
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
-                            .serve(route::get<"/route">(
-                                       [](request& req) -> awaitable<response> {
-                                         co_return response::ok()
-                                             .set_field(
-                                                 http::field::content_type,
-                                                 http::fields::content_type::
-                                                     plaintext())
-                                             .set_body(
-                                                 req.state<shared_resource>()
-                                                     ->value);
-                                       })
-                                       .state(shared_resource { "route" }))))
+                            .serve(
+                                route::get<"/route">(
+                                    [](request& req) -> awaitable<response> {
+                                      co_return response::ok()
+                                          .set_field(
+                                              http::field::content_type,
+                                              http::fields::content_type::
+                                                  plaintext())
+                                          .set_body(req.state<shared_resource>()
+                                                        ->value);
+                                    })
+                                    .use_state(shared_resource { "route" }))))
             .build();
 
   server.serve_request("/api/v1/global",

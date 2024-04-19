@@ -22,7 +22,7 @@
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/path_info.hpp>
 #include <fitoria/web/query_map.hpp>
-#include <fitoria/web/state_map.hpp>
+#include <fitoria/web/state_storage.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -41,14 +41,14 @@ public:
           query_map query,
           http_fields fields,
           any_async_readable_stream body,
-          const std::vector<shared_state_map>& state_maps)
+          state_storage states)
       : conn_info_(std::move(conn_info))
       , path_info_(std::move(path_info))
       , method_(method)
       , query_(std::move(query))
       , fields_(std::move(fields))
       , body_(std::move(body))
-      , state_maps_(state_maps)
+      , states_(std::move(states))
   {
   }
 
@@ -246,17 +246,7 @@ public:
   template <typename T>
   auto state() const -> optional<T&>
   {
-    static_assert(not_cvref<T>, "T must not be cvref qualified");
-    if (state_maps_) {
-      for (auto& state : *state_maps_) {
-        if (auto it = state->find(std::type_index(typeid(T)));
-            it != state->end()) {
-          return *std::any_cast<T>(&it->second);
-        }
-      }
-    }
-
-    return nullopt;
+    return states_.state<T>();
   }
 
 private:
@@ -266,7 +256,7 @@ private:
   query_map query_;
   http_fields fields_;
   any_async_readable_stream body_ = async_readable_vector_stream();
-  optional<const std::vector<shared_state_map>&> state_maps_;
+  state_storage states_;
 };
 
 }

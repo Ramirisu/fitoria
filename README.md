@@ -249,7 +249,7 @@ int main()
 
 #### State
 
-Configure shared states by using `scope::state(State&&)` for the `route`s under the same `scope`, or `route::state(State&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
+Configure shared states by using `scope::use_state(State&&)` for the `route`s under the same `scope`, or `route::use_state(State&&)` for the `route` itself. ([Code](https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp))
 
 ```cpp
 
@@ -332,7 +332,7 @@ int main()
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(scope<"/cache">()
-                               .state(cache)
+                               .use_state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();
@@ -463,9 +463,8 @@ int main()
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
-            .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api)
-                       .state(db))
-            .serve(route::post<"/api/v1/login">(api::v1::login::api).state(db))
+            .serve(route::get<"/api/v1/users/{user}">(api::v1::users::api).use_state(db))
+            .serve(route::post<"/api/v1/login">(api::v1::login::api).use_state(db))
             .build();
   server.bind("127.0.0.1", 8080);
 

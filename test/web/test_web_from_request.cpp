@@ -291,7 +291,7 @@ TEST_CASE("state_of<T>")
                                                -> awaitable<response> {
                              CHECK_EQ(st, "shared state");
                              co_return response::ok().build();
-                           }).state(std::string("shared state")))
+                           }).use_state(std::string("shared state")))
                     .build();
 
   server.serve_request(

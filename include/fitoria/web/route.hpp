@@ -18,7 +18,7 @@
 #include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/path_parser.hpp>
 #include <fitoria/web/routable.hpp>
-#include <fitoria/web/state_map.hpp>
+#include <fitoria/web/state_storage.hpp>
 #include <fitoria/web/to_middleware.hpp>
 
 #include <tuple>
@@ -33,7 +33,7 @@ class route_impl;
 template <basic_fixed_string Path, typename... Middlewares, typename Handler>
 class route_impl<Path, std::tuple<Middlewares...>, Handler> {
   http::verb method_;
-  std::vector<shared_state_map> state_maps_;
+  state_storage states_;
   std::tuple<Middlewares...> middlewares_;
   Handler handler_;
 
@@ -41,29 +41,28 @@ public:
   static_assert(path_parser<true>().parse<Path>(), "invalid path for route");
 
   route_impl(http::verb method,
-             std::vector<shared_state_map> state_maps,
+             state_storage states,
              std::tuple<Middlewares...> middlewares,
              Handler handler)
       : method_(method)
-      , state_maps_(std::move(state_maps))
+      , states_(std::move(states))
       , middlewares_(std::move(middlewares))
       , handler_(std::move(handler))
   {
   }
 
   template <typename State>
-  auto state(State&& state) const
+  auto use_state(State&& state) const
   {
-    using type = std::decay_t<State>;
-    static_assert(std::copy_constructible<type>);
-    auto state_maps = state_maps_;
-    if (state_maps.empty()) {
-      state_maps.push_back(std::make_shared<state_map>());
-    }
-    (*state_maps.front())[std::type_index(typeid(type))]
-        = std::any(std::forward<State>(state));
+    using state_type = std::decay_t<State>;
+    static_assert(std::copy_constructible<state_type>);
+
     return route_impl<Path, std::tuple<Middlewares...>, Handler>(
-        method_, std::move(state_maps), middlewares_, handler_);
+        method_,
+        states_.copy_insert_front(std::type_index(typeid(state_type)),
+                                  std::any(std::forward<State>(state))),
+        middlewares_,
+        handler_);
   }
 
   template <typename Middleware>
@@ -73,7 +72,7 @@ public:
                       std::tuple<Middlewares..., std::decay_t<Middleware>>,
                       Handler>(
         method_,
-        state_maps_,
+        states_,
         std::tuple_cat(middlewares_,
                        std::tuple { std::forward<Middleware>(mw) }),
         handler_);
@@ -83,15 +82,13 @@ public:
   auto rebind_parent(shared_state_map parent_state_map,
                      std::tuple<ParentServices...> parent_services) const
   {
-    auto state_maps = state_maps_;
-    if (!parent_state_map->empty()) {
-      state_maps.push_back(std::move(parent_state_map));
-    }
     return route_impl<ParentPath + Path,
                       std::tuple<ParentServices..., Middlewares...>,
                       Handler>(
         method_,
-        std::move(state_maps),
+        parent_state_map->empty()
+            ? states_
+            : states_.copy_append(std::move(parent_state_map)),
         std::tuple_cat(std::move(parent_services), middlewares_),
         handler_);
   }
@@ -102,7 +99,7 @@ public:
     return routable(
         method_,
         path_matcher(Path),
-        state_maps_,
+        states_,
         std::apply(
             [](auto... ss) {
               return build_service<Request, Response>(std::move(ss)...);

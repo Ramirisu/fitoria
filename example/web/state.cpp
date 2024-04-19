@@ -91,7 +91,7 @@ int main()
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .serve(scope<"/cache">()
-                               .state(cache)
+                               .use_state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))
                                .serve(route::get<"/{key}">(cache::get)))
                     .build();

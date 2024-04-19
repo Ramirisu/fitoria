@@ -46,13 +46,15 @@ public:
   }
 
   template <typename State>
-  auto state(State&& state) const
+  auto use_state(State&& state) const
   {
-    using type = std::decay_t<State>;
-    static_assert(std::copy_constructible<type>);
+    using state_type = std::decay_t<State>;
+    static_assert(std::copy_constructible<state_type>);
+
     auto state_map = state_map_;
-    (*state_map)[std::type_index(typeid(type))]
+    (*state_map)[std::type_index(typeid(state_type))]
         = std::any(std::forward<State>(state));
+
     return scope_impl<Path, std::tuple<Middlewares...>, std::tuple<Routes...>>(
         std::move(state_map), middlewares_, routes_);
   }

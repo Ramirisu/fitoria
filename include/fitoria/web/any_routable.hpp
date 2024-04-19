@@ -15,7 +15,7 @@
 
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/path_matcher.hpp>
-#include <fitoria/web/state_map.hpp>
+#include <fitoria/web/state_storage.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -28,8 +28,7 @@ class any_routable {
     virtual ~base() = default;
     virtual auto method() const noexcept -> http::verb = 0;
     virtual auto matcher() const noexcept -> const path_matcher& = 0;
-    virtual auto state_maps() const noexcept
-        -> const std::vector<shared_state_map>& = 0;
+    virtual auto states() const noexcept -> const state_storage& = 0;
     virtual auto operator()(Request) const -> Response = 0;
   };
 
@@ -53,10 +52,9 @@ class any_routable {
       return routable_.matcher();
     }
 
-    auto state_maps() const noexcept
-        -> const std::vector<shared_state_map>& override
+    auto states() const noexcept -> const state_storage& override
     {
-      return routable_.state_maps();
+      return routable_.states();
     }
 
     auto operator()(Request req) const -> Response override
@@ -74,7 +72,7 @@ public:
     requires(
         !is_specialization_of_v<std::remove_cvref_t<Routable>, any_routable>)
       : routable_(std::make_unique<derived<std::decay_t<Routable>>>(
-          std::forward<Routable>(routable)))
+            std::forward<Routable>(routable)))
   {
   }
 
@@ -96,9 +94,9 @@ public:
     return routable_->matcher();
   }
 
-  auto state_maps() const noexcept -> const std::vector<shared_state_map>&
+  auto states() const noexcept -> const state_storage&
   {
-    return routable_->state_maps();
+    return routable_->states();
   }
 
   auto operator()(Request req) const -> Response

@@ -38,8 +38,8 @@
 #include <fitoria/web/route.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
-#include <fitoria/web/state_map.hpp>
 #include <fitoria/web/state_of.hpp>
+#include <fitoria/web/state_storage.hpp>
 #include <fitoria/web/stream_file.hpp>
 #include <fitoria/web/to_middleware.hpp>
 

@@ -77,14 +77,14 @@ public:
     return max_listen_connections_;
   }
 
-  auto client_request_timeout() const noexcept
-      -> optional<std::chrono::milliseconds>
+  auto
+  client_request_timeout() const noexcept -> optional<std::chrono::milliseconds>
   {
     return client_request_timeout_;
   }
 
-  auto tls_handshake_timeout() const noexcept
-      -> optional<std::chrono::milliseconds>
+  auto
+  tls_handshake_timeout() const noexcept -> optional<std::chrono::milliseconds>
   {
     return tls_handshake_timeout_;
   }
@@ -202,8 +202,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(socket_acceptor acceptor, net::ssl::context ssl_ctx) const
-      -> awaitable<void>
+  auto do_listen(socket_acceptor acceptor,
+                 net::ssl::context ssl_ctx) const -> awaitable<void>
   {
     auto ssl_ctx_ptr = std::make_shared<net::ssl::context>(std::move(ssl_ctx));
 
@@ -230,8 +230,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(std::shared_ptr<safe_ssl_stream> stream) const
-      -> awaitable<void>
+  auto
+  do_session(std::shared_ptr<safe_ssl_stream> stream) const -> awaitable<void>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
@@ -362,7 +362,7 @@ private:
                     query_map::from(req_url->params()),
                     std::move(fields),
                     std::move(body),
-                    route->state_maps());
+                    route->states());
       co_return co_await route->operator()(req);
     }
 
@@ -535,9 +535,8 @@ public:
     return std::move(*this);
   }
 
-  auto set_tls_handshake_timeout(
-      optional<std::chrono::milliseconds> timeout) & noexcept
-      -> http_server_builder&
+  auto set_tls_handshake_timeout(optional<std::chrono::milliseconds>
+                                     timeout) & noexcept -> http_server_builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;

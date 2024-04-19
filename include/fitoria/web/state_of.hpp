@@ -14,7 +14,7 @@
 #include <fitoria/core/expected.hpp>
 
 #include <fitoria/web/from_request.hpp>
-#include <fitoria/web/state_map.hpp>
+#include <fitoria/web/state_storage.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
