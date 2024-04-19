@@ -50,22 +50,22 @@ public:
 
   query_map& operator=(query_map&&) = default;
 
-  bool empty() const noexcept
+  auto empty() const noexcept -> bool
   {
     return map_.empty();
   }
 
-  size_type size() const noexcept
+  auto size() const noexcept -> size_type
   {
     return map_.size();
   }
 
-  size_type max_size() const noexcept
+  auto max_size() const noexcept -> size_type
   {
     return map_.max_size();
   }
 
-  bool contains(const std::string& name) const noexcept
+  auto contains(const std::string& name) const noexcept -> bool
   {
     return map_.contains(name);
   }
@@ -81,7 +81,7 @@ public:
   }
 
   template <typename Key>
-  optional<mapped_type&> get(Key&& key) noexcept
+  auto get(Key&& key) noexcept -> optional<mapped_type&>
   {
     if (auto it = map_.find(std::forward<Key>(key)); it != map_.end()) {
       return it->second;
@@ -91,7 +91,7 @@ public:
   }
 
   template <typename Key>
-  optional<const mapped_type&> get(Key&& key) const noexcept
+  auto get(Key&& key) const noexcept -> optional<const mapped_type&>
   {
     if (auto it = map_.find(std::forward<Key>(key)); it != map_.end()) {
       return it->second;
@@ -100,7 +100,7 @@ public:
     return nullopt;
   }
 
-  optional<mapped_type> erase(const std::string& name)
+  auto erase(const std::string& name) -> optional<mapped_type>
   {
     if (auto it = map_.find(name); it != map_.end()) {
       auto value = std::move(it->second);
@@ -111,22 +111,22 @@ public:
     return nullopt;
   }
 
-  mapped_type& at(const std::string& name)
+  auto at(const std::string& name) -> mapped_type&
   {
     return map_.at(name);
   }
 
-  const mapped_type& at(const std::string& name) const
+  auto at(const std::string& name) const -> const mapped_type&
   {
     return map_.at(name);
   }
 
-  mapped_type& operator[](const std::string& name)
+  auto operator[](const std::string& name) -> mapped_type&
   {
     return map_[name];
   }
 
-  std::string to_string() const
+  auto to_string() const -> std::string
   {
     std::string query;
     for (auto& [name, value] : map_) {
@@ -142,39 +142,39 @@ public:
     return query;
   }
 
-  auto begin() noexcept
+  auto begin() noexcept -> iterator
   {
     return map_.begin();
   }
 
-  auto begin() const noexcept
+  auto begin() const noexcept -> const_iterator
   {
     return map_.begin();
   }
 
-  auto cbegin() const noexcept
+  auto cbegin() const noexcept -> const_iterator
   {
     return map_.cbegin();
   }
 
-  auto end() noexcept
+  auto end() noexcept -> iterator
   {
     return map_.end();
   }
 
-  auto end() const noexcept
+  auto end() const noexcept -> const_iterator
   {
     return map_.end();
   }
 
-  auto cend() const noexcept
+  auto cend() const noexcept -> const_iterator
   {
     return map_.cend();
   }
 
   friend bool operator==(const query_map&, const query_map&) = default;
 
-  static query_map from(boost::urls::params_view params)
+  static auto from(boost::urls::params_view params) -> query_map
   {
     query_map query;
     for (auto param : params) {

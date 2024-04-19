@@ -24,6 +24,7 @@ namespace new_middleware_ns {
       requires is_tag_invocable_v<new_middleware_t, Factory, Next>
     constexpr auto operator()(Factory&& factory, Next&& next) const
         noexcept(is_nothrow_tag_invocable_v<new_middleware_t, Factory, Next>)
+            -> tag_invoke_result_t<new_middleware_t, Factory, Next>
     {
       return tag_invoke(
           *this, std::forward<Factory>(factory), std::forward<Next>(next));

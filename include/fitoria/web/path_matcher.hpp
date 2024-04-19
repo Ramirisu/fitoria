@@ -71,7 +71,7 @@ public:
   }
 
 private:
-  static boost::regex to_regex(const path_tokens_t& tokens)
+  static auto to_regex(const path_tokens_t& tokens) -> boost::regex
   {
     std::string regex;
     for (auto& token : tokens) {

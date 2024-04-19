@@ -66,11 +66,8 @@ inline std::error_code make_error_code(error e)
 
 FITORIA_NAMESPACE_END
 
-namespace std {
-
 template <>
-struct is_error_code_enum<FITORIA_NAMESPACE::web::error> : std::true_type { };
-
-}
+struct std::is_error_code_enum<FITORIA_NAMESPACE::web::error> : std::true_type {
+};
 
 #endif

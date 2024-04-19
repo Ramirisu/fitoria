@@ -28,6 +28,7 @@ namespace from_request_ns {
   struct from_request_t {
     constexpr auto operator()(request& req) const
         noexcept(is_nothrow_tag_invocable_v<from_request_t<R>, request&>)
+            -> awaitable<expected<R, std::error_code>>
       requires is_tag_invocable_v<from_request_t<R>, request&>
     {
       static_assert(

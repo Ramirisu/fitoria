@@ -44,12 +44,12 @@ public:
 
   http_fields& operator=(http_fields&&) = default;
 
-  bool empty() const noexcept
+  auto empty() const noexcept -> bool
   {
     return begin() == end();
   }
 
-  size_type size() const noexcept
+  auto size() const noexcept -> size_type
   {
     return std::distance(begin(), end());
   }
@@ -79,7 +79,7 @@ public:
     impl_.insert(name, value);
   }
 
-  optional<mapped_type> get(std::string_view name) const noexcept
+  auto get(std::string_view name) const noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
       return it->value();
@@ -88,7 +88,7 @@ public:
     return nullopt;
   }
 
-  optional<mapped_type> get(http::field name) const noexcept
+  auto get(http::field name) const noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
       return it->value();
@@ -97,32 +97,32 @@ public:
     return nullopt;
   }
 
-  std::pair<iterator, iterator> equal_range(std::string_view name)
+  auto equal_range(std::string_view name) -> std::pair<iterator, iterator>
   {
     return impl_.equal_range(name);
   }
 
-  std::pair<iterator, iterator> equal_range(http::field name)
+  auto equal_range(http::field name) -> std::pair<iterator, iterator>
   {
     return impl_.equal_range(name);
   }
 
-  size_type erase(std::string_view name)
+  auto erase(std::string_view name) -> size_type
   {
     return impl_.erase(name);
   }
 
-  size_type erase(http::field name)
+  auto erase(http::field name) -> size_type
   {
     return impl_.erase(name);
   }
 
-  bool contains(std::string_view name) const
+  auto contains(std::string_view name) const -> bool
   {
     return impl_.find(name) != end();
   }
 
-  bool contains(http::field name) const
+  auto contains(http::field name) const -> bool
   {
     return impl_.find(name) != end();
   }

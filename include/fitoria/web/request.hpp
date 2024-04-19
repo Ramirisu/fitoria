@@ -106,12 +106,12 @@ public:
     return std::move(*this);
   };
 
-  http_fields& fields() noexcept
+  auto fields() noexcept -> http_fields&
   {
     return fields_;
   }
 
-  const http_fields& fields() const noexcept
+  auto fields() const noexcept -> const http_fields&
   {
     return fields_;
   }

@@ -139,44 +139,44 @@ public:
 
   path_info& operator=(path_info&&) = default;
 
-  const std::string& match_pattern() const noexcept
+  auto match_pattern() const noexcept -> const std::string&
   {
     return match_pattern_;
   }
 
-  const std::string& match_path() const noexcept
+  auto match_path() const noexcept -> const std::string&
   {
     return match_path_;
   }
 
-  keys_type keys() const
+  auto keys() const -> keys_type
   {
     return keys_;
   }
 
-  bool empty() const noexcept
+  auto empty() const noexcept -> bool
   {
     return map_.empty();
   }
 
-  size_type size() const noexcept
+  auto size() const noexcept -> size_type
   {
     return map_.size();
   }
 
-  size_type max_size() const noexcept
+  auto max_size() const noexcept -> size_type
   {
     return map_.max_size();
   }
 
-  bool contains(const std::string& name) const noexcept
+  auto contains(const std::string& name) const noexcept -> bool
   {
     return map_.contains(name);
   }
 
   template <typename Key>
     requires(!std::integral<Key>)
-  optional<const mapped_type&> get(Key&& key) const noexcept
+  auto get(Key&& key) const noexcept -> optional<const mapped_type&>
   {
     if (auto it = map_.find(std::forward<Key>(key)); it != map_.end()) {
       return it->second;
@@ -185,7 +185,7 @@ public:
     return nullopt;
   }
 
-  optional<const mapped_type&> get(std::size_t index) const noexcept
+  auto get(std::size_t index) const noexcept -> optional<const mapped_type&>
   {
     if (index < size()) {
       return get(keys_[index]);
@@ -194,22 +194,22 @@ public:
     return nullopt;
   }
 
-  const mapped_type& at(const std::string& name) const
+  auto at(const std::string& name) const -> const mapped_type&
   {
     return map_.at(name);
   }
 
-  const mapped_type& at(std::size_t index) const
+  auto at(std::size_t index) const -> const mapped_type&
   {
     return map_.at(keys_.at(index));
   }
 
-  map_type::const_iterator find(const std::string& name) const
+  auto find(const std::string& name) const -> map_type::const_iterator
   {
     return map_.find(name);
   }
 
-  map_type::const_iterator find(std::size_t index) const
+  auto find(std::size_t index) const -> map_type::const_iterator
   {
     if (index < size()) {
       return map_.find(keys_.at(index));
@@ -218,32 +218,32 @@ public:
     return map_.end();
   }
 
-  auto begin() noexcept
+  auto begin() noexcept -> iterator
   {
     return iterator(*this, keys_.cbegin());
   }
 
-  auto begin() const noexcept
+  auto begin() const noexcept -> const_iterator
   {
     return const_iterator(*this, keys_.cbegin());
   }
 
-  auto cbegin() const noexcept
+  auto cbegin() const noexcept -> const_iterator
   {
     return const_iterator(*this, keys_.cbegin());
   }
 
-  auto end() noexcept
+  auto end() noexcept -> iterator
   {
     return iterator(*this, keys_.cend());
   }
 
-  auto end() const noexcept
+  auto end() const noexcept -> const_iterator
   {
     return const_iterator(*this, keys_.cend());
   }
 
-  auto cend() const noexcept
+  auto cend() const noexcept -> const_iterator
   {
     return const_iterator(*this, keys_.cend());
   }
