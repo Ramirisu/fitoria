@@ -106,19 +106,21 @@ TEST_CASE("async_send")
   };
 
   sync_wait([&]() -> awaitable<void> {
+    auto ssl_ctx = get_certs();
     auto res = co_await http_client()
                    .set_method(http::verb::get)
                    .set_url("https://httpbun.com/get")
-                   .async_send(get_certs());
+                   .async_send(ssl_ctx);
     CHECK_EQ(res->status_code().value(), http::status::ok);
     CHECK(!(co_await res->as_string())->empty());
   });
 
   sync_wait([&]() -> awaitable<void> {
+    auto ssl_ctx = get_certs();
     CHECK(!(co_await http_client()
                 .set_method(http::verb::get)
                 .set_url("")
-                .async_send(get_certs())));
+                .async_send(ssl_ctx)));
   });
 #endif
 }

@@ -23,18 +23,16 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-template <typename Stream, bool isRequest, typename Body, typename Allocator>
+template <typename Stream, typename Parser>
 class async_message_parser_stream {
 public:
   using is_async_readable_stream = void;
 
-  using parser_t = boost::beast::http::parser<isRequest, Body, Allocator>;
-
   async_message_parser_stream(boost::beast::flat_buffer buffer,
-                              std::shared_ptr<Stream> stream,
-                              std::unique_ptr<parser_t> parser)
+                              Stream stream,
+                              std::unique_ptr<Parser> parser)
       : buffer_(std::move(buffer))
-      , stream_(std::move(stream))
+      , stream_(std::forward<Stream>(stream))
       , parser_(std::move(parser))
       , return_0_at_first_call_(parser_->chunked() || parser_->content_length())
   {
@@ -73,7 +71,7 @@ public:
     parser_->get().body().size = buffer.size();
 
     auto [ec, _]
-        = co_await async_read(*stream_, buffer_, *parser_, use_awaitable);
+        = co_await async_read(stream_, buffer_, *parser_, use_awaitable);
     if (!ec || ec == http::error::need_buffer) {
       const auto remaining = parser_->get().body().size;
       co_return buffer.size() - remaining;
@@ -84,8 +82,8 @@ public:
 
 private:
   boost::beast::flat_buffer buffer_;
-  std::shared_ptr<Stream> stream_;
-  std::unique_ptr<parser_t> parser_;
+  Stream stream_;
+  std::unique_ptr<Parser> parser_;
   bool return_0_at_first_call_;
 };
 

@@ -41,19 +41,6 @@ using tcp_stream
 
 using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
 
-class safe_ssl_stream : public ssl_stream {
-public:
-  template <typename Arg>
-  safe_ssl_stream(Arg&& arg, std::shared_ptr<boost::asio::ssl::context> ssl_ctx)
-      : ssl_stream(std::forward<Arg>(arg), *ssl_ctx)
-      , ssl_ctx_(std::move(ssl_ctx))
-  {
-  }
-
-private:
-  std::shared_ptr<boost::asio::ssl::context> ssl_ctx_;
-};
-
 #endif
 
 namespace net = boost::asio;

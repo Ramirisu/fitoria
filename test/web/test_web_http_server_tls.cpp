@@ -42,7 +42,8 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                   co_return response::ok().build();
                 }))
             .build();
-  server.bind_ssl(server_ip, port, cert::get_server_ssl_ctx(server_ssl_ver));
+  auto ssl_ctx = cert::get_server_ssl_ctx(server_ssl_ver);
+  server.bind_ssl(server_ip, port, ssl_ctx);
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -52,13 +53,14 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   net::co_spawn(
       ioc,
       [&]() -> awaitable<void> {
+        auto ssl_ctx = cert::get_client_ssl_ctx(client_ssl_ver);
         auto res
             = co_await http_client()
                   .set_method(http::verb::get)
                   .set_url(to_local_url(
                       boost::urls::scheme::https, port, "/api/repos/fitoria"))
                   .set_plaintext("hello world")
-                  .async_send(cert::get_client_ssl_ctx(client_ssl_ver));
+                  .async_send(ssl_ctx);
         CHECK_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
