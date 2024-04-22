@@ -11,6 +11,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <algorithm>
+#include <cctype>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 
@@ -33,6 +36,14 @@ auto reverse_tuple(std::tuple<Ts...> t)
 {
   return reverse_tuple_impl(std::move(t),
                             std::make_index_sequence<sizeof...(Ts)>());
+}
+
+inline bool iequals(std::string_view lhs, std::string_view rhs)
+{
+  return lhs.size() == rhs.size()
+      && std::equal(lhs.begin(), lhs.end(), rhs.begin(), [](auto l, auto r) {
+           return std::tolower(l) == std::tolower(r);
+         });
 }
 
 template <typename... Ts>

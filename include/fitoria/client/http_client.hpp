@@ -15,6 +15,7 @@
 #include <fitoria/core/json.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/log/log.hpp>
 
@@ -504,7 +505,8 @@ private:
       co_return unexpected { ec };
     }
 
-    if (fields_.get(http::field::expect) == "100-continue") {
+    if (auto field = fields_.get(http::field::expect); field
+        && iequals(*field, http::fields::expect::one_hundred_continue())) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;
@@ -541,7 +543,8 @@ private:
       co_return unexpected { ec };
     }
 
-    if (fields_.get(http::field::expect) == "100-continue") {
+    if (auto field = fields_.get(http::field::expect); field
+        && iequals(*field, http::fields::expect::one_hundred_continue())) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;

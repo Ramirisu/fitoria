@@ -165,7 +165,8 @@ TEST_CASE("expect: 100-continue")
                        .set_method(http::verb::post)
                        .set_url(to_local_url(
                            boost::urls::scheme::http, port, "/api/v1/post"))
-                       .set_field(http::field::expect, "100-continue")
+                       .set_field(http::field::expect,
+                                  http::fields::expect::one_hundred_continue())
                        .set_field(http::field::connection, "close")
                        .set_plaintext("text")
                        .async_send();

@@ -14,6 +14,7 @@
 #include <fitoria/core/coroutine_concept.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/url.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/log.hpp>
 
@@ -275,13 +276,10 @@ private:
         co_return ec;
       }
 
-      bool keep_alive = parser->get().keep_alive();
-      auto method = parser->get().method();
-      auto target = std::string(parser->get().target());
-      auto fields = http_fields::from_impl(parser->get());
-
       if (auto it = parser->get().find(http::field::expect);
-          it != parser->get().end() && it->value() == "100-continue") {
+          it != parser->get().end()
+          && iequals(it->value(),
+                     http::fields::expect::one_hundred_continue())) {
         std::tie(ec, std::ignore) = co_await async_write(
             stream,
             response<empty_body>(http::status::continue_, 11),
@@ -290,6 +288,11 @@ private:
           co_return ec;
         }
       }
+
+      bool keep_alive = parser->get().keep_alive();
+      auto method = parser->get().method();
+      auto target = std::string(parser->get().target());
+      auto fields = http_fields::from_impl(parser->get());
 
       auto res = co_await do_handler(
           connection_info(get_lowest_layer(stream).socket().local_endpoint(),

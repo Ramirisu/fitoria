@@ -110,7 +110,8 @@ namespace fields {
       return fmt::format("Bearer: {}", token);
     }
 
-    inline optional<std::string_view> parse_bearer(std::string_view str)
+    inline optional<std::string_view>
+    parse_bearer(std::string_view str) noexcept
     {
       const auto prefix = std::string_view("Bearer: ");
       if (str.starts_with(prefix)) {
@@ -118,6 +119,14 @@ namespace fields {
       }
 
       return nullopt;
+    }
+  }
+
+  namespace expect {
+
+    inline std::string_view one_hundred_continue() noexcept
+    {
+      return "100-continue";
     }
   }
 }
