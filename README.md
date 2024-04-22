@@ -856,7 +856,7 @@ Platform
 - Windows
 - MacOS
 
-Compiler (C++20 coroutine/concepts)
+Compiler (C++20)
 
 - GCC 13
 - MSVC 17 2022
@@ -864,29 +864,25 @@ Compiler (C++20 coroutine/concepts)
 
 Dependencies
 
-|    Library     |     Version     | Usage                              |    Namespace    | required/optional |
-| :------------: | :-------------: | :--------------------------------- | :-------------: | :---------------: |
-| `boost::asio`  | `1.84` or later | Networking                         | `fitoria::net`  |     required      |
-| `boost::beast` | `1.84` or later | HTTP                               | `fitoria::http` |     required      |
-|  `boost::url`  | `1.84` or later | Url parsing                        |                 |     required      |
-| `boost::json`  | `1.84` or later | JSON serialization/deserialization |                 |     required      |
-| `boost::regex` | `1.84` or later | Route parsing                      |                 |     required      |
-|  `boost::pfr`  | `1.84` or later | `web::path<T>` extractor           |                 |     optional      |
-|     `zlib`     |                 | `web::middleware::decompress`      |                 |     optional      |
-|    `brotli`    |                 | `web::middleware::decompress`      |                 |     optional      |
-|     `fmt`      | `10.x` or later | Log formatting                     | `fitoria::fmt`  |     required      |
-|   `OpenSSL`    |                 | Secure networking                  |                 |     optional      |
-|   `doctest`    |                 | Unit testing                       |                 |     optional      |
+|  Library  | Minimum Version |          |
+| :-------: | :-------------: | :------: |
+|  `boost`  |     `1.84`      | required |
+|   `fmt`   |     `10.x`      | required |
+|  `zlib`   |                 | optional |
+| `brotli`  |                 | optional |
+| `OpenSSL` |                 | optional |
+| `doctest` |                 | optional |
 
 CMake
 
-| Option                  | Description                | Value  | Default |
-| :---------------------- | :------------------------- | :----: | :-----: |
-| FITORIA_BUILD_EXAMPLES  | Build examples             | ON/OFF |   OFF   |
-| FITORIA_BUILD_TESTS     | Build tests                | ON/OFF |   OFF   |
-| FITORIA_DISABLE_OPENSSL | Do not use OpenSSL         | ON/OFF |   OFF   |
-| FITORIA_DISABLE_ZLIB    | Do not use ZLIB            | ON/OFF |   OFF   |
-| FITORIA_ENABLE_CODECOV  | Enable code coverage build | ON/OFF |   OFF   |
+| Option                  | Description                              | Value  | Default |
+| :---------------------- | :--------------------------------------- | :----: | :-----: |
+| FITORIA_BUILD_EXAMPLES  | Build examples                           | ON/OFF |   OFF   |
+| FITORIA_BUILD_TESTS     | Build tests                              | ON/OFF |   OFF   |
+| FITORIA_DISABLE_OPENSSL | Do not enable OpenSSL dependent features | ON/OFF |   OFF   |
+| FITORIA_DISABLE_ZLIB    | Do not enable ZLIB dependent features    | ON/OFF |   OFF   |
+| FITORIA_DISABLE_BROTLI  | Do not enable Brotli dependent features  | ON/OFF |   OFF   |
+| FITORIA_ENABLE_CODECOV  | Enable code coverage build               | ON/OFF |   OFF   |
 
 ```sh
 
