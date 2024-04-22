@@ -193,8 +193,9 @@ private:
     for (;;) {
       if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
           !ec) {
-        net::co_spawn(
-            ex_, do_session(tcp_stream(std::move(socket))), exception_handler_);
+        net::co_spawn(ex_,
+                      do_session(shared_tcp_stream(std::move(socket))),
+                      exception_handler_);
       }
     }
   }
@@ -207,14 +208,14 @@ private:
       if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
           !ec) {
         net::co_spawn(ex_,
-                      do_session(ssl_stream(std::move(socket), ssl_ctx)),
+                      do_session(shared_ssl_stream(std::move(socket), ssl_ctx)),
                       exception_handler_);
       }
     }
   }
 #endif
 
-  auto do_session(tcp_stream stream) const -> awaitable<void>
+  auto do_session(shared_tcp_stream stream) const -> awaitable<void>
   {
     if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
@@ -225,7 +226,7 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(ssl_stream stream) const -> awaitable<void>
+  auto do_session(shared_ssl_stream stream) const -> awaitable<void>
   {
     using boost::beast::get_lowest_layer;
     boost::system::error_code ec;
@@ -264,7 +265,7 @@ private:
 
     for (;;) {
       flat_buffer buffer;
-      auto parser = std::make_unique<request_parser<buffer_body>>();
+      auto parser = std::make_shared<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
       if (client_request_timeout_) {
@@ -290,21 +291,18 @@ private:
       }
 
       bool keep_alive = parser->get().keep_alive();
-      auto method = parser->get().method();
-      auto target = std::string(parser->get().target());
-      auto fields = http_fields::from_impl(parser->get());
 
       auto res = co_await do_handler(
           connection_info(get_lowest_layer(stream).socket().local_endpoint(),
                           get_lowest_layer(stream).socket().remote_endpoint()),
-          method,
-          std::move(target),
-          std::move(fields),
+          parser->get().method(),
+          std::string(parser->get().target()),
+          http_fields::from_impl(parser->get()),
           [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
               return async_message_parser_stream<Stream&,
                                                  request_parser<buffer_body>>(
-                  std::move(buffer), stream, std::move(parser));
+                  std::move(buffer), stream, parser);
             }
 
             return async_readable_vector_stream();

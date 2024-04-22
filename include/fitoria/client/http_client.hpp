@@ -456,20 +456,20 @@ private:
     }
 
     flat_buffer buffer;
-    auto parser = std::make_unique<response_parser<buffer_body>>();
+    auto parser = std::make_shared<response_parser<buffer_body>>();
     auto [ec, _]
         = co_await async_read_header(stream, buffer, *parser, use_awaitable);
     if (ec) {
       co_return unexpected { ec };
     }
 
-    auto status = parser->get().result();
-    auto fields = http_fields::from_impl(parser->get());
     co_return http_response(
-        status, std::move(fields), [&]() -> any_async_readable_stream {
+        parser->get().result(),
+        http_fields::from_impl(parser->get()),
+        [&]() -> any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
             return async_message_parser_stream(
-                std::move(buffer), std::move(stream), std::move(parser));
+                std::move(buffer), std::move(stream), parser);
           }
           return async_readable_vector_stream();
         }());

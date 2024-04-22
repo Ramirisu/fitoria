@@ -17,7 +17,6 @@
 #include <fitoria/web/http/http.hpp>
 
 #include <cstddef>
-#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -30,7 +29,7 @@ public:
 
   async_message_parser_stream(boost::beast::flat_buffer buffer,
                               Stream stream,
-                              std::unique_ptr<Parser> parser)
+                              std::shared_ptr<Parser> parser)
       : buffer_(std::move(buffer))
       , stream_(std::forward<Stream>(stream))
       , parser_(std::move(parser))
@@ -83,7 +82,7 @@ public:
 private:
   boost::beast::flat_buffer buffer_;
   Stream stream_;
-  std::unique_ptr<Parser> parser_;
+  std::shared_ptr<Parser> parser_;
   bool return_0_at_first_call_;
 };
 
