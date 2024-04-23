@@ -300,8 +300,7 @@ private:
           http_fields::from_impl(parser->get()),
           [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
-              return async_message_parser_stream<Stream&,
-                                                 request_parser<buffer_body>>(
+              return async_message_parser_stream(
                   std::move(buffer), stream, parser);
             }
 

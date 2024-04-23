@@ -24,6 +24,8 @@ namespace web {
 
 template <typename Stream, typename Parser>
 class async_message_parser_stream {
+  static_assert(std::is_move_constructible_v<Stream>);
+
 public:
   using is_async_readable_stream = void;
 
@@ -31,7 +33,7 @@ public:
                               Stream stream,
                               std::shared_ptr<Parser> parser)
       : buffer_(std::move(buffer))
-      , stream_(std::forward<Stream>(stream))
+      , stream_(std::move(stream))
       , parser_(std::move(parser))
       , return_0_at_first_call_(parser_->chunked() || parser_->content_length())
   {
