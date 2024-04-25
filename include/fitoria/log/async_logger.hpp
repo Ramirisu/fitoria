@@ -47,18 +47,18 @@ class async_logger {
   auto async_dequeue_and_write() -> awaitable<void>
   {
     for (;;) {
-      auto [ec, rec] = co_await channel_.async_receive(use_awaitable);
-      if (ec) {
+      auto rec = co_await channel_.async_receive(use_awaitable);
+      if (!rec) {
         break;
       }
 
-      co_await async_write_to_all(std::move(rec));
+      co_await async_write_to_all(std::move(*rec));
     }
   }
 
   auto async_enqueue(record_ptr rec) -> awaitable<void>
   {
-    [[maybe_unused]] auto [ec] = co_await channel_.async_send(
+    [[maybe_unused]] auto result = co_await channel_.async_send(
         boost::system::error_code(), rec, use_awaitable);
   }
 

@@ -23,7 +23,7 @@ template <typename T>
 using awaitable = boost::asio::awaitable<T, executor_type>;
 
 constexpr auto use_awaitable
-    = boost::asio::as_tuple_t<boost::asio::use_awaitable_t<executor_type>> {};
+    = as_expected_t<boost::asio::use_awaitable_t<executor_type>> {};
 }
 
 FITORIA_NAMESPACE_END

@@ -30,26 +30,25 @@ auto async_read_into_stream_file(AsyncReadableStream&& stream,
   std::size_t total = 0;
 
   auto buffer = std::array<std::byte, 4096>();
-  auto size = co_await stream.async_read_some(net::buffer(buffer));
-  if (!size) {
-    co_return unexpected { size.error() };
+  auto bytes_read = co_await stream.async_read_some(net::buffer(buffer));
+  if (!bytes_read) {
+    co_return unexpected { bytes_read.error() };
   }
 
-  while (size) {
-    boost::system::error_code ec;
-    std::tie(ec, std::ignore)
+  while (bytes_read) {
+    auto bytes_written
         = co_await net::async_write(file, net::buffer(buffer), use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
+    if (!bytes_written) {
+      co_return unexpected { bytes_written.error() };
     }
 
-    total += *size;
+    total += *bytes_read;
 
-    size = co_await stream.async_read_some(net::buffer(buffer));
+    bytes_read = co_await stream.async_read_some(net::buffer(buffer));
   }
 
-  if (size.error() != make_error_code(net::error::eof)) {
-    co_return unexpected { size.error() };
+  if (bytes_read.error() != make_error_code(net::error::eof)) {
+    co_return unexpected { bytes_read.error() };
   }
 
   co_return total;

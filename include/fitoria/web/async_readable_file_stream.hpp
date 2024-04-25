@@ -44,12 +44,7 @@ public:
   auto async_read_some(net::mutable_buffer buffer)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
-    auto [ec, size] = co_await file_.async_read_some(buffer, use_awaitable);
-    if (!ec) {
-      co_return size;
-    }
-
-    co_return unexpected { ec };
+    co_return co_await file_.async_read_some(buffer, use_awaitable);
   }
 
 private:

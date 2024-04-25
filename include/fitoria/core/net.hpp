@@ -13,6 +13,7 @@
 
 #include <fitoria/core/detail/boost.hpp>
 
+#include <fitoria/core/as_expected.hpp>
 #include <fitoria/core/type_traits.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -29,7 +30,7 @@ template <typename T>
 using awaitable = boost::asio::awaitable<T, executor_type>;
 
 constexpr auto use_awaitable
-    = boost::asio::as_tuple_t<boost::asio::use_awaitable_t<executor_type>> {};
+    = as_expected_t<boost::asio::use_awaitable_t<executor_type>> {};
 
 using socket_acceptor
     = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, executor_type>;

@@ -71,14 +71,14 @@ public:
     parser_->get().body().data = buffer.data();
     parser_->get().body().size = buffer.size();
 
-    auto [ec, _]
+    auto bytes_read
         = co_await async_read(stream_, buffer_, *parser_, use_awaitable);
-    if (!ec || ec == http::error::need_buffer) {
-      const auto remaining = parser_->get().body().size;
-      co_return buffer.size() - remaining;
+    if (!bytes_read && bytes_read.error() != http::error::need_buffer) {
+      co_return unexpected { bytes_read.error() };
     }
 
-    co_return unexpected { ec };
+    const auto remaining = parser_->get().body().size;
+    co_return buffer.size() - remaining;
   }
 
 private:

@@ -191,10 +191,9 @@ private:
   auto do_listen(socket_acceptor acceptor) const -> awaitable<void>
   {
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
-          !ec) {
+      if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
         net::co_spawn(ex_,
-                      do_session(shared_tcp_stream(std::move(socket))),
+                      do_session(shared_tcp_stream(std::move(*socket))),
                       exception_handler_);
       }
     }
@@ -205,11 +204,11 @@ private:
                  net::ssl::context& ssl_ctx) const -> awaitable<void>
   {
     for (;;) {
-      if (auto [ec, socket] = co_await acceptor.async_accept(use_awaitable);
-          !ec) {
-        net::co_spawn(ex_,
-                      do_session(shared_ssl_stream(std::move(socket), ssl_ctx)),
-                      exception_handler_);
+      if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
+        net::co_spawn(
+            ex_,
+            do_session(shared_ssl_stream(std::move(*socket), ssl_ctx)),
+            exception_handler_);
       }
     }
   }
@@ -229,24 +228,23 @@ private:
   auto do_session(shared_ssl_stream stream) const -> awaitable<void>
   {
     using boost::beast::get_lowest_layer;
-    boost::system::error_code ec;
 
     if (tls_handshake_timeout_) {
       get_lowest_layer(stream).expires_after(*tls_handshake_timeout_);
     }
-    std::tie(ec) = co_await stream.async_handshake(
-        net::ssl::stream_base::server, use_awaitable);
-    if (ec) {
+
+    if (auto result = co_await stream.async_handshake(
+            net::ssl::stream_base::server, use_awaitable);
+        !result) {
+      FITORIA_THROW_OR(std::system_error(result.error()), co_return);
+    }
+
+    if (auto ec = co_await do_session_impl(stream); ec) {
       FITORIA_THROW_OR(std::system_error(ec), co_return);
     }
 
-    if (ec = co_await do_session_impl(stream); ec) {
-      FITORIA_THROW_OR(std::system_error(ec), co_return);
-    }
-
-    std::tie(ec) = co_await stream.async_shutdown(use_awaitable);
-    if (ec) {
-      FITORIA_THROW_OR(std::system_error(ec), co_return);
+    if (auto result = co_await stream.async_shutdown(use_awaitable); !result) {
+      FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
   }
 #endif
@@ -261,8 +259,6 @@ private:
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
 
-    boost::system::error_code ec;
-
     for (;;) {
       flat_buffer buffer;
       auto parser = std::make_shared<request_parser<buffer_body>>();
@@ -271,22 +267,23 @@ private:
       if (client_request_timeout_) {
         get_lowest_layer(stream).expires_after(*client_request_timeout_);
       }
-      std::tie(ec, std::ignore)
+
+      if (auto bytes_read
           = co_await async_read_header(stream, buffer, *parser, use_awaitable);
-      if (ec) {
-        co_return ec;
+          !bytes_read) {
+        co_return bytes_read.error();
       }
 
       if (auto it = parser->get().find(http::field::expect);
           it != parser->get().end()
           && iequals(it->value(),
                      http::fields::expect::one_hundred_continue())) {
-        std::tie(ec, std::ignore) = co_await async_write(
-            stream,
-            response<empty_body>(http::status::continue_, 11),
-            use_awaitable);
-        if (ec) {
-          co_return ec;
+        if (auto bytes_written = co_await async_write(
+                stream,
+                response<empty_body>(http::status::continue_, 11),
+                use_awaitable);
+            !bytes_written) {
+          co_return bytes_written.error();
         }
       }
 
@@ -328,7 +325,7 @@ private:
       }
     }
 
-    co_return ec;
+    co_return std::error_code();
   }
 
   auto do_handler(connection_info connection_info,
@@ -385,11 +382,7 @@ private:
       r.content_length(boost::none);
     }
 
-    if (auto [ec, _] = co_await async_write(stream, r, use_awaitable); ec) {
-      co_return unexpected { ec };
-    }
-
-    co_return expected<void, std::error_code>();
+    co_return co_await async_write(stream, r, use_awaitable);
   }
 
   template <typename Stream>
@@ -412,11 +405,7 @@ private:
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
-    if (auto [ec, _] = co_await async_write(stream, r, use_awaitable); ec) {
-      co_return unexpected { ec };
-    }
-
-    co_return expected<void, std::error_code>();
+    co_return co_await async_write(stream, r, use_awaitable);
   }
 
   template <typename Stream>
@@ -435,9 +424,9 @@ private:
 
     auto ser = response_serializer<empty_body>(r);
 
-    if (auto [ec, _] = co_await async_write_header(stream, ser, use_awaitable);
-        ec) {
-      co_return unexpected { ec };
+    if (auto result = co_await async_write_header(stream, ser, use_awaitable);
+        !result) {
+      co_return unexpected { result.error() };
     }
 
     co_return co_await async_write_chunks(stream, res.body().stream());

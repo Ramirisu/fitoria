@@ -364,15 +364,8 @@ private:
   {
     auto resolver = net::ip::tcp::resolver(co_await net::this_coro::executor);
 
-    // TODO: timeout?
-    auto [ec, results] = co_await resolver.async_resolve(
+    co_return co_await resolver.async_resolve(
         resource_->host, std::to_string(resource_->port), use_awaitable);
-    if (ec) {
-      log::debug("[{}] async_resolve failed: {}", name(), ec.message());
-      co_return unexpected { ec };
-    }
-
-    co_return results;
   }
 
   auto do_session() -> awaitable<expected<http_response, std::error_code>>
@@ -385,10 +378,9 @@ private:
     auto stream = tcp_stream(co_await net::this_coro::executor);
 
     get_lowest_layer(stream).expires_after(request_timeout_);
-    auto [ec, _] = co_await stream.async_connect(*results, use_awaitable);
-    if (ec) {
-      log::debug("[{}] async_connect failed: {}", name(), ec.message());
-      co_return unexpected { ec };
+    if (auto result = co_await stream.async_connect(*results, use_awaitable);
+        !result) {
+      co_return unexpected { result.error() };
     }
 
     co_return co_await do_http_request(std::move(stream));
@@ -405,7 +397,6 @@ private:
       co_return unexpected { results.error() };
     }
 
-    boost::system::error_code ec;
     auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
 
     // Set SNI Hostname (many hosts need this to handshake successfully)
@@ -417,18 +408,16 @@ private:
     }
 
     get_lowest_layer(stream).expires_after(request_timeout_);
-    std::tie(ec, std::ignore) = co_await get_lowest_layer(stream).async_connect(
-        *results, use_awaitable);
-    if (ec) {
-      log::debug("[{}] async_connect failed: {}", name(), ec.message());
-      co_return unexpected { ec };
+    if (auto result = co_await get_lowest_layer(stream).async_connect(
+            *results, use_awaitable);
+        !result) {
+      co_return unexpected { result.error() };
     }
 
-    std::tie(ec) = co_await stream.async_handshake(
-        net::ssl::stream_base::client, use_awaitable);
-    if (ec) {
-      log::debug("[{}] async_handshake failed: {}", name(), ec.message());
-      co_return unexpected { ec };
+    if (auto result = co_await stream.async_handshake(
+            net::ssl::stream_base::client, use_awaitable);
+        !result) {
+      co_return unexpected { result.error() };
     }
 
     co_return co_await do_http_request(std::move(stream));
@@ -457,10 +446,10 @@ private:
 
     flat_buffer buffer;
     auto parser = std::make_shared<response_parser<buffer_body>>();
-    auto [ec, _]
+    if (auto bytes_read
         = co_await async_read_header(stream, buffer, *parser, use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
+        !bytes_read) {
+      co_return unexpected { bytes_read.error() };
     }
 
     co_return http_response(
@@ -496,13 +485,11 @@ private:
     }
     req.prepare_payload();
 
-    boost::system::error_code ec;
-
     auto ser = request_serializer<vector_body<std::byte>>(req);
-    std::tie(ec, std::ignore)
+    if (auto bytes_written
         = co_await async_write_header(stream, ser, use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
+        !bytes_written) {
+      co_return unexpected { bytes_written.error() };
     }
 
     if (auto field = fields_.get(http::field::expect); field
@@ -513,10 +500,9 @@ private:
       }
     }
 
-    std::tie(ec, std::ignore)
-        = co_await async_write(stream, ser, use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
+    if (auto bytes_written = co_await async_write(stream, ser, use_awaitable);
+        !bytes_written) {
+      co_return unexpected { bytes_written.error() };
     }
 
     co_return nullopt;
@@ -537,10 +523,10 @@ private:
     req.chunked(true);
 
     auto serializer = request_serializer<empty_body>(req);
-    auto [ec, _]
+    if (auto bytes_written
         = co_await async_write_header(stream, serializer, use_awaitable);
-    if (ec) {
-      co_return unexpected { ec };
+        !bytes_written) {
+      co_return unexpected { bytes_written.error() };
     }
 
     if (auto field = fields_.get(http::field::expect); field
@@ -569,11 +555,11 @@ private:
 
     flat_buffer buffer;
     response<vector_body<std::byte>> res;
-    auto [ec, _] = co_await async_read(stream, buffer, res, use_awaitable);
-    if (ec && ec != error::timeout) {
-      co_return unexpected { ec };
+    auto bytes_read = co_await async_read(stream, buffer, res, use_awaitable);
+    if (!bytes_read && bytes_read.error() != error::timeout) {
+      co_return unexpected { bytes_read.error() };
     }
-    if (!ec && res.result() != http::status::continue_) {
+    if (bytes_read && res.result() != http::status::continue_) {
       co_return http_response(
           res.result(),
           http_fields::from_impl(res),
