@@ -7,7 +7,7 @@
 
 #include <fitoria/test/test.hpp>
 
-#if defined(FITORIA_TARGET_LINUX)
+#if defined(FITORIA_HAS_LIBURING)
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 

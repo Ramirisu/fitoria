@@ -882,6 +882,7 @@ CMake
 | FITORIA_DISABLE_OPENSSL | Do not enable OpenSSL dependent features | ON/OFF |   OFF   |
 | FITORIA_DISABLE_ZLIB    | Do not enable ZLIB dependent features    | ON/OFF |   OFF   |
 | FITORIA_DISABLE_BROTLI  | Do not enable Brotli dependent features  | ON/OFF |   OFF   |
+| FITORIA_HAS_LIBURING    | Do not enable liburing                   | ON/OFF |   OFF   |
 | FITORIA_ENABLE_CODECOV  | Enable code coverage build               | ON/OFF |   OFF   |
 
 ```sh

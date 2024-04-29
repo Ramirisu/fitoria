@@ -17,6 +17,8 @@ message(STATUS "[fitoria] FITORIA_BUILD_TESTS = ${FITORIA_BUILD_TESTS}")
 message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
 message(STATUS "[fitoria] FITORIA_DISABLE_ZLIB = ${FITORIA_DISABLE_ZLIB}")
 message(STATUS "[fitoria] FITORIA_DISABLE_BROTLI = ${FITORIA_DISABLE_BROTLI}")
+message(
+  STATUS "[fitoria] FITORIA_DISABLE_LIBURING = ${FITORIA_DISABLE_LIBURING}")
 message(STATUS "[fitoria] FITORIA_ENABLE_CODECOV = ${FITORIA_ENABLE_CODECOV}")
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -58,6 +60,21 @@ if(NOT FITORIA_DISABLE_BROTLI)
 
   if(unofficial-brotli_FOUND)
     set(FITORIA_USE_BROTLI ON)
+  endif()
+endif()
+
+# [dep.lib] liburing
+if(NOT FITORIA_DISABLE_LIBURING)
+  if(LINUX)
+    message(STATUS "[fitoria] [dep.lib.liburing] trying to find liburing")
+    find_package(PkgConfig)
+    pkg_check_modules(liburing IMPORTED_TARGET GLOBAL liburing>=2.0)
+    message(
+      STATUS "[fitoria] [dep.lib.liburing] liburing found = ${liburing_FOUND}")
+
+    if(liburing_FOUND)
+      set(FITORIA_USE_LIBURING ON)
+    endif()
   endif()
 endif()
 
@@ -105,6 +122,11 @@ if(FITORIA_USE_BROTLI)
   target_compile_definitions(fitoria INTERFACE FITORIA_HAS_BROTLI)
   target_link_libraries(fitoria INTERFACE unofficial::brotli::brotlidec
                                           unofficial::brotli::brotlienc)
+endif()
+
+if(FITORIA_USE_LIBURING)
+  target_compile_definitions(fitoria INTERFACE FITORIA_HAS_LIBURING)
+  target_link_libraries(fitoria INTERFACE PkgConfig::liburing)
 endif()
 
 if(WIN32)

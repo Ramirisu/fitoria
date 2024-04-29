@@ -8,7 +8,7 @@
 #include <fitoria/test/test.hpp>
 
 #define FITORIA_USE_IO_CONTEXT_EXECUTOR
-#if defined(FITORIA_TARGET_LINUX)
+#if defined(FITORIA_HAS_LIBURING)
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 #include <fitoria/log.hpp>
@@ -20,7 +20,7 @@ using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.async_stdout_writer.io_context]");
 
-#if !defined(FITORIA_TARGET_MACOS)
+#if defined(FITORIA_HAS_LIBURING)
 
 namespace my_ns {
 class my_class {
