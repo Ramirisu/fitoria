@@ -1,3 +1,8 @@
+function(fitoria_option name description default)
+  option(${name} ${description} ${default})
+  message(STATUS "[fitoria] ${name} = ${${name}}")
+endfunction()
+
 function(fitoria_target_compile_option target_name)
   target_link_libraries(${target_name} PRIVATE fitoria)
 

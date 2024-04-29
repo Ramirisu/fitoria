@@ -5,28 +5,20 @@ project(
   VERSION 0.0.0
   LANGUAGES CXX)
 
-option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
-option(FITORIA_BUILD_TESTS "Build tests" OFF)
-option(FITORIA_DISABLE_OPENSSL "Do not use OpenSSL" OFF)
-option(FITORIA_DISABLE_ZLIB "Do not use zlib" OFF)
-option(FITORIA_DISABLE_BROTLI "Do not use brotli" OFF)
-option(FITORIA_ENABLE_CODECOV "Enable codecov build" OFF)
+include(cmake/fitoria_utils.cmake)
 
-message(STATUS "[fitoria] FITORIA_BUILD_EXAMPLES = ${FITORIA_BUILD_EXAMPLES}")
-message(STATUS "[fitoria] FITORIA_BUILD_TESTS = ${FITORIA_BUILD_TESTS}")
-message(STATUS "[fitoria] FITORIA_DISABLE_OPENSSL = ${FITORIA_DISABLE_OPENSSL}")
-message(STATUS "[fitoria] FITORIA_DISABLE_ZLIB = ${FITORIA_DISABLE_ZLIB}")
-message(STATUS "[fitoria] FITORIA_DISABLE_BROTLI = ${FITORIA_DISABLE_BROTLI}")
-message(
-  STATUS "[fitoria] FITORIA_DISABLE_LIBURING = ${FITORIA_DISABLE_LIBURING}")
-message(STATUS "[fitoria] FITORIA_ENABLE_CODECOV = ${FITORIA_ENABLE_CODECOV}")
+fitoria_option(FITORIA_BUILD_EXAMPLES "Build examples" OFF)
+fitoria_option(FITORIA_BUILD_TESTS "Build tests" OFF)
+fitoria_option(FITORIA_DISABLE_OPENSSL "Do not use OpenSSL" OFF)
+fitoria_option(FITORIA_DISABLE_ZLIB "Do not use zlib" OFF)
+fitoria_option(FITORIA_DISABLE_BROTLI "Do not use brotli" OFF)
+fitoria_option(FITORIA_DISABLE_LIBURING "Do not use liburing" OFF)
+fitoria_option(FITORIA_ENABLE_CODECOV "Enable codecov build" OFF)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
-
-include(cmake/fitoria_utils.cmake)
 
 # [dep.lib] format lib
 message(STATUS "[fitoria] [dep.lib.format] try to find fmt")
