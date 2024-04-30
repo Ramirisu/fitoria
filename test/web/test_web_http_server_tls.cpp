@@ -95,6 +95,48 @@ TEST_CASE("tls/tlsv13")
   test_with_tls(context::method::tls_server, context::method::tlsv13_client);
 }
 
+TEST_CASE("tls_handshake_timeout")
+{
+  const auto port = generate_port();
+  net::io_context ioc;
+  auto server = http_server_builder(ioc)
+                    .set_tls_handshake_timeout(std::chrono::milliseconds(500))
+                    .serve(route::get<"/">([]() -> awaitable<response> {
+                      co_return response::ok().build();
+                    }))
+                    .build();
+  auto ssl_ctx
+      = cert::get_server_ssl_ctx(net::ssl::context::method::tls_server);
+  server.bind_ssl(server_ip, port, ssl_ctx);
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> awaitable<void> {
+        using boost::beast::get_lowest_layer;
+
+        auto ssl_ctx
+            = cert::get_client_ssl_ctx(net::ssl::context::method::tls_client);
+        auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
+        CHECK(co_await get_lowest_layer(stream).async_connect(
+            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            use_awaitable));
+
+        auto timer = net::steady_timer(co_await net::this_coro::executor);
+        timer.expires_after(std::chrono::seconds(5));
+        co_await timer.async_wait(use_awaitable);
+
+        CHECK(!(co_await stream.async_handshake(net::ssl::stream_base::client,
+                                                use_awaitable)));
+      },
+      net::use_future)
+      .get();
+}
+
 #endif
 
 TEST_SUITE_END();

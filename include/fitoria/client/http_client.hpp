@@ -377,7 +377,6 @@ private:
 
     auto stream = tcp_stream(co_await net::this_coro::executor);
 
-    get_lowest_layer(stream).expires_after(request_timeout_);
     if (auto result = co_await stream.async_connect(*results, use_awaitable);
         !result) {
       co_return unexpected { result.error() };
@@ -407,13 +406,14 @@ private:
           net::error::get_ssl_category()) };
     }
 
-    get_lowest_layer(stream).expires_after(request_timeout_);
+    // TODO: connect timeout?
     if (auto result = co_await get_lowest_layer(stream).async_connect(
             *results, use_awaitable);
         !result) {
       co_return unexpected { result.error() };
     }
 
+    // TODO: handshake timeout?
     if (auto result = co_await stream.async_handshake(
             net::ssl::stream_base::client, use_awaitable);
         !result) {

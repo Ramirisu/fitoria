@@ -227,15 +227,7 @@ private:
 #if defined(FITORIA_HAS_OPENSSL)
   auto do_session(shared_ssl_stream stream) const -> awaitable<void>
   {
-    using boost::beast::get_lowest_layer;
-
-    if (tls_handshake_timeout_) {
-      get_lowest_layer(stream).expires_after(*tls_handshake_timeout_);
-    }
-
-    if (auto result = co_await stream.async_handshake(
-            net::ssl::stream_base::server, use_awaitable);
-        !result) {
+    if (auto result = co_await do_handshake(stream); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
 
@@ -246,6 +238,30 @@ private:
     if (auto result = co_await stream.async_shutdown(use_awaitable); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
+  }
+
+  auto do_handshake(shared_ssl_stream& stream) const
+      -> awaitable<expected<void, std::error_code>>
+  {
+    using boost::beast::get_lowest_layer;
+    using namespace net::experimental::awaitable_operators;
+
+    auto timer = net::steady_timer(stream.get_executor());
+    if (tls_handshake_timeout_) {
+      timer.expires_after(*tls_handshake_timeout_);
+    }
+
+    auto result = co_await (
+        stream.async_handshake(net::ssl::stream_base::server, use_awaitable)
+        || timer.async_wait(use_awaitable));
+
+    if (result.index() == 0) {
+      co_return std::get<0>(result);
+    }
+
+    // timeout, close the socket
+    get_lowest_layer(stream).close();
+    co_return unexpected { make_error_code(net::error::timed_out) };
   }
 #endif
 

@@ -25,6 +25,7 @@
 #include <boost/beast/ssl.hpp>
 #endif
 
+#include <boost/asio/experimental/awaitable_operators.hpp>
 #include <boost/asio/experimental/concurrent_channel.hpp>
 
 #if defined(FITORIA_CXX_COMPILER_MSVC)
