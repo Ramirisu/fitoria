@@ -286,22 +286,41 @@ public:
     return std::move(*this);
   }
 
-  auto request_timeout() const noexcept -> std::chrono::milliseconds
+  auto handshake_timeout() const noexcept -> optional<std::chrono::milliseconds>
   {
-    return request_timeout_;
+    return handshake_timeout_;
   }
 
-  auto set_request_timeout(std::chrono::milliseconds timeout) & noexcept
-      -> http_client&
+  auto set_handshake_timeout(
+      optional<std::chrono::milliseconds> timeout) & noexcept -> http_client&
   {
-    request_timeout_ = timeout;
+    handshake_timeout_ = timeout;
     return *this;
   }
 
-  auto set_request_timeout(std::chrono::milliseconds timeout) && noexcept
-      -> http_client&&
+  auto set_handshake_timeout(
+      optional<std::chrono::milliseconds> timeout) && noexcept -> http_client&&
   {
-    set_request_timeout(timeout);
+    set_handshake_timeout(timeout);
+    return std::move(*this);
+  }
+
+  auto transfer_timeout() const noexcept -> optional<std::chrono::milliseconds>
+  {
+    return transfer_timeout_;
+  }
+
+  auto set_transfer_timeout(
+      optional<std::chrono::milliseconds> timeout) & noexcept -> http_client&
+  {
+    transfer_timeout_ = timeout;
+    return *this;
+  }
+
+  auto set_transfer_timeout(
+      optional<std::chrono::milliseconds> timeout) && noexcept -> http_client&&
+  {
+    set_transfer_timeout(timeout);
     return std::move(*this);
   }
 
@@ -406,21 +425,41 @@ private:
           net::error::get_ssl_category()) };
     }
 
-    // TODO: connect timeout?
     if (auto result = co_await get_lowest_layer(stream).async_connect(
             *results, use_awaitable);
         !result) {
       co_return unexpected { result.error() };
     }
 
-    // TODO: handshake timeout?
-    if (auto result = co_await stream.async_handshake(
-            net::ssl::stream_base::client, use_awaitable);
-        !result) {
+    if (auto result = co_await do_handshake(stream); !result) {
       co_return unexpected { result.error() };
     }
 
     co_return co_await do_http_request(std::move(stream));
+  }
+
+  auto
+  do_handshake(ssl_stream& stream) -> awaitable<expected<void, std::error_code>>
+  {
+    using boost::beast::get_lowest_layer;
+    using namespace net::experimental::awaitable_operators;
+
+    auto timer = net::steady_timer(co_await net::this_coro::executor);
+    if (handshake_timeout_) {
+      timer.expires_after(*handshake_timeout_);
+    } else {
+      timer.expires_at(net::steady_timer::time_point::max());
+    }
+
+    auto result = co_await (
+        stream.async_handshake(net::ssl::stream_base::client, use_awaitable)
+        || timer.async_wait(use_awaitable));
+    if (result.index() == 0) {
+      co_return std::get<0>(result);
+    }
+
+    get_lowest_layer(stream).close();
+    co_return unexpected { make_error_code(net::error::timed_out) };
   }
 #endif
 
@@ -429,9 +468,13 @@ private:
       -> awaitable<expected<http_response, std::error_code>>
   {
     using boost::beast::flat_buffer;
+    using boost::beast::get_lowest_layer;
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
+    if (transfer_timeout_) {
+      get_lowest_layer(stream).expires_after(*transfer_timeout_);
+    }
     if (auto exp = co_await std::visit(
             overloaded {
                 [&](any_body::null) { return do_sized_request(stream); },
@@ -583,7 +626,10 @@ private:
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
   any_body body_;
-  std::chrono::milliseconds request_timeout_ = std::chrono::seconds(5);
+  optional<std::chrono::milliseconds> handshake_timeout_
+      = std::chrono::seconds(3);
+  optional<std::chrono::milliseconds> transfer_timeout_
+      = std::chrono::seconds(5);
 };
 }
 

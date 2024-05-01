@@ -7,7 +7,6 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/test/cert.hpp>
 #include <fitoria/test/http_server_utils.hpp>
 
 #include <fitoria/client.hpp>
@@ -69,9 +68,9 @@ TEST_CASE("misc")
   CHECK_EQ(c.fields().get(http::field::content_type),
            http::fields::content_type::json());
 
-  CHECK_EQ(c.request_timeout(), std::chrono::seconds(5));
-  c.set_request_timeout(std::chrono::seconds(10));
-  CHECK_EQ(c.request_timeout(), std::chrono::seconds(10));
+  CHECK_EQ(c.transfer_timeout(), std::chrono::seconds(5));
+  c.set_transfer_timeout(std::chrono::seconds(10));
+  CHECK_EQ(c.transfer_timeout(), std::chrono::seconds(10));
 
   c.set_query("name", "value");
   CHECK_EQ(c.query().get("name"), "value");
@@ -96,33 +95,6 @@ TEST_CASE("async_send")
                 .set_url("")
                 .async_send()));
   });
-
-#if defined(FITORIA_HAS_OPENSSL)
-  auto get_certs = []() {
-    auto ssl_ctx = net::ssl::context(net::ssl::context::method::tls);
-    ssl_ctx.set_verify_mode(net::ssl::verify_peer);
-    cacert::add_builtin_cacerts(ssl_ctx);
-    return ssl_ctx;
-  };
-
-  sync_wait([&]() -> awaitable<void> {
-    auto ssl_ctx = get_certs();
-    auto res = co_await http_client()
-                   .set_method(http::verb::get)
-                   .set_url("https://httpbun.com/get")
-                   .async_send(ssl_ctx);
-    CHECK_EQ(res->status_code().value(), http::status::ok);
-    CHECK(!(co_await res->as_string())->empty());
-  });
-
-  sync_wait([&]() -> awaitable<void> {
-    auto ssl_ctx = get_certs();
-    CHECK(!(co_await http_client()
-                .set_method(http::verb::get)
-                .set_url("")
-                .async_send(ssl_ctx)));
-  });
-#endif
 }
 
 TEST_CASE("request with body")

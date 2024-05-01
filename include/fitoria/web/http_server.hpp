@@ -18,6 +18,8 @@
 
 #include <fitoria/log.hpp>
 
+#include <fitoria/web/detail/make_acceptor.hpp>
+
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/handler.hpp>
@@ -93,8 +95,10 @@ public:
   auto bind(std::string_view addr, std::uint16_t port) const
       -> expected<const http_server&, std::error_code>
   {
-    auto acceptor = make_acceptor(
-        net::ip::tcp::endpoint(net::ip::make_address(addr), port));
+    auto acceptor = detail::make_acceptor(
+        ex_,
+        net::ip::tcp::endpoint(net::ip::make_address(addr), port),
+        max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
@@ -110,8 +114,10 @@ public:
                 net::ssl::context& ssl_ctx) const
       -> expected<const http_server&, std::error_code>
   {
-    auto acceptor = make_acceptor(
-        net::ip::tcp::endpoint(net::ip::make_address(addr), port));
+    auto acceptor = detail::make_acceptor(
+        ex_,
+        net::ip::tcp::endpoint(net::ip::make_address(addr), port),
+        max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
@@ -157,35 +163,6 @@ private:
         target,
         std::move(req.fields()),
         std::move(req.body()))));
-  }
-
-  auto make_acceptor(net::ip::tcp::endpoint endpoint) const
-      -> expected<socket_acceptor, std::error_code>
-  {
-    auto acceptor = socket_acceptor(ex_);
-
-    boost::system::error_code ec;
-    acceptor.open(endpoint.protocol(), ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
-    }
-
-    acceptor.set_option(net::socket_base::reuse_address(true), ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
-    }
-
-    acceptor.bind(endpoint, ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
-    }
-
-    acceptor.listen(max_listen_connections_, ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
-    }
-
-    return acceptor;
   }
 
   auto do_listen(socket_acceptor acceptor) const -> awaitable<void>
@@ -249,6 +226,8 @@ private:
     auto timer = net::steady_timer(stream.get_executor());
     if (tls_handshake_timeout_) {
       timer.expires_after(*tls_handshake_timeout_);
+    } else {
+      timer.expires_at(net::steady_timer::time_point::max());
     }
 
     auto result = co_await (
@@ -259,7 +238,6 @@ private:
       co_return std::get<0>(result);
     }
 
-    // timeout, close the socket
     get_lowest_layer(stream).close();
     co_return unexpected { make_error_code(net::error::timed_out) };
   }
