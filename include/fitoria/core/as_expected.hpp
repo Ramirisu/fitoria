@@ -85,67 +85,67 @@ struct as_expected_signature;
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code)> {
-  typedef R type(expected<void, boost::system::error_code>);
+  using type = R(expected<void, boost::system::error_code>);
 };
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code)&> {
-  typedef R type(expected<void, boost::system::error_code>) &;
+  using type = R(expected<void, boost::system::error_code>) &;
 };
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code) &&> {
-  typedef R type(expected<void, boost::system::error_code>) &&;
+  using type = R(expected<void, boost::system::error_code>) &&;
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg)> {
-  typedef R type(expected<std::decay_t<Arg>, boost::system::error_code>);
+  using type = R(expected<std::decay_t<Arg>, boost::system::error_code>);
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg)&> {
-  typedef R type(expected<std::decay_t<Arg>, boost::system::error_code>) &;
+  using type = R(expected<std::decay_t<Arg>, boost::system::error_code>) &;
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg) &&> {
-  typedef R type(expected<std::decay_t<Arg>, boost::system::error_code>) &&;
+  using type = R(expected<std::decay_t<Arg>, boost::system::error_code>) &&;
 };
 
 #if defined(BOOST_ASIO_HAS_NOEXCEPT_FUNCTION_TYPE)
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code) noexcept> {
-  typedef R type(expected<void, boost::system::error_code>) noexcept;
+  using type = R(expected<void, boost::system::error_code>) noexcept;
 };
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code) & noexcept> {
-  typedef R type(expected<void, boost::system::error_code>) & noexcept;
+  using type = R(expected<void, boost::system::error_code>) & noexcept;
 };
 
 template <typename R>
 struct as_expected_signature<R(boost::system::error_code) && noexcept> {
-  typedef R type(expected<void, boost::system::error_code>) && noexcept;
+  using type = R(expected<void, boost::system::error_code>) && noexcept;
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg) noexcept> {
-  typedef R
-      type(expected<std::decay_t<Arg>, boost::system::error_code>) noexcept;
+  using type
+      = R(expected<std::decay_t<Arg>, boost::system::error_code>) noexcept;
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg) & noexcept> {
-  typedef R
-  type(expected<std::decay_t<Arg>, boost::system::error_code>) & noexcept;
+  using type
+      = R(expected<std::decay_t<Arg>, boost::system::error_code>) & noexcept;
 };
 
 template <typename R, typename Arg>
 struct as_expected_signature<R(boost::system::error_code, Arg) && noexcept> {
-  typedef R
-  type(expected<std::decay_t<Arg>, boost::system::error_code>) && noexcept;
+  using type
+      = R(expected<std::decay_t<Arg>, boost::system::error_code>) && noexcept;
 };
 
 #endif
@@ -182,10 +182,10 @@ struct async_result<fitoria::as_expected_t<CompletionToken>, Signatures...>
   static auto
   initiate(Initiation&& initiation, RawCompletionToken&& token, Args&&... args)
       -> decltype(async_initiate<
-                  conditional_t<
-                      is_const<remove_reference_t<RawCompletionToken>>::value,
-                      const CompletionToken,
-                      CompletionToken>,
+                  std::conditional_t<std::is_const_v<std::remove_reference_t<
+                                         RawCompletionToken>>,
+                                     const CompletionToken,
+                                     CompletionToken>,
                   typename fitoria::as_expected_signature<Signatures>::type...>(
           init_wrapper<std::decay_t<Initiation>>(
               std::forward<Initiation>(initiation)),
@@ -193,9 +193,10 @@ struct async_result<fitoria::as_expected_t<CompletionToken>, Signatures...>
           std::forward<Args>(args)...))
   {
     return async_initiate<
-        conditional_t<is_const<remove_reference_t<RawCompletionToken>>::value,
-                      const CompletionToken,
-                      CompletionToken>,
+        std::conditional_t<
+            std::is_const_v<std::remove_reference_t<RawCompletionToken>>,
+            const CompletionToken,
+            CompletionToken>,
         typename fitoria::as_expected_signature<Signatures>::type...>(
         init_wrapper<std::decay_t<Initiation>>(
             std::forward<Initiation>(initiation)),

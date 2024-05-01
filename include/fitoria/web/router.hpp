@@ -115,8 +115,7 @@ public:
     {
       std::size_t total = 0;
 
-      auto priority
-          = std::multimap<std::size_t, node, std::greater<std::size_t>>();
+      auto priority = std::multimap<std::size_t, node, std::greater<>>();
       for (auto& node : statics_) {
         auto count = node.optimize();
         total += count;
@@ -156,10 +155,10 @@ public:
       return unexpected { make_error_code(error::route_not_exists) };
     }
 
-    auto try_find_route(
-        http::verb method,
-        const std::unordered_map<http::verb, route_type>& routes) const
-        -> expected<const route_type&, std::error_code>
+    auto
+    try_find_route(http::verb method,
+                   const std::unordered_map<http::verb, route_type>& routes)
+        const -> expected<const route_type&, std::error_code>
     {
       if (auto it = routes.find(method); it != routes.end()) {
         return expected<const route_type&, std::error_code>(it->second);

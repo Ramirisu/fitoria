@@ -265,11 +265,11 @@ TEST_CASE("trivially")
 
 TEST_CASE("default constructor")
 {
-  static_assert(std::is_default_constructible<expected<void, int>>::value);
-  static_assert(std::is_default_constructible<expected<int, int>>::value);
-  static_assert(std::is_default_constructible<expected<dc<int>, int>>::value);
-  static_assert(!std::is_default_constructible<expected<ndc<int>, int>>::value);
-  static_assert(!std::is_default_constructible<expected<int&, int>>::value);
+  static_assert(std::is_default_constructible_v<expected<void, int>>);
+  static_assert(std::is_default_constructible_v<expected<int, int>>);
+  static_assert(std::is_default_constructible_v<expected<dc<int>, int>>);
+  static_assert(!std::is_default_constructible_v<expected<ndc<int>, int>>);
+  static_assert(!std::is_default_constructible_v<expected<int&, int>>);
   {
     auto exp = expected<void, int>();
     CHECK(exp);
@@ -796,9 +796,9 @@ TEST_CASE("perfect forwarding assignment operator")
     exp = std::move(val);
     CHECK_EQ(exp.value(), dc<int>({ 0, 1, 2 }));
   }
-  static_assert(!std::is_assignable<expected<int&, int>, int>::value);
-  static_assert(std::is_assignable<expected<int&, int>, int&>::value);
-  static_assert(!std::is_assignable<expected<int&, int>, int&&>::value);
+  static_assert(!std::is_assignable_v<expected<int&, int>, int>);
+  static_assert(std::is_assignable_v<expected<int&, int>, int&>);
+  static_assert(!std::is_assignable_v<expected<int&, int>, int&&>);
 }
 
 TEST_CASE("converting assignment operator")
@@ -1339,7 +1339,7 @@ TEST_CASE("and_then")
     int val = 0;
     auto f = [&]() -> expected<void, int> {
       val = 1;
-      return expected<void, int>();
+      return {};
     };
     using ft = decltype(f);
     assert_is_same<fn_and_then<ft>::fn,
@@ -1454,8 +1454,7 @@ TEST_CASE("and_then")
   }
   {
     int val = 0;
-    auto f
-        = [](int& i) -> expected<int&, int> { return expected<int&, int>(i); };
+    auto f = [](int& i) -> expected<int&, int> { return { i }; };
     using ft = decltype(f);
     assert_is_same<fn_and_then<ft>::fn,
                    expected<int&, int>&,
@@ -1625,8 +1624,7 @@ TEST_CASE("or_else")
   {
     int val = 0;
     int val2 = 10;
-    auto f
-        = [&](int) -> expected<int&, int> { return expected<int&, int>(val2); };
+    auto f = [&](int) -> expected<int&, int> { return { val2 }; };
     using ft = decltype(f);
     assert_is_same<fn_or_else<ft>::fn,
                    expected<int&, int>&,
@@ -2084,7 +2082,7 @@ TEST_CASE("swap")
   private:
     int val_ = 0;
   };
-  static_assert(!std::is_nothrow_move_constructible<move_throw>::value);
+  static_assert(!std::is_nothrow_move_constructible_v<move_throw>);
   {
     auto a = expected<move_throw, int>(1);
     auto b = expected<move_throw, int>(unexpect, 2);

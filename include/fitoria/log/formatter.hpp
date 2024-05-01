@@ -88,7 +88,7 @@ public:
 
     auto build() const -> formatter
     {
-      return formatter(*this);
+      return { *this };
     }
 
     builder& set_pattern(format_string fmt)

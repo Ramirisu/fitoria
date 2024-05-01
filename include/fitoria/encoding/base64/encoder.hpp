@@ -14,7 +14,6 @@
 #include <fitoria/encoding/base64/alphabet.hpp>
 
 #include <iterator>
-#include <stdexcept>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -133,7 +132,7 @@ public:
 
 private:
   template <typename Byte>
-  std::uint8_t u8(Byte byte)
+  static std::uint8_t u8(Byte byte) noexcept
   {
     return static_cast<std::uint8_t>(byte);
   }

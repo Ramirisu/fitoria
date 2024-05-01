@@ -66,7 +66,7 @@ void decode_buffer_oriented()
   std::cout << out << "\n";
 }
 
-int main()
+auto main() -> int
 {
   encode_with_padding();
   encode_with_no_padding();

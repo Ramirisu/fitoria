@@ -1,0 +1,15 @@
+---
+WarningsAsErrors: ""
+HeaderFileExtensions: ["hpp"]
+ImplementationFileExtensions: ["ipp"]
+HeaderFilterRegex: "include/fitoria/*"
+FormatStyle: none
+Checks: >
+  -*,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+  -modernize-use-default-member-init,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard
+---
+

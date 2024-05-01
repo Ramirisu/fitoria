@@ -159,7 +159,7 @@ public:
 
   static auto from_impl(impl_type impl) -> http_fields
   {
-    return http_fields(std::move(impl));
+    return { std::move(impl) };
   }
 
   void to_impl(impl_type& impl) const

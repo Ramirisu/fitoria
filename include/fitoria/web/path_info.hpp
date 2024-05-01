@@ -220,32 +220,32 @@ public:
 
   auto begin() noexcept -> iterator
   {
-    return iterator(*this, keys_.cbegin());
+    return { *this, keys_.cbegin() };
   }
 
   auto begin() const noexcept -> const_iterator
   {
-    return const_iterator(*this, keys_.cbegin());
+    return { *this, keys_.cbegin() };
   }
 
   auto cbegin() const noexcept -> const_iterator
   {
-    return const_iterator(*this, keys_.cbegin());
+    return { *this, keys_.cbegin() };
   }
 
   auto end() noexcept -> iterator
   {
-    return iterator(*this, keys_.cend());
+    return { *this, keys_.cend() };
   }
 
   auto end() const noexcept -> const_iterator
   {
-    return const_iterator(*this, keys_.cend());
+    return { *this, keys_.cend() };
   }
 
   auto cend() const noexcept -> const_iterator
   {
-    return const_iterator(*this, keys_.cend());
+    return { *this, keys_.cend() };
   }
 
   friend bool operator==(const path_info&, const path_info&) = default;

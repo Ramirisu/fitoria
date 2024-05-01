@@ -165,22 +165,22 @@ private:
     auto acceptor = socket_acceptor(ex_);
 
     boost::system::error_code ec;
-    acceptor.open(endpoint.protocol(), ec);
+    acceptor.open(endpoint.protocol(), ec); // NOLINT
     if (ec) {
       return unexpected { ec };
     }
 
-    acceptor.set_option(net::socket_base::reuse_address(true), ec);
+    acceptor.set_option(net::socket_base::reuse_address(true), ec); // NOLINT
     if (ec) {
       return unexpected { ec };
     }
 
-    acceptor.bind(endpoint, ec);
+    acceptor.bind(endpoint, ec); // NOLINT
     if (ec) {
       return unexpected { ec };
     }
 
-    acceptor.listen(max_listen_connections_, ec);
+    acceptor.listen(max_listen_connections_, ec); // NOLINT
     if (ec) {
       return unexpected { ec };
     }
@@ -221,7 +221,7 @@ private:
     }
 
     boost::system::error_code ec;
-    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec);
+    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec); // NOLINT
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
@@ -487,8 +487,8 @@ class http_server_builder {
 #endif
 
 public:
-  http_server_builder(const executor_type& ex)
-      : ex_(ex)
+  http_server_builder(executor_type ex)
+      : ex_(std::move(ex))
   {
   }
 
@@ -612,12 +612,12 @@ public:
   {
     router_.optimize();
 
-    return http_server(std::move(ex_),
-                       std::move(router_),
-                       max_listen_connections_,
-                       client_request_timeout_,
-                       tls_handshake_timeout_,
-                       std::move(exception_handler_));
+    return { ex_,
+             std::move(router_),
+             max_listen_connections_,
+             client_request_timeout_,
+             tls_handshake_timeout_,
+             std::move(exception_handler_) };
   }
 
 private:

@@ -23,11 +23,11 @@ public:
   async_formattable_writer() = default;
 
   async_formattable_writer(formatter fmter)
-      : fmter_(fmter)
+      : fmter_(std::move(fmter))
   {
   }
 
-  virtual ~async_formattable_writer() = default;
+  ~async_formattable_writer() override = default;
 
   void set_formatter(formatter fmter)
   {

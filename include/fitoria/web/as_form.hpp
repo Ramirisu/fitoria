@@ -31,8 +31,7 @@ inline expected<query_map, std::error_code> as_form(std::string_view text)
   auto params = static_cast<boost::urls::params_view>(res.value());
 
   query_map map;
-  for (auto it = params.begin(); it != params.end(); ++it) {
-    auto kv = *it;
+  for (auto kv : params) {
     if (kv.has_value) {
       map.set(kv.key, kv.value);
     }

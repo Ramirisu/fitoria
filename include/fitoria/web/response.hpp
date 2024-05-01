@@ -173,8 +173,8 @@ public:
 
   response_builder& operator=(response_builder&&) = default;
 
-  auto set_status_code(http::status_code status_code) & noexcept
-      -> response_builder&
+  auto
+  set_status_code(http::status_code status_code) & noexcept -> response_builder&
   {
     status_code_ = status_code;
     return *this;
@@ -245,7 +245,7 @@ public:
 
   auto build() -> response
   {
-    return response(status_code_, std::move(fields_), std::move(body_));
+    return { status_code_, std::move(fields_), std::move(body_) };
   }
 
   template <std::size_t N>
@@ -286,7 +286,7 @@ public:
 
 inline auto response::builder() -> response_builder
 {
-  return response_builder(status_code_, std::move(fields_), std::move(body_));
+  return { status_code_, std::move(fields_), std::move(body_) };
 }
 
 inline auto response::continue_() -> response_builder

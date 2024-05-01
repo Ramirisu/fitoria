@@ -38,7 +38,7 @@ using fn_value = decltype(std::declval<Exp>().value());
 
 template <template <typename...> class Op, typename Test, typename Expected>
 struct assert_is_same {
-  static_assert(std::is_same<Op<Test>, Expected>::value);
+  static_assert(std::is_same_v<Op<Test>, Expected>);
 };
 
 }
@@ -1306,7 +1306,7 @@ TEST_CASE("or_else")
     }
   }
   {
-    auto f = []() -> optional<int> { return optional<int>(2); };
+    auto f = []() -> optional<int> { return { 2 }; };
     {
       auto o = optional<int>();
       CHECK_EQ(o.or_else(f), 2);
@@ -1343,7 +1343,7 @@ TEST_CASE("or_else")
   {
     int val = 1;
     int val2 = 2;
-    auto f = [&]() -> optional<int&> { return optional<int&>(val2); };
+    auto f = [&]() -> optional<int&> { return { val2 }; };
     {
       auto o = optional<int&>();
       CHECK_EQ(o.or_else(f), 2);

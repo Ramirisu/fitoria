@@ -70,7 +70,7 @@ public:
       return at_least(to_level(lv_str));
     }
 
-    return filter();
+    return {};
   }
 };
 

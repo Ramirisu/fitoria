@@ -14,10 +14,15 @@ fitoria_option(FITORIA_DISABLE_ZLIB "Do not use zlib" OFF)
 fitoria_option(FITORIA_DISABLE_BROTLI "Do not use brotli" OFF)
 fitoria_option(FITORIA_DISABLE_LIBURING "Do not use liburing" OFF)
 fitoria_option(FITORIA_ENABLE_CODECOV "Enable codecov build" OFF)
+fitoria_option(FITORIA_ENABLE_CLANG_TIDY "Enable clang-tidy check" OFF)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+if(FITORIA_ENABLE_CLANG_TIDY)
+  set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
 
 # [dep.lib] format lib

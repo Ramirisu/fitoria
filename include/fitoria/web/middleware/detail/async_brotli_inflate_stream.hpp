@@ -31,7 +31,7 @@ public:
   brotli_decoder()
       : handle_(BrotliDecoderCreateInstance(nullptr, nullptr, nullptr))
   {
-    if (handle_ == 0) {
+    if (handle_ == nullptr) {
       FITORIA_THROW_OR(
           std::system_error(make_error_code(web::detail::brotli_error::init)),
           std::terminate());

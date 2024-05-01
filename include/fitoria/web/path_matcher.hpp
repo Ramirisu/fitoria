@@ -60,7 +60,7 @@ public:
       for (auto token : tokens_) {
         if (token.kind == path_token_kind::param
             || token.kind == path_token_kind::wildcard) {
-          matches.push_back({ token.value, match[token.value].str() });
+          matches.emplace_back(token.value, match[token.value].str());
         }
       }
 

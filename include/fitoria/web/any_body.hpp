@@ -52,11 +52,6 @@ public:
 
   any_body& operator=(any_body&&) = default;
 
-  auto size() noexcept -> size_type&
-  {
-    return size_;
-  }
-
   auto size() const noexcept -> const size_type&
   {
     return size_;

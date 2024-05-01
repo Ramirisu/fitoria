@@ -59,7 +59,7 @@ public:
 inline std::error_code make_error_code(brotli_error e)
 {
   static const brotli_error_category c;
-  return std::error_code(static_cast<int>(e), c);
+  return { static_cast<int>(e), c };
 }
 }
 

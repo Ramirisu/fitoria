@@ -148,7 +148,7 @@ public:
 
 private:
   template <typename Byte>
-  std::size_t s(Byte byte)
+  static std::size_t s(Byte byte) noexcept
   {
     return static_cast<std::size_t>(byte);
   }

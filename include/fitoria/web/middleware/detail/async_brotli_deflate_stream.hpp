@@ -38,7 +38,7 @@ public:
   brotli_encoder()
       : handle_(BrotliEncoderCreateInstance(nullptr, nullptr, nullptr))
   {
-    if (handle_ == 0) {
+    if (handle_ == nullptr) {
       FITORIA_THROW_OR(
           std::system_error(make_error_code(web::detail::brotli_error::init)),
           std::terminate());
@@ -70,8 +70,8 @@ public:
     return *this;
   }
 
-  auto write(web::detail::broti_params& p, brotli_encoder_operation op) noexcept
-      -> std::error_code
+  auto write(web::detail::broti_params& p,
+             brotli_encoder_operation op) noexcept -> std::error_code
   {
     return from_native_error(BrotliEncoderCompressStream(handle_,
                                                          to_native(op),

@@ -22,7 +22,7 @@ namespace web {
 
 class async_readable_vector_stream {
   struct data_t {
-    std::size_t offset;
+    std::size_t offset = 0;
     std::vector<std::byte> buffer;
   };
 
@@ -34,7 +34,7 @@ public:
   async_readable_vector_stream(std::vector<std::byte> data)
   {
     if (!data.empty()) {
-      data_.emplace(data_t { .offset = 0, .buffer = std::move(data) });
+      data_.emplace(data_t { 0, std::move(data) });
     }
   }
 
