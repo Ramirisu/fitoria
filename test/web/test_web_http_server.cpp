@@ -15,6 +15,8 @@
 #include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
 
+#include <iostream>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -29,15 +31,15 @@ TEST_CASE("builder")
   auto server = http_server_builder(ioc)
                     .set_max_listen_connections(2048)
                     .set_client_request_timeout(std::chrono::seconds(10))
-                    .set_tls_handshake_timeout(std::chrono::seconds(5))
+                    .set_tls_handshake_timeout(std::chrono::seconds(20))
 #if !FITORIA_NO_EXCEPTIONS
                     .set_exception_handler([](std::exception_ptr ptr) {
-                      if (!ptr) {
-                        return;
-                      }
-                      try {
-                        std::rethrow_exception(ptr);
-                      } catch (...) {
+                      if (ptr) {
+                        try {
+                          std::rethrow_exception(ptr);
+                        } catch (...) {
+                          CHECK(false);
+                        }
                       }
                     })
 #endif
@@ -54,7 +56,7 @@ TEST_CASE("builder")
 
   CHECK_EQ(server.max_listen_connections(), 2048);
   CHECK_EQ(server.client_request_timeout(), std::chrono::seconds(10));
-  CHECK_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
+  CHECK_EQ(server.tls_handshake_timeout(), std::chrono::seconds(20));
 
   net::co_spawn(
       ioc,
@@ -63,6 +65,7 @@ TEST_CASE("builder")
             = co_await http_client()
                   .set_method(http::verb::get)
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);
         CHECK_EQ(co_await res->as_string(), "");

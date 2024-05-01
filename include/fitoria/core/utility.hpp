@@ -19,6 +19,8 @@
 
 FITORIA_NAMESPACE_BEGIN
 
+struct construct_t { };
+
 template <typename E>
 auto to_underlying(E e) noexcept
 {
@@ -28,7 +30,7 @@ auto to_underlying(E e) noexcept
 template <typename... Ts, std::size_t... Is>
 auto reverse_tuple_impl(std::tuple<Ts...> t, std::index_sequence<Is...>)
 {
-  return std::tuple { std::get<sizeof...(Ts) - Is - 1>(std::move(t))... };
+  return std::tuple { std::move(std::get<sizeof...(Ts) - Is - 1>(t))... };
 }
 
 template <typename... Ts>

@@ -84,6 +84,7 @@ public:
     auto file = net::stream_file(co_await net::this_coro::executor);
 
     boost::system::error_code ec;
+    // NOLINTNEXTLINE
     file.open(path, net::file_base::create | net::file_base::write_only, ec);
     if (ec) {
       co_return unexpected { ec };

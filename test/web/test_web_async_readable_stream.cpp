@@ -61,7 +61,7 @@ TEST_CASE("async_readable_vector_stream: read chunk by chunk")
 
 TEST_CASE("async_readable_file_stream")
 {
-  const auto data = std::string(1024 * 1024, 'a');
+  const auto data = std::string(1048576, 'a');
   {
     std::ofstream("test_web_async_readable_file_stream.txt", std::ios::binary)
         << data;

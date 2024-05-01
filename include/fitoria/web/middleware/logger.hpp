@@ -51,7 +51,7 @@ public:
 
 private:
   template <typename Next2>
-  logger_middleware(Next2&& next)
+  logger_middleware(construct_t, Next2&& next)
       : next_(std::forward<Next2>(next))
   {
   }
@@ -78,7 +78,7 @@ private:
   auto to_middleware_impl(Next&& next) const
   {
     return logger_middleware<Request, Response, std::decay_t<Next>>(
-        std::forward<Next>(next));
+        construct_t {}, std::forward<Next>(next));
   }
 };
 }

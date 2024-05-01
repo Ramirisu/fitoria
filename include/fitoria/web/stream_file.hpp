@@ -42,7 +42,7 @@ public:
     auto file = net::stream_file(co_await net::this_coro::executor);
 
     boost::system::error_code ec;
-    file.open(path, net::file_base::read_only, ec);
+    file.open(path, net::file_base::read_only, ec); // NOLINT
     if (ec) {
       co_return unexpected { ec };
     }

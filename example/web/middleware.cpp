@@ -62,7 +62,7 @@ private:
   auto to_middleware_impl(Next&& next) const
   {
     return my_log_middleware<Request, Response, std::decay_t<Next>>(
-        std::move(next), lv_);
+        std::forward<Next>(next), lv_);
   }
 
   log::level lv_;

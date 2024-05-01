@@ -38,8 +38,8 @@ public:
   }
 
 private:
-  auto invoke_with_args(expected<Args, std::error_code>... args) const
-      -> Response
+  auto
+  invoke_with_args(expected<Args, std::error_code>... args) const -> Response
   {
     const auto pack
         = std::tuple<expected<Args, std::error_code>&...> { args... };
@@ -69,7 +69,7 @@ private:
   }
 
   template <typename Next2>
-  handler_middleware(Next2&& next)
+  handler_middleware(construct_t, Next2&& next)
       : next_(std::forward<Next2>(next))
   {
   }
@@ -99,7 +99,7 @@ private:
                               Response,
                               std::decay_t<Next>,
                               typename function_traits<Next>::args_type>(
-        std::forward<Next>(next));
+        construct_t {}, std::forward<Next>(next));
   }
 };
 }

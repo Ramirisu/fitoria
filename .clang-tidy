@@ -6,6 +6,12 @@ HeaderFilterRegex: "include/fitoria/*"
 FormatStyle: none
 Checks: >
   -*,
+  bugprone-*,
+  -bugprone-casting-through-void,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape,
+  -bugprone-forwarding-reference-overload,
+  -bugprone-use-after-move,gprone-exception-escape
   modernize-*,
   -modernize-avoid-c-arrays,
   -modernize-use-default-member-init,

@@ -143,7 +143,7 @@ TEST_CASE("std::variant")
 
 TEST_CASE("stream_file")
 {
-  const auto data = std::string(1024 * 1024, 'a');
+  const auto data = std::string(1048576, 'a');
   {
     std::ofstream("test_web_to_http_response.stream_file.txt", std::ios::binary)
         << data;

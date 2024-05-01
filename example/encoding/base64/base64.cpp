@@ -8,7 +8,6 @@
 #include <fitoria/encoding/base64.hpp>
 
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
 using namespace fitoria::encoding::base64;
@@ -60,13 +59,12 @@ void decode_buffer_oriented()
   while (!decoder.is_error() && std::getline(std::cin, line) && !line.empty()) {
     decoder.decode_next(line.begin(), line.end(), std::back_inserter(out));
   }
-  if (!decoder.is_done()) {
-    throw std::invalid_argument("base64 decode error");
+  if (decoder.is_done()) {
+    std::cout << out << "\n";
   }
-  std::cout << out << "\n";
 }
 
-auto main() -> int
+int main()
 {
   encode_with_padding();
   encode_with_no_padding();
