@@ -303,6 +303,34 @@ public:
     return *this;
   }
 
+  template <typename... Args>
+  constexpr T& emplace(Args&&... args)
+  {
+    if (has_value()) {
+      std::destroy_at(std::addressof(this->val_));
+      this->has_ = false;
+    }
+
+    std::construct_at(std::addressof(this->val_), std::forward<Args>(args)...);
+    this->has_ = true;
+    return this->val_;
+  }
+
+  template <typename U, typename... Args>
+  constexpr T& emplace(std::initializer_list<U> ilist, Args&&... args)
+    requires(std::is_constructible_v<T, std::initializer_list<U>&, Args...>)
+  {
+    if (has_value()) {
+      std::destroy_at(std::addressof(this->val_));
+      this->has_ = false;
+    }
+
+    std::construct_at(
+        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
+    this->has_ = true;
+    return this->val_;
+  }
+
   constexpr std::add_pointer_t<T> operator->() noexcept
   {
     FITORIA_ASSERT(has_value());
@@ -555,34 +583,6 @@ public:
     }
   }
 
-  template <typename... Args>
-  constexpr T& emplace(Args&&... args)
-  {
-    if (has_value()) {
-      std::destroy_at(std::addressof(this->val_));
-      this->has_ = false;
-    }
-
-    std::construct_at(std::addressof(this->val_), std::forward<Args>(args)...);
-    this->has_ = true;
-    return this->val_;
-  }
-
-  template <typename U, typename... Args>
-  constexpr T& emplace(std::initializer_list<U> ilist, Args&&... args)
-    requires(std::is_constructible_v<T, std::initializer_list<U>&, Args...>)
-  {
-    if (has_value()) {
-      std::destroy_at(std::addressof(this->val_));
-      this->has_ = false;
-    }
-
-    std::construct_at(
-        std::addressof(this->val_), ilist, std::forward<Args>(args)...);
-    this->has_ = true;
-    return this->val_;
-  }
-
 private:
   union {
     T val_;
@@ -620,6 +620,11 @@ public:
   constexpr optional& operator=(const optional&) noexcept = default;
 
   constexpr optional& operator=(optional&&) noexcept = default;
+
+  constexpr void emplace() noexcept
+  {
+    this->has_ = true;
+  }
 
   constexpr void operator->() const noexcept
   {
@@ -694,11 +699,6 @@ public:
     this->has_ = false;
   }
 
-  constexpr void emplace() noexcept
-  {
-    this->has_ = true;
-  }
-
 private:
   bool has_ = false;
 };
@@ -710,7 +710,7 @@ public:
   static_assert(!std::is_same_v<std::remove_cvref_t<T>, nullopt_t>);
   static_assert(!std::is_array_v<std::remove_cvref_t<T>>);
 
-  using value_type = T;
+  using value_type = T&;
 
   constexpr optional() noexcept = default;
 
@@ -720,34 +720,24 @@ public:
 
   constexpr optional(optional&&) noexcept = default;
 
-  template <typename U>
-  constexpr explicit(std::is_convertible_v<U, T>)
-      optional(optional<U>& other) noexcept
-    requires(!std::is_same_v<std::remove_cvref_t<U>, optional>)
-  {
-    if (other) {
-      this->valptr_ = std::addressof(other.value());
-    }
-  }
-
-  template <typename U>
-  constexpr explicit(std::is_convertible_v<U, T>)
-      optional(const optional<U>& other) noexcept
-    requires(!std::is_same_v<std::remove_cvref_t<U>, optional>)
-  {
-    if (other) {
-      this->valptr_ = std::addressof(other.value());
-    }
-  }
-
   template <typename U = T>
   constexpr explicit(!std::is_convertible_v<U, T>) optional(U&& value) noexcept
-    requires(!is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>)
+    requires(!is_specialization_of_v<std::decay_t<U>, fitoria::optional>)
   {
     static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
     static_assert(std::is_lvalue_reference_v<U>);
 
     this->valptr_ = std::addressof(value);
+  }
+
+  template <typename U>
+  constexpr explicit(!std::is_convertible_v<U, T>)
+      optional(const optional<U>& other) noexcept
+    requires std::is_convertible_v<U, T>
+  {
+    if (other) {
+      this->valptr_ = std::addressof(other.value());
+    }
   }
 
   constexpr ~optional() noexcept = default;
@@ -765,8 +755,7 @@ public:
 
   template <typename U = T>
   constexpr optional& operator=(U&& value) noexcept
-    requires(!is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>
-             && (!std::is_scalar_v<T> || !std::is_same_v<T, std::decay_t<U>>))
+    requires(!is_specialization_of_v<std::decay_t<U>, fitoria::optional>)
   {
     static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
     static_assert(std::is_lvalue_reference_v<U>);
@@ -777,31 +766,27 @@ public:
   }
 
   template <typename U>
-  constexpr optional& operator=(optional<U>& other) noexcept
+  constexpr optional& operator=(const optional<U>& other) noexcept
   {
     static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
     static_assert(std::is_lvalue_reference_v<U>);
+
     if (other) {
       this->valptr_ = std::addressof(other.value());
-    } else {
-      this->valptr_ = nullptr;
     }
 
     return *this;
   }
 
-  template <typename U>
-  constexpr optional& operator=(const optional<U>& other) noexcept
+  template <typename U = T>
+  constexpr T& emplace(U&& u) noexcept
+    requires(!is_specialization_of_v<std::decay_t<U>, fitoria::optional>)
   {
-    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
     static_assert(std::is_lvalue_reference_v<U>);
-    if (other) {
-      this->valptr_ = std::addressof(other.value());
-    } else {
-      this->valptr_ = nullptr;
-    }
 
-    return *this;
+    this->valptr_ = std::addressof(std::forward<U>(u));
+
+    return *this->valptr_;
   }
 
   constexpr std::add_pointer_t<T> operator->() const noexcept
@@ -888,17 +873,9 @@ public:
     this->valptr_ = nullptr;
   }
 
-  template <typename U = T>
-  constexpr T& emplace(U&& u) noexcept
-    requires(
-        !std::is_same_v<std::remove_cvref_t<U>, optional>
-        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::optional>)
+  constexpr void swap(optional& other)
   {
-    static_assert(std::is_lvalue_reference_v<U>);
-
-    this->valptr_ = std::addressof(u);
-
-    return *this->valptr_;
+    std::swap(this->valptr_, other.valptr_);
   }
 
 private:
