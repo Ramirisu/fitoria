@@ -931,7 +931,7 @@ public:
   }
 
   template <typename U, typename... Args>
-  constexpr T& emplace(std::initializer_list<U>& ilist, Args&&... args) noexcept
+  constexpr T& emplace(std::initializer_list<U> ilist, Args&&... args) noexcept
     requires(
         std::is_nothrow_constructible_v<T, std::initializer_list<U>&, Args...>)
   {
@@ -2226,6 +2226,34 @@ public:
     return *this->valptr_;
   }
 
+  constexpr void swap(expected& other) noexcept(
+      std::is_nothrow_move_constructible_v<E> && std::is_nothrow_swappable_v<E>)
+  {
+    if (has_value()) {
+      if (other.has_value()) {
+        using std::swap;
+        swap(this->valptr_, other.valptr_);
+      } else {
+        auto* valptr = this->valptr_;
+        std::construct_at(std::addressof(this->err_), std::move(other.err_));
+        std::destroy_at(std::addressof(other.err_));
+        other.valptr_ = valptr;
+        std::swap(this->has_, other.has_);
+      }
+    } else {
+      if (other.has_value()) {
+        auto* valptr = other.valptr_;
+        std::construct_at(std::addressof(other.err_), std::move(this->err_));
+        std::destroy_at(std::addressof(this->err_));
+        this->valptr_ = valptr;
+        std::swap(this->has_, other.has_);
+      } else {
+        using std::swap;
+        swap(error(), other.error());
+      }
+    }
+  }
+
   template <typename T2, typename E2>
     requires(!std::is_void_v<T2>)
   friend constexpr bool operator==(const expected& lhs,
@@ -2251,6 +2279,13 @@ public:
   friend constexpr bool operator==(const expected& x, const unexpected<E2>& e)
   {
     return !x.has_value() && static_cast<bool>(x.error() == e.error());
+  }
+
+  friend void constexpr swap(expected& lhs,
+                             expected& rhs) noexcept(noexcept(lhs.swap(rhs)))
+    requires std::is_swappable_v<T> && std::is_swappable_v<E>
+  {
+    lhs.swap(rhs);
   }
 
 private:

@@ -26,6 +26,9 @@ using memop_deref = decltype(std::declval<T>().operator*());
 template <typename T>
 using memfn_value = decltype(std::declval<T>().value());
 
+template <typename T>
+using memfn_error = decltype(std::declval<T>().error());
+
 }
 
 FITORIA_NAMESPACE_END
