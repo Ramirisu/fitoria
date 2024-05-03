@@ -13,19 +13,27 @@
 
 #include <fitoria/core/net.hpp>
 
+#include <fitoria/web/detail/make_endpoint.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace web::detail {
 
 inline auto make_acceptor(const executor_type& ex,
-                          net::ip::tcp::endpoint endpoint,
+                          std::string_view addr,
+                          std::uint16_t port,
                           int max_listen_connections)
     -> expected<socket_acceptor, std::error_code>
 {
+  auto endpoint = make_endpoint(addr, port);
+  if (!endpoint) {
+    return unexpected { endpoint.error() };
+  }
+
   auto acceptor = socket_acceptor(ex);
 
   boost::system::error_code ec;
-  acceptor.open(endpoint.protocol(), ec); // NOLINT
+  acceptor.open(endpoint->protocol(), ec); // NOLINT
   if (ec) {
     return unexpected { ec };
   }
@@ -35,7 +43,7 @@ inline auto make_acceptor(const executor_type& ex,
     return unexpected { ec };
   }
 
-  acceptor.bind(endpoint, ec); // NOLINT
+  acceptor.bind(*endpoint, ec); // NOLINT
   if (ec) {
     return unexpected { ec };
   }

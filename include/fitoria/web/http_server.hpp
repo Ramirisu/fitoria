@@ -95,10 +95,8 @@ public:
   auto bind(std::string_view addr, std::uint16_t port) const
       -> expected<const http_server&, std::error_code>
   {
-    auto acceptor = detail::make_acceptor(
-        ex_,
-        net::ip::tcp::endpoint(net::ip::make_address(addr), port),
-        max_listen_connections_);
+    auto acceptor
+        = detail::make_acceptor(ex_, addr, port, max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
@@ -114,10 +112,8 @@ public:
                 net::ssl::context& ssl_ctx) const
       -> expected<const http_server&, std::error_code>
   {
-    auto acceptor = detail::make_acceptor(
-        ex_,
-        net::ip::tcp::endpoint(net::ip::make_address(addr), port),
-        max_listen_connections_);
+    auto acceptor
+        = detail::make_acceptor(ex_, addr, port, max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
