@@ -348,9 +348,6 @@ TEST_CASE("perfect forwarding assignment operator")
     exp = std::move(val);
     CHECK_EQ(exp.value(), std::vector<int>({ 0, 1, 2 }));
   }
-  static_assert(!std::is_assignable_v<expected<int&, int>, int>);
-  static_assert(std::is_assignable_v<expected<int&, int>, int&>);
-  static_assert(!std::is_assignable_v<expected<int&, int>, int&&>);
 }
 
 TEST_CASE("converting assignment operator")

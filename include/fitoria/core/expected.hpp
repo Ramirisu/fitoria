@@ -1613,20 +1613,17 @@ private:
 };
 
 template <typename T, typename E>
-  requires(std::is_lvalue_reference_v<T>)
-class expected<T, E> {
-  using raw_value_type = std::remove_cvref_t<T>;
-
+class expected<T&, E> {
   template <typename U, typename G>
   static constexpr bool is_expected_like_constructible_v
-      = std::is_constructible_v<T, expected<U, G>&>
-      || std::is_constructible_v<T, expected<U, G>>
-      || std::is_constructible_v<T, const expected<U, G>&>
-      || std::is_constructible_v<T, const expected<U, G>>
-      || std::is_convertible_v<expected<U, G>&, T>
-      || std::is_convertible_v<expected<U, G>, T>
-      || std::is_convertible_v<const expected<U, G>&, T>
-      || std::is_convertible_v<const expected<U, G>, T>
+      = std::is_constructible_v<T&, expected<U, G>&>
+      || std::is_constructible_v<T&, expected<U, G>>
+      || std::is_constructible_v<T&, const expected<U, G>&>
+      || std::is_constructible_v<T&, const expected<U, G>>
+      || std::is_convertible_v<expected<U, G>&, T&>
+      || std::is_convertible_v<expected<U, G>, T&>
+      || std::is_convertible_v<const expected<U, G>&, T&>
+      || std::is_convertible_v<const expected<U, G>, T&>
       || std::is_constructible_v<unexpected<E>, expected<U, G>&>
       || std::is_constructible_v<unexpected<E>, expected<U, G>>
       || std::is_constructible_v<unexpected<E>, const expected<U, G>&>
@@ -1644,19 +1641,12 @@ public:
   static_assert(std::is_destructible_v<std::remove_cvref_t<E>>);
   static_assert(!std::is_array_v<std::remove_cvref_t<E>>);
 
-  using value_type = T;
+  using value_type = T&;
   using error_type = E;
   using unexpected_type = unexpected<E>;
 
   template <typename U>
   using rebind = expected<U, E>;
-
-  constexpr expected()
-    requires(std::is_default_constructible_v<T>)
-      : valptr_()
-      , has_(true)
-  {
-  }
 
   constexpr expected(const expected& other)
     requires(!std::is_trivially_copy_constructible_v<E>
@@ -1693,7 +1683,7 @@ public:
 
   template <typename U, typename G>
   constexpr explicit expected(expected<U, G>& other)
-    requires(std::is_constructible_v<raw_value_type, const U&>
+    requires(std::is_constructible_v<T&, const U&>
              && std::is_constructible_v<E, const G&>
              && !is_expected_like_constructible_v<U, G>)
   {
@@ -1707,7 +1697,7 @@ public:
 
   template <typename U, typename G>
   constexpr explicit expected(const expected<U, G>& other)
-    requires(std::is_constructible_v<raw_value_type, const U&>
+    requires(std::is_constructible_v<T&, const U&>
              && std::is_constructible_v<E, const G&>
              && !is_expected_like_constructible_v<U, G>)
   {
@@ -1719,14 +1709,16 @@ public:
     this->has_ = other.has_value();
   }
 
-  template <typename U = raw_value_type>
-  constexpr explicit(!std::is_convertible_v<U, raw_value_type>)
-      expected(U& value)
+  template <typename U = T>
+  constexpr explicit(!std::is_convertible_v<U, T>) expected(U&& value)
     requires(
         !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t>
         && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::expected>
         && !is_specialization_of_v<std::remove_cvref_t<U>, unexpected>)
   {
+    static_assert(std::is_constructible_v<std::add_lvalue_reference_t<T>, U>);
+    static_assert(std::is_lvalue_reference_v<U>);
+
     this->valptr_ = std::addressof(value);
     this->has_ = true;
   }
@@ -1843,15 +1835,14 @@ public:
     requires(std::is_trivially_move_assignable_v<E>)
   = default;
 
-  template <typename U = raw_value_type>
-  constexpr expected& operator=(U& value)
+  template <typename U = T>
+  constexpr expected& operator=(U&& value)
     requires(
         !std::is_same_v<std::remove_cvref_t<U>, expected>
-        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::expected>
-        && (std::is_nothrow_constructible_v<T, U>
-            || std::is_nothrow_move_constructible_v<T>
-            || std::is_nothrow_move_constructible_v<E>))
+        && !is_specialization_of_v<std::remove_cvref_t<U>, fitoria::expected>)
   {
+    static_assert(std::is_lvalue_reference_v<U>);
+
     if (!has_value()) {
       std::destroy_at(std::addressof(this->err_));
     }
@@ -1888,28 +1879,16 @@ public:
     return *this;
   }
 
-  constexpr std::add_pointer_t<T> operator->() noexcept
+  constexpr std::add_pointer_t<T> operator->() const noexcept
   {
     FITORIA_ASSERT(has_value());
     return this->valptr_;
   }
 
-  constexpr std::add_pointer_t<const T> operator->() const noexcept
-  {
-    FITORIA_ASSERT(has_value());
-    return this->valptr_;
-  }
-
-  constexpr T& operator*() const& noexcept
+  constexpr T& operator*() const noexcept
   {
     FITORIA_ASSERT(has_value());
     return *this->valptr_;
-  }
-
-  constexpr T&& operator*() const&& noexcept
-  {
-    FITORIA_ASSERT(has_value());
-    return std::forward<T>(*this->valptr_);
   }
 
   constexpr explicit operator bool() const noexcept
@@ -1922,23 +1901,13 @@ public:
     return this->has_;
   }
 
-  constexpr T& value() const&
+  constexpr T& value() const
   {
     if (!has_value()) {
       FITORIA_THROW_OR(bad_expected_access(error()), std::terminate());
     }
 
     return *this->valptr_;
-  }
-
-  constexpr T&& value() const&&
-  {
-    if (!has_value()) {
-      FITORIA_THROW_OR(bad_expected_access(std::move(error())),
-                       std::terminate());
-    }
-
-    return std::forward<T>(*this->valptr_);
   }
 
   constexpr E& error() & noexcept
@@ -1966,25 +1935,13 @@ public:
   }
 
   template <typename U>
-  constexpr raw_value_type value_or(U&& default_value) const&
-    requires(std::is_copy_constructible_v<raw_value_type>
-             && std::is_convertible_v<U, raw_value_type>)
+  constexpr T value_or(U&& default_value) const
+    requires(std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>)
   {
     if (has_value()) {
       return value();
     } else {
-      return static_cast<raw_value_type>(std::forward<U>(default_value));
-    }
-  }
-
-  template <typename U>
-  constexpr raw_value_type value_or(U&& default_value) &&
-    requires(std::is_move_constructible_v<raw_value_type> && std::is_convertible_v<U, raw_value_type>)
-  {
-    if (has_value()) {
-      return std::move(value());
-    } else {
-      return static_cast<raw_value_type>(std::forward<U>(default_value));
+      return static_cast<T>(std::forward<U>(default_value));
     }
   }
 
@@ -2010,7 +1967,7 @@ public:
     }
   }
 
-  template <typename F> 
+  template <typename F>
   constexpr auto and_then(F&& f) & 
     requires(std::is_copy_constructible_v<E>)
   {
@@ -2028,7 +1985,7 @@ public:
   constexpr auto and_then(F&& f) const&
     requires(std::is_copy_constructible_v<E>)
   {
-    using U = std::remove_cvref_t<std::invoke_result_t<F, const T&>>;
+    using U = std::remove_cvref_t<std::invoke_result_t<F, T&>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
@@ -2042,11 +1999,11 @@ public:
   constexpr auto and_then(F&& f) &&
     requires(std::is_move_constructible_v<E>)
   {
-    using U = std::remove_cvref_t<std::invoke_result_t<F, T>>;
+    using U = std::remove_cvref_t<std::invoke_result_t<F, T&>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::forward<T>(value())));
+      return U(std::invoke(std::forward<F>(f), value()));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -2056,11 +2013,11 @@ public:
   constexpr auto and_then(F&& f) const&&
     requires(std::is_move_constructible_v<E>)
   {
-    using U = std::remove_cvref_t<std::invoke_result_t<F, const T>>;
+    using U = std::remove_cvref_t<std::invoke_result_t<F, T&>>;
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::forward<T>(value())));
+      return U(std::invoke(std::forward<F>(f), value()));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -2071,7 +2028,7 @@ public:
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, E&>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
-    static_assert(std::is_same_v<typename G::value_type, T>);
+    static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
       return G(std::in_place, value());
     } else {
@@ -2084,7 +2041,7 @@ public:
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, const E&>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
-    static_assert(std::is_same_v<typename G::value_type, T>);
+    static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
       return G(std::in_place, value());
     } else {
@@ -2097,9 +2054,9 @@ public:
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, E>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
-    static_assert(std::is_same_v<typename G::value_type, T>);
+    static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, std::forward<T>(value()));
+      return G(std::in_place, value());
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -2110,9 +2067,9 @@ public:
   {
     using G = std::remove_cvref_t<std::invoke_result_t<F, const E>>;
     static_assert(is_specialization_of_v<G, fitoria::expected>);
-    static_assert(std::is_same_v<typename G::value_type, T>);
+    static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, std::forward<T>(value()));
+      return G(std::in_place, value());
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -2134,7 +2091,7 @@ public:
   constexpr auto transform(F&& f) const&
     requires(std::is_copy_constructible_v<E>)
   {
-    using U = std::remove_cv_t<std::invoke_result_t<F, const T&>>;
+    using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
       return expected<U, E>(std::invoke(std::forward<F>(f), value()));
     } else {
@@ -2146,10 +2103,9 @@ public:
   constexpr auto transform(F&& f) &&
     requires(std::is_move_constructible_v<E>)
   {
-    using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
+    using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(
-          std::invoke(std::forward<F>(f), std::forward<T>(value())));
+      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -2159,10 +2115,9 @@ public:
   constexpr auto transform(F&& f) const&&
     requires(std::is_move_constructible_v<E>)
   {
-    using U = std::remove_cv_t<std::invoke_result_t<F, const T>>;
+    using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(
-          std::invoke(std::forward<F>(f), std::forward<T>(value())));
+      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -2195,7 +2150,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, std::forward<T>(value()));
+      return expected<T, G>(std::in_place, value());
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
@@ -2207,7 +2162,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, const E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, std::forward<T>(value()));
+      return expected<T, G>(std::in_place, value());
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
