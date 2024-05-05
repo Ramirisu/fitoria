@@ -15,6 +15,8 @@ fitoria_option(FITORIA_DISABLE_BROTLI "Do not use brotli" OFF)
 fitoria_option(FITORIA_DISABLE_LIBURING "Do not use liburing" OFF)
 fitoria_option(FITORIA_ENABLE_CODECOV "Enable codecov build" OFF)
 fitoria_option(FITORIA_ENABLE_CLANG_TIDY "Enable clang-tidy check" OFF)
+fitoria_option(FITORIA_ENABLE_ADDRESS_SANITIZER
+               "Compile with -fsanitize=address" OFF)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)

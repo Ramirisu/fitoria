@@ -17,7 +17,10 @@ function(fitoria_target_compile_option target_name)
   else()
     target_compile_options(${target_name} PRIVATE -Wall -Wextra -Werror
                                                   -pedantic -pedantic-errors)
-
+    if(FITORIA_ENABLE_ADDRESS_SANITIZER)
+      target_compile_options(${target_name} PRIVATE -fsanitize=address)
+      target_link_options(${target_name} PRIVATE -fsanitize=address)
+    endif()
     if(FITORIA_ENABLE_CODECOV)
       target_compile_options(${target_name} PRIVATE --coverage)
       target_link_libraries(${target_name} PRIVATE gcov)
