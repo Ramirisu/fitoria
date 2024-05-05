@@ -36,6 +36,7 @@ class async_logger {
   std::vector<std::shared_ptr<async_writer>> writers_;
   filter filter_;
   channel_t channel_;
+  std::future<void> fut_;
 
   auto async_write_to_all(record_ptr rec) -> awaitable<void>
   {
@@ -104,9 +105,15 @@ public:
   async_logger(builder builder)
       : filter_(builder.flt_)
       , channel_(net::system_executor(), builder.max_buffer_size_)
+      , fut_(net::co_spawn(
+            net::system_executor(), async_dequeue_and_write(), net::use_future))
   {
-    net::co_spawn(
-        net::system_executor(), async_dequeue_and_write(), net::detached);
+  }
+
+  ~async_logger()
+  {
+    channel_.cancel();
+    fut_.get();
   }
 
   void add_writer(std::shared_ptr<async_writer> writer)
