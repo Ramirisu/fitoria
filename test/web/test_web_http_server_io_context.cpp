@@ -9,7 +9,6 @@
 #include <fitoria/test/test.hpp>
 
 #include <fitoria/test/async_readable_chunk_stream.hpp>
-#include <fitoria/test/cert.hpp>
 #include <fitoria/test/http_server_utils.hpp>
 #include <fitoria/test/utility.hpp>
 
