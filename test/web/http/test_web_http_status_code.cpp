@@ -7,14 +7,12 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/core/format.hpp>
-
 #include <fitoria/web/http/status_code.hpp>
 
 using namespace fitoria::web::http;
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("[fitoria.web.status_code]");
+TEST_SUITE_BEGIN("[fitoria.web.http.status_code]");
 
 TEST_CASE("value")
 {

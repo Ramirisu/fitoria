@@ -67,6 +67,13 @@ namespace from_request_ns {
 
     friend auto tag_invoke(from_request_t<R>, request& req)
         -> awaitable<expected<R, std::error_code>>
+      requires(decay_to<R, http::version>)
+    {
+      co_return req.version();
+    }
+
+    friend auto tag_invoke(from_request_t<R>, request& req)
+        -> awaitable<expected<R, std::error_code>>
       requires(std::same_as<R, const http_fields&>)
     {
       co_return req.fields();

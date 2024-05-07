@@ -156,6 +156,7 @@ private:
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
         req.method(),
+        http::version::v1_1,
         target,
         std::move(req.fields()),
         std::move(req.body()))));
@@ -283,6 +284,7 @@ private:
           connection_info(get_lowest_layer(stream).socket().local_endpoint(),
                           get_lowest_layer(stream).socket().remote_endpoint()),
           parser->get().method(),
+          http::to_version(parser->get().version()),
           std::string(parser->get().target()),
           http_fields::from_impl(parser->get()),
           [&]() -> any_async_readable_stream {
@@ -320,6 +322,7 @@ private:
 
   auto do_handler(connection_info connection_info,
                   http::verb method,
+                  http::version version,
                   std::string target,
                   http_fields fields,
                   any_async_readable_stream body) const -> awaitable<response>
@@ -339,6 +342,7 @@ private:
                               req_url->path(),
                               route->matcher().match(req_url->path()).value()),
                     method,
+                    version,
                     query_map::from(req_url->params()),
                     std::move(fields),
                     std::move(body),

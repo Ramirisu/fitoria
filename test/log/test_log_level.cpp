@@ -15,6 +15,7 @@ TEST_SUITE_BEGIN("[fitoria.log.level]");
 
 TEST_CASE("to_string")
 {
+  CHECK_EQ(to_string(level::trace), "TRACE");
   CHECK_EQ(to_string(level::debug), "DEBUG");
   CHECK_EQ(to_string(level::info), "INFO");
   CHECK_EQ(to_string(level::warning), "WARNING");
@@ -32,6 +33,16 @@ TEST_CASE("to_level")
   CHECK_EQ(to_level("ErrOR"), level::error);
   CHECK_EQ(to_level("FaTAL"), level::fatal);
   CHECK_EQ(to_level("ABCDE"), level::off);
+}
+
+TEST_CASE("format")
+{
+  CHECK_EQ(fmt::format("{}", level::trace), "TRACE");
+  CHECK_EQ(fmt::format("{}", level::debug), "DEBUG");
+  CHECK_EQ(fmt::format("{}", level::info), "INFO");
+  CHECK_EQ(fmt::format("{}", level::warning), "WARNING");
+  CHECK_EQ(fmt::format("{}", level::error), "ERROR");
+  CHECK_EQ(fmt::format("{}", level::fatal), "FATAL");
 }
 
 TEST_SUITE_END();

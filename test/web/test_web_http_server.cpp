@@ -238,6 +238,7 @@ TEST_CASE("generic request")
                 [=](request& req,
                     const connection_info& connection,
                     const path_info& path,
+                    const http::version& ver,
                     const query_map& query,
                     const http_fields& fields,
                     std::string body) -> awaitable<response> {
@@ -263,6 +264,8 @@ TEST_CASE("generic request")
                   };
                   test_path(req.path());
                   test_path(path);
+
+                  CHECK_EQ(ver, http::version::v1_1);
 
                   auto test_query = [](auto& query) {
                     CHECK_EQ(query.size(), 2);

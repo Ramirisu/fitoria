@@ -38,6 +38,7 @@ public:
   request(connection_info conn_info,
           path_info path_info,
           http::verb method,
+          http::version version,
           query_map query,
           http_fields fields,
           any_async_readable_stream body,
@@ -45,6 +46,7 @@ public:
       : conn_info_(std::move(conn_info))
       , path_info_(std::move(path_info))
       , method_(method)
+      , version_(version)
       , query_(std::move(query))
       , fields_(std::move(fields))
       , body_(std::move(body))
@@ -82,6 +84,11 @@ public:
   {
     method_ = method;
     return std::move(*this);
+  }
+
+  auto version() const noexcept -> const http::version&
+  {
+    return version_;
   }
 
   auto query() noexcept -> query_map&
@@ -253,6 +260,7 @@ private:
   connection_info conn_info_;
   path_info path_info_;
   http::verb method_;
+  http::version version_;
   query_map query_;
   http_fields fields_;
   any_async_readable_stream body_ = async_readable_vector_stream();

@@ -99,7 +99,7 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
     }
     if (*it != '}') {
       FITORIA_THROW_OR(FITORIA_NAMESPACE::fmt::format_error(
-                           "Invalid format args for fitoria::log::level"),
+                           "invalid format args for fitoria::log::level"),
                        std::terminate());
     }
 

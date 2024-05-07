@@ -13,5 +13,6 @@
 
 #include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http/status_code.hpp>
+#include <fitoria/web/http/version.hpp>
 
 #endif
