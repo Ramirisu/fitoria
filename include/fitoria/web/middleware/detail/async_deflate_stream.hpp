@@ -93,7 +93,7 @@ public:
 private:
   NextLayer next_;
   boost::beast::zlib::inflate_stream inflater_;
-  boost::beast::flat_buffer buffer_;
+  flat_buffer buffer_;
   std::uint32_t state_ = need_more_input_buffer;
 };
 
@@ -184,7 +184,7 @@ public:
 private:
   NextLayer next_;
   boost::beast::zlib::deflate_stream deflater_;
-  boost::beast::flat_buffer buffer_;
+  flat_buffer buffer_;
   std::uint32_t state_ = input_is_not_eof;
 };
 

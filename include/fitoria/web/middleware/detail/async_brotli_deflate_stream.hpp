@@ -185,7 +185,7 @@ public:
 private:
   NextLayer next_;
   brotli_encoder deflater_;
-  boost::beast::flat_buffer buffer_;
+  flat_buffer buffer_;
   std::uint32_t state_ = input_is_not_eof;
 };
 

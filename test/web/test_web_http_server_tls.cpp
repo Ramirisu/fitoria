@@ -117,8 +117,6 @@ TEST_CASE("tls_handshake_timeout")
   net::co_spawn(
       ioc,
       [&]() -> awaitable<void> {
-        using boost::beast::get_lowest_layer;
-
         auto ssl_ctx
             = cert::get_client_ssl_ctx(net::ssl::context::method::tls_client);
         auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);

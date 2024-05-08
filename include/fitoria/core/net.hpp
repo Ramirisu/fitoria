@@ -222,6 +222,9 @@ using wss_stream = boost::beast::websocket::stream<shared_ssl_stream>;
 
 #endif
 
+using boost::beast::flat_buffer;
+using boost::beast::get_lowest_layer;
+
 namespace net = boost::asio;
 
 FITORIA_NAMESPACE_END

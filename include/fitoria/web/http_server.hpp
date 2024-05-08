@@ -190,8 +190,8 @@ private:
 
   auto do_session(shared_tcp_stream stream) const -> awaitable<void>
   {
-    if (auto ec = co_await do_session_impl(stream); ec) {
-      FITORIA_THROW_OR(std::system_error(ec), co_return);
+    if (auto result = co_await do_session_impl(stream); !result) {
+      FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
 
     boost::system::error_code ec;
@@ -205,8 +205,8 @@ private:
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
 
-    if (auto ec = co_await do_session_impl(stream); ec) {
-      FITORIA_THROW_OR(std::system_error(ec), co_return);
+    if (auto result = co_await do_session_impl(stream); !result) {
+      FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
 
     if (auto result = co_await stream.async_shutdown(use_awaitable); !result) {
@@ -217,7 +217,6 @@ private:
   auto do_handshake(shared_ssl_stream& stream) const
       -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using namespace net::experimental::awaitable_operators;
 
     auto timer = net::steady_timer(stream.get_executor());
@@ -241,10 +240,9 @@ private:
 #endif
 
   template <typename Stream>
-  auto do_session_impl(Stream& stream) const -> awaitable<std::error_code>
+  auto do_session_impl(Stream& stream) const
+      -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::flat_buffer;
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::buffer_body;
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
@@ -262,7 +260,7 @@ private:
       if (auto bytes_read
           = co_await async_read_header(stream, buffer, *parser, use_awaitable);
           !bytes_read) {
-        co_return bytes_read.error();
+        co_return unexpected { bytes_read.error() };
       }
 
       if (auto it = parser->get().find(http::field::expect);
@@ -274,7 +272,7 @@ private:
                 response<empty_body>(http::status::continue_, 11),
                 use_awaitable);
             !bytes_written) {
-          co_return bytes_written.error();
+          co_return unexpected { bytes_written.error() };
         }
       }
 
@@ -309,7 +307,7 @@ private:
                   } },
               res.body().size());
           !exp) {
-        co_return exp.error();
+        co_return unexpected { exp.error() };
       }
 
       if (!keep_alive) {
@@ -317,7 +315,7 @@ private:
       }
     }
 
-    co_return std::error_code();
+    co_return expected<void, std::error_code>();
   }
 
   auto do_handler(connection_info connection_info,
@@ -360,7 +358,6 @@ private:
   auto do_null_body_response(Stream& stream, response& res, bool keep_alive)
       const -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
 
@@ -383,7 +380,6 @@ private:
   auto do_sized_response(Stream& stream, response& res, bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
@@ -406,7 +402,6 @@ private:
   auto do_chunked_response(Stream& stream, response& res, bool keep_alive) const
       -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;

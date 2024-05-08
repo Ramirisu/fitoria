@@ -29,7 +29,7 @@ class async_message_parser_stream {
 public:
   using is_async_readable_stream = void;
 
-  async_message_parser_stream(boost::beast::flat_buffer buffer,
+  async_message_parser_stream(flat_buffer buffer,
                               Stream stream,
                               std::shared_ptr<Parser> parser)
       : buffer_(std::move(buffer))
@@ -52,7 +52,6 @@ public:
   auto async_read_some(net::mutable_buffer buffer)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::async_read;
 
     if (parser_->is_done()) {
@@ -82,7 +81,7 @@ public:
   }
 
 private:
-  boost::beast::flat_buffer buffer_;
+  flat_buffer buffer_;
   Stream stream_;
   std::shared_ptr<Parser> parser_;
   bool return_0_at_first_call_;

@@ -27,7 +27,6 @@ auto async_write_chunks(AsyncWritableStream&& to, AsyncReadableStream&& from)
     -> awaitable<expected<void, std::error_code>>
 {
   using boost::beast::async_write;
-  using boost::beast::get_lowest_layer;
   using boost::beast::http::make_chunk;
   using boost::beast::http::make_chunk_last;
 

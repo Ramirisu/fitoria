@@ -155,7 +155,7 @@ public:
 private:
   NextLayer next_;
   brotli_decoder inflater_;
-  boost::beast::flat_buffer buffer_;
+  flat_buffer buffer_;
   std::uint32_t state_ = need_more_input_buffer;
 };
 

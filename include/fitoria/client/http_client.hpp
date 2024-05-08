@@ -408,8 +408,6 @@ private:
   auto do_session(net::ssl::context& ssl_ctx)
       -> awaitable<expected<http_response, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
-
     auto results = co_await do_resolver();
     if (!results) {
       co_return unexpected { results.error() };
@@ -441,7 +439,6 @@ private:
   auto
   do_handshake(ssl_stream& stream) -> awaitable<expected<void, std::error_code>>
   {
-    using boost::beast::get_lowest_layer;
     using namespace net::experimental::awaitable_operators;
 
     auto timer = net::steady_timer(co_await net::this_coro::executor);
@@ -467,8 +464,6 @@ private:
   auto do_http_request(Stream stream)
       -> awaitable<expected<http_response, std::error_code>>
   {
-    using boost::beast::flat_buffer;
-    using boost::beast::get_lowest_layer;
     using boost::beast::http::buffer_body;
     using boost::beast::http::response_parser;
 
@@ -592,7 +587,6 @@ private:
       -> awaitable<expected<optional<http_response>, std::error_code>>
   {
     using boost::beast::error;
-    using boost::beast::flat_buffer;
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
