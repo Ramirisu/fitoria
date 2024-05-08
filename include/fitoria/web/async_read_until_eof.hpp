@@ -11,9 +11,9 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/async_readable_stream_concept.hpp>
+#include <fitoria/core/dynamic_buffer.hpp>
 
-#include <fitoria/web/detail/dynamic_buffer.hpp>
+#include <fitoria/web/async_readable_stream_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -23,7 +23,7 @@ template <typename Container, async_readable_stream AsyncReadableStream>
 auto async_read_until_eof(AsyncReadableStream&& stream)
     -> awaitable<expected<Container, std::error_code>>
 {
-  detail::dynamic_buffer<Container> buffer;
+  dynamic_buffer<Container> buffer;
 
   const std::size_t bufsize = 4096;
   auto size = co_await stream.async_read_some(buffer.prepare(bufsize));
