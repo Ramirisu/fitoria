@@ -42,12 +42,21 @@
 #define FITORIA_CXX_COMPILER_GCC
 #endif
 
+#if defined(__clang__)
+#define FITORIA_CXX_COMPILER_CLANG
+#endif
+
 #if defined(_WIN32)
 #define FITORIA_TARGET_WINDOWS
 #elif defined(__APPLE__)
 #define FITORIA_TARGET_MACOS
 #else
 #define FITORIA_TARGET_LINUX
+#endif
+
+#if defined(FITORIA_TARGET_WINDOWS) && defined(FITORIA_CXX_COMPILER_CLANG)     \
+    && defined(_MSVC_LANG) && _MSVC_LANG >= 202002L
+#define FITORIA_HAS_CO_AWAIT
 #endif
 
 #if !__has_include(<fmt/format.h>)

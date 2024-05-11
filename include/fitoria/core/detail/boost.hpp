@@ -11,6 +11,11 @@
 
 #include <fitoria/core/config.hpp>
 
+#if defined(FITORIA_HAS_CO_AWAIT)
+// workaround: fix boost::asio::awaitable not working for clang-cl and clangd
+#define BOOST_ASIO_HAS_CO_AWAIT 1
+#endif
+
 #if defined(FITORIA_CXX_COMPILER_MSVC)
 // boost/asio/buffer.hpp(247): warning C4702: unreachable code
 #pragma warning(push)
