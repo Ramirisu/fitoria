@@ -104,6 +104,7 @@ target_include_directories(fitoria INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
                                              ${Boost_INCLUDE_DIRS})
 
 if(FITORIA_USE_FMT)
+  target_compile_definitions(fitoria INTERFACE FITORIA_HAS_FMT)
   target_link_libraries(fitoria INTERFACE fmt::fmt)
 endif()
 

@@ -59,7 +59,7 @@
 #define FITORIA_HAS_CO_AWAIT
 #endif
 
-#if !__has_include(<fmt/format.h>)
+#if !defined(FITORIA_HAS_FMT)
 #error "requires fmtlib"
 #endif
 
