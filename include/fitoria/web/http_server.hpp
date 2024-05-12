@@ -27,7 +27,9 @@
 #include <fitoria/web/response.hpp>
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
+#include <fitoria/web/state_storage.hpp>
 #include <fitoria/web/test_response.hpp>
+#include <fitoria/web/websocket.hpp>
 
 #include <system_error>
 
@@ -159,6 +161,7 @@ private:
         http::version::v1_1,
         target,
         std::move(req.fields()),
+        std::make_shared<state_map>(),
         std::move(req.body()))));
   }
 
@@ -247,6 +250,7 @@ private:
     using boost::beast::http::empty_body;
     using boost::beast::http::request_parser;
     using boost::beast::http::response;
+    using boost::beast::websocket::is_upgrade;
 
     for (;;) {
       flat_buffer buffer;
@@ -263,20 +267,29 @@ private:
         co_return unexpected { bytes_read.error() };
       }
 
-      if (auto it = parser->get().find(http::field::expect);
-          it != parser->get().end()
-          && iequals(it->value(),
-                     http::fields::expect::one_hundred_continue())) {
-        if (auto bytes_written = co_await async_write(
-                stream,
-                response<empty_body>(http::status::continue_, 11),
-                use_awaitable);
-            !bytes_written) {
-          co_return unexpected { bytes_written.error() };
+      const bool keep_alive = parser->get().keep_alive();
+      const bool upgrade = is_upgrade(parser->get());
+      auto session_state = std::make_shared<state_map>();
+
+      if (upgrade) {
+        // we don't handle expect: 100-continue here,
+        // boost::beast::websocket::stream::accept() will do it for us
+        (*session_state)[std::type_index(typeid(websocket))]
+            = websocket(stream);
+      } else {
+        if (auto it = parser->get().find(http::field::expect);
+            it != parser->get().end()
+            && iequals(it->value(),
+                       http::fields::expect::one_hundred_continue())) {
+          if (auto bytes_written = co_await async_write(
+                  stream,
+                  response<empty_body>(http::status::continue_, 11),
+                  use_awaitable);
+              !bytes_written) {
+            co_return unexpected { bytes_written.error() };
+          }
         }
       }
-
-      bool keep_alive = parser->get().keep_alive();
 
       auto res = co_await do_handler(
           connection_info(get_lowest_layer(stream).socket().local_endpoint(),
@@ -285,6 +298,7 @@ private:
           http::to_version(parser->get().version()),
           std::string(parser->get().target()),
           http_fields::from_impl(parser->get()),
+          session_state,
           [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
               return async_message_parser_stream(
@@ -294,20 +308,29 @@ private:
             return async_readable_vector_stream();
           }());
 
-      if (auto exp = co_await std::visit(
-              overloaded {
-                  [&](any_body::null) {
-                    return do_null_body_response(stream, res, keep_alive);
-                  },
-                  [&](any_body::sized) {
-                    return do_sized_response(stream, res, keep_alive);
-                  },
-                  [&](any_body::chunked) {
-                    return do_chunked_response(stream, res, keep_alive);
-                  } },
-              res.body().size());
-          !exp) {
-        co_return unexpected { exp.error() };
+      if (upgrade) {
+        auto& ws = *std::any_cast<websocket>(
+            &(*session_state)[std::type_index(typeid(websocket))]);
+        ws.set_response(std::move(res));
+        if (auto result = co_await ws.run(parser->get()); !result) {
+          co_return unexpected { result.error() };
+        }
+      } else {
+        if (auto exp = co_await std::visit(
+                overloaded {
+                    [&](any_body::null) {
+                      return do_null_body_response(stream, res, keep_alive);
+                    },
+                    [&](any_body::sized) {
+                      return do_sized_response(stream, res, keep_alive);
+                    },
+                    [&](any_body::chunked) {
+                      return do_chunked_response(stream, res, keep_alive);
+                    } },
+                res.body().size());
+            !exp) {
+          co_return unexpected { exp.error() };
+        }
       }
 
       if (!keep_alive) {
@@ -323,6 +346,7 @@ private:
                   http::version version,
                   std::string target,
                   http_fields fields,
+                  shared_state_map session_state,
                   any_async_readable_stream body) const -> awaitable<response>
   {
     auto req_url = boost::urls::parse_origin_form(target);
@@ -344,7 +368,7 @@ private:
                     query_map::from(req_url->params()),
                     std::move(fields),
                     std::move(body),
-                    route->states());
+                    route->states().copy_prepend(session_state));
       co_return co_await route->operator()(req);
     }
 

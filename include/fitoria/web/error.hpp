@@ -23,6 +23,7 @@ enum class error {
   unexpected_content_type_json,
   path_extraction_error,
   state_not_found,
+  not_upgrade,
 };
 
 class error_category : public std::error_category {
@@ -48,6 +49,8 @@ public:
       return "path extraction error";
     case error::state_not_found:
       return "the state being obtained doesn't exist";
+    case error::not_upgrade:
+      return "request is not upgradable";
     default:
       break;
     }

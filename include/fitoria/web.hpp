@@ -42,5 +42,6 @@
 #include <fitoria/web/state_storage.hpp>
 #include <fitoria/web/stream_file.hpp>
 #include <fitoria/web/to_middleware.hpp>
+#include <fitoria/web/websocket.hpp>
 
 #endif

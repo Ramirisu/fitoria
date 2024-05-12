@@ -122,6 +122,7 @@ public:
 };
 
 #if defined(FITORIA_HAS_OPENSSL)
+
 class shared_ssl_stream {
   std::shared_ptr<ssl_stream> stream_;
 
@@ -214,13 +215,8 @@ public:
 
 #endif
 
-using ws_stream = boost::beast::websocket::stream<shared_tcp_stream>;
-
-#if defined(FITORIA_HAS_OPENSSL)
-
-using wss_stream = boost::beast::websocket::stream<shared_ssl_stream>;
-
-#endif
+template <typename NextLayer>
+using websocket_stream = boost::beast::websocket::stream<NextLayer>;
 
 using boost::beast::flat_buffer;
 using boost::beast::get_lowest_layer;

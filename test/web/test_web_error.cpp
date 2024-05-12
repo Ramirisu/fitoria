@@ -27,6 +27,8 @@ TEST_CASE("error")
            "path extraction error");
   CHECK_EQ(make_error_code(error::state_not_found).message(),
            "the state being obtained doesn't exist");
+  CHECK_EQ(make_error_code(error::not_upgrade).message(),
+           "request is not upgradable");
 }
 
 TEST_SUITE_END();

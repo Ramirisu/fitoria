@@ -23,6 +23,7 @@ fitoria_add_test(NAME test_web_scope SRCS test_web_scope.cpp)
 fitoria_add_test(NAME test_web_state SRCS test_web_state.cpp)
 fitoria_add_test(NAME test_web_stream_file SRCS test_web_stream_file.cpp)
 fitoria_add_test(NAME test_web_to_response SRCS test_web_to_response.cpp)
+fitoria_add_test(NAME test_web_websocket SRCS test_web_websocket.cpp)
 
 add_subdirectory(http)
 add_subdirectory(middleware)

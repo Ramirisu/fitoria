@@ -30,6 +30,14 @@ using shared_state_maps = std::vector<shared_state_map>;
 
 class state_storage {
 public:
+  auto copy_prepend(shared_state_map map) const -> state_storage
+  {
+    auto copy = *this;
+    copy.maps_.insert(copy.maps_.begin(), std::move(map));
+
+    return copy;
+  }
+
   auto copy_append(shared_state_map map) const -> state_storage
   {
     auto copy = *this;
