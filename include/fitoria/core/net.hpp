@@ -80,6 +80,11 @@ public:
     stream_->expires_after(expiry_time);
   }
 
+  void expires_never()
+  {
+    stream_->expires_never();
+  }
+
   template <typename ConstBufferSequence, typename WriteHandler>
   auto async_write_some(const ConstBufferSequence& buffers,
                         WriteHandler&& handler)

@@ -82,14 +82,14 @@ public:
     return max_listen_connections_;
   }
 
-  auto
-  client_request_timeout() const noexcept -> optional<std::chrono::milliseconds>
+  auto client_request_timeout() const noexcept
+      -> optional<std::chrono::milliseconds>
   {
     return client_request_timeout_;
   }
 
-  auto
-  tls_handshake_timeout() const noexcept -> optional<std::chrono::milliseconds>
+  auto tls_handshake_timeout() const noexcept
+      -> optional<std::chrono::milliseconds>
   {
     return tls_handshake_timeout_;
   }
@@ -177,8 +177,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(socket_acceptor acceptor,
-                 net::ssl::context& ssl_ctx) const -> awaitable<void>
+  auto do_listen(socket_acceptor acceptor, net::ssl::context& ssl_ctx) const
+      -> awaitable<void>
   {
     for (;;) {
       if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
@@ -272,6 +272,9 @@ private:
       auto session_state = std::make_shared<state_map>();
 
       if (upgrade) {
+        // timeout must be turned off, websocket has its own timeout mechanism
+        get_lowest_layer(stream).expires_never();
+
         // we don't handle expect: 100-continue here,
         // boost::beast::websocket::stream::accept() will do it for us
         (*session_state)[std::type_index(typeid(websocket))]
@@ -379,8 +382,9 @@ private:
   }
 
   template <typename Stream>
-  auto do_null_body_response(Stream& stream, response& res, bool keep_alive)
-      const -> awaitable<expected<void, std::error_code>>
+  auto
+  do_null_body_response(Stream& stream, response& res, bool keep_alive) const
+      -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
@@ -524,8 +528,9 @@ public:
     return std::move(*this);
   }
 
-  auto set_tls_handshake_timeout(optional<std::chrono::milliseconds>
-                                     timeout) & noexcept -> http_server_builder&
+  auto set_tls_handshake_timeout(
+      optional<std::chrono::milliseconds> timeout) & noexcept
+      -> http_server_builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;

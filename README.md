@@ -30,7 +30,7 @@ The library is ***experimental*** and still under development, not recommended f
       - [Middleware](#middleware)
       - [Static Files](#static-files)
       - [Graceful Shutdown](#graceful-shutdown)
-      - [WebSockets](#websockets)
+      - [WebSocket](#websocket)
       - [Unit Testing](#unit-testing)
     - [HTTP Client](#http-client-1)
     - [Log](#log)
@@ -358,6 +358,7 @@ Built-in Extractors:
 | `web::query_of<T>`     | Extract query string parameters into type `T`           |       no       | `T = aggregate`, parameters are extracted to the field of their name.                                                                                                 |
 | `web::http_fields`     | Extract fields from request headers.                    |       no       |                                                                                                                                                                       |
 | `web::state_of<T>`     | Extract shared state of type `T`.                       |       no       | Note that unlike `request::state<T>()` which returns `optional<T&>`, extractor ***copy the value***.                                                                  |
+| `web::websocket`       | Extract as websocket.                                   |       no       |                                                                                                                                                                       |
 | `std::string`          | Extract body as `std::string`.                          |      yes       |                                                                                                                                                                       |
 | `std::vector<T>`       | Extract body as `std::vector<T>`.                       |      yes       |                                                                                                                                                                       |
 | `web::json_of<T>`      | Extract body and parse it into json and convert to `T`. |      yes       |                                                                                                                                                                       |
@@ -654,9 +655,40 @@ int main()
 
 ```
 
-#### WebSockets
+#### WebSocket
 
-***TODO:***
+```cpp
+
+auto echo(websocket::context& ctx) -> awaitable<void>
+{
+  for (auto msg = co_await ctx.async_read(); msg;
+       msg = co_await ctx.async_read()) {
+    if (auto binary = std::get_if<websocket::binary_t>(&*msg); binary) {
+      co_await ctx.async_write_binary(
+          std::span { binary->value.data(), binary->value.size() });
+    } else if (auto text = std::get_if<websocket::text_t>(&*msg); text) {
+      co_await ctx.async_write_text(text->value);
+    } else if (auto c = std::get_if<websocket::close_t>(&*msg); c) {
+      break;
+    }
+  }
+}
+
+int main()
+{
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/ws">([](websocket ws) -> awaitable<response> {
+              co_return ws.set_handler(echo);
+            }))
+            .build();
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
+}
+
+```
 
 #### Unit Testing
 
