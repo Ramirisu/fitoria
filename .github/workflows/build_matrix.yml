@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os_cxx.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
