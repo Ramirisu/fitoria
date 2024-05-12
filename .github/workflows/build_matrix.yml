@@ -154,7 +154,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: cmake --build build --config ${{ matrix.build_type }} -j4
+        run: cmake --build build --config ${{ matrix.build_type }} -j3
 
       - name: Test
         shell: bash
