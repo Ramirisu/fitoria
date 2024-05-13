@@ -205,4 +205,49 @@ TEST_CASE("async_close")
       .get();
 }
 
+TEST_CASE("idle_timeout and no keep alive pings")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">([](websocket ws) -> awaitable<response> {
+              ws.set_idle_timeout(std::chrono::milliseconds(500));
+              ws.set_keep_alive_pings(false);
+              co_return ws.set_handler(
+                  [](websocket::context& ctx) -> awaitable<void> {
+                    CHECK_EQ(co_await ctx.async_read(),
+                             fitoria::unexpected { make_error_code(
+                                 boost::beast::error::timeout) });
+                  });
+            }))
+            .build();
+  CHECK(server.bind(server_ip, port));
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> awaitable<void> {
+        auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
+            co_await net::this_coro::executor);
+        CHECK(co_await boost::beast::get_lowest_layer(stream).async_connect(
+            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            use_awaitable));
+        CHECK(co_await stream.async_handshake("localhost", "/", use_awaitable));
+
+        auto timer = net::steady_timer(co_await net::this_coro::executor);
+        timer.expires_after(std::chrono::seconds(1));
+        co_await timer.async_wait(use_awaitable);
+
+        dynamic_buffer<std::string> buffer;
+        CHECK(!co_await stream.async_read(buffer, use_awaitable));
+      },
+      net::use_future)
+      .get();
+}
+
 TEST_SUITE_END();

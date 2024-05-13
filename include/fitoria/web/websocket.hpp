@@ -32,6 +32,7 @@ class websocket {
   friend class http_server;
   friend class context;
 
+  using duration_type = std::chrono::steady_clock::duration;
 #if defined(FITORIA_HAS_OPENSSL)
   using stream_type = std::variant<websocket_stream<shared_tcp_stream>,
                                    websocket_stream<shared_ssl_stream>>;
@@ -81,11 +82,27 @@ public:
     }
 #endif
 
-    template <typename Decorator>
-    void set_option(Decorator decorator)
+    void set_option(boost::beast::websocket::stream_base::decorator d)
     {
-      std::visit([&](auto& stream) { stream.set_option(std::move(decorator)); },
+      std::visit([&](auto& stream) { stream.set_option(std::move(d)); },
                  stream_);
+    }
+
+    void set_handshake_timeout(optional<duration_type> timeout) noexcept
+    {
+      timeout_.handshake_timeout
+          = timeout.value_or(boost::beast::websocket::stream_base::none());
+    }
+
+    void set_idle_timeout(optional<duration_type> timeout) noexcept
+    {
+      timeout_.idle_timeout
+          = timeout.value_or(boost::beast::websocket::stream_base::none());
+    }
+
+    void set_keep_alive_pings(bool enabled) noexcept
+    {
+      timeout_.keep_alive_pings = enabled;
     }
 
     template <typename Body>
@@ -95,6 +112,7 @@ public:
       co_return co_await std::visit(
           [&](auto& stream)
               -> awaitable<expected<void, boost::system::error_code>> {
+            stream.set_option(timeout_);
             return stream.async_accept(req, use_awaitable);
           },
           stream_);
@@ -206,6 +224,9 @@ public:
     stream_type stream_;
     callback_type callback_;
     optional<response> response_;
+    boost::beast::websocket::stream_base::timeout timeout_
+        = boost::beast::websocket::stream_base::timeout::suggested(
+            boost::beast::role_type::server);
   };
 
   class context {
@@ -273,6 +294,21 @@ public:
   {
     impl_->set_callback(std::move(callback));
     return impl_->release_response();
+  }
+
+  void set_handshake_timeout(optional<duration_type> timeout) noexcept
+  {
+    impl_->set_handshake_timeout(timeout);
+  }
+
+  void set_idle_timeout(optional<duration_type> timeout) noexcept
+  {
+    impl_->set_idle_timeout(timeout);
+  }
+
+  void set_keep_alive_pings(bool enabled) noexcept
+  {
+    impl_->set_keep_alive_pings(enabled);
   }
 
   friend auto tag_invoke(from_request_t<websocket>, request& req)
