@@ -27,8 +27,8 @@ TEST_CASE("builder")
   auto ioc = net::io_context();
   auto server = http_server_builder(ioc)
                     .set_max_listen_connections(2048)
-                    .set_client_request_timeout(std::chrono::seconds(10))
-                    .set_tls_handshake_timeout(std::chrono::seconds(20))
+                    .set_tls_handshake_timeout(std::chrono::seconds(5))
+                    .set_request_timeout(std::chrono::seconds(10))
 #if !FITORIA_NO_EXCEPTIONS
                     .set_exception_handler([](std::exception_ptr ptr) {
                       if (ptr) {
@@ -52,8 +52,8 @@ TEST_CASE("builder")
   std::this_thread::sleep_for(server_start_wait_time);
 
   CHECK_EQ(server.max_listen_connections(), 2048);
-  CHECK_EQ(server.client_request_timeout(), std::chrono::seconds(10));
-  CHECK_EQ(server.tls_handshake_timeout(), std::chrono::seconds(20));
+  CHECK_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
+  CHECK_EQ(server.reuqest_timeout(), std::chrono::seconds(10));
 
   net::co_spawn(
       ioc,

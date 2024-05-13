@@ -55,15 +55,15 @@ class http_server {
   http_server(executor_type ex,
               router_type router,
               optional<int> max_listen_connections,
-              optional<duration_type> client_request_timeout,
               optional<duration_type> tls_handshake_timeout,
+              optional<duration_type> reuqest_timeout,
               optional<exception_handler_t> exception_handler)
       : ex_(std::move(ex))
       , router_(std::move(router))
       , max_listen_connections_(max_listen_connections.value_or(
             static_cast<int>(net::socket_base::max_listen_connections)))
-      , client_request_timeout_(client_request_timeout)
       , tls_handshake_timeout_(tls_handshake_timeout)
+      , reuqest_timeout_(reuqest_timeout)
       , exception_handler_(
             exception_handler.value_or(default_exception_handler))
   {
@@ -83,14 +83,14 @@ public:
     return max_listen_connections_;
   }
 
-  auto client_request_timeout() const noexcept -> optional<duration_type>
-  {
-    return client_request_timeout_;
-  }
-
   auto tls_handshake_timeout() const noexcept -> optional<duration_type>
   {
     return tls_handshake_timeout_;
+  }
+
+  auto reuqest_timeout() const noexcept -> optional<duration_type>
+  {
+    return reuqest_timeout_;
   }
 
   auto bind(std::string_view addr, std::uint16_t port) const
@@ -256,8 +256,8 @@ private:
       auto parser = std::make_shared<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
-      if (client_request_timeout_) {
-        get_lowest_layer(stream).expires_after(*client_request_timeout_);
+      if (reuqest_timeout_) {
+        get_lowest_layer(stream).expires_after(*reuqest_timeout_);
       }
 
       if (auto bytes_read
@@ -470,8 +470,8 @@ private:
   executor_type ex_;
   router_type router_;
   int max_listen_connections_;
-  optional<duration_type> client_request_timeout_;
   optional<duration_type> tls_handshake_timeout_;
+  optional<duration_type> reuqest_timeout_;
   exception_handler_t exception_handler_;
 };
 
@@ -511,20 +511,6 @@ public:
     return std::move(*this);
   }
 
-  auto set_client_request_timeout(optional<duration_type> timeout) & noexcept
-      -> http_server_builder&
-  {
-    client_request_timeout_ = timeout;
-    return *this;
-  }
-
-  auto set_client_request_timeout(optional<duration_type> timeout) && noexcept
-      -> http_server_builder&&
-  {
-    set_client_request_timeout(timeout);
-    return std::move(*this);
-  }
-
   auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
       -> http_server_builder&
   {
@@ -536,6 +522,20 @@ public:
       -> http_server_builder&&
   {
     set_tls_handshake_timeout(timeout);
+    return std::move(*this);
+  }
+
+  auto set_request_timeout(optional<duration_type> timeout) & noexcept
+      -> http_server_builder&
+  {
+    request_timeout_ = timeout;
+    return *this;
+  }
+
+  auto set_request_timeout(optional<duration_type> timeout) && noexcept
+      -> http_server_builder&&
+  {
+    set_request_timeout(timeout);
     return std::move(*this);
   }
 
@@ -612,8 +612,8 @@ public:
     return { ex_,
              std::move(router_),
              max_listen_connections_,
-             client_request_timeout_,
              tls_handshake_timeout_,
+             request_timeout_,
              std::move(exception_handler_) };
   }
 
@@ -621,8 +621,8 @@ private:
   executor_type ex_;
   router_type router_;
   optional<int> max_listen_connections_;
-  optional<duration_type> client_request_timeout_ = std::chrono::seconds(5);
-  optional<duration_type> tls_handshake_timeout_ = std::chrono::seconds(5);
+  optional<duration_type> tls_handshake_timeout_ = std::chrono::seconds(3);
+  optional<duration_type> request_timeout_ = std::chrono::seconds(5);
   optional<exception_handler_t> exception_handler_;
 };
 
