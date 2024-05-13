@@ -1,0 +1,34 @@
+{
+  "name": "fitoria",
+  "dependencies": [
+    "boost-asio",
+    "boost-beast",
+    "boost-json",
+    "boost-url",
+    "boost-pfr",
+    "fmt"
+  ],
+  "default-features": ["tls", "zlib", "brotli"],
+  "features": {
+    "tls": {
+      "description": "enable tls support",
+      "dependencies": ["openssl"]
+    },
+    "zlib": {
+      "description": "enable zlib support",
+      "dependencies": ["zlib"]
+    },
+    "brotli": {
+      "description": "enable brotli support",
+      "dependencies": ["brotli"]
+    },
+    "liburing": {
+      "description": "enable iouring support",
+      "dependencies": ["liburing"]
+    },
+    "test": {
+      "description": "enable building test support",
+      "dependencies": ["doctest"]
+    }
+  }
+}

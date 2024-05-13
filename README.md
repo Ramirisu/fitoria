@@ -897,14 +897,18 @@ Compiler (C++20)
 
 Dependencies
 
-|  Library  | Minimum Version |          |
-| :-------: | :-------------: | :------: |
-|  `boost`  |     `1.84`      | required |
-|   `fmt`   |     `10.x`      | required |
-|  `zlib`   |                 | optional |
-| `brotli`  |                 | optional |
-| `OpenSSL` |                 | optional |
-| `doctest` |                 | optional |
+|    Library     | Minimum Version |          |
+| :------------: | :-------------: | :------: |
+| `boost::asio`  |     `1.84`      | required |
+| `boost::beast` |     `1.84`      | required |
+| `boost::json`  |     `1.84`      | required |
+|  `boost::url`  |     `1.84`      | required |
+|  `boost::pfr`  |     `1.84`      | required |
+|     `fmt`      |     `10.x`      | required |
+|     `zlib`     |                 | optional |
+|    `brotli`    |                 | optional |
+|   `OpenSSL`    |                 | optional |
+|   `doctest`    |                 | optional |
 
 CMake
 

@@ -55,13 +55,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache vcpkg
-        id: cache-vcpkg
-        uses: actions/cache@v4
+      - uses: actions/github-script@v7
         with:
-          path: ${{ github.workspace }}/vcpkg_cache
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/') }}
-          restore-keys: ${{ runner.os }}-vcpkg-
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Add msbuild to PATH env
         if: matrix.os_cxx.cxx == 'cl'
@@ -70,73 +68,33 @@ jobs:
       - name: Install dependencies on windows
         if: startsWith(matrix.os_cxx.os, 'windows')
         shell: pwsh
-        env:
-          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
-          New-Item -ItemType "directory" -Path ${{ github.workspace }}/vcpkg_cache -Force
           choco install ninja cmake
           ninja --version
           cmake --version
-          vcpkg install boost-asio:x64-windows
-          vcpkg install boost-beast:x64-windows
-          vcpkg install boost-json:x64-windows
-          vcpkg install boost-url:x64-windows
-          vcpkg install boost-regex:x64-windows
-          vcpkg install boost-pfr:x64-windows
-          vcpkg install openssl:x64-windows
-          vcpkg install fmt:x64-windows
-          vcpkg install zlib:x64-windows
-          vcpkg install brotli:x64-windows
-          vcpkg install doctest:x64-windows
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os_cxx.os, 'ubuntu')
         shell: bash
-        env:
-          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
           sudo apt-get update
-          mkdir -p ${{ github.workspace }}/vcpkg_cache
           sudo apt-get install ninja-build cmake
           ninja --version
           cmake --version
-          vcpkg install boost-asio:x64-linux
-          vcpkg install boost-beast:x64-linux
-          vcpkg install boost-json:x64-linux
-          vcpkg install boost-url:x64-linux
-          vcpkg install boost-regex:x64-linux
-          vcpkg install boost-pfr:x64-linux
-          vcpkg install openssl:x64-linux
-          vcpkg install fmt:x64-linux
-          vcpkg install zlib:x64-linux
-          vcpkg install brotli:x64-linux
-          vcpkg install doctest:x64-linux
-          vcpkg install liburing:x64-linux
 
       - name: Install dependencies on macos
         if: startsWith(matrix.os_cxx.os, 'macos')
         shell: bash
-        env:
-          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg_cache
         run: |
-          mkdir -p ${{ github.workspace }}/vcpkg_cache
           brew install cmake ninja pkg-config
           ninja --version
           cmake --version
-          vcpkg install boost-asio:x64-osx
-          vcpkg install boost-beast:x64-osx
-          vcpkg install boost-json:x64-osx
-          vcpkg install boost-url:x64-osx
-          vcpkg install boost-regex:x64-osx
-          vcpkg install boost-pfr:x64-osx
-          vcpkg install openssl:x64-osx
-          vcpkg install fmt:x64-osx
-          vcpkg install zlib:x64-osx
-          vcpkg install brotli:x64-osx
-          vcpkg install doctest:x64-osx
 
       - name: Configure
         shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+          VCPKG_MANIFEST_FEATURES: ${{ startsWith(matrix.os_cxx.os, 'ubuntu') && 'tls;zlib;brotli;liburing;test' || 'tls;zlib;brotli;test' }}
         run: |
           cmake \
             -B build \
@@ -150,7 +108,9 @@ jobs:
             -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }} \
             -DFITORIA_DISABLE_ZLIB=${{ matrix.disable_zlib }} \
             -DFITORIA_DISABLE_BROTLI=${{ matrix.disable_brotli }} \
-            -DFITORIA_ENABLE_ADDRESS_SANITIZER=${{ matrix.enable_address_sanitizer }}
+            -DFITORIA_ENABLE_ADDRESS_SANITIZER=${{ matrix.enable_address_sanitizer }} \
+            -DVCPKG_BINARY_SOURCES="${{ env.VCPKG_BINARY_SOURCES }}" \
+            -DVCPKG_MANIFEST_FEATURES="${{ env.VCPKG_MANIFEST_FEATURES }}"
 
       - name: Build
         shell: bash
