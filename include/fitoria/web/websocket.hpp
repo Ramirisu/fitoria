@@ -42,6 +42,18 @@ class websocket {
 public:
   class context;
 
+  enum class close_code : std::uint16_t {
+    normal = 1000,
+    going_away = 1001,
+    protocol_error = 1002,
+    unknown_data = 1003,
+    bad_payload = 1007,
+    policy_error = 1008,
+    too_big = 1009,
+    needs_extension = 1010,
+    internal_error = 1011,
+  };
+
   struct text_t {
     std::string value;
   };
@@ -149,6 +161,17 @@ public:
           stream_);
     }
 
+    auto
+    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
+    {
+      co_return co_await std::visit(
+          [&](auto& stream)
+              -> awaitable<expected<void, boost::system::error_code>> {
+            return stream.async_close(to_underlying(code), use_awaitable);
+          },
+          stream_);
+    }
+
     void set_callback(callback_type callback)
     {
       callback_ = std::move(callback);
@@ -217,6 +240,12 @@ public:
         -> awaitable<expected<void, std::error_code>>
     {
       return ws_.impl_->async_write_binary(as_const_buffer(buffer));
+    }
+
+    auto
+    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
+    {
+      return ws_.impl_->async_close(code);
     }
 
   private:
