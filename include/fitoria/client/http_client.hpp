@@ -47,6 +47,8 @@ using web::http_fields;
 using web::query_map;
 
 class http_client {
+  using duration_type = std::chrono::steady_clock::duration;
+
   struct resource {
     std::string host;
     std::uint16_t port;
@@ -286,39 +288,39 @@ public:
     return std::move(*this);
   }
 
-  auto handshake_timeout() const noexcept -> optional<std::chrono::milliseconds>
+  auto handshake_timeout() const noexcept -> optional<duration_type>
   {
     return handshake_timeout_;
   }
 
-  auto set_handshake_timeout(
-      optional<std::chrono::milliseconds> timeout) & noexcept -> http_client&
+  auto set_handshake_timeout(optional<duration_type> timeout) & noexcept
+      -> http_client&
   {
     handshake_timeout_ = timeout;
     return *this;
   }
 
-  auto set_handshake_timeout(
-      optional<std::chrono::milliseconds> timeout) && noexcept -> http_client&&
+  auto set_handshake_timeout(optional<duration_type> timeout) && noexcept
+      -> http_client&&
   {
     set_handshake_timeout(timeout);
     return std::move(*this);
   }
 
-  auto transfer_timeout() const noexcept -> optional<std::chrono::milliseconds>
+  auto transfer_timeout() const noexcept -> optional<duration_type>
   {
     return transfer_timeout_;
   }
 
-  auto set_transfer_timeout(
-      optional<std::chrono::milliseconds> timeout) & noexcept -> http_client&
+  auto set_transfer_timeout(optional<duration_type> timeout) & noexcept
+      -> http_client&
   {
     transfer_timeout_ = timeout;
     return *this;
   }
 
-  auto set_transfer_timeout(
-      optional<std::chrono::milliseconds> timeout) && noexcept -> http_client&&
+  auto set_transfer_timeout(optional<duration_type> timeout) && noexcept
+      -> http_client&&
   {
     set_transfer_timeout(timeout);
     return std::move(*this);
@@ -620,10 +622,8 @@ private:
   http::verb method_ = http::verb::unknown;
   http_fields fields_;
   any_body body_;
-  optional<std::chrono::milliseconds> handshake_timeout_
-      = std::chrono::seconds(3);
-  optional<std::chrono::milliseconds> transfer_timeout_
-      = std::chrono::seconds(5);
+  optional<duration_type> handshake_timeout_ = std::chrono::seconds(3);
+  optional<duration_type> transfer_timeout_ = std::chrono::seconds(5);
 };
 }
 

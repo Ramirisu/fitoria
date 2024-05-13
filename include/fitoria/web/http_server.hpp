@@ -45,6 +45,7 @@ class http_server {
   using request_type = request&;
   using response_type = awaitable<response>;
   using router_type = router<request_type, response_type>;
+  using duration_type = std::chrono::steady_clock::duration;
 #if FITORIA_NO_EXCEPTIONS
   using exception_handler_t = net::detached_t;
 #else
@@ -54,8 +55,8 @@ class http_server {
   http_server(executor_type ex,
               router_type router,
               optional<int> max_listen_connections,
-              optional<std::chrono::milliseconds> client_request_timeout,
-              optional<std::chrono::milliseconds> tls_handshake_timeout,
+              optional<duration_type> client_request_timeout,
+              optional<duration_type> tls_handshake_timeout,
               optional<exception_handler_t> exception_handler)
       : ex_(std::move(ex))
       , router_(std::move(router))
@@ -82,14 +83,12 @@ public:
     return max_listen_connections_;
   }
 
-  auto client_request_timeout() const noexcept
-      -> optional<std::chrono::milliseconds>
+  auto client_request_timeout() const noexcept -> optional<duration_type>
   {
     return client_request_timeout_;
   }
 
-  auto tls_handshake_timeout() const noexcept
-      -> optional<std::chrono::milliseconds>
+  auto tls_handshake_timeout() const noexcept -> optional<duration_type>
   {
     return tls_handshake_timeout_;
   }
@@ -177,8 +176,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(socket_acceptor acceptor, net::ssl::context& ssl_ctx) const
-      -> awaitable<void>
+  auto do_listen(socket_acceptor acceptor,
+                 net::ssl::context& ssl_ctx) const -> awaitable<void>
   {
     for (;;) {
       if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
@@ -382,9 +381,8 @@ private:
   }
 
   template <typename Stream>
-  auto
-  do_null_body_response(Stream& stream, response& res, bool keep_alive) const
-      -> awaitable<expected<void, std::error_code>>
+  auto do_null_body_response(Stream& stream, response& res, bool keep_alive)
+      const -> awaitable<expected<void, std::error_code>>
   {
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
@@ -472,8 +470,8 @@ private:
   executor_type ex_;
   router_type router_;
   int max_listen_connections_;
-  optional<std::chrono::milliseconds> client_request_timeout_;
-  optional<std::chrono::milliseconds> tls_handshake_timeout_;
+  optional<duration_type> client_request_timeout_;
+  optional<duration_type> tls_handshake_timeout_;
   exception_handler_t exception_handler_;
 };
 
@@ -481,6 +479,7 @@ class http_server_builder {
   using request_type = request&;
   using response_type = awaitable<response>;
   using router_type = router<request_type, response_type>;
+  using duration_type = std::chrono::steady_clock::duration;
 #if FITORIA_NO_EXCEPTIONS
   using exception_handler_t = net::detached_t;
 #else
@@ -512,32 +511,28 @@ public:
     return std::move(*this);
   }
 
-  auto set_client_request_timeout(
-      optional<std::chrono::milliseconds> timeout) & noexcept
+  auto set_client_request_timeout(optional<duration_type> timeout) & noexcept
       -> http_server_builder&
   {
     client_request_timeout_ = timeout;
     return *this;
   }
 
-  auto set_client_request_timeout(
-      optional<std::chrono::milliseconds> timeout) && noexcept
+  auto set_client_request_timeout(optional<duration_type> timeout) && noexcept
       -> http_server_builder&&
   {
     set_client_request_timeout(timeout);
     return std::move(*this);
   }
 
-  auto set_tls_handshake_timeout(
-      optional<std::chrono::milliseconds> timeout) & noexcept
+  auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
       -> http_server_builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;
   }
 
-  auto set_tls_handshake_timeout(
-      optional<std::chrono::milliseconds> timeout) && noexcept
+  auto set_tls_handshake_timeout(optional<duration_type> timeout) && noexcept
       -> http_server_builder&&
   {
     set_tls_handshake_timeout(timeout);
@@ -626,10 +621,8 @@ private:
   executor_type ex_;
   router_type router_;
   optional<int> max_listen_connections_;
-  optional<std::chrono::milliseconds> client_request_timeout_
-      = std::chrono::seconds(5);
-  optional<std::chrono::milliseconds> tls_handshake_timeout_
-      = std::chrono::seconds(5);
+  optional<duration_type> client_request_timeout_ = std::chrono::seconds(5);
+  optional<duration_type> tls_handshake_timeout_ = std::chrono::seconds(5);
   optional<exception_handler_t> exception_handler_;
 };
 
