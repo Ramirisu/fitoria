@@ -7,3 +7,4 @@ coverage_report
 coverage.info
 CMakePresets.json
 compile_commands.json
+doc/build
