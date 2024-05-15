@@ -10,7 +10,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto echo(websocket::context& ctx) -> awaitable<void>
+auto ws_handler(websocket::context& ctx) -> awaitable<void>
 {
   for (auto msg = co_await ctx.async_read(); msg;
        msg = co_await ctx.async_read()) {
@@ -25,15 +25,19 @@ auto echo(websocket::context& ctx) -> awaitable<void>
   }
 }
 
+auto http_handler(websocket ws) -> awaitable<response>
+{
+  ws.set_handshake_timeout(std::chrono::seconds(5));
+  ws.set_idle_timeout(std::chrono::seconds(30));
+  ws.set_keep_alive_pings(true);
+  co_return ws.set_handler(ws_handler);
+}
+
 int main()
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
-            .serve(route::get<"/ws">([](websocket ws) -> awaitable<response> {
-              co_return ws.set_handler(echo);
-            }))
-            .build();
+      = http_server_builder(ioc).serve(route::get<"/ws">(http_handler)).build();
   server.bind("127.0.0.1", 8080);
 
   ioc.run();
