@@ -40,12 +40,12 @@ Dependencies
 
 |    Library     | Minimum Version |          |
 | :------------: | :-------------: | :------: |
-| `boost::asio`  |     `1.84`      | required |
-| `boost::beast` |     `1.84`      | required |
-| `boost::json`  |     `1.84`      | required |
-|  `boost::url`  |     `1.84`      | required |
-|  `boost::pfr`  |     `1.84`      | required |
-|     `fmt`      |     `10.x`      | required |
+| `boost::asio`  |    `1.84.0`     | required |
+| `boost::beast` |    `1.84.0`     | required |
+| `boost::json`  |    `1.84.0`     | required |
+|  `boost::url`  |    `1.84.0`     | required |
+|  `boost::pfr`  |    `1.84.0`     | required |
+|     `fmt`      |    `10.0.0`     | required |
 |     `zlib`     |                 | optional |
 |    `brotli`    |                 | optional |
 |   `OpenSSL`    |                 | optional |

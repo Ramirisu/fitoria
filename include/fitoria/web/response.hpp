@@ -82,6 +82,9 @@ public:
   static auto continue_() -> response_builder;
   static auto switching_protocols() -> response_builder;
   static auto processing() -> response_builder;
+#if BOOST_BEAST_VERSION >= 353
+  static auto early_hints() -> response_builder;
+#endif
   static auto ok() -> response_builder;
   static auto created() -> response_builder;
   static auto accepted() -> response_builder;
@@ -122,13 +125,20 @@ public:
   static auto unprocessable_entity() -> response_builder;
   static auto locked() -> response_builder;
   static auto failed_dependency() -> response_builder;
+#if BOOST_BEAST_VERSION >= 353
+  static auto too_early() -> response_builder;
+#endif
   static auto upgrade_required() -> response_builder;
   static auto precondition_required() -> response_builder;
   static auto too_many_requests() -> response_builder;
   static auto request_header_fields_too_large() -> response_builder;
+#if BOOST_BEAST_VERSION < 353
   static auto connection_closed_without_response() -> response_builder;
+#endif
   static auto unavailable_for_legal_reasons() -> response_builder;
+#if BOOST_BEAST_VERSION < 353
   static auto client_closed_request() -> response_builder;
+#endif
   static auto internal_server_error() -> response_builder;
   static auto not_implemented() -> response_builder;
   static auto bad_gateway() -> response_builder;
@@ -140,7 +150,9 @@ public:
   static auto loop_detected() -> response_builder;
   static auto not_extended() -> response_builder;
   static auto network_authentication_required() -> response_builder;
+#if BOOST_BEAST_VERSION < 353
   static auto network_connect_timeout_error() -> response_builder;
+#endif
 };
 
 class response_builder {
@@ -303,6 +315,13 @@ inline auto response::processing() -> response_builder
 {
   return response_builder(http::status::processing);
 }
+
+#if BOOST_BEAST_VERSION >= 353
+inline auto response::early_hints() -> response_builder
+{
+  return response_builder(http::status::early_hints);
+}
+#endif
 
 inline auto response::ok() -> response_builder
 {
@@ -504,6 +523,13 @@ inline auto response::failed_dependency() -> response_builder
   return response_builder(http::status::failed_dependency);
 }
 
+#if BOOST_BEAST_VERSION >= 353
+inline auto response::too_early() -> response_builder
+{
+  return response_builder(http::status::too_early);
+}
+#endif
+
 inline auto response::upgrade_required() -> response_builder
 {
   return response_builder(http::status::upgrade_required);
@@ -524,20 +550,24 @@ inline auto response::request_header_fields_too_large() -> response_builder
   return response_builder(http::status::request_header_fields_too_large);
 }
 
+#if BOOST_BEAST_VERSION < 353
 inline auto response::connection_closed_without_response() -> response_builder
 {
   return response_builder(http::status::connection_closed_without_response);
 }
+#endif
 
 inline auto response::unavailable_for_legal_reasons() -> response_builder
 {
   return response_builder(http::status::unavailable_for_legal_reasons);
 }
 
+#if BOOST_BEAST_VERSION < 353
 inline auto response::client_closed_request() -> response_builder
 {
   return response_builder(http::status::client_closed_request);
 }
+#endif
 
 inline auto response::internal_server_error() -> response_builder
 {
@@ -594,10 +624,12 @@ inline auto response::network_authentication_required() -> response_builder
   return response_builder(http::status::network_authentication_required);
 }
 
+#if BOOST_BEAST_VERSION < 353
 inline auto response::network_connect_timeout_error() -> response_builder
 {
   return response_builder(http::status::network_connect_timeout_error);
 }
+#endif
 
 }
 

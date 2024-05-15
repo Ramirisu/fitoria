@@ -21,7 +21,7 @@ namespace web::detail {
 template <typename T = boost::json::value>
 expected<T, std::error_code> as_json(std::string_view text)
 {
-  boost::json::error_code ec;
+  boost::system::error_code ec;
   auto jv = boost::json::parse(text, ec);
   if (ec) {
     return unexpected { ec };
