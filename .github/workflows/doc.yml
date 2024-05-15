@@ -1,0 +1,29 @@
+name: doc
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+      - name: Build
+        run: |
+          pip install sphinx pydata-sphinx-theme
+          sphinx-build -b html ./doc/source ./doc/build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: doc/build
