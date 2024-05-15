@@ -41,7 +41,7 @@ int main()
   auto server
       = http_server_builder(ioc)
             .serve(
-                scope<>()
+                scope()
                     .use(middleware::logger())
                     .serve(scope<"/api/v1">()
                                .serve(route::post<"/register">(api::v1::reg))

@@ -1,4 +1,3 @@
-fitoria_add_example(NAME extractor SRCS extractor.cpp)
 fitoria_add_example(NAME file SRCS file.cpp)
 fitoria_add_example(NAME form SRCS form.cpp)
 fitoria_add_example(NAME getting_started SRCS getting_started.cpp)
@@ -10,5 +9,8 @@ fitoria_add_example(NAME path_parameter SRCS path_parameter.cpp)
 fitoria_add_example(NAME scope SRCS scope.cpp)
 fitoria_add_example(NAME state SRCS state.cpp)
 fitoria_add_example(NAME thread_pool SRCS thread_pool.cpp)
+fitoria_add_example(NAME tls SRCS tls.cpp)
 fitoria_add_example(NAME unittesting SRCS unittesting.cpp)
 fitoria_add_example(NAME websocket SRCS websocket.cpp)
+
+add_subdirectory(extractor)

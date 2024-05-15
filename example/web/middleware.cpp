@@ -7,6 +7,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <iostream>
+
 using namespace fitoria;
 using namespace fitoria::web;
 
@@ -15,13 +17,22 @@ class my_log_middleware {
   friend class my_log;
 
 public:
-  auto operator()(Request req) const -> Response
+  awaitable<response> operator()(request& req) const
   {
-    // do something before the handler
+    std::cout << fmt::format("{} {} HTTP/{}",
+                             std::string(to_string(req.method())),
+                             req.path().match_path(),
+                             req.version())
+              << std::endl;
 
-    auto res = co_await next_(req);
+    response res = co_await next_(req);
 
-    // do something after the handler
+    std::cout << fmt::format(
+        "HTTP/{} {} {}",
+        http::version::v1_1,
+        to_underlying(res.status_code().value()),
+        std::string(obsolete_reason(res.status_code().value())))
+              << std::endl;
 
     co_return res;
   }

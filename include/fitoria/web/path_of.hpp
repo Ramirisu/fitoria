@@ -12,6 +12,8 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/from_string.hpp>
+
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/from_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
@@ -63,8 +65,13 @@ private:
   static bool try_assign_field_index(const path_info& path_info, T& result)
   {
     if (auto value = path_info.get(boost::pfr::get_name<I, T>()); value) {
-      boost::pfr::get<I>(result) = *value;
-      return true;
+      if (auto str
+          = from_string<std::decay_t<decltype(boost::pfr::get<I>(result))>>(
+              *value);
+          str) {
+        boost::pfr::get<I>(result) = std::move(*str);
+        return true;
+      }
     }
 
     return false;

@@ -11,6 +11,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/from_string.hpp>
+
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/from_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
@@ -24,16 +27,11 @@ namespace web {
 #if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
-class query_of {
+class query_of : public T {
 public:
   explicit query_of(T inner)
-      : inner_(std::move(inner))
+      : T(std::move(inner))
   {
-  }
-
-  auto get() const noexcept -> const T&
-  {
-    return inner_;
   }
 
   friend auto tag_invoke(from_request_t<query_of<T>>, request& req)
@@ -62,14 +60,17 @@ private:
   static bool try_assign_field_index(const query_map& map, T& result)
   {
     if (auto value = map.get(boost::pfr::get_name<I, T>()); value) {
-      boost::pfr::get<I>(result) = *value;
-      return true;
+      if (auto str
+          = from_string<std::decay_t<decltype(boost::pfr::get<I>(result))>>(
+              *value);
+          str) {
+        boost::pfr::get<I>(result) = std::move(*str);
+        return true;
+      }
     }
 
     return false;
   }
-
-  T inner_;
 };
 
 #else

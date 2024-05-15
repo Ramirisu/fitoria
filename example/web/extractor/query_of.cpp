@@ -10,19 +10,25 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto echo(std::string body) -> awaitable<response>
+struct order_t {
+  std::string user;
+  std::uint64_t order_id;
+};
+
+auto get_order(query_of<order_t> order) -> awaitable<response>
 {
   co_return response::ok()
       .set_field(http::field::content_type,
                  http::fields::content_type::plaintext())
-      .set_body(body);
+      .set_body(
+          fmt::format("user: {}, order_id: {}", order.user, order.order_id));
 }
 
 int main()
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc).serve(route::get<"/echo">(echo)).build();
+      = http_server_builder(ioc).serve(route::get<"/order">(get_order)).build();
 
   server.bind("127.0.0.1", 8080);
 

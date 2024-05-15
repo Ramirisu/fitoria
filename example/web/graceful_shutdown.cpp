@@ -16,7 +16,6 @@ int main()
   auto server = http_server_builder(ioc).build();
   server.bind("127.0.0.1", 8080);
 
-  // Register signals to stop the execution context
   net::signal_set signal(ioc, SIGINT, SIGTERM);
   signal.async_wait([&](auto, auto) { ioc.stop(); });
 

@@ -22,7 +22,7 @@ TEST_SUITE_BEGIN("[fitoria.web.from_request]");
 struct date_t {
   std::string month;
   std::string day;
-  std::string year;
+  int year;
 
   friend bool operator==(const date_t&, const date_t&) = default;
 };
@@ -162,9 +162,8 @@ TEST_CASE("path_of<T = aggregate>")
       = http_server_builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<date_t> path) -> awaitable<response> {
-                  CHECK_EQ(
-                      path,
-                      date_t { .month = "06", .day = "15", .year = "1994" });
+                  CHECK_EQ(path,
+                           date_t { .month = "06", .day = "15", .year = 1994 });
                   co_return response::ok().build();
                 }))
             .build();
@@ -185,9 +184,8 @@ TEST_CASE("path_of<T = aggregate>, not match")
       = http_server_builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<date_t> path) -> awaitable<response> {
-                  CHECK_EQ(
-                      path,
-                      date_t { .month = "06", .day = "15", .year = "1994" });
+                  CHECK_EQ(path,
+                           date_t { .month = "06", .day = "15", .year = 1994 });
                   co_return response::ok().build();
                 }))
             .build();
@@ -238,9 +236,8 @@ TEST_CASE("query_of<T>")
       = http_server_builder(ioc)
             .serve(route::get<"/">(
                 [](query_of<date_t> query) -> awaitable<response> {
-                  CHECK_EQ(
-                      query.get(),
-                      date_t { .month = "06", .day = "15", .year = "1994" });
+                  CHECK_EQ(query,
+                           date_t { .month = "06", .day = "15", .year = 1994 });
                   co_return response::ok().build();
                 }))
             .build();
