@@ -11,7 +11,6 @@ Welcome to fitoria's documentation!
    :caption: Contents:
 
 
-
 Table of Contents
 =================
 
@@ -53,7 +52,7 @@ Table of Contents
 
 .. _web:
 
-===
+
 Web
 ===
 
@@ -64,12 +63,7 @@ Namespace ``fitoria::web`` provides web utilities.
 Getting Started
 ---------------
 
-The following example shows that how to create the ``http_server`` and attach a handler to it. (`Getting Started Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp>`_)
-
-1. Create an ``net::io_context`` which helps perform the i/o for the ``http_server``.
-2. Use ``http_server_builder`` to create the ``http_server``, here we add a ``route`` of path ``/echo`` and add ``echo`` as the handler.
-3. Bind the address and port.
-4. Run the i/o context to start serving requests.
+The following example demonstrates how to create an ``http_server`` and attach handlers to it. (`Getting Started Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp>`_)
 
 .. code-block:: cpp
 
@@ -77,6 +71,14 @@ The following example shows that how to create the ``http_server`` and attach a 
    
    using namespace fitoria;
    using namespace fitoria::web;
+   
+   auto hello_world() -> awaitable<response>
+   {
+     co_return response::ok()
+         .set_field(http::field::content_type,
+                    http::fields::content_type::plaintext())
+         .set_body("Hello World!");
+   }
    
    auto echo(std::string body) -> awaitable<response>
    {
@@ -89,8 +91,10 @@ The following example shows that how to create the ``http_server`` and attach a 
    int main()
    {
      auto ioc = net::io_context();
-     auto server
-         = http_server_builder(ioc).serve(route::get<"/echo">(echo)).build();
+     auto server = http_server_builder(ioc)
+                       .serve(route::get<"/">(hello_world))
+                       .serve(route::post<"/echo">(echo))
+                       .build();
    
      server.bind("127.0.0.1", 8080);
    
@@ -109,28 +113,31 @@ HTTP Server
 TLS
 ^^^
 
-In order to enable TLS support, ``openssl`` must be installed. And then we can use ``bind_ssl`` to bind the listen port for TLS connections. (`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_)
+First we have to create a ``net::ssl::context`` with server certificates and desired TLS configurations. And then call ``http_server::bind_ssl(...)`` with the ssl context to enable TLS for incoming connections. (`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_)
+
+.. note::
+
+   In order to enable TLS support, ``openssl`` must be installed. 
 
 .. code-block:: cpp
    
    int main()
    {
      auto ioc = net::io_context();
-     auto server
-         = http_server_builder(ioc)
-               .serve(route::get<"/echo">(
-                   [](std::string body) -> awaitable<response> {
-                     co_return response::ok()
-                         .set_field(http::field::content_type,
-                                    http::fields::content_type::plaintext())
-                         .set_body(body);
-                   }))
-               .build();
+     auto server = http_server_builder(ioc)
+                       .serve(route::get<"/">([]() -> awaitable<response> {
+                         co_return response::ok()
+                             .set_field(http::field::content_type,
+                                        http::fields::content_type::plaintext())
+                             .set_body("Hello World!");
+                       }))
+                       .build();
    
      server.bind("127.0.0.1", 8080);
-
+   #if defined(FITORIA_HAS_OPENSSL)
      auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
      server.bind_ssl("127.0.0.1", 8443, ssl_ctx);
+   #endif
    
      ioc.run();
    }
@@ -195,7 +202,7 @@ Use ``net::signal_set`` to handle signals and shutdown the server gracefully. (`
 Maximize Performance
 ^^^^^^^^^^^^^^^^^^^^
 
-fitoria is built on top of ``boost::asio`` (alias as ``net`` namespace) and the ``executory_type`` defaults to ``net::any_io_executor`` which is a polymorphic executor and may hurts the performance. 
+fitoria is built on top of ``boost::asio`` (aliasing as ``fitoria::net`` namespace) and the ``executory_type`` defaults to ``net::any_io_executor`` which is a polymorphic executor and may hurt the performance. 
 
 Define ``FITORIA_USE_IO_CONTEXT_EXECUTOR`` to use ``net::io_context::executor_type`` as the default executor type.
 
@@ -270,7 +277,8 @@ fitoria supports **static path**, **parameterized path** and **wildcard matching
    route::get<"/api/v1/users/{user}x">(handler) // error: static_assert failed: 'invalid path for route'
 
 
-Path Matching Priority:
+Path Matching Priority
+""""""""""""""""""""""
 
 +---------------+----------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
 |     Type      | Priority |         Example          |                                                                           Format                                                                           |
@@ -378,6 +386,7 @@ Use ``request::query()`` to access the query string parameters. (`Query String P
 Urlencoded Post Form
 ^^^^^^^^^^^^^^^^^^^^
 
+TODO:
 
 .. _state:
 
@@ -484,7 +493,10 @@ Extractor
 
 Extractors provide a more convenient way to help user access information from ``request``. Users can specify as many extractors as compiler allows per handler.
 
-Path: Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plain ``struct``. (`Path Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp>`_)
+Path
+""""
+
+Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plain ``struct``. (`Path Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp>`_)
 
 .. code-block:: cpp
 
@@ -528,7 +540,10 @@ Path: Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` o
      ioc.run();
    }
 
-Query String: Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`Query Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp>`_)
+Query
+"""""
+
+Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`Query Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp>`_)
 
 .. code-block:: cpp
 
@@ -546,10 +561,13 @@ Query String: Use ``query_of<T>`` to extract query string parameters into plain 
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
 
+.. note:: 
 
-To enable extractor for custom type, implement customization point ``from_request_t``.
+   To enable extractor for custom type, implement customization point ``from_request_t``.
 
-Built-in Extractors:
+
+Built-in Extractors
+"""""""""""""""""""
 
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 |        Extractor         |                        Description                        | Body Extractor |                                                                                                                                                                           |
@@ -570,7 +588,7 @@ Built-in Extractors:
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``web::http_fields``     | Extract fields from request headers.                      | no             |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::state_of<T>``     | Extract shared state of type ``T``.                       | no             | Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, extractor ***copy the value***.                                                                  |
+| ``web::state_of<T>``     | Extract shared state of type ``T``.                       | no             | Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, extractor *copy the value*.                                                                      |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``web::websocket``       | Extract as websocket.                                     | no             |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -591,9 +609,11 @@ Built-in Extractors:
 Middleware
 ^^^^^^^^^^
 
-fitoria provides middlewares which allow users to modify ``reqeust`` and ``response`` before/after the handlers being called.
+fitoria provides middlewares which allow users to modify ``reqeust`` and ``response`` before/after the handlers being invoked.
 
-To create a middleware, implement customization point ``to_middleware_t``.
+.. note:: 
+
+   To create a custom middleware, implement customization point ``to_middleware_t``.
 
 .. code-block:: cpp
 
@@ -701,7 +721,12 @@ Static Files
 Use ``web::stream_file`` to serve static files. (`Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp>`_)
 
 .. note::
+   
    The example code uses wildcard matching without checking the actual value of the path, which may cause serious security implications such as path traversal attack (``../``). Users should perform the validation on the input path carefully.
+
+.. note::
+
+   In order to use asynchronous file i/o on linux platform, ``liburing`` must be installed and define ``BOOST_ASIO_HAS_IO_URING`` to enable it. Note that asynchonous file i/o is not supported on MacOS.
 
 .. code-block:: cpp
 
@@ -736,7 +761,7 @@ Use ``web::stream_file`` to serve static files. (`Static Files Example <https://
 WebSocket
 ^^^^^^^^^
 
-fitoria supports websocket by using the ``websocket`` extractor, and users have to setup the websocket handlers for reading incoming or writing outgoing messages. (`WebSocket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp>`_)
+fitoria supports websocket by using the ``websocket`` extractor. (`WebSocket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp>`_)
 
 .. code-block:: cpp
 
@@ -779,12 +804,12 @@ fitoria supports websocket by using the ``websocket`` extractor, and users have 
 Unit Testing
 ^^^^^^^^^^^^
 
-Unit testing is important for software quality assurance, fitoria provides ``http_server::serve_request()`` to test the mock ``test_request`` for our handlers without creating any TCP connections. (`Testing Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp>`_)
+Unit testing is important for software quality assurance, fitoria provides ``http_server::serve_request()`` to test the mock ``test_request`` for the handlers without creating any TCP connections. (`Testing Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp>`_)
 
 
 .. _log:
 
-===
+
 Log
 ===
 
@@ -917,7 +942,7 @@ Format Messages
 
 .. _license:
 
-=======
+
 License
 =======
 

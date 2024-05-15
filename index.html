@@ -312,22 +312,25 @@ document.write(`
 </ul>
 </li>
 </ul>
+</section>
 <section id="web">
-<span id="id1"></span><h2>Web<a class="headerlink" href="#web" title="Link to this heading">#</a></h2>
+<span id="id1"></span><h1>Web<a class="headerlink" href="#web" title="Link to this heading">#</a></h1>
 <p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::web</span></code> provides web utilities.</p>
 <section id="getting-started">
-<span id="id2"></span><h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h3>
-<p>The following example shows that how to create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code> and attach a handler to it. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp">Getting Started Example</a>)</p>
-<ol class="arabic simple">
-<li><p>Create an <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code> which helps perform the i/o for the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>.</p></li>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">http_server_builder</span></code> to create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>, here we add a <code class="docutils literal notranslate"><span class="pre">route</span></code> of path <code class="docutils literal notranslate"><span class="pre">/echo</span></code> and add <code class="docutils literal notranslate"><span class="pre">echo</span></code> as the handler.</p></li>
-<li><p>Bind the address and port.</p></li>
-<li><p>Run the i/o context to start serving requests.</p></li>
-</ol>
+<span id="id2"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
+<p>The following example demonstrates how to create an <code class="docutils literal notranslate"><span class="pre">http_server</span></code> and attach handlers to it. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp">Getting Started Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fitoria</span><span class="p">;</span>
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fitoria</span><span class="o">::</span><span class="nn">web</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">hello_world</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">echo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
@@ -340,8 +343,10 @@ document.write(`
 <span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
-<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
-<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">).</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/echo&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">echo</span><span class="p">)).</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">hello_world</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/echo&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">echo</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
 
 <span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
 
@@ -351,28 +356,31 @@ document.write(`
 </div>
 </section>
 <section id="http-server">
-<span id="id3"></span><h3>HTTP Server<a class="headerlink" href="#http-server" title="Link to this heading">#</a></h3>
+<span id="id3"></span><h2>HTTP Server<a class="headerlink" href="#http-server" title="Link to this heading">#</a></h2>
 <section id="tls">
-<span id="id4"></span><h4>TLS<a class="headerlink" href="#tls" title="Link to this heading">#</a></h4>
-<p>In order to enable TLS support, <code class="docutils literal notranslate"><span class="pre">openssl</span></code> must be installed. And then we can use <code class="docutils literal notranslate"><span class="pre">bind_ssl</span></code> to bind the listen port for TLS connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp">TLS Example</a>)</p>
+<span id="id4"></span><h3>TLS<a class="headerlink" href="#tls" title="Link to this heading">#</a></h3>
+<p>First we have to create a <code class="docutils literal notranslate"><span class="pre">net::ssl::context</span></code> with server certificates and desired TLS configurations. And then call <code class="docutils literal notranslate"><span class="pre">http_server::bind_ssl(...)</span></code> with the ssl context to enable TLS for incoming connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp">TLS Example</a>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to enable TLS support, <code class="docutils literal notranslate"><span class="pre">openssl</span></code> must be installed.</p>
+</div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
-<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
-<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
-<span class="w">            </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/echo&quot;</span><span class="o">&gt;</span><span class="p">(</span>
-<span class="w">                </span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">                      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
-<span class="w">                      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
-<span class="w">                </span><span class="p">}))</span>
-<span class="w">            </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">([]()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                      </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">                          </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">                          </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">);</span>
+<span class="w">                    </span><span class="p">}))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
 
 <span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
-
+<span class="cp">#if defined(FITORIA_HAS_OPENSSL)</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cert</span><span class="o">::</span><span class="n">get_server_ssl_ctx</span><span class="p">(</span><span class="n">net</span><span class="o">::</span><span class="n">ssl</span><span class="o">::</span><span class="n">context</span><span class="o">::</span><span class="n">tls_server</span><span class="p">);</span>
 <span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind_ssl</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8443</span><span class="p">,</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="p">);</span>
+<span class="cp">#endif</span>
 
 <span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 <span class="p">}</span>
@@ -380,7 +388,7 @@ document.write(`
 </div>
 </section>
 <section id="threading">
-<span id="id5"></span><h4>Threading<a class="headerlink" href="#threading" title="Link to this heading">#</a></h4>
+<span id="id5"></span><h3>Threading<a class="headerlink" href="#threading" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">net::io_context::run()</span></code> can be called by multiple threads simutaneously to enable threading. In the following example we create a <code class="docutils literal notranslate"><span class="pre">net::static_thread_pool</span></code> to run the <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/thread_pool.cpp">Thread Pool Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -407,7 +415,7 @@ document.write(`
 </div>
 </section>
 <section id="graceful-shutdown">
-<span id="id6"></span><h4>Graceful Shutdown<a class="headerlink" href="#graceful-shutdown" title="Link to this heading">#</a></h4>
+<span id="id6"></span><h3>Graceful Shutdown<a class="headerlink" href="#graceful-shutdown" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">net::signal_set</span></code> to handle signals and shutdown the server gracefully. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp">Graceful Shutdown Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -424,8 +432,8 @@ document.write(`
 </div>
 </section>
 <section id="maximize-performance">
-<span id="id7"></span><h4>Maximize Performance<a class="headerlink" href="#maximize-performance" title="Link to this heading">#</a></h4>
-<p>fitoria is built on top of <code class="docutils literal notranslate"><span class="pre">boost::asio</span></code> (alias as <code class="docutils literal notranslate"><span class="pre">net</span></code> namespace) and the <code class="docutils literal notranslate"><span class="pre">executory_type</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">net::any_io_executor</span></code> which is a polymorphic executor and may hurts the performance.</p>
+<span id="id7"></span><h3>Maximize Performance<a class="headerlink" href="#maximize-performance" title="Link to this heading">#</a></h3>
+<p>fitoria is built on top of <code class="docutils literal notranslate"><span class="pre">boost::asio</span></code> (aliasing as <code class="docutils literal notranslate"><span class="pre">fitoria::net</span></code> namespace) and the <code class="docutils literal notranslate"><span class="pre">executory_type</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">net::any_io_executor</span></code> which is a polymorphic executor and may hurt the performance.</p>
 <p>Define <code class="docutils literal notranslate"><span class="pre">FITORIA_USE_IO_CONTEXT_EXECUTOR</span></code> to use <code class="docutils literal notranslate"><span class="pre">net::io_context::executor_type</span></code> as the default executor type.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define FITORIA_USE_IO_CONTEXT_EXECUTOR</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
@@ -439,9 +447,9 @@ document.write(`
 </section>
 </section>
 <section id="handlers">
-<span id="id8"></span><h3>Handlers<a class="headerlink" href="#handlers" title="Link to this heading">#</a></h3>
+<span id="id8"></span><h2>Handlers<a class="headerlink" href="#handlers" title="Link to this heading">#</a></h2>
 <section id="method">
-<span id="id9"></span><h4>Method<a class="headerlink" href="#method" title="Link to this heading">#</a></h4>
+<span id="id9"></span><h3>Method<a class="headerlink" href="#method" title="Link to this heading">#</a></h3>
 <p>Register a handler that serves specific method defined under <code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">http::verb::*</span></code> by calling <code class="docutils literal notranslate"><span class="pre">route::handle(...)</span></code>, or simply use <code class="docutils literal notranslate"><span class="pre">route::get(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::post(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::put(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::patch(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::delete_(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::head(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::options(...)</span></code> for convenience. <code class="docutils literal notranslate"><span class="pre">route::any(...)</span></code> can be used for registering a handler that serves any method. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp">Method Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -464,7 +472,7 @@ document.write(`
 </div>
 </section>
 <section id="route">
-<span id="id10"></span><h4>Route<a class="headerlink" href="#route" title="Link to this heading">#</a></h4>
+<span id="id10"></span><h3>Route<a class="headerlink" href="#route" title="Link to this heading">#</a></h3>
 <p>fitoria supports <strong>static path</strong>, <strong>parameterized path</strong> and <strong>wildcard matching</strong>. The path is configured through the template parameter in order to perform <em>compile-time validation</em>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// static</span>
 
@@ -480,7 +488,8 @@ document.write(`
 <span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/{user}x&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// error: static_assert failed: &#39;invalid path for route&#39;</span>
 </pre></div>
 </div>
-<p>Path Matching Priority:</p>
+<section id="path-matching-priority">
+<h4>Path Matching Priority<a class="headerlink" href="#path-matching-priority" title="Link to this heading">#</a></h4>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Type</p></th>
@@ -508,8 +517,9 @@ document.write(`
 </tbody>
 </table>
 </section>
+</section>
 <section id="scope">
-<span id="id11"></span><h4>Scope<a class="headerlink" href="#scope" title="Link to this heading">#</a></h4>
+<span id="id11"></span><h3>Scope<a class="headerlink" href="#scope" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">scope</span></code> to group one or more <code class="docutils literal notranslate"><span class="pre">route</span></code> s. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp">Scope Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -534,7 +544,7 @@ document.write(`
 </div>
 </section>
 <section id="path-parameters">
-<span id="id12"></span><h4>Path Parameters<a class="headerlink" href="#path-parameters" title="Link to this heading">#</a></h4>
+<span id="id12"></span><h3>Path Parameters<a class="headerlink" href="#path-parameters" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">request::path()</span></code> to access the path parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp">Path Parameters Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">users</span><span class="o">::</span><span class="nn">get_user</span><span class="w"> </span><span class="p">{</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">api</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
@@ -566,7 +576,7 @@ document.write(`
 </div>
 </section>
 <section id="query-string-parameters">
-<span id="id13"></span><h4>Query String Parameters<a class="headerlink" href="#query-string-parameters" title="Link to this heading">#</a></h4>
+<span id="id13"></span><h3>Query String Parameters<a class="headerlink" href="#query-string-parameters" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">request::query()</span></code> to access the query string parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp">Query String Parameters Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_user</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
@@ -584,10 +594,11 @@ document.write(`
 </div>
 </section>
 <section id="urlencoded-post-form">
-<span id="id14"></span><h4>Urlencoded Post Form<a class="headerlink" href="#urlencoded-post-form" title="Link to this heading">#</a></h4>
+<span id="id14"></span><h3>Urlencoded Post Form<a class="headerlink" href="#urlencoded-post-form" title="Link to this heading">#</a></h3>
+<p>TODO:</p>
 </section>
 <section id="state">
-<span id="id15"></span><h4>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h4>
+<span id="id15"></span><h3>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h3>
 <p>fitoria provides a way to share data between multiple <code class="docutils literal notranslate"><span class="pre">route</span></code> s under the same <code class="docutils literal notranslate"><span class="pre">scope</span></code> by configuring the data via <code class="docutils literal notranslate"><span class="pre">scope::use_state(State&amp;&amp;)</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp">State Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cache</span><span class="w"> </span><span class="p">{</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">simple_cache</span><span class="w"> </span><span class="p">{</span>
@@ -680,9 +691,11 @@ document.write(`
 </div>
 </section>
 <section id="extractor">
-<span id="id16"></span><h4>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h4>
+<span id="id16"></span><h3>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h3>
 <p>Extractors provide a more convenient way to help user access information from <code class="docutils literal notranslate"><span class="pre">request</span></code>. Users can specify as many extractors as compiler allows per handler.</p>
-<p>Path: Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a>)</p>
+<section id="path">
+<h4>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_order_tuple</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
 <span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
@@ -724,7 +737,10 @@ document.write(`
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Query String: Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a>)</p>
+</section>
+<section id="query">
+<h4>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">order_id</span><span class="p">;</span>
@@ -740,8 +756,13 @@ document.write(`
 <span class="p">}</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>To enable extractor for custom type, implement customization point <code class="docutils literal notranslate"><span class="pre">from_request_t</span></code>.</p>
-<p>Built-in Extractors:</p>
+</div>
+</section>
+<section id="built-in-extractors">
+<h4>Built-in Extractors<a class="headerlink" href="#built-in-extractors" title="Link to this heading">#</a></h4>
 <table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Extractor</p></th>
@@ -794,7 +815,7 @@ document.write(`
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::state_of&lt;T&gt;</span></code></p></td>
 <td><p>Extract shared state of type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
 <td><p>no</p></td>
-<td><p>Note that unlike <code class="docutils literal notranslate"><span class="pre">request::state&lt;T&gt;()</span></code> which returns <code class="docutils literal notranslate"><span class="pre">optional&lt;T&amp;&gt;</span></code>, extractor <strong>*copy the value*</strong>.</p></td>
+<td><p>Note that unlike <code class="docutils literal notranslate"><span class="pre">request::state&lt;T&gt;()</span></code> which returns <code class="docutils literal notranslate"><span class="pre">optional&lt;T&amp;&gt;</span></code>, extractor <em>copy the value</em>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::websocket</span></code></p></td>
 <td><p>Extract as websocket.</p></td>
@@ -823,10 +844,14 @@ document.write(`
 <p>The <strong>body extractor</strong> can only be used at most once in the request handlers since it consumes the body.</p>
 </div>
 </section>
+</section>
 <section id="middleware">
-<span id="id17"></span><h4>Middleware<a class="headerlink" href="#middleware" title="Link to this heading">#</a></h4>
-<p>fitoria provides middlewares which allow users to modify <code class="docutils literal notranslate"><span class="pre">reqeust</span></code> and <code class="docutils literal notranslate"><span class="pre">response</span></code> before/after the handlers being called.</p>
-<p>To create a middleware, implement customization point <code class="docutils literal notranslate"><span class="pre">to_middleware_t</span></code>.</p>
+<span id="id17"></span><h3>Middleware<a class="headerlink" href="#middleware" title="Link to this heading">#</a></h3>
+<p>fitoria provides middlewares which allow users to modify <code class="docutils literal notranslate"><span class="pre">reqeust</span></code> and <code class="docutils literal notranslate"><span class="pre">response</span></code> before/after the handlers being invoked.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To create a custom middleware, implement customization point <code class="docutils literal notranslate"><span class="pre">to_middleware_t</span></code>.</p>
+</div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Request</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Response</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Next</span><span class="o">&gt;</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">my_log_middleware</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">my_log</span><span class="p">;</span>
@@ -923,11 +948,15 @@ document.write(`
 </div>
 </section>
 <section id="static-files">
-<span id="id18"></span><h4>Static Files<a class="headerlink" href="#static-files" title="Link to this heading">#</a></h4>
+<span id="id18"></span><h3>Static Files<a class="headerlink" href="#static-files" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">web::stream_file</span></code> to serve static files. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp">Static Files Example</a>)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The example code uses wildcard matching without checking the actual value of the path, which may cause serious security implications such as path traversal attack (<code class="docutils literal notranslate"><span class="pre">../</span></code>). Users should perform the validation on the input path carefully.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to use asynchronous file i/o on linux platform, <code class="docutils literal notranslate"><span class="pre">liburing</span></code> must be installed and define <code class="docutils literal notranslate"><span class="pre">BOOST_ASIO_HAS_IO_URING</span></code> to enable it. Note that asynchonous file i/o is not supported on MacOS.</p>
 </div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_static_file</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">path_info</span><span class="o">&amp;</span><span class="w"> </span><span class="n">pi</span><span class="p">)</span>
 <span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">stream_file</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="o">&gt;&gt;</span>
@@ -957,8 +986,8 @@ document.write(`
 </div>
 </section>
 <section id="websocket">
-<span id="id19"></span><h4>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h4>
-<p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor, and users have to setup the websocket handlers for reading incoming or writing outgoing messages. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a>)</p>
+<span id="id19"></span><h3>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h3>
+<p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ws_handler</span><span class="p">(</span><span class="n">websocket</span><span class="o">::</span><span class="n">context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_read</span><span class="p">();</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
@@ -995,16 +1024,16 @@ document.write(`
 </div>
 </section>
 <section id="unit-testing">
-<span id="id20"></span><h4>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h4>
-<p>Unit testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> for our handlers without creating any TCP connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp">Testing Example</a>)</p>
+<span id="id20"></span><h3>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h3>
+<p>Unit testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> for the handlers without creating any TCP connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp">Testing Example</a>)</p>
 </section>
 </section>
 </section>
 <section id="log">
-<span id="id21"></span><h2>Log<a class="headerlink" href="#log" title="Link to this heading">#</a></h2>
+<span id="id21"></span><h1>Log<a class="headerlink" href="#log" title="Link to this heading">#</a></h1>
 <p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::log</span></code> provides log utilities.</p>
 <section id="log-level">
-<span id="id22"></span><h3>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h3>
+<span id="id22"></span><h2>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h2>
 <p>There are six log levels <code class="docutils literal notranslate"><span class="pre">level::trace</span></code>, <code class="docutils literal notranslate"><span class="pre">level::debug</span></code>, <code class="docutils literal notranslate"><span class="pre">level::info</span></code>, <code class="docutils literal notranslate"><span class="pre">level::warning</span></code>, <code class="docutils literal notranslate"><span class="pre">level::error</span></code> and <code class="docutils literal notranslate"><span class="pre">level::fatal</span></code>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">level</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">trace</span><span class="p">,</span>
@@ -1017,7 +1046,7 @@ document.write(`
 </pre></div>
 </div>
 <section id="log-level-filtering">
-<span id="id23"></span><h4>Log Level Filtering<a class="headerlink" href="#log-level-filtering" title="Link to this heading">#</a></h4>
+<span id="id23"></span><h3>Log Level Filtering<a class="headerlink" href="#log-level-filtering" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">filter</span></code> to configure the log level filtering.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// result to `info`, `warning`, `error` and `fatal`.</span>
 <span class="n">filter</span><span class="o">::</span><span class="n">at_least</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">);</span>
@@ -1033,9 +1062,9 @@ document.write(`
 </section>
 </section>
 <section id="logger">
-<span id="id24"></span><h3>Logger<a class="headerlink" href="#logger" title="Link to this heading">#</a></h3>
+<span id="id24"></span><h2>Logger<a class="headerlink" href="#logger" title="Link to this heading">#</a></h2>
 <section id="registry">
-<span id="logger-registry"></span><h4>Registry<a class="headerlink" href="#registry" title="Link to this heading">#</a></h4>
+<span id="logger-registry"></span><h3>Registry<a class="headerlink" href="#registry" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">registry::global()</span></code> can be used to access the singleton which allows users to register the logger globally, then we can create the logger by <code class="docutils literal notranslate"><span class="pre">async_logger::builder</span></code>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">registry</span><span class="o">::</span><span class="n">global</span><span class="p">().</span><span class="n">set_default_logger</span><span class="p">(</span>
 <span class="w">      </span><span class="n">async_logger</span><span class="o">::</span><span class="n">builder</span><span class="p">()</span>
@@ -1055,7 +1084,7 @@ document.write(`
 </div>
 </section>
 <section id="log-messages">
-<span id="id25"></span><h4>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h4>
+<span id="id25"></span><h3>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">log(level,</span> <span class="pre">fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">trace(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">debug(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">info(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">warning(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">error(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">fatal(fmt,</span> <span class="pre">...)</span></code> to write the logs to the default logger.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
 
@@ -1069,7 +1098,7 @@ document.write(`
 </div>
 </section>
 <section id="format-messages">
-<h4>Format Messages<a class="headerlink" href="#format-messages" title="Link to this heading">#</a></h4>
+<h3>Format Messages<a class="headerlink" href="#format-messages" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">formatter</span></code> allows user to customize the style of the messages being logged. Fields are mapped by named arguments and users can specify detailed format for each field.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_async_stdout_writer</span><span class="p">();</span>
 <span class="n">writer</span><span class="o">-&gt;</span><span class="n">set_formatter</span><span class="p">(</span>
@@ -1124,9 +1153,8 @@ document.write(`
 </section>
 </section>
 <section id="license">
-<span id="id26"></span><h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
+<span id="id26"></span><h1>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h1>
 <p>This project is distributed under the <a class="reference external" href="https://www.boost.org/LICENSE_1_0.txt">Boost Software License 1.0</a></p>
-</section>
 </section>
 
 
@@ -1158,49 +1186,55 @@ document.write(`
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Welcome to fitoria’s documentation!</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#web">Web</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#http-server">HTTP Server</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tls">TLS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#threading">Threading</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#graceful-shutdown">Graceful Shutdown</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#maximize-performance">Maximize Performance</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#web">Web</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#http-server">HTTP Server</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tls">TLS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threading">Threading</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graceful-shutdown">Graceful Shutdown</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maximize-performance">Maximize Performance</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#handlers">Handlers</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#route">Route</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">Scope</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#path-parameters">Path Parameters</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#query-string-parameters">Query String Parameters</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#urlencoded-post-form">Urlencoded Post Form</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#state">State</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extractor">Extractor</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#middleware">Middleware</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#static-files">Static Files</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#websocket">WebSocket</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#unit-testing">Unit Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#handlers">Handlers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#route">Route</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#path-matching-priority">Path Matching Priority</a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">Scope</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-parameters">Path Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-string-parameters">Query String Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#urlencoded-post-form">Urlencoded Post Form</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state">State</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extractor">Extractor</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#path">Path</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#query">Query</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-extractors">Built-in Extractors</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log">Log</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level">Log Level</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level-filtering">Log Level Filtering</a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logger">Logger</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#registry">Registry</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-messages">Log Messages</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#format-messages">Format Messages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#middleware">Middleware</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#static-files">Static Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#websocket">WebSocket</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unit-testing">Unit Testing</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#log">Log</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level">Log Level</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level-filtering">Log Level Filtering</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logger">Logger</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#registry">Registry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-messages">Log Messages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#format-messages">Format Messages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
 </ul>
 
   </nav></div>
