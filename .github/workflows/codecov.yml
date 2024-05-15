@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os_cxx:
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             cxx: g++-13
         std: [20]
         build_type: [Debug]
