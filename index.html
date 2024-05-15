@@ -1,0 +1,1273 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Welcome to fitoria’s documentation! &#8212; fitoria  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fitoria  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="welcome-to-fitoria-s-documentation">
+<h1>Welcome to fitoria’s documentation!<a class="headerlink" href="#welcome-to-fitoria-s-documentation" title="Link to this heading">#</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="#web"><span class="std std-ref">Web</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#getting-started"><span class="std std-ref">Getting Started</span></a></p></li>
+<li><p><a class="reference internal" href="#http-server"><span class="std std-ref">HTTP Server</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#tls"><span class="std std-ref">TLS</span></a></p></li>
+<li><p><a class="reference internal" href="#threading"><span class="std std-ref">Threading</span></a></p></li>
+<li><p><a class="reference internal" href="#graceful-shutdown"><span class="std std-ref">Graceful Shutdown</span></a></p></li>
+<li><p><a class="reference internal" href="#maximize-performance"><span class="std std-ref">Maximize Performance</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#handlers"><span class="std std-ref">Handlers</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#method"><span class="std std-ref">Method</span></a></p></li>
+<li><p><a class="reference internal" href="#route"><span class="std std-ref">Route</span></a></p></li>
+<li><p><a class="reference internal" href="#scope"><span class="std std-ref">Scope</span></a></p></li>
+<li><p><a class="reference internal" href="#path-parameters"><span class="std std-ref">Path Parameters</span></a></p></li>
+<li><p><a class="reference internal" href="#query-string-parameters"><span class="std std-ref">Query String Parameters</span></a></p></li>
+<li><p><a class="reference internal" href="#urlencoded-post-form"><span class="std std-ref">Urlencoded Post Form</span></a></p></li>
+<li><p><a class="reference internal" href="#state"><span class="std std-ref">State</span></a></p></li>
+<li><p><a class="reference internal" href="#extractor"><span class="std std-ref">Extractor</span></a></p></li>
+<li><p><a class="reference internal" href="#middleware"><span class="std std-ref">Middleware</span></a></p></li>
+<li><p><a class="reference internal" href="#static-files"><span class="std std-ref">Static Files</span></a></p></li>
+<li><p><a class="reference internal" href="#websocket"><span class="std std-ref">WebSocket</span></a></p></li>
+<li><p><a class="reference internal" href="#unit-testing"><span class="std std-ref">Unit Testing</span></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#log"><span class="std std-ref">Log</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#log-level"><span class="std std-ref">Log Level</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#log-level-filtering"><span class="std std-ref">Log Level Filtering</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#logger"><span class="std std-ref">Logger</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#logger-registry"><span class="std std-ref">Registry</span></a></p></li>
+<li><p><a class="reference internal" href="#log-messages"><span class="std std-ref">Log Messages</span></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<section id="web">
+<span id="id1"></span><h2>Web<a class="headerlink" href="#web" title="Link to this heading">#</a></h2>
+<p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::web</span></code> provides web utilities.</p>
+<section id="getting-started">
+<span id="id2"></span><h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h3>
+<p>The following example shows that how to create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code> and attach a handler to it. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp">Getting Started Example</a>)</p>
+<ol class="arabic simple">
+<li><p>Create an <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code> which helps perform the i/o for the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">http_server_builder</span></code> to create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>, here we add a <code class="docutils literal notranslate"><span class="pre">route</span></code> of path <code class="docutils literal notranslate"><span class="pre">/echo</span></code> and add <code class="docutils literal notranslate"><span class="pre">echo</span></code> as the handler.</p></li>
+<li><p>Bind the address and port.</p></li>
+<li><p>Run the i/o context to start serving requests.</p></li>
+</ol>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fitoria</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fitoria</span><span class="o">::</span><span class="nn">web</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">echo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">).</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/echo&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">echo</span><span class="p">)).</span><span class="n">build</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="http-server">
+<span id="id3"></span><h3>HTTP Server<a class="headerlink" href="#http-server" title="Link to this heading">#</a></h3>
+<section id="tls">
+<span id="id4"></span><h4>TLS<a class="headerlink" href="#tls" title="Link to this heading">#</a></h4>
+<p>In order to enable TLS support, <code class="docutils literal notranslate"><span class="pre">openssl</span></code> must be installed. And then we can use <code class="docutils literal notranslate"><span class="pre">bind_ssl</span></code> to bind the listen port for TLS connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp">TLS Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/echo&quot;</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">                </span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">                      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">                      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}))</span>
+<span class="w">            </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cert</span><span class="o">::</span><span class="n">get_server_ssl_ctx</span><span class="p">(</span><span class="n">net</span><span class="o">::</span><span class="n">ssl</span><span class="o">::</span><span class="n">context</span><span class="o">::</span><span class="n">tls_server</span><span class="p">);</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind_ssl</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8443</span><span class="p">,</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="threading">
+<span id="id5"></span><h4>Threading<a class="headerlink" href="#threading" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">net::io_context::run()</span></code> can be called by multiple threads simutaneously to enable threading. In the following example we create a <code class="docutils literal notranslate"><span class="pre">net::static_thread_pool</span></code> to run the <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/thread_pool.cpp">Thread Pool Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">([](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">                  </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                             </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">                  </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}))</span>
+<span class="w">            </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">::</span><span class="n">hardware_concurrency</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">tp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">static_thread_pool</span><span class="p">(</span><span class="n">threads</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">threads</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">net</span><span class="o">::</span><span class="n">post</span><span class="p">(</span><span class="n">ioc</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="graceful-shutdown">
+<span id="id6"></span><h4>Graceful Shutdown<a class="headerlink" href="#graceful-shutdown" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">net::signal_set</span></code> to handle signals and shutdown the server gracefully. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp">Graceful Shutdown Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">).</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">net</span><span class="o">::</span><span class="n">signal_set</span><span class="w"> </span><span class="n">signal</span><span class="p">(</span><span class="n">ioc</span><span class="p">,</span><span class="w"> </span><span class="n">SIGINT</span><span class="p">,</span><span class="w"> </span><span class="n">SIGTERM</span><span class="p">);</span>
+<span class="w">  </span><span class="n">signal</span><span class="p">.</span><span class="n">async_wait</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span><span class="p">,</span><span class="w"> </span><span class="k">auto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ioc</span><span class="p">.</span><span class="n">stop</span><span class="p">();</span><span class="w"> </span><span class="p">});</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="maximize-performance">
+<span id="id7"></span><h4>Maximize Performance<a class="headerlink" href="#maximize-performance" title="Link to this heading">#</a></h4>
+<p>fitoria is built on top of <code class="docutils literal notranslate"><span class="pre">boost::asio</span></code> (alias as <code class="docutils literal notranslate"><span class="pre">net</span></code> namespace) and the <code class="docutils literal notranslate"><span class="pre">executory_type</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">net::any_io_executor</span></code> which is a polymorphic executor and may hurts the performance.</p>
+<p>Define <code class="docutils literal notranslate"><span class="pre">FITORIA_USE_IO_CONTEXT_EXECUTOR</span></code> to use <code class="docutils literal notranslate"><span class="pre">net::io_context::executor_type</span></code> as the default executor type.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define FITORIA_USE_IO_CONTEXT_EXECUTOR</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
+</pre></div>
+</div>
+<p>Or define <code class="docutils literal notranslate"><span class="pre">FITORIA_USE_CUSTOM_EXECUTOR</span></code> to use custom executor.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define FITORIA_USE_CUSTOM_EXECUTOR my_executor</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="handlers">
+<span id="id8"></span><h3>Handlers<a class="headerlink" href="#handlers" title="Link to this heading">#</a></h3>
+<section id="method">
+<span id="id9"></span><h4>Method<a class="headerlink" href="#method" title="Link to this heading">#</a></h4>
+<p>Register a handler that serves specific method defined under <code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">http::verb::*</span></code> by calling <code class="docutils literal notranslate"><span class="pre">route::handle(...)</span></code>, or simply use <code class="docutils literal notranslate"><span class="pre">route::get(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::post(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::put(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::patch(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::delete_(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::head(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">route::options(...)</span></code> for convenience. <code class="docutils literal notranslate"><span class="pre">route::any(...)</span></code> can be used for registering a handler that serves any method. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp">Method Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">handle</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">verb</span><span class="o">::</span><span class="n">get</span><span class="p">,</span><span class="w"> </span><span class="n">get_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/get&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">get_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/post&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">post_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">put</span><span class="o">&lt;</span><span class="s">&quot;/put&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">put_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">patch</span><span class="o">&lt;</span><span class="s">&quot;/patch&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">patch_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">delete_</span><span class="o">&lt;</span><span class="s">&quot;/delete&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">delete_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">head</span><span class="o">&lt;</span><span class="s">&quot;/head&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">head_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">options</span><span class="o">&lt;</span><span class="s">&quot;/options&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">any</span><span class="o">&lt;</span><span class="s">&quot;/any&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">any_handler</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="route">
+<span id="id10"></span><h4>Route<a class="headerlink" href="#route" title="Link to this heading">#</a></h4>
+<p>fitoria supports <strong>static path</strong>, <strong>parameterized path</strong> and <strong>wildcard matching</strong>. The path is configured through the template parameter in order to perform <em>compile-time validation</em>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// static</span>
+
+<span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/{user}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// parameterized</span>
+
+<span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/#wildcard&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// wildcard</span>
+
+
+<span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/{&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// error: static_assert failed: &#39;invalid path for route&#39;</span>
+
+<span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// error: static_assert failed: &#39;invalid path for route&#39;</span>
+
+<span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/{user}x&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="c1">// error: static_assert failed: &#39;invalid path for route&#39;</span>
+</pre></div>
+</div>
+<p>Path Matching Priority:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Example</p></th>
+<th class="head"><p>Format</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Static</p></td>
+<td><p>1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/api/v1/users</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Parameterized</p></td>
+<td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/api/v1/users/{user}</span></code></p></td>
+<td><p>A name parameter enclosed within <code class="docutils literal notranslate"><span class="pre">{}</span></code>. If a request path matches more than one parameterized routes, the one with longer static prefix will be returned.</p></td>
+</tr>
+<tr class="row-even"><td><p>Wildcard</p></td>
+<td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/api/v1/#any</span></code></p></td>
+<td><p>A name parameter follow by <code class="docutils literal notranslate"><span class="pre">#</span></code>. Note that wildcard must be the last segment of the path.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="scope">
+<span id="id11"></span><h4>Scope<a class="headerlink" href="#scope" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">scope</span></code> to group one or more <code class="docutils literal notranslate"><span class="pre">route</span></code> s. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp">Scope Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span>
+<span class="w">                </span><span class="n">scope</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">logger</span><span class="p">())</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">scope</span><span class="o">&lt;</span><span class="s">&quot;/api/v1&quot;</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/register&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="o">::</span><span class="n">v1</span><span class="o">::</span><span class="n">reg</span><span class="p">))</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/login&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="o">::</span><span class="n">v1</span><span class="o">::</span><span class="n">login</span><span class="p">)))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">scope</span><span class="o">&lt;</span><span class="s">&quot;/api/v2&quot;</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/register&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="o">::</span><span class="n">v2</span><span class="o">::</span><span class="n">reg</span><span class="p">))</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">post</span><span class="o">&lt;</span><span class="s">&quot;/login&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">api</span><span class="o">::</span><span class="n">v2</span><span class="o">::</span><span class="n">login</span><span class="p">))))</span>
+<span class="w">            </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="path-parameters">
+<span id="id12"></span><h4>Path Parameters<a class="headerlink" href="#path-parameters" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">request::path()</span></code> to access the path parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp">Path Parameters Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">users</span><span class="o">::</span><span class="nn">get_user</span><span class="w"> </span><span class="p">{</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">api</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">path</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">user</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">bad_request</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">value</span><span class="p">()));</span>
+<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/api/v1/users/{user}&quot;</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">api</span><span class="o">::</span><span class="n">v1</span><span class="o">::</span><span class="n">users</span><span class="o">::</span><span class="n">get_user</span><span class="o">::</span><span class="n">api</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="query-string-parameters">
+<span id="id13"></span><h4>Query String Parameters<a class="headerlink" href="#query-string-parameters" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">request::query()</span></code> to access the query string parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp">Query String Parameters Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_user</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">query</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">user</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">bad_request</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">value</span><span class="p">()));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="urlencoded-post-form">
+<span id="id14"></span><h4>Urlencoded Post Form<a class="headerlink" href="#urlencoded-post-form" title="Link to this heading">#</a></h4>
+</section>
+<section id="state">
+<span id="id15"></span><h4>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h4>
+<p>fitoria provides a way to share data between multiple <code class="docutils literal notranslate"><span class="pre">route</span></code> s under the same <code class="docutils literal notranslate"><span class="pre">scope</span></code> by configuring the data via <code class="docutils literal notranslate"><span class="pre">scope::use_state(State&amp;&amp;)</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp">State Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cache</span><span class="w"> </span><span class="p">{</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">simple_cache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">map_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unordered_string_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="n">optional</span><span class="o">&lt;</span><span class="n">map_type</span><span class="o">::</span><span class="n">mapped_type</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">lock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_lock</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">mutex_</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">map_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">nullopt</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">lock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">mutex_</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">map_</span><span class="p">.</span><span class="n">insert_or_assign</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">value</span><span class="p">)).</span><span class="n">second</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">  </span><span class="n">map_type</span><span class="w"> </span><span class="n">map_</span><span class="p">;</span>
+<span class="w">  </span><span class="k">mutable</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_mutex</span><span class="w"> </span><span class="n">mutex_</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">using</span><span class="w"> </span><span class="n">simple_cache_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">simple_cache</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">put</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">path</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">path</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;value&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">key</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">bad_request</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">state</span><span class="o">&lt;</span><span class="n">simple_cache_ptr</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cache</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">internal_server_error</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">cache</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">put</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">created</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">accepted</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">path</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">bad_request</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">state</span><span class="o">&lt;</span><span class="n">simple_cache_ptr</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cache</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">internal_server_error</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">cache</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="p">);</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                   </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="o">*</span><span class="n">value</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">not_found</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">cache</span><span class="o">::</span><span class="n">simple_cache_ptr</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">scope</span><span class="o">&lt;</span><span class="s">&quot;/cache&quot;</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">use_state</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">put</span><span class="o">&lt;</span><span class="s">&quot;/{key}/{value}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cache</span><span class="o">::</span><span class="n">put</span><span class="p">))</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/{key}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cache</span><span class="o">::</span><span class="n">get</span><span class="p">)))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="extractor">
+<span id="id16"></span><h4>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h4>
+<p>Extractors provide a more convenient way to help user access information from <code class="docutils literal notranslate"><span class="pre">request</span></code>. Users can specify as many extractors as compiler allows per handler.</p>
+<p>Path: Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_order_tuple</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
+<span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">order</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">order_id</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">get_order_struct</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">order_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span>
+<span class="w">          </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">order_id</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/tuple/users/{user}/orders/{order_id}&quot;</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">get_order_tuple</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/struct/users/{user}/orders/{order_id}&quot;</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">get_order_struct</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Query String: Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">order_id</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">get_order</span><span class="p">(</span><span class="n">query_of</span><span class="o">&lt;</span><span class="n">order_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span>
+<span class="w">          </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">order_id</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To enable extractor for custom type, implement customization point <code class="docutils literal notranslate"><span class="pre">from_request_t</span></code>.</p>
+<p>Built-in Extractors:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Extractor</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Body Extractor</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::request</span></code></p></td>
+<td><p>Extract whole <code class="docutils literal notranslate"><span class="pre">request</span></code>.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::connection_info</span></code></p></td>
+<td><p>Extract connection info.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::path_info</span></code></p></td>
+<td><p>Extract path info parameter.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::path_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract path parameter into type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">std::tuple&lt;Ts...&gt;</span></code>, parameters are extracted in the order where they are in the path.&lt;br/&gt; <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::http::version</span></code></p></td>
+<td><p>Extract http version.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_map</span></code></p></td>
+<td><p>Extract query string parameters.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract query string parameters into type <code class="docutils literal notranslate"><span class="pre">T</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::http_fields</span></code></p></td>
+<td><p>Extract fields from request headers.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::state_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract shared state of type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
+<td><p>no</p></td>
+<td><p>Note that unlike <code class="docutils literal notranslate"><span class="pre">request::state&lt;T&gt;()</span></code> which returns <code class="docutils literal notranslate"><span class="pre">optional&lt;T&amp;&gt;</span></code>, extractor <strong>*copy the value*</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::websocket</span></code></p></td>
+<td><p>Extract as websocket.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
+<td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::string</span></code>.</p></td>
+<td><p>yes</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
+<td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code>.</p></td>
+<td><p>yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::json_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract body and parse it into json and convert to <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
+<td><p>yes</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <strong>body extractor</strong> can only be used at most once in the request handlers since it consumes the body.</p>
+</div>
+</section>
+<section id="middleware">
+<span id="id17"></span><h4>Middleware<a class="headerlink" href="#middleware" title="Link to this heading">#</a></h4>
+<p>fitoria provides middlewares which allow users to modify <code class="docutils literal notranslate"><span class="pre">reqeust</span></code> and <code class="docutils literal notranslate"><span class="pre">response</span></code> before/after the handlers being called.</p>
+<p>To create a middleware, implement customization point <code class="docutils literal notranslate"><span class="pre">to_middleware_t</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Request</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Response</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Next</span><span class="o">&gt;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">my_log_middleware</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">my_log</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{} {} HTTP/{}&quot;</span><span class="p">,</span>
+<span class="w">                             </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">to_string</span><span class="p">(</span><span class="n">req</span><span class="p">.</span><span class="n">method</span><span class="p">())),</span>
+<span class="w">                             </span><span class="n">req</span><span class="p">.</span><span class="n">path</span><span class="p">().</span><span class="n">match_path</span><span class="p">(),</span>
+<span class="w">                             </span><span class="n">req</span><span class="p">.</span><span class="n">version</span><span class="p">())</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">response</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">next_</span><span class="p">(</span><span class="n">req</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;HTTP/{} {} {}&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">http</span><span class="o">::</span><span class="n">version</span><span class="o">::</span><span class="n">v1_1</span><span class="p">,</span>
+<span class="w">        </span><span class="n">to_underlying</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">status_code</span><span class="p">().</span><span class="n">value</span><span class="p">()),</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">obsolete_reason</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">status_code</span><span class="p">().</span><span class="n">value</span><span class="p">())))</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Next2</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="n">my_log_middleware</span><span class="p">(</span><span class="n">Next2</span><span class="w"> </span><span class="n">next</span><span class="p">,</span><span class="w"> </span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="w"> </span><span class="n">lv</span><span class="p">)</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="n">next_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Next2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">next</span><span class="p">))</span>
+<span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="n">lv_</span><span class="p">(</span><span class="n">lv</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Next</span><span class="w"> </span><span class="n">next_</span><span class="p">;</span>
+<span class="w">  </span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="w"> </span><span class="n">lv_</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">my_log</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="n">my_log</span><span class="p">(</span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="w"> </span><span class="n">lv</span><span class="p">)</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="n">lv_</span><span class="p">(</span><span class="n">lv</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Request</span><span class="p">,</span>
+<span class="w">            </span><span class="k">typename</span><span class="w"> </span><span class="nc">Response</span><span class="p">,</span>
+<span class="w">            </span><span class="n">decay_to</span><span class="o">&lt;</span><span class="n">my_log</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Self</span><span class="p">,</span>
+<span class="w">            </span><span class="k">typename</span><span class="w"> </span><span class="nc">Next</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="k">friend</span><span class="w"> </span><span class="k">auto</span>
+<span class="w">  </span><span class="n">tag_invoke</span><span class="p">(</span><span class="n">to_middleware_t</span><span class="o">&lt;</span><span class="n">Request</span><span class="p">,</span><span class="w"> </span><span class="n">Response</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">Self</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">Next</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">next</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Self</span><span class="o">&gt;</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="k">template</span><span class="w"> </span><span class="n">to_middleware_impl</span><span class="o">&lt;</span><span class="n">Request</span><span class="p">,</span><span class="w"> </span><span class="n">Response</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Next</span><span class="o">&gt;</span><span class="p">(</span><span class="n">next</span><span class="p">));</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Request</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Response</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Next</span><span class="o">&gt;</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">to_middleware_impl</span><span class="p">(</span><span class="n">Next</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">next</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">my_log_middleware</span><span class="o">&lt;</span><span class="n">Request</span><span class="p">,</span><span class="w"> </span><span class="n">Response</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">Next</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Next</span><span class="o">&gt;</span><span class="p">(</span><span class="n">next</span><span class="p">),</span><span class="w"> </span><span class="n">lv_</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="w"> </span><span class="n">lv_</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>fitoria also provides built-in middlewares for convenience.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">middleware::logger</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">middleware::exception_handler</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">middleware::decompress</span></code> (<code class="docutils literal notranslate"><span class="pre">deflate</span></code>, <code class="docutils literal notranslate"><span class="pre">gzip</span></code> and <code class="docutils literal notranslate"><span class="pre">brotli</span></code>)</p></li>
+</ul>
+<p>Middlewares can be mounted by <code class="docutils literal notranslate"><span class="pre">scope::use(Middleware&amp;&amp;)</span></code> and <code class="docutils literal notranslate"><span class="pre">route::use(Middleware&amp;&amp;)</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">scope</span><span class="o">&lt;</span><span class="s">&quot;/api/v1&quot;</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">logger</span><span class="p">())</span>
+<span class="cp">#if !FITORIA_NO_EXCEPTIONS</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">exception_handler</span><span class="p">())</span>
+<span class="cp">#endif</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">decompress</span><span class="p">())</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">my_log</span><span class="p">(</span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">))</span>
+<span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/users/{user}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">get_user</span><span class="p">)))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="static-files">
+<span id="id18"></span><h4>Static Files<a class="headerlink" href="#static-files" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">web::stream_file</span></code> to serve static files. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp">Static Files Example</a>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The example code uses wildcard matching without checking the actual value of the path, which may cause serious security implications such as path traversal attack (<code class="docutils literal notranslate"><span class="pre">../</span></code>). Users should perform the validation on the input path carefully.</p>
+</div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_static_file</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">path_info</span><span class="o">&amp;</span><span class="w"> </span><span class="n">pi</span><span class="p">)</span>
+<span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">stream_file</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="o">&gt;&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pi</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="s">&quot;file_path&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">stream_file</span><span class="o">::</span><span class="n">async_open_readonly</span><span class="p">(</span><span class="n">path</span><span class="p">);</span><span class="w"> </span><span class="n">file</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">file</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">not_found</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;requsted file was not found: </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/static/#file_path&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">get_static_file</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="websocket">
+<span id="id19"></span><h4>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h4>
+<p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor, and users have to setup the websocket handlers for reading incoming or writing outgoing messages. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ws_handler</span><span class="p">(</span><span class="n">websocket</span><span class="o">::</span><span class="n">context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_read</span><span class="p">();</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
+<span class="w">       </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_read</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">binary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">get_if</span><span class="o">&lt;</span><span class="n">websocket</span><span class="o">::</span><span class="n">binary_t</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">msg</span><span class="p">);</span><span class="w"> </span><span class="n">binary</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_write_binary</span><span class="p">(</span>
+<span class="w">          </span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">binary</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">binary</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">get_if</span><span class="o">&lt;</span><span class="n">websocket</span><span class="o">::</span><span class="n">text_t</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">msg</span><span class="p">);</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_write_text</span><span class="p">(</span><span class="n">text</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">get_if</span><span class="o">&lt;</span><span class="n">websocket</span><span class="o">::</span><span class="n">close_t</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;*</span><span class="n">msg</span><span class="p">);</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">http_handler</span><span class="p">(</span><span class="n">websocket</span><span class="w"> </span><span class="n">ws</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">ws</span><span class="p">.</span><span class="n">set_handshake_timeout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+<span class="w">  </span><span class="n">ws</span><span class="p">.</span><span class="n">set_idle_timeout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">30</span><span class="p">));</span>
+<span class="w">  </span><span class="n">ws</span><span class="p">.</span><span class="n">set_keep_alive_pings</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">ws</span><span class="p">.</span><span class="n">set_handler</span><span class="p">(</span><span class="n">ws_handler</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">).</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/ws&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">http_handler</span><span class="p">)).</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="unit-testing">
+<span id="id20"></span><h4>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h4>
+<p>Unit testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> for our handlers without creating any TCP connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp">Testing Example</a>)</p>
+</section>
+</section>
+</section>
+<section id="log">
+<span id="id21"></span><h2>Log<a class="headerlink" href="#log" title="Link to this heading">#</a></h2>
+<p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::log</span></code> provides log utilities.</p>
+<section id="log-level">
+<span id="id22"></span><h3>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h3>
+<p>There are six log levels <code class="docutils literal notranslate"><span class="pre">level::trace</span></code>, <code class="docutils literal notranslate"><span class="pre">level::debug</span></code>, <code class="docutils literal notranslate"><span class="pre">level::info</span></code>, <code class="docutils literal notranslate"><span class="pre">level::warning</span></code>, <code class="docutils literal notranslate"><span class="pre">level::error</span></code> and <code class="docutils literal notranslate"><span class="pre">level::fatal</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">level</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">trace</span><span class="p">,</span>
+<span class="w">  </span><span class="n">debug</span><span class="p">,</span>
+<span class="w">  </span><span class="n">info</span><span class="p">,</span>
+<span class="w">  </span><span class="n">warning</span><span class="p">,</span>
+<span class="w">  </span><span class="n">error</span><span class="p">,</span>
+<span class="w">  </span><span class="n">fatal</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<section id="log-level-filtering">
+<span id="id23"></span><h4>Log Level Filtering<a class="headerlink" href="#log-level-filtering" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">filter</span></code> to configure the log level filtering.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// result to `info`, `warning`, `error` and `fatal`.</span>
+<span class="n">filter</span><span class="o">::</span><span class="n">at_least</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">);</span>
+
+<span class="c1">// all levels</span>
+<span class="n">filter</span><span class="o">::</span><span class="n">all</span><span class="p">();</span>
+
+<span class="c1">// load level config from the environment variable.</span>
+<span class="c1">// $ CPP_LOG=DEBUG ./my_server</span>
+<span class="n">filter</span><span class="o">::</span><span class="n">from_env</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="logger">
+<span id="id24"></span><h3>Logger<a class="headerlink" href="#logger" title="Link to this heading">#</a></h3>
+<section id="registry">
+<span id="logger-registry"></span><h4>Registry<a class="headerlink" href="#registry" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">registry::global()</span></code> can be used to access the singleton which allows users to register the logger globally, then we can create the logger by <code class="docutils literal notranslate"><span class="pre">async_logger::builder</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">registry</span><span class="o">::</span><span class="n">global</span><span class="p">().</span><span class="n">set_default_logger</span><span class="p">(</span>
+<span class="w">      </span><span class="n">async_logger</span><span class="o">::</span><span class="n">builder</span><span class="p">()</span>
+<span class="w">          </span><span class="p">.</span><span class="n">set_filter</span><span class="p">(</span><span class="n">filter</span><span class="o">::</span><span class="n">at_least</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">trace</span><span class="p">))</span>
+<span class="w">          </span><span class="p">.</span><span class="n">build</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>After registering the logger, one or more <code class="docutils literal notranslate"><span class="pre">async_writer</span></code> s should be attached to the logger in order to determine where/how to log the messages.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// an stdout writer</span>
+<span class="n">registry</span><span class="o">::</span><span class="n">global</span><span class="p">().</span><span class="n">default_logger</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add_writer</span><span class="p">(</span><span class="n">make_async_stdout_writer</span><span class="p">());</span>
+
+
+<span class="c1">// a file writer</span>
+<span class="n">registry</span><span class="o">::</span><span class="n">global</span><span class="p">().</span><span class="n">default_logger</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">add_writer</span><span class="p">(</span>
+<span class="w">    </span><span class="n">make_async_stream_file_writer</span><span class="p">(</span><span class="s">&quot;./my_server.log&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="log-messages">
+<span id="id25"></span><h4>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">log(level,</span> <span class="pre">fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">trace(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">debug(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">info(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">warning(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">error(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">fatal(fmt,</span> <span class="pre">...)</span></code> to write the logs to the default logger.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+
+<span class="n">trace</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="n">debug</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="n">info</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="n">warning</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="n">error</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="n">fatal</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="format-messages">
+<h4>Format Messages<a class="headerlink" href="#format-messages" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">formatter</span></code> allows user to customize the style of the messages being logged. Fields are mapped by named arguments and users can specify detailed format for each field.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_async_stdout_writer</span><span class="p">();</span>
+<span class="n">writer</span><span class="o">-&gt;</span><span class="n">set_formatter</span><span class="p">(</span>
+<span class="w">    </span><span class="n">formatter</span><span class="o">::</span><span class="n">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="c1">// Custom format pattern</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_pattern</span><span class="p">(</span><span class="s">&quot;{TIME:%FT%TZ} {LV:} &gt;&gt; {MSG:} &lt;&lt; {FUNC:}{FILE:}{LINE:}{COL:}&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">// Show full path of source file</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_file_name_style</span><span class="p">(</span><span class="n">file_name_style</span><span class="o">::</span><span class="n">full_path</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">// Show log level with colors</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_color_level_style</span><span class="p">());</span>
+</pre></div>
+</div>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{TIME:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::chrono::time_point&lt;std::chrono::system_clock&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::chrono::system_clock::now()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{LV:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">log::level</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{MSG:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{LINE:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::uint32_t</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::source_location::current()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{COL:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::uint32_t</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::source_location::current()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{FILE:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::string_view</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::source_location::current()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{FUNC:}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::string_view</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">std::source_location::current()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="license">
+<span id="id26"></span><h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
+<p>This project is distributed under the <a class="reference external" href="https://www.boost.org/LICENSE_1_0.txt">Boost Software License 1.0</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Welcome to fitoria’s documentation!</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#web">Web</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#http-server">HTTP Server</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tls">TLS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#threading">Threading</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#graceful-shutdown">Graceful Shutdown</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#maximize-performance">Maximize Performance</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#handlers">Handlers</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method">Method</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#route">Route</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">Scope</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#path-parameters">Path Parameters</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#query-string-parameters">Query String Parameters</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#urlencoded-post-form">Urlencoded Post Form</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#state">State</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extractor">Extractor</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#middleware">Middleware</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#static-files">Static Files</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#websocket">WebSocket</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#unit-testing">Unit Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log">Log</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level">Log Level</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-level-filtering">Log Level Filtering</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logger">Logger</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#registry">Registry</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-messages">Log Messages</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#format-messages">Format Messages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Ramirisu.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
