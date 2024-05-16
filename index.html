@@ -318,7 +318,7 @@ document.write(`
 <p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::web</span></code> provides web utilities.</p>
 <section id="getting-started">
 <span id="id2"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
-<p>The following example demonstrates how to create an <code class="docutils literal notranslate"><span class="pre">http_server</span></code> and attach handlers to it. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp">Getting Started Example</a>)</p>
+<p>The following example demonstrates how to create an simple <code class="docutils literal notranslate"><span class="pre">http_server</span></code> and attach handlers to it. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp">Getting Started Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fitoria/web.hpp&gt;</span>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fitoria</span><span class="p">;</span>
@@ -377,10 +377,9 @@ document.write(`
 <span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
 
 <span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8080</span><span class="p">);</span>
-<span class="cp">#if defined(FITORIA_HAS_OPENSSL)</span>
+
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cert</span><span class="o">::</span><span class="n">get_server_ssl_ctx</span><span class="p">(</span><span class="n">net</span><span class="o">::</span><span class="n">ssl</span><span class="o">::</span><span class="n">context</span><span class="o">::</span><span class="n">tls_server</span><span class="p">);</span>
 <span class="w">  </span><span class="n">server</span><span class="p">.</span><span class="n">bind_ssl</span><span class="p">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8443</span><span class="p">,</span><span class="w"> </span><span class="n">ssl_ctx</span><span class="p">);</span>
-<span class="cp">#endif</span>
 
 <span class="w">  </span><span class="n">ioc</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 <span class="p">}</span>
@@ -926,6 +925,10 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">middleware::exception_handler</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">middleware::decompress</span></code> (<code class="docutils literal notranslate"><span class="pre">deflate</span></code>, <code class="docutils literal notranslate"><span class="pre">gzip</span></code> and <code class="docutils literal notranslate"><span class="pre">brotli</span></code>)</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">gzip</span></code> and <code class="docutils literal notranslate"><span class="pre">brotli</span></code> must be installed for enabling their functionality in <code class="docutils literal notranslate"><span class="pre">middleware::decompress</span></code>.</p>
+</div>
 <p>Middlewares can be mounted by <code class="docutils literal notranslate"><span class="pre">scope::use(Middleware&amp;&amp;)</span></code> and <code class="docutils literal notranslate"><span class="pre">route::use(Middleware&amp;&amp;)</span></code>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
@@ -933,9 +936,7 @@ document.write(`
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server_builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
 <span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">scope</span><span class="o">&lt;</span><span class="s">&quot;/api/v1&quot;</span><span class="o">&gt;</span><span class="p">()</span>
 <span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">logger</span><span class="p">())</span>
-<span class="cp">#if !FITORIA_NO_EXCEPTIONS</span>
 <span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">exception_handler</span><span class="p">())</span>
-<span class="cp">#endif</span>
 <span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">middleware</span><span class="o">::</span><span class="n">decompress</span><span class="p">())</span>
 <span class="w">                               </span><span class="p">.</span><span class="n">use</span><span class="p">(</span><span class="n">my_log</span><span class="p">(</span><span class="n">log</span><span class="o">::</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">))</span>
 <span class="w">                               </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/users/{user}&quot;</span><span class="o">&gt;</span><span class="p">(</span><span class="n">get_user</span><span class="p">)))</span>
@@ -1035,7 +1036,7 @@ document.write(`
 <section id="log-level">
 <span id="id22"></span><h2>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h2>
 <p>There are six log levels <code class="docutils literal notranslate"><span class="pre">level::trace</span></code>, <code class="docutils literal notranslate"><span class="pre">level::debug</span></code>, <code class="docutils literal notranslate"><span class="pre">level::info</span></code>, <code class="docutils literal notranslate"><span class="pre">level::warning</span></code>, <code class="docutils literal notranslate"><span class="pre">level::error</span></code> and <code class="docutils literal notranslate"><span class="pre">level::fatal</span></code>.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">level</span><span class="w"> </span><span class="p">{</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">level</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">trace</span><span class="p">,</span>
 <span class="w">  </span><span class="n">debug</span><span class="p">,</span>
 <span class="w">  </span><span class="n">info</span><span class="p">,</span>
@@ -1085,7 +1086,7 @@ document.write(`
 </section>
 <section id="log-messages">
 <span id="id25"></span><h3>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h3>
-<p>Use <code class="docutils literal notranslate"><span class="pre">log(level,</span> <span class="pre">fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">trace(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">debug(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">info(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">warning(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">error(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">fatal(fmt,</span> <span class="pre">...)</span></code> to write the logs to the default logger.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">log(level,</span> <span class="pre">fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">trace(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">debug(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">info(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">warning(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">error(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">fatal(fmt,</span> <span class="pre">...)</span></code> to write logs to the default logger.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
 
 <span class="n">trace</span><span class="p">(</span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
