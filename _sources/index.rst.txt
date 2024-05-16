@@ -95,7 +95,7 @@ The following example demonstrates how to create an simple ``http_server`` and a
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::get<"/">(hello_world))
                        .serve(route::post<"/echo">(echo))
                        .build();
@@ -128,7 +128,7 @@ First we have to create a ``net::ssl::context`` with server certificates and des
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::get<"/">([]() -> awaitable<response> {
                          co_return response::ok()
                              .set_field(http::field::content_type,
@@ -159,7 +159,7 @@ Threading
    {
      auto ioc = net::io_context();
      auto server
-         = http_server_builder(ioc)
+         = http_server::builder(ioc)
                .serve(route::get<"/">([](std::string body) -> awaitable<response> {
                  co_return response::ok()
                      .set_field(http::field::content_type,
@@ -190,7 +190,7 @@ Use ``net::signal_set`` to handle signals and shutdown the server gracefully. (`
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc).build();
+     auto server = http_server::builder(ioc).build();
      server.bind("127.0.0.1", 8080);
    
      net::signal_set signal(ioc, SIGINT, SIGTERM);
@@ -241,7 +241,7 @@ Register a handler that serves specific method defined under ``enum class http::
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::handle<"/">(http::verb::get, get_handler))
                        .serve(route::get<"/get">(get_handler))
                        .serve(route::post<"/post">(post_handler))
@@ -307,7 +307,7 @@ Use ``scope`` to group one or more ``route`` s. (`Scope Example <https://github.
    {
      auto ioc = net::io_context();
      auto server
-         = http_server_builder(ioc)
+         = http_server::builder(ioc)
                .serve(
                    scope()
                        .use(middleware::logger())
@@ -351,7 +351,7 @@ Use ``request::path()`` to access the path parameters. (`Path Parameters Example
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::get<"/api/v1/users/{user}">(
                            api::v1::users::get_user::api))
                        .build();
@@ -470,7 +470,7 @@ fitoria provides a way to share data between multiple ``route`` s under the same
      auto cache = std::make_shared<cache::simple_cache_ptr>();
    
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(scope<"/cache">()
                                   .use_state(cache)
                                   .serve(route::put<"/{key}/{value}">(cache::put))
@@ -526,7 +526,7 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::get<"/tuple/users/{user}/orders/{order_id}">(
                            get_order_tuple))
                        .serve(route::get<"/struct/users/{user}/orders/{order_id}">(
@@ -600,7 +600,7 @@ Built-in Extractors
 +==========================+===========================================================+================+===========================================================================================================================================================================+
 | ``web::request``         | Extract whole ``request``.                                | no             |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::connection_info`` | Extract connection info.                                  | no             |                                                                                                                                                                           |
+| ``web::connect_info``    | Extract connection info.                                  | no             |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``web::path_info``       | Extract path info parameter.                              | no             |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -730,7 +730,7 @@ Middlewares can be mounted by ``scope::use(Middleware&&)`` and ``route::use(Midd
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(scope<"/api/v1">()
                                   .use(middleware::logger())
                                   .use(middleware::exception_handler())
@@ -778,7 +778,7 @@ Use ``web::stream_file`` to serve static files. (`Static Files Example <https://
    int main()
    {
      auto ioc = net::io_context();
-     auto server = http_server_builder(ioc)
+     auto server = http_server::builder(ioc)
                        .serve(route::get<"/static/#file_path">(get_static_file))
                        .build();
      server.bind("127.0.0.1", 8080);
@@ -822,8 +822,9 @@ fitoria supports websocket by using the ``websocket`` extractor. (`WebSocket Exa
    int main()
    {
      auto ioc = net::io_context();
-     auto server
-         = http_server_builder(ioc).serve(route::get<"/ws">(http_handler)).build();
+     auto server = http_server::builder(ioc)
+                       .serve(route::get<"/ws">(http_handler))
+                       .build();
      server.bind("127.0.0.1", 8080);
    
      ioc.run();
