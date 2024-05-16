@@ -55,58 +55,22 @@ private:
   bool is_called_ = false;
   std::string output_;
 };
-}
 
-TEST_CASE("logger with level off")
+auto make_logger(filter flt) -> std::shared_ptr<test_writer>
 {
-  const char* msg = "hello world";
-
-  registry::global().set_default_logger(
-      async_logger::builder().set_filter(filter::at_least(level::off)).build());
+  auto logger = async_logger::builder().set_filter(flt).build();
   auto writer = std::make_shared<test_writer>();
-  registry::global().default_logger()->add_writer(writer);
-
-  trace("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
-
-  debug("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
-
-  info("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
-
-  warning("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
-
-  error("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
-
-  fatal("{}", msg);
-  CHECK(!writer->try_acquire());
-  CHECK(!writer->is_called());
-  writer->reset();
+  logger->add_writer(writer);
+  registry::global().set_default_logger(logger);
+  return writer;
+}
 }
 
 TEST_CASE("logger with level info")
 {
   const char* msg = "hello world";
 
-  registry::global().set_default_logger(
-      async_logger::builder()
-          .set_filter(filter::at_least(level::info))
-          .build());
-  auto writer = std::make_shared<test_writer>();
-  registry::global().default_logger()->add_writer(writer);
+  auto writer = make_logger(filter::at_least(level::info));
 
   trace("{}", msg);
   CHECK(!writer->try_acquire());
