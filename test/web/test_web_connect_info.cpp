@@ -12,9 +12,9 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("[fitoria.web.connection_info]");
+TEST_SUITE_BEGIN("[fitoria.web.connect_info]");
 
-TEST_CASE("connection_info")
+TEST_CASE("connect_info")
 {
   auto ioc = net::io_context();
   auto server

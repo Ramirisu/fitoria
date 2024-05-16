@@ -46,7 +46,7 @@ namespace from_request_ns {
 
     friend auto tag_invoke(from_request_t<R>, request& req)
         -> awaitable<expected<R, std::error_code>>
-      requires(std::same_as<R, const connection_info&>)
+      requires(std::same_as<R, const connect_info&>)
     {
       co_return req.connection();
     }

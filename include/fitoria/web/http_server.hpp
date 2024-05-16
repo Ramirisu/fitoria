@@ -153,7 +153,7 @@ private:
                           ResponseHandler handler) const -> awaitable<void>
   {
     co_await handler(test_response(co_await do_handler(
-        connection_info(
+        connect_info(
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
             net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
         req.method(),
@@ -294,8 +294,8 @@ private:
       }
 
       auto res = co_await do_handler(
-          connection_info(get_lowest_layer(stream).socket().local_endpoint(),
-                          get_lowest_layer(stream).socket().remote_endpoint()),
+          connect_info(get_lowest_layer(stream).socket().local_endpoint(),
+                       get_lowest_layer(stream).socket().remote_endpoint()),
           parser->get().method(),
           http::detail::from_impl_version(parser->get().version()),
           std::string(parser->get().target()),
@@ -343,7 +343,7 @@ private:
     co_return expected<void, std::error_code>();
   }
 
-  auto do_handler(connection_info connection_info,
+  auto do_handler(connect_info conn_info,
                   http::verb method,
                   http::version version,
                   std::string target,
@@ -361,7 +361,7 @@ private:
 
     if (auto route = router_.try_find(method, req_url.value().path()); route) {
       auto req
-          = request(std::move(connection_info),
+          = request(std::move(conn_info),
                     path_info(std::string(route->matcher().pattern()),
                               req_url->path(),
                               route->matcher().match(req_url->path()).value()),

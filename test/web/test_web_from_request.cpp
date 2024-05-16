@@ -29,13 +29,13 @@ struct date_t {
 
 #endif
 
-TEST_CASE("connection_info")
+TEST_CASE("connect_info")
 {
   auto ioc = net::io_context();
   auto server
       = http_server_builder(ioc)
             .serve(route::get<"/">(
-                [](const connection_info& connection) -> awaitable<response> {
+                [](const connect_info& connection) -> awaitable<response> {
                   CHECK_EQ(connection.local().address(),
                            net::ip::make_address("127.0.0.1"));
                   CHECK_EQ(connection.local().port(), 0);

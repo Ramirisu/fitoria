@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_CONNECTION_INFO_HPP
-#define FITORIA_WEB_CONNECTION_INFO_HPP
+#ifndef FITORIA_WEB_CONNECT_INFO_HPP
+#define FITORIA_WEB_CONNECT_INFO_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,11 +17,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class connection_info {
+class connect_info {
 public:
-  connection_info() = default;
+  connect_info() = default;
 
-  connection_info(net::ip::tcp::endpoint local, net::ip::tcp::endpoint remote)
+  connect_info(net::ip::tcp::endpoint local, net::ip::tcp::endpoint remote)
       : local_(std::move(local))
       , remote_(std::move(remote))
   {

@@ -1,8 +1,8 @@
 fitoria_add_test(NAME test_web_as_form SRCS test_web_as_form.cpp)
 fitoria_add_test(NAME test_web_async_readable_stream SRCS
                  test_web_async_readable_stream.cpp)
-fitoria_add_test(NAME test_web_connection_info SRCS
-                 test_web_connection_info.cpp)
+fitoria_add_test(NAME test_web_connect_info SRCS
+                 test_web_connect_info.cpp)
 fitoria_add_test(NAME test_web_error SRCS test_web_error.cpp)
 fitoria_add_test(NAME test_web_from_request SRCS test_web_from_request.cpp)
 fitoria_add_test(NAME test_web_http_fields SRCS test_web_http_fields.cpp)

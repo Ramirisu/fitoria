@@ -16,7 +16,7 @@
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
-#include <fitoria/web/connection_info.hpp>
+#include <fitoria/web/connect_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
@@ -35,7 +35,7 @@ public:
   {
   }
 
-  request(connection_info conn_info,
+  request(connect_info conn_info,
           path_info path_info,
           http::verb method,
           http::version version,
@@ -54,7 +54,7 @@ public:
   {
   }
 
-  auto connection() const noexcept -> const connection_info&
+  auto connection() const noexcept -> const connect_info&
   {
     return conn_info_;
   }
@@ -257,7 +257,7 @@ public:
   }
 
 private:
-  connection_info conn_info_;
+  connect_info conn_info_;
   path_info path_info_;
   http::verb method_;
   http::version version_;

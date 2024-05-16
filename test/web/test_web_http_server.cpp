@@ -236,7 +236,7 @@ TEST_CASE("generic request")
       = http_server_builder(ioc)
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](request& req,
-                    const connection_info& connection,
+                    const connect_info& connection,
                     const path_info& path,
                     const http::version& ver,
                     const query_map& query,

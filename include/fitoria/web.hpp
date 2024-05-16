@@ -20,7 +20,7 @@
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
-#include <fitoria/web/connection_info.hpp>
+#include <fitoria/web/connect_info.hpp>
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/form_of.hpp>
 #include <fitoria/web/http_fields.hpp>
