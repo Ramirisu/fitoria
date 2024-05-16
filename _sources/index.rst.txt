@@ -31,9 +31,13 @@ Table of Contents
     * :ref:`scope`
     * :ref:`path_parameters`
     * :ref:`query_string_parameters`
-    * :ref:`urlencoded_post_form`
     * :ref:`state`
     * :ref:`extractor`
+
+      * :ref:`path_extractor`
+      * :ref:`query_extractor`
+      * :ref:`form_extractor`
+
     * :ref:`middleware`
     * :ref:`static_files`
     * :ref:`websocket`
@@ -380,13 +384,6 @@ Use ``request::query()`` to access the query string parameters. (`Query String P
    }
 
 
-.. _urlencoded_post_form:
-
-Urlencoded Post Form
-^^^^^^^^^^^^^^^^^^^^
-
-TODO:
-
 .. _state:
 
 State
@@ -492,6 +489,8 @@ Extractor
 
 Extractors provide a more convenient way to help user access information from ``request``. Users can specify as many extractors as compiler allows per handler.
 
+.. _path_extractor:
+
 Path
 """"
 
@@ -539,6 +538,8 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
      ioc.run();
    }
 
+.. _query_extractor:
+
 Query
 """""
 
@@ -558,6 +559,32 @@ Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`
                     http::fields::content_type::plaintext())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
+   }
+
+.. _form_extractor:
+
+Form
+""""
+
+Use ``form_of<T>`` to extract urlencoded form from body into plain ``struct``. (`Form Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp>`_)
+
+.. code-block:: cpp
+
+   namespace api::v1::login {
+   
+   struct user_t {
+     std::string username;
+     std::string password;
+   };
+   
+   auto api(form_of<user_t> user) -> awaitable<response>
+   {
+     if (user.username != "fitoria" || user.password != "123456") {
+       co_return response::unauthorized().build();
+     }
+   
+     co_return response::ok().build();
+   }
    }
 
 .. note:: 
@@ -590,6 +617,8 @@ Built-in Extractors
 | ``web::state_of<T>``     | Extract shared state of type ``T``.                       | no             | Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, extractor *copy the value*.                                                                      |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``web::websocket``       | Extract as websocket.                                     | no             |                                                                                                                                                                           |
++--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::form_of<T>``      | Extract urlencoded form from body into type ``T``         | yes            | ``T = aggregate``, parameters are extracted to the field of their name.                                                                                                   |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``std::string``          | Extract body as ``std::string``.                          | yes            |                                                                                                                                                                           |
 +--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+

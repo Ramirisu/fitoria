@@ -285,9 +285,14 @@ document.write(`
 <li><p><a class="reference internal" href="#scope"><span class="std std-ref">Scope</span></a></p></li>
 <li><p><a class="reference internal" href="#path-parameters"><span class="std std-ref">Path Parameters</span></a></p></li>
 <li><p><a class="reference internal" href="#query-string-parameters"><span class="std std-ref">Query String Parameters</span></a></p></li>
-<li><p><a class="reference internal" href="#urlencoded-post-form"><span class="std std-ref">Urlencoded Post Form</span></a></p></li>
 <li><p><a class="reference internal" href="#state"><span class="std std-ref">State</span></a></p></li>
-<li><p><a class="reference internal" href="#extractor"><span class="std std-ref">Extractor</span></a></p></li>
+<li><p><a class="reference internal" href="#extractor"><span class="std std-ref">Extractor</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#path-extractor"><span class="std std-ref">Path</span></a></p></li>
+<li><p><a class="reference internal" href="#query-extractor"><span class="std std-ref">Query</span></a></p></li>
+<li><p><a class="reference internal" href="#form-extractor"><span class="std std-ref">Form</span></a></p></li>
+</ul>
+</li>
 <li><p><a class="reference internal" href="#middleware"><span class="std std-ref">Middleware</span></a></p></li>
 <li><p><a class="reference internal" href="#static-files"><span class="std std-ref">Static Files</span></a></p></li>
 <li><p><a class="reference internal" href="#websocket"><span class="std std-ref">WebSocket</span></a></p></li>
@@ -592,12 +597,8 @@ document.write(`
 </pre></div>
 </div>
 </section>
-<section id="urlencoded-post-form">
-<span id="id14"></span><h3>Urlencoded Post Form<a class="headerlink" href="#urlencoded-post-form" title="Link to this heading">#</a></h3>
-<p>TODO:</p>
-</section>
 <section id="state">
-<span id="id15"></span><h3>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h3>
+<span id="id14"></span><h3>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h3>
 <p>fitoria provides a way to share data between multiple <code class="docutils literal notranslate"><span class="pre">route</span></code> s under the same <code class="docutils literal notranslate"><span class="pre">scope</span></code> by configuring the data via <code class="docutils literal notranslate"><span class="pre">scope::use_state(State&amp;&amp;)</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp">State Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cache</span><span class="w"> </span><span class="p">{</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">simple_cache</span><span class="w"> </span><span class="p">{</span>
@@ -690,10 +691,10 @@ document.write(`
 </div>
 </section>
 <section id="extractor">
-<span id="id16"></span><h3>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h3>
+<span id="id15"></span><h3>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h3>
 <p>Extractors provide a more convenient way to help user access information from <code class="docutils literal notranslate"><span class="pre">request</span></code>. Users can specify as many extractors as compiler allows per handler.</p>
 <section id="path">
-<h4>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h4>
+<span id="path-extractor"></span><h4>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h4>
 <p>Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_order_tuple</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
 <span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
@@ -738,7 +739,7 @@ document.write(`
 </div>
 </section>
 <section id="query">
-<h4>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h4>
+<span id="query-extractor"></span><h4>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h4>
 <p>Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
@@ -752,6 +753,28 @@ document.write(`
 <span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span>
 <span class="w">          </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">order_id</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="form">
+<span id="form-extractor"></span><h4>Form<a class="headerlink" href="#form" title="Link to this heading">#</a></h4>
+<p>Use <code class="docutils literal notranslate"><span class="pre">form_of&lt;T&gt;</span></code> to extract urlencoded form from body into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp">Form Extractor Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">login</span><span class="w"> </span><span class="p">{</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">user_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">username</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">password</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">api</span><span class="p">(</span><span class="n">form_of</span><span class="o">&lt;</span><span class="n">user_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">user</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">username</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;fitoria&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">password</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;123456&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">unauthorized</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
+<span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -821,17 +844,22 @@ document.write(`
 <td><p>no</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::form_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract urlencoded form from body into type <code class="docutils literal notranslate"><span class="pre">T</span></code></p></td>
+<td><p>yes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
 <td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::string</span></code>.</p></td>
 <td><p>yes</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
 <td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code>.</p></td>
 <td><p>yes</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::json_of&lt;T&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::json_of&lt;T&gt;</span></code></p></td>
 <td><p>Extract body and parse it into json and convert to <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
 <td><p>yes</p></td>
 <td></td>
@@ -845,7 +873,7 @@ document.write(`
 </section>
 </section>
 <section id="middleware">
-<span id="id17"></span><h3>Middleware<a class="headerlink" href="#middleware" title="Link to this heading">#</a></h3>
+<span id="id16"></span><h3>Middleware<a class="headerlink" href="#middleware" title="Link to this heading">#</a></h3>
 <p>fitoria provides middlewares which allow users to modify <code class="docutils literal notranslate"><span class="pre">reqeust</span></code> and <code class="docutils literal notranslate"><span class="pre">response</span></code> before/after the handlers being invoked.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -949,7 +977,7 @@ document.write(`
 </div>
 </section>
 <section id="static-files">
-<span id="id18"></span><h3>Static Files<a class="headerlink" href="#static-files" title="Link to this heading">#</a></h3>
+<span id="id17"></span><h3>Static Files<a class="headerlink" href="#static-files" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">web::stream_file</span></code> to serve static files. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp">Static Files Example</a>)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -987,7 +1015,7 @@ document.write(`
 </div>
 </section>
 <section id="websocket">
-<span id="id19"></span><h3>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h3>
+<span id="id18"></span><h3>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h3>
 <p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ws_handler</span><span class="p">(</span><span class="n">websocket</span><span class="o">::</span><span class="n">context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span>
 <span class="p">{</span>
@@ -1025,16 +1053,16 @@ document.write(`
 </div>
 </section>
 <section id="unit-testing">
-<span id="id20"></span><h3>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h3>
+<span id="id19"></span><h3>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h3>
 <p>Unit testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> for the handlers without creating any TCP connections. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp">Testing Example</a>)</p>
 </section>
 </section>
 </section>
 <section id="log">
-<span id="id21"></span><h1>Log<a class="headerlink" href="#log" title="Link to this heading">#</a></h1>
+<span id="id20"></span><h1>Log<a class="headerlink" href="#log" title="Link to this heading">#</a></h1>
 <p>Namespace <code class="docutils literal notranslate"><span class="pre">fitoria::log</span></code> provides log utilities.</p>
 <section id="log-level">
-<span id="id22"></span><h2>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h2>
+<span id="id21"></span><h2>Log Level<a class="headerlink" href="#log-level" title="Link to this heading">#</a></h2>
 <p>There are six log levels <code class="docutils literal notranslate"><span class="pre">level::trace</span></code>, <code class="docutils literal notranslate"><span class="pre">level::debug</span></code>, <code class="docutils literal notranslate"><span class="pre">level::info</span></code>, <code class="docutils literal notranslate"><span class="pre">level::warning</span></code>, <code class="docutils literal notranslate"><span class="pre">level::error</span></code> and <code class="docutils literal notranslate"><span class="pre">level::fatal</span></code>.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">level</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">trace</span><span class="p">,</span>
@@ -1047,7 +1075,7 @@ document.write(`
 </pre></div>
 </div>
 <section id="log-level-filtering">
-<span id="id23"></span><h3>Log Level Filtering<a class="headerlink" href="#log-level-filtering" title="Link to this heading">#</a></h3>
+<span id="id22"></span><h3>Log Level Filtering<a class="headerlink" href="#log-level-filtering" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">filter</span></code> to configure the log level filtering.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// result to `info`, `warning`, `error` and `fatal`.</span>
 <span class="n">filter</span><span class="o">::</span><span class="n">at_least</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">);</span>
@@ -1063,7 +1091,7 @@ document.write(`
 </section>
 </section>
 <section id="logger">
-<span id="id24"></span><h2>Logger<a class="headerlink" href="#logger" title="Link to this heading">#</a></h2>
+<span id="id23"></span><h2>Logger<a class="headerlink" href="#logger" title="Link to this heading">#</a></h2>
 <section id="registry">
 <span id="logger-registry"></span><h3>Registry<a class="headerlink" href="#registry" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">registry::global()</span></code> can be used to access the singleton which allows users to register the logger globally, then we can create the logger by <code class="docutils literal notranslate"><span class="pre">async_logger::builder</span></code>.</p>
@@ -1085,7 +1113,7 @@ document.write(`
 </div>
 </section>
 <section id="log-messages">
-<span id="id25"></span><h3>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h3>
+<span id="id24"></span><h3>Log Messages<a class="headerlink" href="#log-messages" title="Link to this heading">#</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">log(level,</span> <span class="pre">fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">trace(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">debug(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">info(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">warning(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">error(fmt,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">fatal(fmt,</span> <span class="pre">...)</span></code> to write logs to the default logger.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">log</span><span class="p">(</span><span class="n">level</span><span class="o">::</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
 
@@ -1154,7 +1182,7 @@ document.write(`
 </section>
 </section>
 <section id="license">
-<span id="id26"></span><h1>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h1>
+<span id="id25"></span><h1>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h1>
 <p>This project is distributed under the <a class="reference external" href="https://www.boost.org/LICENSE_1_0.txt">Boost Software License 1.0</a></p>
 </section>
 
@@ -1206,11 +1234,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scope">Scope</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-parameters">Path Parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#query-string-parameters">Query String Parameters</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#urlencoded-post-form">Urlencoded Post Form</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state">State</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extractor">Extractor</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#path">Path</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#query">Query</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#form">Form</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-extractors">Built-in Extractors</a></li>
 </ul>
 </li>
