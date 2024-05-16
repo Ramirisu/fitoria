@@ -47,7 +47,7 @@ TEST_CASE("deflate")
 
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 route::post<"/">([&](const http_fields& fields,
                                      std::string body) -> awaitable<response> {
@@ -97,7 +97,7 @@ TEST_CASE("gzip")
 
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 route::post<"/">([&](const http_fields& fields,
                                      std::string body) -> awaitable<response> {
@@ -138,7 +138,7 @@ TEST_CASE("decompress")
 
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 route::post<"/">([&](const http_fields& fields,
                                      std::string body) -> awaitable<response> {

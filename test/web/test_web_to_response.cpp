@@ -23,7 +23,7 @@ TEST_SUITE_BEGIN("[fitoria.web.to_http_response]");
 TEST_CASE("response")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::ok()
                           .set_field(http::field::content_type,
@@ -46,7 +46,7 @@ TEST_CASE("response")
 TEST_CASE("std::string")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">(
                         []() -> awaitable<std::string> { co_return "OK"; }))
                     .build();
@@ -66,7 +66,7 @@ TEST_CASE("std::vector<std::byte>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([]() -> awaitable<std::vector<std::byte>> {
               co_return std::vector<std::byte> { std::byte('O'),
                                                  std::byte('K') };
@@ -87,7 +87,7 @@ TEST_CASE("std::vector<std::byte>")
 TEST_CASE("std::vector<std::uint8_t>")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">(
                         []() -> awaitable<std::vector<std::uint8_t>> {
                           co_return std::vector<std::uint8_t> { 0x4f, 0x4b };
@@ -109,7 +109,7 @@ TEST_CASE("std::variant")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{text}">(
                 [](const path_info& path_info)
                     -> awaitable<
@@ -150,7 +150,7 @@ TEST_CASE("stream_file")
   }
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<stream_file> {
                       auto file = co_await stream_file::async_open_readonly(
                           "test_web_to_http_response.stream_file.txt");

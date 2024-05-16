@@ -95,7 +95,7 @@ TEST_CASE("websocket")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](websocket ws) -> awaitable<response> {
               co_return ws.set_handler(server_handler);
             }))
@@ -130,7 +130,7 @@ TEST_CASE("secure websocket")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](websocket ws) -> awaitable<response> {
               co_return ws.set_handler(server_handler);
             }))
@@ -171,7 +171,7 @@ TEST_CASE("async_close")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](websocket ws) -> awaitable<response> {
               co_return ws.set_handler(
                   [](websocket::context& ctx) -> awaitable<void> {
@@ -210,7 +210,7 @@ TEST_CASE("idle_timeout and no keep alive pings")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](websocket ws) -> awaitable<response> {
               ws.set_idle_timeout(std::chrono::milliseconds(500));
               ws.set_keep_alive_pings(false);

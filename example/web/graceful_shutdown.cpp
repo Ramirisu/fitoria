@@ -13,7 +13,7 @@ using namespace fitoria::web;
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc).build();
+  auto server = http_server::builder(ioc).build();
   server.bind("127.0.0.1", 8080);
 
   net::signal_set signal(ioc, SIGINT, SIGTERM);

@@ -15,7 +15,7 @@ using namespace fitoria::web;
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::ok()
                           .set_field(http::field::content_type,

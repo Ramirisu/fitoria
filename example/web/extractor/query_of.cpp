@@ -27,8 +27,9 @@ auto get_order(query_of<order_t> order) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server_builder(ioc).serve(route::get<"/order">(get_order)).build();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/order">(get_order))
+                    .build();
 
   server.bind("127.0.0.1", 8080);
 

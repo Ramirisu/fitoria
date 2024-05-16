@@ -37,11 +37,7 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class http_server_builder;
-
 class http_server {
-  friend class http_server_builder;
-
   using request_type = request&;
   using response_type = awaitable<response>;
   using router_type = router<request_type, response_type>;
@@ -70,6 +66,10 @@ class http_server {
   }
 
 public:
+  class builder;
+
+  friend class builder;
+
   http_server(const http_server&) = delete;
 
   http_server& operator=(const http_server&) = delete;
@@ -479,65 +479,55 @@ private:
   exception_handler_t exception_handler_;
 };
 
-class http_server_builder {
-  using request_type = request&;
-  using response_type = awaitable<response>;
-  using router_type = router<request_type, response_type>;
-  using duration_type = std::chrono::steady_clock::duration;
-#if FITORIA_NO_EXCEPTIONS
-  using exception_handler_t = net::detached_t;
-#else
-  using exception_handler_t = std::function<void(std::exception_ptr)>;
-#endif
-
+class http_server::builder {
 public:
-  http_server_builder(executor_type ex)
+  explicit builder(executor_type ex)
       : ex_(std::move(ex))
   {
   }
 
   template <typename ExecutionContext>
     requires std::is_convertible_v<ExecutionContext&, net::execution_context&>
-  http_server_builder(ExecutionContext& context)
+  builder(ExecutionContext& context)
       : ex_(context.get_executor())
   {
   }
 
-  auto set_max_listen_connections(int num) & noexcept -> http_server_builder&
+  auto set_max_listen_connections(int num) & noexcept -> builder&
   {
     max_listen_connections_ = num;
     return *this;
   }
 
-  auto set_max_listen_connections(int num) && noexcept -> http_server_builder&&
+  auto set_max_listen_connections(int num) && noexcept -> builder&&
   {
     set_max_listen_connections(num);
     return std::move(*this);
   }
 
   auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
-      -> http_server_builder&
+      -> builder&
   {
     tls_handshake_timeout_ = timeout;
     return *this;
   }
 
   auto set_tls_handshake_timeout(optional<duration_type> timeout) && noexcept
-      -> http_server_builder&&
+      -> builder&&
   {
     set_tls_handshake_timeout(timeout);
     return std::move(*this);
   }
 
-  auto set_request_timeout(optional<duration_type> timeout) & noexcept
-      -> http_server_builder&
+  auto
+  set_request_timeout(optional<duration_type> timeout) & noexcept -> builder&
   {
     request_timeout_ = timeout;
     return *this;
   }
 
-  auto set_request_timeout(optional<duration_type> timeout) && noexcept
-      -> http_server_builder&&
+  auto
+  set_request_timeout(optional<duration_type> timeout) && noexcept -> builder&&
   {
     set_request_timeout(timeout);
     return std::move(*this);
@@ -546,7 +536,7 @@ public:
 #if !FITORIA_NO_EXCEPTIONS
   template <typename F>
     requires std::invocable<F, std::exception_ptr>
-  auto set_exception_handler(F&& f) & -> http_server_builder&
+  auto set_exception_handler(F&& f) & -> builder&
   {
     exception_handler_.emplace(std::forward<F>(f));
     return *this;
@@ -554,7 +544,7 @@ public:
 
   template <typename F>
     requires std::invocable<F, std::exception_ptr>
-  auto set_exception_handler(F&& f) && -> http_server_builder&&
+  auto set_exception_handler(F&& f) && -> builder&&
   {
     set_exception_handler(std::forward<F>(f));
     return std::move(*this);
@@ -565,7 +555,7 @@ public:
             typename... RouteServices,
             typename Handler>
   auto serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler>
-                 route) & -> http_server_builder&
+                 route) & -> builder&
   {
     if (auto res = router_.try_insert(typename router_type::route_type(
             route.template build<request_type, response_type>(handler())));
@@ -580,7 +570,7 @@ public:
             typename... RouteServices,
             typename Handler>
   auto serve(route_impl<RoutePath, std::tuple<RouteServices...>, Handler>
-                 route) && -> http_server_builder&&
+                 route) && -> builder&&
   {
     serve(std::move(route));
 
@@ -589,7 +579,7 @@ public:
 
   template <basic_fixed_string Path, typename... Services, typename... Routes>
   auto serve(scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>
-                 scope) & -> http_server_builder&
+                 scope) & -> builder&
   {
     std::apply(
         [this](auto&&... routes) {
@@ -602,7 +592,7 @@ public:
 
   template <basic_fixed_string Path, typename... Services, typename... Routes>
   auto serve(scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>
-                 scope) && -> http_server_builder&&
+                 scope) && -> builder&&
   {
     serve(std::move(scope));
 

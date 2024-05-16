@@ -39,7 +39,7 @@ int main()
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 scope()
                     .use(middleware::logger())

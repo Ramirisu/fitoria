@@ -90,7 +90,7 @@ auto get_user(request& req) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(scope<"/api/v1">()
                                .use(middleware::logger())
 #if !FITORIA_NO_EXCEPTIONS

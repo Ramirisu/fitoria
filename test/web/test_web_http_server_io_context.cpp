@@ -26,7 +26,7 @@ TEST_CASE("compile with io_context")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::post<"/">(
                         [](std::string str)
                             -> net::awaitable<response,

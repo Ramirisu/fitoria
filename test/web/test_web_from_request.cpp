@@ -33,7 +33,7 @@ TEST_CASE("connect_info")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">(
                 [](const connect_info& connection) -> awaitable<response> {
                   CHECK_EQ(connection.local().address(),
@@ -58,7 +58,7 @@ TEST_CASE("connect_info")
 TEST_CASE("path_info")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/{user}">(
                         [](const path_info& path_info) -> awaitable<response> {
                           CHECK_EQ(path_info.get("user"), "fitoria");
@@ -79,7 +79,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
                     -> awaitable<response> {
@@ -105,7 +105,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, from_string conversion error")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<std::tuple<int, std::string, std::uint8_t>> path)
                     -> awaitable<response> {
@@ -132,7 +132,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, nb of params do not match")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<std::tuple<std::string, std::string, std::string>>
                        path) -> awaitable<response> {
@@ -159,7 +159,7 @@ TEST_CASE("path_of<T = aggregate>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{year}/{month}/{day}">(
                 [](path_of<date_t> path) -> awaitable<response> {
                   CHECK_EQ(path,
@@ -181,7 +181,7 @@ TEST_CASE("path_of<T = aggregate>, not match")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/{month}/{day}">(
                 [](path_of<date_t> path) -> awaitable<response> {
                   CHECK_EQ(path,
@@ -204,7 +204,7 @@ TEST_CASE("path_of<T = aggregate>, not match")
 TEST_CASE("query_map")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">(
                         [](const query_map& query) -> awaitable<response> {
                           CHECK_EQ(query.get("year"), "1994");
@@ -233,7 +233,7 @@ TEST_CASE("query_of<T>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">(
                 [](query_of<date_t> query) -> awaitable<response> {
                   CHECK_EQ(query,
@@ -263,7 +263,7 @@ TEST_CASE("form_of<T>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">(
                 [](form_of<date_t> query) -> awaitable<response> {
                   CHECK_EQ(query,
@@ -292,7 +292,7 @@ TEST_CASE("http_fields")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">(
                 [](const http_fields& fields) -> awaitable<response> {
                   CHECK_EQ(fields.get(http::field::connection), "close");
@@ -314,7 +314,7 @@ TEST_CASE("http_fields")
 TEST_CASE("state_of<T>")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([](state_of<std::string> st)
                                                -> awaitable<response> {
                              CHECK_EQ(st, "shared state");
@@ -334,7 +334,7 @@ TEST_CASE("state_of<T>")
 TEST_CASE("std::string")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::post<"/">(
                         [](std::string text) -> awaitable<response> {
                           CHECK_EQ(text, "abc");
@@ -356,7 +356,7 @@ TEST_CASE("std::vector<std::byte>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::post<"/">(
                 [](std::vector<std::byte> bytes) -> awaitable<response> {
                   CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
@@ -378,7 +378,7 @@ TEST_CASE("std::vector<std::uint8_t>")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::post<"/">(
                 [](std::vector<std::uint8_t> bytes) -> awaitable<response> {
                   CHECK_EQ(bytes, str_to_vec<std::uint8_t>("abc"));
@@ -443,7 +443,7 @@ tag_invoke(const boost::json::try_value_to_tag<user_t>&,
 TEST_CASE("json_of<T>")
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">(
                         [](json_of<user_t> user) -> awaitable<response> {
                           CHECK_EQ(user.name, "Rina Hidaka");

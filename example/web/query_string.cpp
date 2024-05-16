@@ -39,7 +39,7 @@ int main()
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
             .build();
   server.bind("127.0.0.1", 8080);

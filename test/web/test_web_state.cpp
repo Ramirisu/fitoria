@@ -18,7 +18,7 @@ TEST_CASE("state shares the same instance")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 scope<>()
                     .use_state(std::string("original"))
@@ -69,7 +69,7 @@ TEST_CASE("state access order on global, scope and route")
 
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(
                 scope<>()
                     .use_state(shared_resource { "global" })

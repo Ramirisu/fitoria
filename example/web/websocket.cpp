@@ -36,8 +36,9 @@ auto http_handler(websocket ws) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server_builder(ioc).serve(route::get<"/ws">(http_handler)).build();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/ws">(http_handler))
+                    .build();
   server.bind("127.0.0.1", 8080);
 
   ioc.run();

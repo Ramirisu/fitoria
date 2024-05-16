@@ -23,7 +23,7 @@ using namespace fitoria::test;
 int main()
 {
   net::io_context ioc;
-  auto server = http_server_builder(ioc).build();
+  auto server = http_server::builder(ioc).build();
   server.bind("127.0.0.1", 8080);
 
   net::thread_pool tp(1);

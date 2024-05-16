@@ -89,7 +89,7 @@ int main()
   auto cache = std::make_shared<cache::simple_cache_ptr>();
 
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(scope<"/cache">()
                                .use_state(cache)
                                .serve(route::put<"/{key}/{value}">(cache::put))

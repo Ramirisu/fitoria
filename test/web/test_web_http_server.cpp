@@ -25,7 +25,7 @@ TEST_CASE("builder")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .set_max_listen_connections(2048)
                     .set_tls_handshake_timeout(std::chrono::seconds(5))
                     .set_request_timeout(std::chrono::seconds(10))
@@ -75,7 +75,7 @@ TEST_CASE("socket reuse address")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc).build();
+  auto server = http_server::builder(ioc).build();
   CHECK(server.bind(server_ip, port));
 #if defined(FITORIA_TARGET_WINDOWS)
   CHECK(server.bind(server_ip, port));
@@ -87,7 +87,7 @@ TEST_CASE("socket reuse address")
 TEST_CASE("duplicate route")
 {
   auto ioc = net::io_context();
-  CHECK_THROWS_AS(auto server = http_server_builder(ioc).serve(
+  CHECK_THROWS_AS(auto server = http_server::builder(ioc).serve(
                       scope()
                           .serve(route::get<"/">([]() -> awaitable<response> {
                             co_return response::ok().build();
@@ -102,7 +102,7 @@ TEST_CASE("invalid target")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
                         []() -> awaitable<response> {
                           co_return response::ok().build();
@@ -144,7 +144,7 @@ TEST_CASE("expect: 100-continue")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::post<"/api/v1/post">(
                         [](std::string body) -> awaitable<response> {
                           CHECK_EQ(body, "text");
@@ -184,7 +184,7 @@ TEST_CASE("unhandled exception from handler")
   bool got_exception = false;
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .set_exception_handler([&](std::exception_ptr ptr) {
                       if (ptr) {
                         try {
@@ -233,7 +233,7 @@ TEST_CASE("generic request")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/api/v1/users/{user}/filmography/years/{year}">(
                 [=](request& req,
                     const connect_info& connection,
@@ -346,7 +346,7 @@ TEST_CASE("request to route accepting wildcard")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/api/v1/#wildcard">(
                 [=](const path_info& path_info) -> awaitable<response> {
                   CHECK_EQ(path_info.match_pattern(), "/api/v1/#wildcard");
@@ -383,7 +383,7 @@ TEST_CASE("request with null body")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
               CHECK_EQ(req.fields().get(http::field::connection), "close");
               CHECK(!req.fields().get(http::field::content_length));
@@ -418,7 +418,7 @@ TEST_CASE("request with empty body")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::post<"/">(
                 [](const request& req, std::string str) -> awaitable<response> {
                   CHECK_EQ(req.fields().get(http::field::connection), "close");
@@ -456,7 +456,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::post<"/">(
                         [text](const request& req,
                                std::string data) -> awaitable<response> {
@@ -497,7 +497,7 @@ TEST_CASE("response status only")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::no_content().build();
                     }))
@@ -534,7 +534,7 @@ TEST_CASE("response with plain text")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([text]() -> awaitable<response> {
                       co_return response::ok()
                           .set_field(http::field::content_type,
@@ -576,7 +576,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([text]() -> awaitable<response> {
                       co_return response::ok()
                           .set_field(http::field::content_type,
@@ -614,7 +614,7 @@ TEST_CASE("response with default HTTP/1.1")
 {
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::ok().build();
                     }))
@@ -648,7 +648,7 @@ TEST_CASE("response with HTTP/1.0")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([]() -> awaitable<response> {
               co_return response::ok().set_version(http::version::v1_0).build();
             }))

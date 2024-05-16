@@ -18,7 +18,7 @@ TEST_CASE("connect_info")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
               CHECK_EQ(req.connection().local().address(),
                        net::ip::make_address("127.0.0.1"));

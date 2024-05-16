@@ -38,7 +38,7 @@ auto get_order_struct(path_of<order_t> order) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/tuple/users/{user}/orders/{order_id}">(
                         get_order_tuple))
                     .serve(route::get<"/struct/users/{user}/orders/{order_id}">(

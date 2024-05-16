@@ -28,7 +28,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
   const auto port = generate_port();
   net::io_context ioc;
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(route::get<"/api/repos/{repo}">(
                 [](request& req, std::string body) -> awaitable<response> {
                   CHECK_EQ(req.method(), http::verb::get);
@@ -99,7 +99,7 @@ TEST_CASE("tls_handshake_timeout")
 {
   const auto port = generate_port();
   net::io_context ioc;
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .set_tls_handshake_timeout(std::chrono::milliseconds(500))
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::ok().build();

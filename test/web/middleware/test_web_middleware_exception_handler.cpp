@@ -20,7 +20,7 @@ TEST_CASE("exception_handler middleware")
 {
   auto ioc = net::io_context();
   auto server
-      = http_server_builder(ioc)
+      = http_server::builder(ioc)
             .serve(scope<"/api">()
                        .use(middleware::exception_handler())
                        .serve(route::get<"/">(

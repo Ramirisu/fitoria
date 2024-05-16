@@ -53,7 +53,7 @@ auto any_handler() -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::handle<"/">(http::verb::get, get_handler))
                     .serve(route::get<"/get">(get_handler))
                     .serve(route::post<"/post">(post_handler))

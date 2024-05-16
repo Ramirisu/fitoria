@@ -49,7 +49,7 @@ auto api(form_of<user_t> user) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::post<"/api/v1/login">(api::v1::login::api))
                     .build();
   server.bind("127.0.0.1", 8080);

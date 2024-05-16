@@ -38,7 +38,7 @@ auto api(const request& req) -> awaitable<response>
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/api/v1/users/{user}">(
                         api::v1::users::get_user::api))
                     .build();

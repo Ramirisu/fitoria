@@ -32,7 +32,7 @@ auto get_static_file(const path_info& pi)
 int main()
 {
   auto ioc = net::io_context();
-  auto server = http_server_builder(ioc)
+  auto server = http_server::builder(ioc)
                     .serve(route::get<"/static/#file_path">(get_static_file))
                     .build();
   server.bind("127.0.0.1", 8080);
