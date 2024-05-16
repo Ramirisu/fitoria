@@ -17,7 +17,6 @@
 #include <fitoria/web/async_read_into_stream_file.hpp>
 #include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/detail/as_json.hpp>
-#include <fitoria/web/http_fields.hpp>
 
 #include <fitoria/client/error.hpp>
 
@@ -29,11 +28,11 @@ class http_response {
 public:
   http_response(http::status_code status_code,
                 http::version version,
-                web::http_fields fields,
+                http::header header,
                 web::any_async_readable_stream body)
       : status_code_(status_code)
       , version_(version)
-      , fields_(std::move(fields))
+      , header_(std::move(header))
       , body_(std::move(body))
   {
   }
@@ -56,14 +55,14 @@ public:
     return version_;
   }
 
-  auto fields() noexcept -> web::http_fields&
+  auto fields() noexcept -> http::header&
   {
-    return fields_;
+    return header_;
   }
 
-  auto fields() const noexcept -> const web::http_fields&
+  auto fields() const noexcept -> const http::header&
   {
-    return fields_;
+    return header_;
   }
 
   auto body() noexcept -> web::any_async_readable_stream&
@@ -123,7 +122,7 @@ public:
 private:
   http::status_code status_code_ = http::status::ok;
   http::version version_ = http::version::v1_1;
-  web::http_fields fields_;
+  http::header header_;
   web::any_async_readable_stream body_;
 };
 

@@ -288,14 +288,14 @@ TEST_CASE("form_of<T>")
 
 #endif
 
-TEST_CASE("http_fields")
+TEST_CASE("http::header")
 {
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
             .serve(route::get<"/">(
-                [](const http_fields& fields) -> awaitable<response> {
-                  CHECK_EQ(fields.get(http::field::connection), "close");
+                [](const http::header& header) -> awaitable<response> {
+                  CHECK_EQ(header.get(http::field::connection), "close");
                   co_return response::ok().build();
                 }))
             .build();

@@ -239,8 +239,8 @@ TEST_CASE("generic request")
                     const connect_info& connection,
                     const path_info& path,
                     const http::version& ver,
+                    const http::header& header,
                     const query_map& query,
-                    const http_fields& fields,
                     std::string body) -> awaitable<response> {
                   auto test_connection = [=](auto& conn) {
                     CHECK_EQ(conn.local().address(),
@@ -276,14 +276,14 @@ TEST_CASE("generic request")
                   test_query(static_cast<const request&>(req).query());
                   test_query(query);
 
-                  auto test_fields = [](auto& fields) {
-                    CHECK_EQ(fields.get(http::field::content_type),
+                  auto test_header = [](auto& header) {
+                    CHECK_EQ(header.get(http::field::content_type),
                              http::fields::content_type::plaintext());
                   };
 
-                  test_fields(req.fields());
-                  test_fields(static_cast<const request&>(req).fields());
-                  test_fields(fields);
+                  test_header(req.fields());
+                  test_header(static_cast<const request&>(req).fields());
+                  test_header(header);
 
                   CHECK(range_in_set(
                       req.fields().equal_range(http::field::user_agent),

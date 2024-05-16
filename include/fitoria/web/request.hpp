@@ -20,7 +20,6 @@
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/connect_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
-#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/path_info.hpp>
 #include <fitoria/web/query_map.hpp>
 #include <fitoria/web/state_storage.hpp>
@@ -41,7 +40,7 @@ public:
           http::verb method,
           http::version version,
           query_map query,
-          http_fields fields,
+          http::header header,
           any_async_readable_stream body,
           state_storage states)
       : conn_info_(std::move(conn_info))
@@ -49,7 +48,7 @@ public:
       , method_(method)
       , version_(version)
       , query_(std::move(query))
-      , fields_(std::move(fields))
+      , header_(std::move(header))
       , body_(std::move(body))
       , states_(std::move(states))
   {
@@ -114,61 +113,61 @@ public:
     return std::move(*this);
   };
 
-  auto fields() noexcept -> http_fields&
+  auto fields() noexcept -> http::header&
   {
-    return fields_;
+    return header_;
   }
 
-  auto fields() const noexcept -> const http_fields&
+  auto fields() const noexcept -> const http::header&
   {
-    return fields_;
+    return header_;
   }
 
   auto set_field(std::string name, std::string_view value) & -> request&
   {
-    fields_.set(std::move(name), value);
+    header_.set(std::move(name), value);
     return *this;
   }
 
   auto set_field(std::string name, std::string_view value) && -> request&&
   {
-    fields_.set(std::move(name), value);
+    header_.set(std::move(name), value);
     return std::move(*this);
   }
 
   auto set_field(http::field name, std::string_view value) & -> request&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return *this;
   }
 
   auto set_field(http::field name, std::string_view value) && -> request&&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return std::move(*this);
   }
 
   auto insert_field(std::string name, std::string_view value) & -> request&
   {
-    fields_.insert(std::move(name), value);
+    header_.insert(std::move(name), value);
     return *this;
   }
 
   auto insert_field(std::string name, std::string_view value) && -> request&&
   {
-    fields_.insert(std::move(name), value);
+    header_.insert(std::move(name), value);
     return std::move(*this);
   }
 
   auto insert_field(http::field name, std::string_view value) & -> request&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return *this;
   }
 
   auto insert_field(http::field name, std::string_view value) && -> request&&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return std::move(*this);
   }
 
@@ -263,7 +262,7 @@ private:
   http::verb method_;
   http::version version_;
   query_map query_;
-  http_fields fields_;
+  http::header header_;
   any_async_readable_stream body_ = async_readable_vector_stream();
   state_storage states_;
 };

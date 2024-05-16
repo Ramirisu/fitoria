@@ -26,7 +26,6 @@
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
-#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 
 #include <fitoria/client/http_response.hpp>
@@ -42,7 +41,6 @@ using web::async_read_until_eof;
 using web::async_readable_stream;
 using web::async_readable_vector_stream;
 using web::async_write_chunks;
-using web::http_fields;
 using web::query_map;
 
 class http_client {
@@ -141,19 +139,19 @@ public:
     return std::move(*this);
   }
 
-  auto fields() noexcept -> http_fields&
+  auto fields() noexcept -> http::header&
   {
-    return fields_;
+    return header_;
   }
 
-  auto fields() const noexcept -> const http_fields&
+  auto fields() const noexcept -> const http::header&
   {
-    return fields_;
+    return header_;
   }
 
   auto set_field(http::field name, std::string_view value) & -> http_client&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return *this;
   }
 
@@ -166,7 +164,7 @@ public:
   auto set_field(std::string_view name,
                  std::string_view value) & -> http_client&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return *this;
   }
 
@@ -179,7 +177,7 @@ public:
 
   auto insert_field(http::field name, std::string_view value) & -> http_client&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return *this;
   }
 
@@ -192,7 +190,7 @@ public:
 
   auto insert_field(std::string name, std::string_view value) & -> http_client&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return *this;
   }
 
@@ -494,7 +492,7 @@ private:
     co_return http_response(
         parser->get().result(),
         http::detail::from_impl_version(parser->get().version()),
-        http_fields::from_impl(parser->get()),
+        http::header::from_impl(parser->get()),
         [&]() -> any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
             return async_message_parser_stream(
@@ -514,7 +512,7 @@ private:
 
     auto req = request<vector_body<std::byte>>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    fields_.to_impl(req);
+    header_.to_impl(req);
     req.set(http::field::host, resource_->host);
     if (auto data
         = co_await async_read_until_eof<std::vector<std::byte>>(body_.stream());
@@ -532,7 +530,7 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = fields_.get(http::field::expect); field
+    if (auto field = header_.get(http::field::expect); field
         && iequals(*field, http::fields::expect::one_hundred_continue())) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
@@ -558,7 +556,7 @@ private:
 
     auto req = request<empty_body>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    fields_.to_impl(req);
+    header_.to_impl(req);
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
@@ -569,7 +567,7 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = fields_.get(http::field::expect); field
+    if (auto field = header_.get(http::field::expect); field
         && iequals(*field, http::fields::expect::one_hundred_continue())) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
@@ -602,7 +600,7 @@ private:
       co_return http_response(
           res.result(),
           http::detail::from_impl_version(res.version()),
-          http_fields::from_impl(res),
+          http::header::from_impl(res),
           async_readable_vector_stream(std::move(res.body())));
     }
 
@@ -621,7 +619,7 @@ private:
   expected<resource, std::error_code> resource_;
   query_map query_;
   http::verb method_ = http::verb::unknown;
-  http_fields fields_;
+  http::header header_;
   any_body body_;
   optional<duration_type> handshake_timeout_ = std::chrono::seconds(3);
   optional<duration_type> transfer_timeout_ = std::chrono::seconds(5);

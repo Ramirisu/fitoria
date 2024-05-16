@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_FIELDS_HPP
-#define FITORIA_WEB_HTTP_FIELDS_HPP
+#ifndef FITORIA_HTTP_HEADER_HPP
+#define FITORIA_HTTP_HEADER_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -17,13 +17,13 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web {
+namespace http {
 
-class http_fields {
+class header {
 private:
   using impl_type = boost::beast::http::fields;
 
-  http_fields(impl_type impl)
+  header(impl_type impl)
       : impl_(std::move(impl))
   {
   }
@@ -34,15 +34,15 @@ public:
   using iterator = typename impl_type::iterator;
   using const_iterator = typename impl_type::const_iterator;
 
-  http_fields() = default;
+  header() = default;
 
-  http_fields(const http_fields&) = default;
+  header(const header&) = default;
 
-  http_fields(http_fields&&) = default;
+  header(header&&) = default;
 
-  http_fields& operator=(const http_fields&) = default;
+  header& operator=(const header&) = default;
 
-  http_fields& operator=(http_fields&&) = default;
+  header& operator=(header&&) = default;
 
   auto empty() const noexcept -> bool
   {
@@ -157,7 +157,7 @@ public:
     return impl_.cend();
   }
 
-  static auto from_impl(impl_type impl) -> http_fields
+  static auto from_impl(impl_type impl) -> header
   {
     return { std::move(impl) };
   }

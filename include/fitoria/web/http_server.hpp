@@ -299,7 +299,7 @@ private:
           parser->get().method(),
           http::detail::from_impl_version(parser->get().version()),
           std::string(parser->get().target()),
-          http_fields::from_impl(parser->get()),
+          http::header::from_impl(parser->get()),
           session_state,
           [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
@@ -347,7 +347,7 @@ private:
                   http::verb method,
                   http::version version,
                   std::string target,
-                  http_fields fields,
+                  http::header fields,
                   shared_state_map session_state,
                   any_async_readable_stream body) const -> awaitable<response>
   {

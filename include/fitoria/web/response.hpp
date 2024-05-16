@@ -18,7 +18,6 @@
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
-#include <fitoria/web/http_fields.hpp>
 
 #include <span>
 
@@ -33,16 +32,16 @@ class response {
 
   http::status_code status_code_ = http::status::ok;
   http::version version_ = http::version::v1_1;
-  http_fields fields_;
+  http::header header_;
   any_body body_;
 
   response(http::status_code status_code,
            http::version version,
-           http_fields fields,
+           http::header header,
            any_body body)
       : status_code_(status_code)
       , version_(version)
-      , fields_(std::move(fields))
+      , header_(std::move(header))
       , body_(std::move(body))
   {
   }
@@ -68,14 +67,14 @@ public:
     return version_;
   }
 
-  auto fields() noexcept -> http_fields&
+  auto fields() noexcept -> http::header&
   {
-    return fields_;
+    return header_;
   }
 
-  auto fields() const noexcept -> const http_fields&
+  auto fields() const noexcept -> const http::header&
   {
-    return fields_;
+    return header_;
   }
 
   auto body() noexcept -> any_body&
@@ -171,16 +170,16 @@ class response_builder {
 
   http::status_code status_code_ = http::status::ok;
   http::version version_ = http::version::v1_1;
-  http_fields fields_;
+  http::header header_;
   any_body body_;
 
   response_builder(http::status_code status_code,
                    http::version version,
-                   http_fields fields,
+                   http::header fields,
                    any_body body)
       : status_code_(status_code)
       , version_(version)
-      , fields_(std::move(fields))
+      , header_(std::move(fields))
       , body_(std::move(body))
   {
   }
@@ -228,62 +227,62 @@ public:
   auto set_field(std::string_view name,
                  std::string_view value) & -> response_builder&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return *this;
   }
 
   auto set_field(std::string_view name,
                  std::string_view value) && -> response_builder&&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return std::move(*this);
   }
 
   auto set_field(http::field name,
                  std::string_view value) & -> response_builder&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return *this;
   }
 
   auto set_field(http::field name,
                  std::string_view value) && -> response_builder&&
   {
-    fields_.set(name, value);
+    header_.set(name, value);
     return std::move(*this);
   }
 
   auto insert_field(std::string_view name,
                     std::string_view value) & -> response_builder&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return *this;
   }
 
   auto insert_field(std::string_view name,
                     std::string_view value) && -> response_builder&&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return std::move(*this);
   }
 
   auto insert_field(http::field name,
                     std::string_view value) & -> response_builder&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return *this;
   }
 
   auto insert_field(http::field name,
                     std::string_view value) && -> response_builder&&
   {
-    fields_.insert(name, value);
+    header_.insert(name, value);
     return std::move(*this);
   }
 
   auto build() -> response
   {
-    return { status_code_, version_, std::move(fields_), std::move(body_) };
+    return { status_code_, version_, std::move(header_), std::move(body_) };
   }
 
   template <std::size_t N>
@@ -324,7 +323,7 @@ public:
 
 inline auto response::builder() -> response_builder
 {
-  return { status_code_, version_, std::move(fields_), std::move(body_) };
+  return { status_code_, version_, std::move(header_), std::move(body_) };
 }
 
 inline auto response::continue_() -> response_builder

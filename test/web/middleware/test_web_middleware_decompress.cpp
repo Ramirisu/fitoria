@@ -49,9 +49,9 @@ TEST_CASE("deflate")
   auto server
       = http_server::builder(ioc)
             .serve(
-                route::post<"/">([&](const http_fields& fields,
+                route::post<"/">([&](const http::header& header,
                                      std::string body) -> awaitable<response> {
-                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK(!header.get(http::field::content_encoding));
                   CHECK_EQ(body, plain);
                   co_return response::ok().build();
                 }).use(middleware::decompress()))
@@ -99,9 +99,9 @@ TEST_CASE("gzip")
   auto server
       = http_server::builder(ioc)
             .serve(
-                route::post<"/">([&](const http_fields& fields,
+                route::post<"/">([&](const http::header& header,
                                      std::string body) -> awaitable<response> {
-                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK(!header.get(http::field::content_encoding));
                   CHECK_EQ(body, plain);
                   co_return response::ok().build();
                 }).use(middleware::decompress()))
@@ -140,9 +140,9 @@ TEST_CASE("decompress")
   auto server
       = http_server::builder(ioc)
             .serve(
-                route::post<"/">([&](const http_fields& fields,
+                route::post<"/">([&](const http::header& header,
                                      std::string body) -> awaitable<response> {
-                  CHECK(!fields.get(http::field::content_encoding));
+                  CHECK(!header.get(http::field::content_encoding));
                   CHECK_EQ(body, plain);
                   co_return response::ok().build();
                 }).use(middleware::decompress()))

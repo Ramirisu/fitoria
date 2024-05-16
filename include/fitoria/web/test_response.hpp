@@ -18,7 +18,6 @@
 #include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/detail/as_json.hpp>
 #include <fitoria/web/error.hpp>
-#include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
@@ -29,7 +28,7 @@ class test_response {
 public:
   test_response(web::response response)
       : status_code_(response.status_code())
-      , fields_(std::move(response.fields()))
+      , header_(std::move(response.fields()))
       , body_(std::move(response.body().stream()))
   {
   }
@@ -47,14 +46,14 @@ public:
     return status_code_;
   }
 
-  auto fields() noexcept -> web::http_fields&
+  auto fields() noexcept -> http::header&
   {
-    return fields_;
+    return header_;
   }
 
-  auto fields() const noexcept -> const web::http_fields&
+  auto fields() const noexcept -> const http::header&
   {
-    return fields_;
+    return header_;
   }
 
   auto body() noexcept -> optional<web::any_async_readable_stream&>
@@ -113,7 +112,7 @@ public:
 
 private:
   http::status_code status_code_ = http::status::ok;
-  web::http_fields fields_;
+  http::header header_;
   web::any_async_readable_stream body_;
 };
 
