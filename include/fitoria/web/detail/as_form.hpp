@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_AS_FORM_HPP
-#define FITORIA_WEB_AS_FORM_HPP
+#ifndef FITORIA_WEB_DETAIL_AS_FORM_HPP
+#define FITORIA_WEB_DETAIL_AS_FORM_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -19,7 +19,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web {
+namespace web::detail {
 
 inline expected<query_map, std::error_code> as_form(std::string_view text)
 {

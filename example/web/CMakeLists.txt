@@ -1,5 +1,4 @@
 fitoria_add_example(NAME file SRCS file.cpp)
-fitoria_add_example(NAME form SRCS form.cpp)
 fitoria_add_example(NAME getting_started SRCS getting_started.cpp)
 fitoria_add_example(NAME graceful_shutdown SRCS graceful_shutdown.cpp)
 fitoria_add_example(NAME method SRCS method.cpp)

@@ -11,7 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/from_string.hpp>
+#include <fitoria/web/detail/extract_query.hpp>
 
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/from_request.hpp>
@@ -29,6 +29,8 @@ namespace web {
 template <typename T>
 class query_of : public T {
 public:
+  static_assert(not_cvref<T>, "T must not be cvref qualified");
+
   explicit query_of(T inner)
       : T(std::move(inner))
   {
@@ -37,39 +39,13 @@ public:
   friend auto tag_invoke(from_request_t<query_of<T>>, request& req)
       -> awaitable<expected<query_of<T>, std::error_code>>
   {
-    co_return unpack_query(
+    if (req.query().size() != boost::pfr::tuple_size_v<T>) {
+      co_return unexpected { make_error_code(
+          error::extractor_field_count_not_match) };
+    }
+
+    co_return detail::extract_query<query_of<T>>::extract(
         req.query(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
-  }
-
-private:
-  template <std::size_t... Is>
-  static auto unpack_query(const query_map& map, std::index_sequence<Is...>)
-      -> expected<query_of<T>, std::error_code>
-  {
-    if (sizeof...(Is) == map.size()) {
-      T result;
-      if ((try_assign_field_index<Is>(map, result) && ...)) {
-        return query_of<T>(std::move(result));
-      }
-    }
-
-    return unexpected { make_error_code(error::path_extraction_error) };
-  }
-
-  template <std::size_t I>
-  static bool try_assign_field_index(const query_map& map, T& result)
-  {
-    if (auto value = map.get(boost::pfr::get_name<I, T>()); value) {
-      if (auto str
-          = from_string<std::decay_t<decltype(boost::pfr::get<I>(result))>>(
-              *value);
-          str) {
-        boost::pfr::get<I>(result) = std::move(*str);
-        return true;
-      }
-    }
-
-    return false;
   }
 };
 

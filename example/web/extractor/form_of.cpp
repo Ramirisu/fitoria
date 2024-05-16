@@ -13,26 +13,32 @@ using namespace fitoria::web;
 // clang-format off
 //
 // $ ./form
-// $ curl -X POST http://127.0.0.1:8080/api/v1/login -d 'name=ramirisu&password=123456' -v
+// $ curl -X POST http://127.0.0.1:8080/api/v1/login -d 'username=fitoria&password=123456' -v
 //
-// curl output:
+// > POST /api/v1/login HTTP/1.1
+// > Host: 127.0.0.1:8080
+// > User-Agent: curl/8.4.0
+// > Accept: */*
+// > Content-Length: 32
+// > Content-Type: application/x-www-form-urlencoded
+// >
 // < HTTP/1.1 200 OK
-// < Content-Type: text/plain
 // < Content-Length: 0
+// <
 // 
 //
 // clang-format on
 
 namespace api::v1::login {
-auto api(const request& req, std::string body) -> awaitable<response>
+
+struct user_t {
+  std::string username;
+  std::string password;
+};
+
+auto api(form_of<user_t> user) -> awaitable<response>
 {
-  if (req.fields().get(http::field::content_type)
-      != http::fields::content_type::form_urlencoded()) {
-    co_return response::bad_request().build();
-  }
-  auto user = as_form(body);
-  if (!user || user->get("name") != "ramirisu"
-      || user->get("password") != "123456") {
+  if (user.username != "fitoria" || user.password != "123456") {
     co_return response::unauthorized().build();
   }
 

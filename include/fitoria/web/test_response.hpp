@@ -100,7 +100,7 @@ public:
     if (fields().get(web::http::field::content_type)
         != web::http::fields::content_type::json()) {
       co_return unexpected { make_error_code(
-          web::error::unexpected_content_type_json) };
+          web::error::content_type_not_application_json) };
     }
 
     if (auto str = co_await web::async_read_until_eof<std::string>(body_);

@@ -13,7 +13,6 @@
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/any_routable.hpp>
-#include <fitoria/web/as_form.hpp>
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
 #include <fitoria/web/async_read_until_eof.hpp>
@@ -23,6 +22,7 @@
 #include <fitoria/web/async_write_chunks.hpp>
 #include <fitoria/web/connection_info.hpp>
 #include <fitoria/web/error.hpp>
+#include <fitoria/web/form_of.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/http_server.hpp>
 #include <fitoria/web/json_of.hpp>

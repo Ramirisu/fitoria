@@ -18,7 +18,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace client {
 
 enum class error {
-  unexpected_content_type_json,
+  content_type_not_application_json,
 };
 
 class error_category : public std::error_category {
@@ -33,7 +33,7 @@ public:
   std::string message(int condition) const override
   {
     switch (static_cast<error>(condition)) {
-    case error::unexpected_content_type_json:
+    case error::content_type_not_application_json:
       return "unexpected Content-Type received, expected \"Content-Type: "
              "application/json\"";
     default:

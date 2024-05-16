@@ -257,6 +257,37 @@ TEST_CASE("query_of<T>")
 
 #endif
 
+#if defined(FITORIA_HAS_BOOST_PFR)
+
+TEST_CASE("form_of<T>")
+{
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">(
+                [](form_of<date_t> query) -> awaitable<response> {
+                  CHECK_EQ(query,
+                           date_t { .month = "06", .day = "15", .year = 1994 });
+                  co_return response::ok().build();
+                }))
+            .build();
+
+  server.serve_request(
+      "/",
+      request(http::verb::get)
+          .set_field(http::field::content_type,
+                     http::fields::content_type::form_urlencoded())
+          .set_body("year=1994&month=06&day=15"),
+      [](auto res) -> awaitable<void> {
+        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK(!(co_await res.as_string()));
+      });
+
+  ioc.run();
+}
+
+#endif
+
 TEST_CASE("http_fields")
 {
   auto ioc = net::io_context();

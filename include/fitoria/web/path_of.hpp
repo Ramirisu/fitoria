@@ -11,7 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/from_string.hpp>
+#include <fitoria/web/detail/extract_query.hpp>
 
 #include <fitoria/web/error.hpp>
 #include <fitoria/web/from_request.hpp>
@@ -41,40 +41,13 @@ public:
   friend auto tag_invoke(from_request_t<path_of<T>>, request& req)
       -> awaitable<expected<path_of<T>, std::error_code>>
   {
-    co_return unpack_path(
+    if (req.path().size() != boost::pfr::tuple_size_v<T>) {
+      co_return unexpected { make_error_code(
+          error::extractor_field_count_not_match) };
+    }
+
+    co_return detail::extract_query<path_of<T>>::extract(
         req.path(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
-  }
-
-private:
-  template <std::size_t... Is>
-  static auto unpack_path(const path_info& path_info,
-                          std::index_sequence<Is...>)
-      -> expected<path_of<T>, std::error_code>
-  {
-    if (sizeof...(Is) == path_info.size()) {
-      T result;
-      if ((try_assign_field_index<Is>(path_info, result) && ...)) {
-        return path_of<T>(std::move(result));
-      }
-    }
-
-    return unexpected { make_error_code(error::path_extraction_error) };
-  }
-
-  template <std::size_t I>
-  static bool try_assign_field_index(const path_info& path_info, T& result)
-  {
-    if (auto value = path_info.get(boost::pfr::get_name<I, T>()); value) {
-      if (auto str
-          = from_string<std::decay_t<decltype(boost::pfr::get<I>(result))>>(
-              *value);
-          str) {
-        boost::pfr::get<I>(result) = std::move(*str);
-        return true;
-      }
-    }
-
-    return false;
   }
 };
 
@@ -99,33 +72,33 @@ public:
                          request& req)
       -> awaitable<expected<path_of<std::tuple<Ts...>>, std::error_code>>
   {
-    co_return unpack_path(req.path(),
-                          std::make_index_sequence<sizeof...(Ts)> {});
+    if (req.path().size() != sizeof...(Ts)) {
+      co_return unexpected { make_error_code(
+          error::extractor_field_count_not_match) };
+    }
+
+    co_return extract_path(req.path(),
+                           std::make_index_sequence<sizeof...(Ts)> {});
   }
 
 private:
   template <std::size_t... Is>
-  static auto unpack_path(const path_info& path_info,
-                          std::index_sequence<Is...>)
+  static auto extract_path(const path_info& path_info,
+                           std::index_sequence<Is...>)
       -> expected<path_of<std::tuple<Ts...>>, std::error_code>
   {
-    if (sizeof...(Is) == path_info.size()) {
-      auto args = std::tuple<expected<Ts, std::error_code>...> {
-        from_string<Ts>(path_info.at(Is))...
-      };
+    auto args = std::tuple<expected<Ts, std::error_code>...> { from_string<Ts>(
+        path_info.at(Is))... };
 
-      if (auto err = get_error_of<0, sizeof...(Is)>(args); err) {
-        return unexpected { *err };
-      }
-
-      return std::apply(
-          [](auto&... ts) -> path_of<std::tuple<Ts...>> {
-            return path_of<std::tuple<Ts...>> { std::move(ts.value())... };
-          },
-          args);
+    if (auto err = get_error_of<0, sizeof...(Is)>(args); err) {
+      return unexpected { *err };
     }
 
-    return unexpected { make_error_code(error::path_extraction_error) };
+    return std::apply(
+        [](auto&... ts) -> path_of<std::tuple<Ts...>> {
+          return path_of<std::tuple<Ts...>> { std::move(ts.value())... };
+        },
+        args);
   }
 
   template <std::size_t I, std::size_t Count>

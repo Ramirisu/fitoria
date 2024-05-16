@@ -7,10 +7,11 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/web/as_form.hpp>
+#include <fitoria/web/detail/as_form.hpp>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::web::detail;
 
 TEST_SUITE_BEGIN("[fitoria.web.as_form]");
 
