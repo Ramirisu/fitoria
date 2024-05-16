@@ -7,12 +7,12 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/web/http/status_code.hpp>
+#include <fitoria/http/status_code.hpp>
 
-using namespace fitoria::web::http;
 using namespace fitoria;
+using namespace fitoria::http;
 
-TEST_SUITE_BEGIN("[fitoria.web.http.status_code]");
+TEST_SUITE_BEGIN("[fitoria.http.status_code]");
 
 TEST_CASE("value")
 {
@@ -42,15 +42,6 @@ TEST_CASE("category")
   CHECK_EQ(status_code(status::internal_server_error).category(),
            status_class::server_error);
   CHECK_EQ(status_code(status::unknown).category(), status_class::unknown);
-}
-
-TEST_CASE("match")
-{
-  CHECK_EQ(status_code(status::ok).match({ status::ok, status::accepted }),
-           status::ok);
-  CHECK_EQ(
-      status_code(status::bad_request).match({ status::ok, status::accepted }),
-      nullopt);
 }
 
 TEST_CASE("format")

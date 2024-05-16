@@ -11,11 +11,12 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http.hpp>
+
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
 #include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/detail/as_json.hpp>
-#include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 
 #include <fitoria/client/error.hpp>
@@ -26,8 +27,8 @@ namespace client {
 
 class http_response {
 public:
-  http_response(web::http::status_code status_code,
-                web::http::version version,
+  http_response(http::status_code status_code,
+                http::version version,
                 web::http_fields fields,
                 web::any_async_readable_stream body)
       : status_code_(status_code)
@@ -45,12 +46,12 @@ public:
 
   http_response& operator=(http_response&&) = default;
 
-  auto status_code() const noexcept -> web::http::status_code
+  auto status_code() const noexcept -> http::status_code
   {
     return status_code_;
   }
 
-  auto version() const noexcept -> web::http::version
+  auto version() const noexcept -> http::version
   {
     return version_;
   }
@@ -105,8 +106,8 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (fields().get(web::http::field::content_type)
-        != web::http::fields::content_type::json()) {
+    if (fields().get(http::field::content_type)
+        != http::fields::content_type::json()) {
       co_return unexpected { make_error_code(
           error::content_type_not_application_json) };
     }
@@ -120,8 +121,8 @@ public:
   }
 
 private:
-  web::http::status_code status_code_ = web::http::status::ok;
-  web::http::version version_ = web::http::version::v1_1;
+  http::status_code status_code_ = http::status::ok;
+  http::version version_ = http::version::v1_1;
   web::http_fields fields_;
   web::any_async_readable_stream body_;
 };

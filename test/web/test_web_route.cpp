@@ -9,6 +9,7 @@
 
 #include <fitoria/web/route.hpp>
 
+using namespace fitoria;
 using namespace fitoria::web;
 
 TEST_SUITE_BEGIN("[fitoria.web.route]");

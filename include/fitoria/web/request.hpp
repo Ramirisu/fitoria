@@ -14,11 +14,12 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/json.hpp>
 
+#include <fitoria/http.hpp>
+
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/connect_info.hpp>
 #include <fitoria/web/detail/as_json.hpp>
-#include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/path_info.hpp>
 #include <fitoria/web/query_map.hpp>

@@ -14,7 +14,7 @@
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/web/http/http.hpp>
+#include <fitoria/http/verb.hpp>
 
 #include <cstddef>
 
@@ -72,7 +72,8 @@ public:
 
     auto bytes_read
         = co_await async_read(stream_, buffer_, *parser_, use_awaitable);
-    if (!bytes_read && bytes_read.error() != http::error::need_buffer) {
+    if (!bytes_read
+        && bytes_read.error() != boost::beast::http::error::need_buffer) {
       co_return unexpected { bytes_read.error() };
     }
 

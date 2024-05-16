@@ -7,15 +7,15 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/web/http/http.hpp>
+#include <fitoria/http/field.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("[fitoria.web.http]");
+TEST_SUITE_BEGIN("[fitoria.web.field]");
 
 TEST_CASE("authorization")
 {
-  using namespace fitoria::web::http::fields;
+  using namespace fitoria::http::fields;
   {
     CHECK_EQ(authorization::bearer("abc"), "Bearer: abc");
   }

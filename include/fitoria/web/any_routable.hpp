@@ -13,7 +13,8 @@
 
 #include <fitoria/core/type_traits.hpp>
 
-#include <fitoria/web/http/http.hpp>
+#include <fitoria/http/verb.hpp>
+
 #include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/state_storage.hpp>
 

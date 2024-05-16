@@ -6,20 +6,18 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_VERSION_HPP
-#define FITORIA_WEB_HTTP_VERSION_HPP
+#ifndef FITORIA_HTTP_VERSION_HPP
+#define FITORIA_HTTP_VERSION_HPP
 
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/format.hpp>
 
-#include <fitoria/web/http/http.hpp>
-
 #include <algorithm>
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web::http {
+namespace http {
 
 enum class version : std::uint8_t {
   unknown,
@@ -27,6 +25,7 @@ enum class version : std::uint8_t {
   v1_0,
   v1_1,
   v2_0,
+  v3_0,
 };
 
 inline std::string to_string(version ver)
@@ -40,6 +39,8 @@ inline std::string to_string(version ver)
     return "1.1";
   case version::v2_0:
     return "2.0";
+  case version::v3_0:
+    return "3.0";
   default:
     break;
   }
@@ -61,6 +62,9 @@ namespace detail {
     if (ver == 20) {
       return version::v2_0;
     }
+    if (ver == 30) {
+      return version::v3_0;
+    }
 
     return version::unknown;
   }
@@ -76,6 +80,8 @@ namespace detail {
       return 11;
     case version::v2_0:
       return 20;
+    case version::v3_0:
+      return 30;
     default:
       break;
     }
@@ -88,7 +94,7 @@ namespace detail {
 FITORIA_NAMESPACE_END
 
 template <typename CharT>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::web::http::version,
+struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::version,
                                          CharT> {
   template <class ParseContext>
   constexpr auto parse(ParseContext& ctx)
@@ -98,18 +104,16 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::web::http::version,
       return it;
     }
     if (*it != '}') {
-      FITORIA_THROW_OR(
-          FITORIA_NAMESPACE::fmt::format_error(
-              "invalid format args for fitoria::web::http::version"),
-          std::terminate());
+      FITORIA_THROW_OR(FITORIA_NAMESPACE::fmt::format_error(
+                           "invalid format args for fitoria::http::version"),
+                       std::terminate());
     }
 
     return it;
   }
 
   template <typename FormatContext>
-  auto format(FITORIA_NAMESPACE::web::http::version ver,
-              FormatContext& ctx) const
+  auto format(FITORIA_NAMESPACE::http::version ver, FormatContext& ctx) const
   {
     auto str = to_string(ver);
     return std::copy(str.begin(), str.end(), ctx.out());

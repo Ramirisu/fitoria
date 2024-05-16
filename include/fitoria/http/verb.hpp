@@ -6,13 +6,21 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_HPP
-#define FITORIA_WEB_HTTP_HPP
+#ifndef FITORIA_HTTP_VERB_HPP
+#define FITORIA_HTTP_VERB_HPP
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/web/http/http.hpp>
-#include <fitoria/web/http/status_code.hpp>
-#include <fitoria/web/http/version.hpp>
+#include <fitoria/core/http.hpp>
+
+FITORIA_NAMESPACE_BEGIN
+
+namespace http {
+
+using boost::beast::http::verb;
+
+}
+
+FITORIA_NAMESPACE_END
 
 #endif

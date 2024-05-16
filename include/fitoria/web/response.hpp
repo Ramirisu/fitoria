@@ -13,10 +13,11 @@
 
 #include <fitoria/core/json.hpp>
 
+#include <fitoria/http.hpp>
+
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
-#include <fitoria/web/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 
 #include <span>

@@ -14,7 +14,8 @@
 #include <fitoria/core/fixed_string.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/web/http/http.hpp>
+#include <fitoria/http/verb.hpp>
+
 #include <fitoria/web/path_matcher.hpp>
 #include <fitoria/web/path_parser.hpp>
 #include <fitoria/web/routable.hpp>

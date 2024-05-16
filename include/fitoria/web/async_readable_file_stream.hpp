@@ -15,8 +15,6 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <fitoria/web/http/http.hpp>
-
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {

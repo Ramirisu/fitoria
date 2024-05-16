@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_HTTP_HTTP_HPP
-#define FITORIA_WEB_HTTP_HTTP_HPP
+#ifndef FITORIA_HTTP_FIELD_HPP
+#define FITORIA_HTTP_FIELD_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -18,13 +18,9 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web::http {
+namespace http {
 
-using boost::beast::http::error;
 using boost::beast::http::field;
-using boost::beast::http::status;
-using boost::beast::http::status_class;
-using boost::beast::http::verb;
 
 namespace fields {
   namespace content_type {
@@ -105,13 +101,13 @@ namespace fields {
 
   namespace authorization {
 
-    inline std::string bearer(std::string_view token)
+    inline auto bearer(std::string_view token) -> std::string
     {
       return fmt::format("Bearer: {}", token);
     }
 
-    inline optional<std::string_view>
-    parse_bearer(std::string_view str) noexcept
+    inline auto
+    parse_bearer(std::string_view str) noexcept -> optional<std::string_view>
     {
       const auto prefix = std::string_view("Bearer: ");
       if (str.starts_with(prefix)) {
@@ -124,7 +120,7 @@ namespace fields {
 
   namespace expect {
 
-    inline std::string_view one_hundred_continue() noexcept
+    inline auto one_hundred_continue() noexcept -> std::string_view
     {
       return "100-continue";
     }

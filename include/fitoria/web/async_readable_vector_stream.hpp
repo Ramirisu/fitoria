@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/optional.hpp>
+
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
 #include <span>

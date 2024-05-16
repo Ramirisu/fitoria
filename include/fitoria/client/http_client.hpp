@@ -19,12 +19,13 @@
 
 #include <fitoria/log/log.hpp>
 
+#include <fitoria/http.hpp>
+
 #include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_message_parser_stream.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
-#include <fitoria/web/http/http.hpp>
 #include <fitoria/web/http_fields.hpp>
 #include <fitoria/web/query_map.hpp>
 
@@ -33,8 +34,6 @@
 FITORIA_NAMESPACE_BEGIN
 
 namespace client {
-
-namespace http = web::http;
 
 using web::any_async_readable_stream;
 using web::any_body;
