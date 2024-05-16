@@ -494,6 +494,7 @@ private:
 
     co_return http_response(
         parser->get().result(),
+        http::detail::from_impl_version(parser->get().version()),
         http_fields::from_impl(parser->get()),
         [&]() -> any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
@@ -601,6 +602,7 @@ private:
     if (bytes_read && res.result() != http::status::continue_) {
       co_return http_response(
           res.result(),
+          http::detail::from_impl_version(res.version()),
           http_fields::from_impl(res),
           async_readable_vector_stream(std::move(res.body())));
     }

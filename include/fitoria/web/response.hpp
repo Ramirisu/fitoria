@@ -31,11 +31,16 @@ class response {
   friend class response_builder;
 
   http::status_code status_code_ = http::status::ok;
+  http::version version_ = http::version::v1_1;
   http_fields fields_;
   any_body body_;
 
-  response(http::status_code status_code, http_fields fields, any_body body)
+  response(http::status_code status_code,
+           http::version version,
+           http_fields fields,
+           any_body body)
       : status_code_(status_code)
+      , version_(version)
       , fields_(std::move(fields))
       , body_(std::move(body))
   {
@@ -55,6 +60,11 @@ public:
   auto status_code() const noexcept -> http::status_code
   {
     return status_code_;
+  }
+
+  auto version() const noexcept -> http::version
+  {
+    return version_;
   }
 
   auto fields() noexcept -> http_fields&
@@ -159,13 +169,16 @@ class response_builder {
   friend class response;
 
   http::status_code status_code_ = http::status::ok;
+  http::version version_ = http::version::v1_1;
   http_fields fields_;
   any_body body_;
 
   response_builder(http::status_code status_code,
+                   http::version version,
                    http_fields fields,
                    any_body body)
       : status_code_(status_code)
+      , version_(version)
       , fields_(std::move(fields))
       , body_(std::move(body))
   {
@@ -196,6 +209,18 @@ public:
       -> response_builder&&
   {
     status_code_ = status_code;
+    return std::move(*this);
+  }
+
+  auto set_version(http::version version) & noexcept -> response_builder&
+  {
+    version_ = version;
+    return *this;
+  }
+
+  auto set_version(http::version version) && noexcept -> response_builder&&
+  {
+    set_version(version);
     return std::move(*this);
   }
 
@@ -257,7 +282,7 @@ public:
 
   auto build() -> response
   {
-    return { status_code_, std::move(fields_), std::move(body_) };
+    return { status_code_, version_, std::move(fields_), std::move(body_) };
   }
 
   template <std::size_t N>
@@ -298,7 +323,7 @@ public:
 
 inline auto response::builder() -> response_builder
 {
-  return { status_code_, std::move(fields_), std::move(body_) };
+  return { status_code_, version_, std::move(fields_), std::move(body_) };
 }
 
 inline auto response::continue_() -> response_builder

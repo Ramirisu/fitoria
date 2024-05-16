@@ -46,25 +46,43 @@ inline std::string to_string(version ver)
 
   return "unknown";
 }
+namespace detail {
+  inline version from_impl_version(unsigned int ver)
+  {
+    if (ver == 9) {
+      return version::v0_9;
+    }
+    if (ver == 10) {
+      return version::v1_0;
+    }
+    if (ver == 11) {
+      return version::v1_1;
+    }
+    if (ver == 20) {
+      return version::v2_0;
+    }
 
-inline version to_version(unsigned int ver)
-{
-  if (ver == 9) {
-    return version::v0_9;
-  }
-  if (ver == 10) {
-    return version::v1_0;
-  }
-  if (ver == 11) {
-    return version::v1_1;
-  }
-  if (ver == 20) {
-    return version::v2_0;
+    return version::unknown;
   }
 
-  return version::unknown;
+  inline auto to_impl_version(version ver) -> unsigned int
+  {
+    switch (ver) {
+    case version::v0_9:
+      return 9;
+    case version::v1_0:
+      return 10;
+    case version::v1_1:
+      return 11;
+    case version::v2_0:
+      return 20;
+    default:
+      break;
+    }
+
+    return 11;
+  }
 }
-
 }
 
 FITORIA_NAMESPACE_END

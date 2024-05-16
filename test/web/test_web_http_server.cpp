@@ -610,4 +610,71 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
       .get();
 }
 
+TEST_CASE("response with default HTTP/1.1")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
+                    .serve(route::get<"/">([]() -> awaitable<response> {
+                      co_return response::ok().build();
+                    }))
+                    .build();
+  CHECK(server.bind(server_ip, port));
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> awaitable<void> {
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK_EQ(res->fields().get(http::field::connection), "close");
+        CHECK_EQ(res->version(), http::version::v1_1);
+      },
+      net::use_future)
+      .get();
+}
+
+TEST_CASE("response with HTTP/1.0")
+{
+  const auto port = generate_port();
+  auto ioc = net::io_context();
+  auto server
+      = http_server_builder(ioc)
+            .serve(route::get<"/">([]() -> awaitable<response> {
+              co_return response::ok().set_version(http::version::v1_0).build();
+            }))
+            .build();
+  CHECK(server.bind(server_ip, port));
+
+  net::thread_pool tp(1);
+  net::post(tp, [&]() { ioc.run(); });
+  scope_exit guard([&]() { ioc.stop(); });
+  std::this_thread::sleep_for(server_start_wait_time);
+
+  net::co_spawn(
+      ioc,
+      [&]() -> awaitable<void> {
+        auto res
+            = co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_field(http::field::connection, "close")
+                  .async_send();
+        CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK(!res->fields().get(http::field::connection));
+        CHECK_EQ(res->version(), http::version::v1_0);
+      },
+      net::use_future)
+      .get();
+}
+
 TEST_SUITE_END();

@@ -27,9 +27,11 @@ namespace client {
 class http_response {
 public:
   http_response(web::http::status_code status_code,
+                web::http::version version,
                 web::http_fields fields,
                 web::any_async_readable_stream body)
       : status_code_(status_code)
+      , version_(version)
       , fields_(std::move(fields))
       , body_(std::move(body))
   {
@@ -46,6 +48,11 @@ public:
   auto status_code() const noexcept -> web::http::status_code
   {
     return status_code_;
+  }
+
+  auto version() const noexcept -> web::http::version
+  {
+    return version_;
   }
 
   auto fields() noexcept -> web::http_fields&
@@ -85,7 +92,7 @@ public:
   {
     auto file = net::stream_file(co_await net::this_coro::executor);
 
-    boost::system::error_code ec;
+    boost::system::error_code ec; // NOLINTNEXTLINE
     file.open(path, net::file_base::create | net::file_base::write_only, ec);
     if (ec) {
       co_return unexpected { ec };
@@ -114,6 +121,7 @@ public:
 
 private:
   web::http::status_code status_code_ = web::http::status::ok;
+  web::http::version version_ = web::http::version::v1_1;
   web::http_fields fields_;
   web::any_async_readable_stream body_;
 };

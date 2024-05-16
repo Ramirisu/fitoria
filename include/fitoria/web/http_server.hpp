@@ -297,7 +297,7 @@ private:
           connection_info(get_lowest_layer(stream).socket().local_endpoint(),
                           get_lowest_layer(stream).socket().remote_endpoint()),
           parser->get().method(),
-          http::to_version(parser->get().version()),
+          http::detail::from_impl_version(parser->get().version()),
           std::string(parser->get().target()),
           http_fields::from_impl(parser->get()),
           session_state,
@@ -387,7 +387,8 @@ private:
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
 
-    auto r = response<empty_body>(res.status_code().value(), 11);
+    auto r = response<empty_body>(res.status_code().value(),
+                                  http::detail::to_impl_version(res.version()));
     res.fields().to_impl(r);
     r.keep_alive(keep_alive);
     r.prepare_payload();
@@ -409,7 +410,9 @@ private:
     using boost::beast::http::response;
     using boost::beast::http::vector_body;
 
-    auto r = response<vector_body<std::byte>>(res.status_code().value(), 11);
+    auto r = response<vector_body<std::byte>>(
+        res.status_code().value(),
+        http::detail::to_impl_version(res.version()));
     res.fields().to_impl(r);
     if (auto data = co_await async_read_until_eof<std::vector<std::byte>>(
             res.body().stream());
@@ -432,7 +435,8 @@ private:
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;
 
-    auto r = response<empty_body>(res.status_code().value(), 11);
+    auto r = response<empty_body>(res.status_code().value(),
+                                  http::detail::to_impl_version(res.version()));
     res.fields().to_impl(r);
     r.keep_alive(keep_alive);
     r.chunked(true);
