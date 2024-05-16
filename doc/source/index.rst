@@ -63,7 +63,7 @@ Namespace ``fitoria::web`` provides web utilities.
 Getting Started
 ---------------
 
-The following example demonstrates how to create an ``http_server`` and attach handlers to it. (`Getting Started Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp>`_)
+The following example demonstrates how to create an simple ``http_server`` and attach handlers to it. (`Getting Started Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp>`_)
 
 .. code-block:: cpp
 
@@ -134,10 +134,9 @@ First we have to create a ``net::ssl::context`` with server certificates and des
                        .build();
    
      server.bind("127.0.0.1", 8080);
-   #if defined(FITORIA_HAS_OPENSSL)
+     
      auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
      server.bind_ssl("127.0.0.1", 8443, ssl_ctx);
-   #endif
    
      ioc.run();
    }
@@ -690,6 +689,11 @@ fitoria also provides built-in middlewares for convenience.
 * ``middleware::exception_handler``
 * ``middleware::decompress`` (``deflate``, ``gzip`` and ``brotli``)
 
+.. note:: 
+
+  ``gzip`` and ``brotli`` must be installed for enabling their functionality in ``middleware::decompress``.
+
+
 Middlewares can be mounted by ``scope::use(Middleware&&)`` and ``route::use(Middleware&&)``.
 
 .. code-block:: cpp
@@ -700,9 +704,7 @@ Middlewares can be mounted by ``scope::use(Middleware&&)`` and ``route::use(Midd
      auto server = http_server_builder(ioc)
                        .serve(scope<"/api/v1">()
                                   .use(middleware::logger())
-   #if !FITORIA_NO_EXCEPTIONS
                                   .use(middleware::exception_handler())
-   #endif
                                   .use(middleware::decompress())
                                   .use(my_log(log::level::info))
                                   .serve(route::get<"/users/{user}">(get_user)))
@@ -824,7 +826,7 @@ There are six log levels ``level::trace``, ``level::debug``, ``level::info``, ``
 
 .. code-block:: cpp
 
-   enum level {
+   enum class level {
      trace,
      debug,
      info,
@@ -891,7 +893,7 @@ After registering the logger, one or more ``async_writer`` s should be attached 
 Log Messages
 ^^^^^^^^^^^^
 
-Use ``log(level, fmt, ...)``, ``trace(fmt, ...)``, ``debug(fmt, ...)``, ``info(fmt, ...)``, ``warning(fmt, ...)``, ``error(fmt, ...)``, ``fatal(fmt, ...)`` to write the logs to the default logger.
+Use ``log(level, fmt, ...)``, ``trace(fmt, ...)``, ``debug(fmt, ...)``, ``info(fmt, ...)``, ``warning(fmt, ...)``, ``error(fmt, ...)``, ``fatal(fmt, ...)`` to write logs to the default logger.
 
 .. code-block:: cpp
 

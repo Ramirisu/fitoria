@@ -14,13 +14,62 @@ The library is ***experimental*** and still under development, not recommended f
 
 - [Fitoria](#fitoria)
   - [Table of Contents](#table-of-contents)
-  - [Documentation](#documentation)
+  - [Features](#features)
+  - [Getting Started](#getting-started)
   - [Building](#building)
   - [License](#license)
 
-## Documentation
+## Features
 
-TODO:
+- Ease to use: APIs are designed based on C++20 coroutine and highly integrated with `optional` and `expected` to provide better error handling mechanisms
+- Cross-platform, write once and run across Windows, Linux and MacOS
+- Support HTTP/1.1
+- Support SSL up to TLS 1.3
+- Support WebSocket
+
+More details can be found in the [documentation](https://ramirisu.github.io/fitoria/)
+
+## Getting Started
+
+The following example demonstrates how to create an simple ``http_server`` and attach handlers to it. ([Getting Started Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp))
+
+```cpp
+
+#include <fitoria/web.hpp>
+
+using namespace fitoria;
+using namespace fitoria::web;
+
+auto hello_world() -> awaitable<response>
+{
+  co_return response::ok()
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body("Hello World!");
+}
+
+auto echo(std::string body) -> awaitable<response>
+{
+  co_return response::ok()
+      .set_field(http::field::content_type,
+                 http::fields::content_type::plaintext())
+      .set_body(body);
+}
+
+int main()
+{
+  auto ioc = net::io_context();
+  auto server = http_server_builder(ioc)
+                    .serve(route::get<"/">(hello_world))
+                    .serve(route::post<"/echo">(echo))
+                    .build();
+
+  server.bind("127.0.0.1", 8080);
+
+  ioc.run();
+}
+
+```
 
 ## Building
 
@@ -53,16 +102,17 @@ Dependencies
 
 CMake
 
-| Option                    | Description                              | Value  | Default |
-| :------------------------ | :--------------------------------------- | :----: | :-----: |
-| FITORIA_BUILD_EXAMPLES    | Build examples                           | ON/OFF |   OFF   |
-| FITORIA_BUILD_TESTS       | Build tests                              | ON/OFF |   OFF   |
-| FITORIA_DISABLE_OPENSSL   | Do not enable OpenSSL dependent features | ON/OFF |   OFF   |
-| FITORIA_DISABLE_ZLIB      | Do not enable ZLIB dependent features    | ON/OFF |   OFF   |
-| FITORIA_DISABLE_BROTLI    | Do not enable Brotli dependent features  | ON/OFF |   OFF   |
-| FITORIA_HAS_LIBURING      | Do not enable liburing                   | ON/OFF |   OFF   |
-| FITORIA_ENABLE_CODECOV    | Enable code coverage build               | ON/OFF |   OFF   |
-| FITORIA_ENABLE_CLANG_TIDY | Enable clang-tidy check                  | ON/OFF |   OFF   |
+| Option                           | Description                              | Value  | Default |
+| :------------------------------- | :--------------------------------------- | :----: | :-----: |
+| FITORIA_BUILD_EXAMPLES           | Build examples                           | ON/OFF |   OFF   |
+| FITORIA_BUILD_TESTS              | Build tests                              | ON/OFF |   OFF   |
+| FITORIA_DISABLE_OPENSSL          | Do not enable OpenSSL dependent features | ON/OFF |   OFF   |
+| FITORIA_DISABLE_ZLIB             | Do not enable ZLIB dependent features    | ON/OFF |   OFF   |
+| FITORIA_DISABLE_BROTLI           | Do not enable Brotli dependent features  | ON/OFF |   OFF   |
+| FITORIA_DISABLE_LIBURING         | Do not enable liburing                   | ON/OFF |   OFF   |
+| FITORIA_ENABLE_CODECOV           | Enable code coverage build               | ON/OFF |   OFF   |
+| FITORIA_ENABLE_CLANG_TIDY        | Enable clang-tidy check                  | ON/OFF |   OFF   |
+| FITORIA_ENABLE_ADDRESS_SANITIZER | Compile with `-fsanitize=address`        | ON/OFF |   OFF   |
 
 ```sh
 
