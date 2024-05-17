@@ -78,21 +78,47 @@ public:
 
   http_server& operator=(http_server&&) = delete;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the number of maxiumum concurrent connections.
+  ///
+  /// @endverbatim
   auto max_listen_connections() const noexcept -> int
   {
     return max_listen_connections_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the timeout for TLS handshake.
+  ///
+  /// Return
+  ///      If no timeout is set, ``nullopt`` is returned.
+  ///
+  /// @endverbatim
   auto tls_handshake_timeout() const noexcept -> optional<duration_type>
   {
     return tls_handshake_timeout_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the timeout for serving client request.
+  ///
+  /// Return
+  ///     If no timeout is set, ``nullopt`` is returned.
+  ///
+  /// @endverbatim
   auto reuqest_timeout() const noexcept -> optional<duration_type>
   {
     return reuqest_timeout_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Bind the address and port for listening HTTP connection.
+  ///
+  /// @endverbatim
   auto bind(std::string_view addr, std::uint16_t port) const
       -> expected<const http_server&, std::error_code>
   {
@@ -108,6 +134,12 @@ public:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Bind the address, port and TLS context for listening HTTPS connection.
+  ///
+  /// @endverbatim
   auto bind_ssl(std::string_view addr,
                 std::uint16_t port,
                 net::ssl::context& ssl_ctx) const
@@ -124,8 +156,15 @@ public:
 
     return expected<const http_server&, std::error_code>(*this);
   }
+
 #endif
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Perform unit testing with mock ``request``, no TCP connections will be
+  /// established.
+  ///
+  /// @endverbatim
   template <typename ResponseHandler>
     requires std::is_invocable_v<ResponseHandler, test_response>
       && co_awaitable<std::invoke_result_t<ResponseHandler, test_response>>
@@ -493,6 +532,11 @@ public:
   {
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the number of maxiumum concurrent connections.
+  ///
+  /// @endverbatim
   auto set_max_listen_connections(int num) & noexcept -> builder&
   {
     max_listen_connections_ = num;
@@ -505,6 +549,14 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the timeout for TLS handshake.
+  ///
+  /// Description
+  ///      Pass ``nullopt`` to disable timeout.
+  ///
+  /// @endverbatim
   auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
       -> builder&
   {
@@ -519,6 +571,14 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the timeout for serving client request.
+  ///
+  /// Description
+  ///      Pass ``nullopt`` to disable timeout.
+  ///
+  /// @endverbatim
   auto
   set_request_timeout(optional<duration_type> timeout) & noexcept -> builder&
   {
@@ -534,6 +594,17 @@ public:
   }
 
 #if !FITORIA_NO_EXCEPTIONS
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the exception handler to handle any exception thrown from the server.
+  ///
+  /// Description
+  ///     Set the exception handler to handle any exception thrown from the
+  ///     server. If is not set by user, the ``default_exception_handler`` will
+  ///     be used.
+  ///
+  /// @endverbatim
   template <typename F>
     requires std::invocable<F, std::exception_ptr>
   auto set_exception_handler(F&& f) & -> builder&
@@ -551,6 +622,15 @@ public:
   }
 #endif
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Add a ``route`` to the server.
+  ///
+  /// Description
+  ///     Add a ``route`` to the server. Note that no duplicate ``route`` s are
+  ///     allowed.
+  ///
+  /// @endverbatim
   template <basic_fixed_string RoutePath,
             typename... RouteServices,
             typename Handler>
@@ -573,10 +653,18 @@ public:
                  route) && -> builder&&
   {
     serve(std::move(route));
-
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Add all ``route`` s from a ``scope`` to the server.
+  ///
+  /// Description
+  ///     Add all ``route`` s from a ``scope`` to the server. Note that no
+  ///     duplicate routes are allowed.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename... Services, typename... Routes>
   auto serve(scope_impl<Path, std::tuple<Services...>, std::tuple<Routes...>>
                  scope) & -> builder&
@@ -595,10 +683,18 @@ public:
                  scope) && -> builder&&
   {
     serve(std::move(scope));
-
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``http_server`` object.
+  ///
+  /// Description
+  ///     Create the ``http_server`` object, do not use ``builder`` after
+  ///     calling this function.
+  ///
+  /// @endverbatim
   auto build() -> http_server
   {
     router_.optimize();

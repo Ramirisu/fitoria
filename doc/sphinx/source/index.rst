@@ -6,7 +6,7 @@ Welcome to fitoria's documentation!
    :maxdepth: 1
 
    overview/index
-
+   reference/index
 
 .. _license:
 
