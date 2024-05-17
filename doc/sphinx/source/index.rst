@@ -54,8 +54,8 @@ Table of Contents
     * :ref:`logger_registry`
     * :ref:`log_messages`
 
-.. _web:
 
+.. _web:
 
 Web
 ===
