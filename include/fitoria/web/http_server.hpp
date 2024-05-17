@@ -688,11 +688,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``http_server`` object.
+  /// Create the ``http_server`` instance.
   ///
   /// Description
-  ///     Create the ``http_server`` object, do not use ``builder`` after
-  ///     calling this function.
+  ///     Create the ``http_server`` instance. Note that do not use current
+  ///     ``builder`` instacne anymore after calling this function.
   ///
   /// @endverbatim
   auto build() -> http_server

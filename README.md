@@ -31,7 +31,7 @@ More details can be found in the [documentation](https://ramirisu.github.io/fito
 
 ## Getting Started
 
-The following example demonstrates how to create an simple ``http_server`` and attach handlers to it. ([Getting Started Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp))
+The following example demonstrates how to create a simple ``http_server`` and attach handlers to it. ([Getting Started Example](https://github.com/Ramirisu/fitoria/blob/main/example/web/getting_started.cpp))
 
 ```cpp
 

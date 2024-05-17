@@ -57,16 +57,31 @@ public:
 
   response& operator=(response&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get http status code.
+  ///
+  /// @endverbatim
   auto status_code() const noexcept -> http::status_code
   {
     return status_code_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get http version.
+  ///
+  /// @endverbatim
   auto version() const noexcept -> http::version
   {
     return version_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get http header.
+  ///
+  /// @endverbatim
   auto header() noexcept -> http::header&
   {
     return header_;
@@ -77,6 +92,11 @@ public:
     return header_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() noexcept -> any_body&
   {
     return body_;
@@ -87,80 +107,478 @@ public:
     return body_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``response_builder`` instance.
+  ///
+  /// Description
+  ///     Create the ``response_builder`` instance. Note that do not use current
+  ///     ``response`` instance anymore after calling this function.
+  ///
+  /// @endverbatim
   auto builder() -> response_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto continue_() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto switching_protocols() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto processing() -> response_builder;
+
 #if BOOST_BEAST_VERSION >= 353
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto early_hints() -> response_builder;
 #endif
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto ok() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto created() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto accepted() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto non_authoritative_information() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto no_content() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto reset_content() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto partial_content() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto multi_status() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto already_reported() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto im_used() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto multiple_choices() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto moved_permanently() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto found() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto see_other() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto not_modified() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto use_proxy() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto temporary_redirect() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto permanent_redirect() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto bad_request() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto unauthorized() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto payment_required() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto forbidden() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto not_found() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto method_not_allowed() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto not_acceptable() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto proxy_authentication_required() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto request_timeout() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto conflict() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto gone() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto length_required() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto precondition_failed() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto payload_too_large() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto uri_too_long() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto unsupported_media_type() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto range_not_satisfiable() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto expectation_failed() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto misdirected_request() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto unprocessable_entity() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto locked() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto failed_dependency() -> response_builder;
+
 #if BOOST_BEAST_VERSION >= 353
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto too_early() -> response_builder;
 #endif
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto upgrade_required() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto precondition_required() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto too_many_requests() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto request_header_fields_too_large() -> response_builder;
+
 #if BOOST_BEAST_VERSION < 353
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto connection_closed_without_response() -> response_builder;
 #endif
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto unavailable_for_legal_reasons() -> response_builder;
+
 #if BOOST_BEAST_VERSION < 353
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto client_closed_request() -> response_builder;
 #endif
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto internal_server_error() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto not_implemented() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto bad_gateway() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto service_unavailable() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto gateway_timeout() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto http_version_not_supported() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto variant_also_negotiates() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto insufficient_storage() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto loop_detected() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto not_extended() -> response_builder;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto network_authentication_required() -> response_builder;
+
 #if BOOST_BEAST_VERSION < 353
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   static auto network_connect_timeout_error() -> response_builder;
 #endif
 };
@@ -185,6 +603,11 @@ class response_builder {
   }
 
 public:
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``response_builder`` with specific http status code.
+  ///
+  /// @endverbatim
   explicit response_builder(http::status status)
       : status_code_(status)
   {
@@ -198,6 +621,11 @@ public:
 
   response_builder& operator=(response_builder&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set http status code.
+  ///
+  /// @endverbatim
   auto
   set_status_code(http::status_code status_code) & noexcept -> response_builder&
   {
@@ -212,6 +640,11 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set http version.
+  ///
+  /// @endverbatim
   auto set_version(http::version version) & noexcept -> response_builder&
   {
     version_ = version;
@@ -224,6 +657,16 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set http header.
+  ///
+  /// Description
+  ///    Set http header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name will be
+  ///    removed before the insertion.
+  ///
+  /// @endverbatim
   auto set_header(std::string_view name,
                   std::string_view value) & -> response_builder&
   {
@@ -238,6 +681,15 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set http header.
+  ///
+  /// Description
+  ///    Set http header. Note that any existing header with the same name will
+  ///    be removed before the insertion.
+  ///
+  /// @endverbatim
   auto set_header(http::field name,
                   std::string_view value) & -> response_builder&
   {
@@ -252,6 +704,16 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert http header.
+  ///
+  /// Description
+  ///    Insert http header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
   auto insert_header(std::string_view name,
                      std::string_view value) & -> response_builder&
   {
@@ -266,6 +728,15 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert http header.
+  ///
+  /// Description
+  ///    Insert http header. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
   auto insert_header(http::field name,
                      std::string_view value) & -> response_builder&
   {
@@ -280,11 +751,30 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``response`` instance.
+  ///
+  /// Description
+  ///    Create the ``response`` instance. Note that do not use current
+  ///     ``response_builder`` instance anymore after calling this function.
+  ///
+  /// @endverbatim
   auto build() -> response
   {
     return { status_code_, version_, std::move(header_), std::move(body_) };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``response`` instance.
+  ///
+  /// Description
+  ///    Set a raw body and create the ``response`` instance. Note that do not
+  ///    use current ``response_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) -> response
   {
@@ -293,11 +783,33 @@ public:
     return build();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``response`` instance.
+  ///
+  /// Description
+  ///    Set a raw body and create the ``response`` instance. Note that do not
+  ///    use current ``response_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
   auto set_body(std::string_view sv) -> response
   {
+    // TODO: plaintext?
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``response`` instance.
+  ///
+  /// Description
+  ///    Set a json object as the body and create the ``response`` instance.
+  ///    ``Content-Type: application/json`` will be automatically inserted. Note
+  ///    that do not use current ``response_builder`` instance anymore after
+  ///    calling this function.
+  ///
+  /// @endverbatim
   auto set_json(const boost::json::value& jv) -> response
   {
     set_header(http::field::content_type, http::fields::content_type::json());
@@ -305,6 +817,19 @@ public:
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set an object of type ``T`` that is converiable to a json object as the
+  /// body and create the ``response`` instance.
+  ///
+  /// Description
+  ///    Set an object of type ``T`` that is converiable to a json object as the
+  ///    the body and create the ``response`` instance. ``Content-Type:
+  ///    application/json`` will be automatically inserted. Note that do not use
+  ///    current ``response_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
   auto set_json(const T& obj) -> response
@@ -312,6 +837,17 @@ public:
     return set_json(boost::json::value_from(obj));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a stream body and create the ``response`` instance.
+  ///
+  /// Description
+  ///    Set a stream body and create the ``response`` instance. A stream body
+  ///    will be sent with ``Transfer-Encoding: chunked``. Note that do not use
+  ///    current ``response_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) -> response
   {
