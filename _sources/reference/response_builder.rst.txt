@@ -1,11 +1,8 @@
+.. _response_builder:
+
 ********************************************************************************
-Reference
+``class response_builder``
 ********************************************************************************
 
-.. toctree:: 
-   :caption: fitoria::web
-   :maxdepth: 1
-
-   http_server
-   response_builder
-   response
+.. doxygenclass:: fitoria::web::response_builder
+   :members:

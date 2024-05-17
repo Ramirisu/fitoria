@@ -1,0 +1,931 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>class response &#8212; fitoria  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/response';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="class response_builder" href="response_builder.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fitoria  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../overview/index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../overview/index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><code...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="class-response">
+<span id="response"></span><h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code><a class="headerlink" href="#class-response" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8responseE">
+<span id="_CPPv3N7fitoria3web8responseE"></span><span id="_CPPv2N7fitoria3web8responseE"></span><span id="fitoria::web::response"></span><span class="target" id="classfitoria_1_1web_1_1response"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">response</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria3web8responseE" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web8response11status_codeEv">
+<span id="_CPPv3NK7fitoria3web8response11status_codeEv"></span><span id="_CPPv2NK7fitoria3web8response11status_codeEv"></span><span id="fitoria::web::response::status_codeC"></span><span class="target" id="classfitoria_1_1web_1_1response_1a68acd8a990f3f0614c6f00c7b04e6a72"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">status_code</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">status_code</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web8response11status_codeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web8response7versionEv">
+<span id="_CPPv3NK7fitoria3web8response7versionEv"></span><span id="_CPPv2NK7fitoria3web8response7versionEv"></span><span id="fitoria::web::response::versionC"></span><span class="target" id="classfitoria_1_1web_1_1response_1a54db21875ca6d492d69464e9c112c2d4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">version</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">version</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web8response7versionEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get http version.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response6headerEv">
+<span id="_CPPv3N7fitoria3web8response6headerEv"></span><span id="_CPPv2N7fitoria3web8response6headerEv"></span><span id="fitoria::web::response::header"></span><span class="target" id="classfitoria_1_1web_1_1response_1a33a1876f94136920dd2b092e906fc753"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">header</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N7fitoria3web8response6headerEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get http header.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response4bodyEv">
+<span id="_CPPv3N7fitoria3web8response4bodyEv"></span><span id="_CPPv2N7fitoria3web8response4bodyEv"></span><span id="fitoria::web::response::body"></span><span class="target" id="classfitoria_1_1web_1_1response_1afef6cbb24f2d0bdc40fa7227c9f88ee6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">body</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">any_body</span></span><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4N7fitoria3web8response4bodyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get body.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response7builderEv">
+<span id="_CPPv3N7fitoria3web8response7builderEv"></span><span id="_CPPv2N7fitoria3web8response7builderEv"></span><span id="fitoria::web::response::builder"></span><span class="target" id="classfitoria_1_1web_1_1response_1a50998119652028b53541d0414bd8369a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">builder</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response7builderEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance. Note that do not use current
+<code class="docutils literal notranslate"><span class="pre">response</span></code> instance anymore after calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response9continue_Ev">
+<span id="_CPPv3N7fitoria3web8response9continue_Ev"></span><span id="_CPPv2N7fitoria3web8response9continue_Ev"></span><span id="fitoria::web::response::continue_"></span><span class="target" id="classfitoria_1_1web_1_1response_1a6590f8aaa180d537315ccbfaf213e924"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">continue_</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response9continue_Ev" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response19switching_protocolsEv">
+<span id="_CPPv3N7fitoria3web8response19switching_protocolsEv"></span><span id="_CPPv2N7fitoria3web8response19switching_protocolsEv"></span><span id="fitoria::web::response::switching_protocols"></span><span class="target" id="classfitoria_1_1web_1_1response_1a4e36212a567e6ae3852864c25e2149a5"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">switching_protocols</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response19switching_protocolsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response10processingEv">
+<span id="_CPPv3N7fitoria3web8response10processingEv"></span><span id="_CPPv2N7fitoria3web8response10processingEv"></span><span id="fitoria::web::response::processing"></span><span class="target" id="classfitoria_1_1web_1_1response_1a26335ceb2206a6dc627fc270dd375f15"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">processing</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response10processingEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response2okEv">
+<span id="_CPPv3N7fitoria3web8response2okEv"></span><span id="_CPPv2N7fitoria3web8response2okEv"></span><span id="fitoria::web::response::ok"></span><span class="target" id="classfitoria_1_1web_1_1response_1aa5c2e044d3990666fe3a89e31cfd6771"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ok</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response2okEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response7createdEv">
+<span id="_CPPv3N7fitoria3web8response7createdEv"></span><span id="_CPPv2N7fitoria3web8response7createdEv"></span><span id="fitoria::web::response::created"></span><span class="target" id="classfitoria_1_1web_1_1response_1aa186a82311024555e84ae57b8abe5a34"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">created</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response7createdEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response8acceptedEv">
+<span id="_CPPv3N7fitoria3web8response8acceptedEv"></span><span id="_CPPv2N7fitoria3web8response8acceptedEv"></span><span id="fitoria::web::response::accepted"></span><span class="target" id="classfitoria_1_1web_1_1response_1a17a47bb34bf0e48bf4469146841e0c09"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">accepted</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response8acceptedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response29non_authoritative_informationEv">
+<span id="_CPPv3N7fitoria3web8response29non_authoritative_informationEv"></span><span id="_CPPv2N7fitoria3web8response29non_authoritative_informationEv"></span><span id="fitoria::web::response::non_authoritative_information"></span><span class="target" id="classfitoria_1_1web_1_1response_1a71eea456f3c4cf2ec534bb91ed4fe770"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">non_authoritative_information</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response29non_authoritative_informationEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response10no_contentEv">
+<span id="_CPPv3N7fitoria3web8response10no_contentEv"></span><span id="_CPPv2N7fitoria3web8response10no_contentEv"></span><span id="fitoria::web::response::no_content"></span><span class="target" id="classfitoria_1_1web_1_1response_1aec3ce96c5c1fe040462278c991979546"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">no_content</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response10no_contentEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response13reset_contentEv">
+<span id="_CPPv3N7fitoria3web8response13reset_contentEv"></span><span id="_CPPv2N7fitoria3web8response13reset_contentEv"></span><span id="fitoria::web::response::reset_content"></span><span class="target" id="classfitoria_1_1web_1_1response_1ad78c257be59d35fb2196b4a2ba3b3dd0"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_content</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response13reset_contentEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+ <p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response15partial_contentEv">
+<span id="_CPPv3N7fitoria3web8response15partial_contentEv"></span><span id="_CPPv2N7fitoria3web8response15partial_contentEv"></span><span id="fitoria::web::response::partial_content"></span><span class="target" id="classfitoria_1_1web_1_1response_1ab703a72cb16b90ca5b27429cc0c36824"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">partial_content</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response15partial_contentEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response12multi_statusEv">
+<span id="_CPPv3N7fitoria3web8response12multi_statusEv"></span><span id="_CPPv2N7fitoria3web8response12multi_statusEv"></span><span id="fitoria::web::response::multi_status"></span><span class="target" id="classfitoria_1_1web_1_1response_1a1bcad877a592a2b1efde1daa8b004b7a"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">multi_status</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response12multi_statusEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response16already_reportedEv">
+<span id="_CPPv3N7fitoria3web8response16already_reportedEv"></span><span id="_CPPv2N7fitoria3web8response16already_reportedEv"></span><span id="fitoria::web::response::already_reported"></span><span class="target" id="classfitoria_1_1web_1_1response_1a96eab9905cddacc3a52c3747b75370a8"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">already_reported</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response16already_reportedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response7im_usedEv">
+<span id="_CPPv3N7fitoria3web8response7im_usedEv"></span><span id="_CPPv2N7fitoria3web8response7im_usedEv"></span><span id="fitoria::web::response::im_used"></span><span class="target" id="classfitoria_1_1web_1_1response_1a2236ef5043b216cd00c503d85df82dfb"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">im_used</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response7im_usedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response16multiple_choicesEv">
+<span id="_CPPv3N7fitoria3web8response16multiple_choicesEv"></span><span id="_CPPv2N7fitoria3web8response16multiple_choicesEv"></span><span id="fitoria::web::response::multiple_choices"></span><span class="target" id="classfitoria_1_1web_1_1response_1ae6c2c24810fce3cfd078f300b9e4349f"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">multiple_choices</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response16multiple_choicesEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response17moved_permanentlyEv">
+<span id="_CPPv3N7fitoria3web8response17moved_permanentlyEv"></span><span id="_CPPv2N7fitoria3web8response17moved_permanentlyEv"></span><span id="fitoria::web::response::moved_permanently"></span><span class="target" id="classfitoria_1_1web_1_1response_1aa6591193e2149f1f370e8d1ef7f4adcb"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">moved_permanently</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response17moved_permanentlyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response5foundEv">
+<span id="_CPPv3N7fitoria3web8response5foundEv"></span><span id="_CPPv2N7fitoria3web8response5foundEv"></span><span id="fitoria::web::response::found"></span><span class="target" id="classfitoria_1_1web_1_1response_1a35dd7e9cf445141c514fc0ddd9afe5e0"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">found</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response5foundEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response9see_otherEv">
+<span id="_CPPv3N7fitoria3web8response9see_otherEv"></span><span id="_CPPv2N7fitoria3web8response9see_otherEv"></span><span id="fitoria::web::response::see_other"></span><span class="target" id="classfitoria_1_1web_1_1response_1a0d1d311123845b29c85cbb7346a2a7c4"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">see_other</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response9see_otherEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response12not_modifiedEv">
+<span id="_CPPv3N7fitoria3web8response12not_modifiedEv"></span><span id="_CPPv2N7fitoria3web8response12not_modifiedEv"></span><span id="fitoria::web::response::not_modified"></span><span class="target" id="classfitoria_1_1web_1_1response_1ad5fc61af7507d717515c228dbb2f8aac"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">not_modified</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response12not_modifiedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response9use_proxyEv">
+<span id="_CPPv3N7fitoria3web8response9use_proxyEv"></span><span id="_CPPv2N7fitoria3web8response9use_proxyEv"></span><span id="fitoria::web::response::use_proxy"></span><span class="target" id="classfitoria_1_1web_1_1response_1a56fe218adafa9839eda8f558d4bf5ab7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">use_proxy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response9use_proxyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response18temporary_redirectEv">
+<span id="_CPPv3N7fitoria3web8response18temporary_redirectEv"></span><span id="_CPPv2N7fitoria3web8response18temporary_redirectEv"></span><span id="fitoria::web::response::temporary_redirect"></span><span class="target" id="classfitoria_1_1web_1_1response_1a3fb4d021e86e728fbf72f61a75d756d0"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">temporary_redirect</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response18temporary_redirectEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response18permanent_redirectEv">
+<span id="_CPPv3N7fitoria3web8response18permanent_redirectEv"></span><span id="_CPPv2N7fitoria3web8response18permanent_redirectEv"></span><span id="fitoria::web::response::permanent_redirect"></span><span class="target" id="classfitoria_1_1web_1_1response_1a15e0637dd659731ecadbbcae205a0308"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">permanent_redirect</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response18permanent_redirectEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response11bad_requestEv">
+<span id="_CPPv3N7fitoria3web8response11bad_requestEv"></span><span id="_CPPv2N7fitoria3web8response11bad_requestEv"></span><span id="fitoria::web::response::bad_request"></span><span class="target" id="classfitoria_1_1web_1_1response_1a80d459255beeb2764af8966666811ee6"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bad_request</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response11bad_requestEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response12unauthorizedEv">
+<span id="_CPPv3N7fitoria3web8response12unauthorizedEv"></span><span id="_CPPv2N7fitoria3web8response12unauthorizedEv"></span><span id="fitoria::web::response::unauthorized"></span><span class="target" id="classfitoria_1_1web_1_1response_1a8acc643c2d8dae5b728a7ba600241921"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unauthorized</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response12unauthorizedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response16payment_requiredEv">
+<span id="_CPPv3N7fitoria3web8response16payment_requiredEv"></span><span id="_CPPv2N7fitoria3web8response16payment_requiredEv"></span><span id="fitoria::web::response::payment_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1a42d26eee7cd74850c01ca7c8d4624aa8"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">payment_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response16payment_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response9forbiddenEv">
+<span id="_CPPv3N7fitoria3web8response9forbiddenEv"></span><span id="_CPPv2N7fitoria3web8response9forbiddenEv"></span><span id="fitoria::web::response::forbidden"></span><span class="target" id="classfitoria_1_1web_1_1response_1ad79e55dfcbb3e902531b37dbd4c0a1a2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">forbidden</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response9forbiddenEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response9not_foundEv">
+<span id="_CPPv3N7fitoria3web8response9not_foundEv"></span><span id="_CPPv2N7fitoria3web8response9not_foundEv"></span><span id="fitoria::web::response::not_found"></span><span class="target" id="classfitoria_1_1web_1_1response_1a10ae38c21c94653972c7846035714c1e"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">not_found</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response9not_foundEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response18method_not_allowedEv">
+<span id="_CPPv3N7fitoria3web8response18method_not_allowedEv"></span><span id="_CPPv2N7fitoria3web8response18method_not_allowedEv"></span><span id="fitoria::web::response::method_not_allowed"></span><span class="target" id="classfitoria_1_1web_1_1response_1a8e9f14b48e17bc4ac579f2b9246be7c0"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">method_not_allowed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response18method_not_allowedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response14not_acceptableEv">
+<span id="_CPPv3N7fitoria3web8response14not_acceptableEv"></span><span id="_CPPv2N7fitoria3web8response14not_acceptableEv"></span><span id="fitoria::web::response::not_acceptable"></span><span class="target" id="classfitoria_1_1web_1_1response_1aefc6ded67e0468029a735c81cd88a128"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">not_acceptable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response14not_acceptableEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response29proxy_authentication_requiredEv">
+<span id="_CPPv3N7fitoria3web8response29proxy_authentication_requiredEv"></span><span id="_CPPv2N7fitoria3web8response29proxy_authentication_requiredEv"></span><span id="fitoria::web::response::proxy_authentication_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1a4cc5c744e5eb270466a7ecbf47fb9af9"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">proxy_authentication_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response29proxy_authentication_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response15request_timeoutEv">
+<span id="_CPPv3N7fitoria3web8response15request_timeoutEv"></span><span id="_CPPv2N7fitoria3web8response15request_timeoutEv"></span><span id="fitoria::web::response::request_timeout"></span><span class="target" id="classfitoria_1_1web_1_1response_1ac6683d4f8bf0170dfad4dbed8e2184fe"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">request_timeout</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response15request_timeoutEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response8conflictEv">
+<span id="_CPPv3N7fitoria3web8response8conflictEv"></span><span id="_CPPv2N7fitoria3web8response8conflictEv"></span><span id="fitoria::web::response::conflict"></span><span class="target" id="classfitoria_1_1web_1_1response_1a6d62163c9a6dbf064e3190fcd8c28b4c"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">conflict</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response8conflictEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response4goneEv">
+<span id="_CPPv3N7fitoria3web8response4goneEv"></span><span id="_CPPv2N7fitoria3web8response4goneEv"></span><span id="fitoria::web::response::gone"></span><span class="target" id="classfitoria_1_1web_1_1response_1aa5e52b1a469611a09b3e294c050f687b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response4goneEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response15length_requiredEv">
+<span id="_CPPv3N7fitoria3web8response15length_requiredEv"></span><span id="_CPPv2N7fitoria3web8response15length_requiredEv"></span><span id="fitoria::web::response::length_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1aeabdb03e78e5592ed6a462613bc9bf27"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">length_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response15length_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response19precondition_failedEv">
+<span id="_CPPv3N7fitoria3web8response19precondition_failedEv"></span><span id="_CPPv2N7fitoria3web8response19precondition_failedEv"></span><span id="fitoria::web::response::precondition_failed"></span><span class="target" id="classfitoria_1_1web_1_1response_1ae30db57ec8ce8a81de90db6a68bc1e43"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">precondition_failed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response19precondition_failedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response17payload_too_largeEv">
+<span id="_CPPv3N7fitoria3web8response17payload_too_largeEv"></span><span id="_CPPv2N7fitoria3web8response17payload_too_largeEv"></span><span id="fitoria::web::response::payload_too_large"></span><span class="target" id="classfitoria_1_1web_1_1response_1af52bcc9ee14d8b2cab91e195c2610906"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">payload_too_large</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response17payload_too_largeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response12uri_too_longEv">
+<span id="_CPPv3N7fitoria3web8response12uri_too_longEv"></span><span id="_CPPv2N7fitoria3web8response12uri_too_longEv"></span><span id="fitoria::web::response::uri_too_long"></span><span class="target" id="classfitoria_1_1web_1_1response_1a3274772ec2496ba249995a8795f131c7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">uri_too_long</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response12uri_too_longEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response22unsupported_media_typeEv">
+<span id="_CPPv3N7fitoria3web8response22unsupported_media_typeEv"></span><span id="_CPPv2N7fitoria3web8response22unsupported_media_typeEv"></span><span id="fitoria::web::response::unsupported_media_type"></span><span class="target" id="classfitoria_1_1web_1_1response_1a9404befeb3a55057f6fb47a74d71f0cd"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unsupported_media_type</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response22unsupported_media_typeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response21range_not_satisfiableEv">
+<span id="_CPPv3N7fitoria3web8response21range_not_satisfiableEv"></span><span id="_CPPv2N7fitoria3web8response21range_not_satisfiableEv"></span><span id="fitoria::web::response::range_not_satisfiable"></span><span class="target" id="classfitoria_1_1web_1_1response_1ae7666ec7b73ae7a9d4c179385a53f1d9"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">range_not_satisfiable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response21range_not_satisfiableEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response18expectation_failedEv">
+<span id="_CPPv3N7fitoria3web8response18expectation_failedEv"></span><span id="_CPPv2N7fitoria3web8response18expectation_failedEv"></span><span id="fitoria::web::response::expectation_failed"></span><span class="target" id="classfitoria_1_1web_1_1response_1a90212f813c4883e9d6d133e8b8dfc7d0"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">expectation_failed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response18expectation_failedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response19misdirected_requestEv">
+<span id="_CPPv3N7fitoria3web8response19misdirected_requestEv"></span><span id="_CPPv2N7fitoria3web8response19misdirected_requestEv"></span><span id="fitoria::web::response::misdirected_request"></span><span class="target" id="classfitoria_1_1web_1_1response_1accab5df91fc9eb5ba89590c52235f44b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">misdirected_request</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response19misdirected_requestEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response20unprocessable_entityEv">
+<span id="_CPPv3N7fitoria3web8response20unprocessable_entityEv"></span><span id="_CPPv2N7fitoria3web8response20unprocessable_entityEv"></span><span id="fitoria::web::response::unprocessable_entity"></span><span class="target" id="classfitoria_1_1web_1_1response_1a9a8371d8b2ceb3135e352e52d8ec61b5"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unprocessable_entity</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response20unprocessable_entityEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response6lockedEv">
+<span id="_CPPv3N7fitoria3web8response6lockedEv"></span><span id="_CPPv2N7fitoria3web8response6lockedEv"></span><span id="fitoria::web::response::locked"></span><span class="target" id="classfitoria_1_1web_1_1response_1a3cafc2070489ab00c949f76e71c12b0d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">locked</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response6lockedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response17failed_dependencyEv">
+<span id="_CPPv3N7fitoria3web8response17failed_dependencyEv"></span><span id="_CPPv2N7fitoria3web8response17failed_dependencyEv"></span><span id="fitoria::web::response::failed_dependency"></span><span class="target" id="classfitoria_1_1web_1_1response_1ab779631c1cbc728f500f4c115db8ee93"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">failed_dependency</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response17failed_dependencyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response16upgrade_requiredEv">
+<span id="_CPPv3N7fitoria3web8response16upgrade_requiredEv"></span><span id="_CPPv2N7fitoria3web8response16upgrade_requiredEv"></span><span id="fitoria::web::response::upgrade_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1a6ef00bdd39e3f86616162ec917c39a14"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">upgrade_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response16upgrade_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response21precondition_requiredEv">
+<span id="_CPPv3N7fitoria3web8response21precondition_requiredEv"></span><span id="_CPPv2N7fitoria3web8response21precondition_requiredEv"></span><span id="fitoria::web::response::precondition_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1ac11c6cddcd9c7a295b0dc0d941fca09e"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">precondition_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response21precondition_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response17too_many_requestsEv">
+<span id="_CPPv3N7fitoria3web8response17too_many_requestsEv"></span><span id="_CPPv2N7fitoria3web8response17too_many_requestsEv"></span><span id="fitoria::web::response::too_many_requests"></span><span class="target" id="classfitoria_1_1web_1_1response_1a7ad0fa5b58ca0253fc8aeeec8d9e60b6"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">too_many_requests</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response17too_many_requestsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response31request_header_fields_too_largeEv">
+<span id="_CPPv3N7fitoria3web8response31request_header_fields_too_largeEv"></span><span id="_CPPv2N7fitoria3web8response31request_header_fields_too_largeEv"></span><span id="fitoria::web::response::request_header_fields_too_large"></span><span class="target" id="classfitoria_1_1web_1_1response_1a458c635335a3a7368a9386ea19a1892f"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">request_header_fields_too_large</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response31request_header_fields_too_largeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response34connection_closed_without_responseEv">
+<span id="_CPPv3N7fitoria3web8response34connection_closed_without_responseEv"></span><span id="_CPPv2N7fitoria3web8response34connection_closed_without_responseEv"></span><span id="fitoria::web::response::connection_closed_without_response"></span><span class="target" id="classfitoria_1_1web_1_1response_1a166a264d4910190e7e14bae9468043e5"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">connection_closed_without_response</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response34connection_closed_without_responseEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response29unavailable_for_legal_reasonsEv">
+<span id="_CPPv3N7fitoria3web8response29unavailable_for_legal_reasonsEv"></span><span id="_CPPv2N7fitoria3web8response29unavailable_for_legal_reasonsEv"></span><span id="fitoria::web::response::unavailable_for_legal_reasons"></span><span class="target" id="classfitoria_1_1web_1_1response_1a36aa42e9a0c4c0eef3685ea229b31c8b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unavailable_for_legal_reasons</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response29unavailable_for_legal_reasonsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response21client_closed_requestEv">
+<span id="_CPPv3N7fitoria3web8response21client_closed_requestEv"></span><span id="_CPPv2N7fitoria3web8response21client_closed_requestEv"></span><span id="fitoria::web::response::client_closed_request"></span><span class="target" id="classfitoria_1_1web_1_1response_1a2cc1bd2c3729e00a968cd8f1a68b1eb7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">client_closed_request</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response21client_closed_requestEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response21internal_server_errorEv">
+<span id="_CPPv3N7fitoria3web8response21internal_server_errorEv"></span><span id="_CPPv2N7fitoria3web8response21internal_server_errorEv"></span><span id="fitoria::web::response::internal_server_error"></span><span class="target" id="classfitoria_1_1web_1_1response_1a5c1667880e086f36ec62fd6040a7710a"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">internal_server_error</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response21internal_server_errorEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response15not_implementedEv">
+<span id="_CPPv3N7fitoria3web8response15not_implementedEv"></span><span id="_CPPv2N7fitoria3web8response15not_implementedEv"></span><span id="fitoria::web::response::not_implemented"></span><span class="target" id="classfitoria_1_1web_1_1response_1aba408a487859ff73da204c8a17923ae4"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">not_implemented</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response15not_implementedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response11bad_gatewayEv">
+<span id="_CPPv3N7fitoria3web8response11bad_gatewayEv"></span><span id="_CPPv2N7fitoria3web8response11bad_gatewayEv"></span><span id="fitoria::web::response::bad_gateway"></span><span class="target" id="classfitoria_1_1web_1_1response_1ac845b69662a61a8923fc073b578191fe"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bad_gateway</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response11bad_gatewayEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response19service_unavailableEv">
+<span id="_CPPv3N7fitoria3web8response19service_unavailableEv"></span><span id="_CPPv2N7fitoria3web8response19service_unavailableEv"></span><span id="fitoria::web::response::service_unavailable"></span><span class="target" id="classfitoria_1_1web_1_1response_1a52128acdbd1e320fba4b9bfc2efdfe3b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">service_unavailable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response19service_unavailableEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response15gateway_timeoutEv">
+<span id="_CPPv3N7fitoria3web8response15gateway_timeoutEv"></span><span id="_CPPv2N7fitoria3web8response15gateway_timeoutEv"></span><span id="fitoria::web::response::gateway_timeout"></span><span class="target" id="classfitoria_1_1web_1_1response_1a3dc42a98b76ed54aee3f17f8b42a2758"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gateway_timeout</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response15gateway_timeoutEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response26http_version_not_supportedEv">
+<span id="_CPPv3N7fitoria3web8response26http_version_not_supportedEv"></span><span id="_CPPv2N7fitoria3web8response26http_version_not_supportedEv"></span><span id="fitoria::web::response::http_version_not_supported"></span><span class="target" id="classfitoria_1_1web_1_1response_1a09186a07c33fbaf653c61c029b58a726"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">http_version_not_supported</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response26http_version_not_supportedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response23variant_also_negotiatesEv">
+<span id="_CPPv3N7fitoria3web8response23variant_also_negotiatesEv"></span><span id="_CPPv2N7fitoria3web8response23variant_also_negotiatesEv"></span><span id="fitoria::web::response::variant_also_negotiates"></span><span class="target" id="classfitoria_1_1web_1_1response_1a170e61c6208766dcf804933d861b50cd"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">variant_also_negotiates</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response23variant_also_negotiatesEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response20insufficient_storageEv">
+<span id="_CPPv3N7fitoria3web8response20insufficient_storageEv"></span><span id="_CPPv2N7fitoria3web8response20insufficient_storageEv"></span><span id="fitoria::web::response::insufficient_storage"></span><span class="target" id="classfitoria_1_1web_1_1response_1a86353c3b62d76d978b67412ea10a68ca"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insufficient_storage</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response20insufficient_storageEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response13loop_detectedEv">
+<span id="_CPPv3N7fitoria3web8response13loop_detectedEv"></span><span id="_CPPv2N7fitoria3web8response13loop_detectedEv"></span><span id="fitoria::web::response::loop_detected"></span><span class="target" id="classfitoria_1_1web_1_1response_1acd4aeef5429322d8a00947a35cc5d18b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">loop_detected</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response13loop_detectedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response12not_extendedEv">
+<span id="_CPPv3N7fitoria3web8response12not_extendedEv"></span><span id="_CPPv2N7fitoria3web8response12not_extendedEv"></span><span id="fitoria::web::response::not_extended"></span><span class="target" id="classfitoria_1_1web_1_1response_1aaaf3310d7d7168f563027bb119d3850d"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">not_extended</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response12not_extendedEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response31network_authentication_requiredEv">
+<span id="_CPPv3N7fitoria3web8response31network_authentication_requiredEv"></span><span id="_CPPv2N7fitoria3web8response31network_authentication_requiredEv"></span><span id="fitoria::web::response::network_authentication_required"></span><span class="target" id="classfitoria_1_1web_1_1response_1a862083e2b1ee05c6334698850c5e73db"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">network_authentication_required</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response31network_authentication_requiredEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web8response29network_connect_timeout_errorEv">
+<span id="_CPPv3N7fitoria3web8response29network_connect_timeout_errorEv"></span><span id="_CPPv2N7fitoria3web8response29network_connect_timeout_errorEv"></span><span id="fitoria::web::response::network_connect_timeout_error"></span><span class="target" id="classfitoria_1_1web_1_1response_1af3a42e225947cacd13d076d4ee9440cd"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">network_connect_timeout_error</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response_builder.html#_CPPv4N7fitoria3web16response_builderE" title="fitoria::web::response_builder"><span class="n"><span class="pre">response_builder</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web8response29network_connect_timeout_errorEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> with specific http status code.</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="response_builder.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8responseE"><code class="docutils literal notranslate"><span class="pre">response</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web8response11status_codeEv"><code class="docutils literal notranslate"><span class="pre">response::status_code()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web8response7versionEv"><code class="docutils literal notranslate"><span class="pre">response::version()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response6headerEv"><code class="docutils literal notranslate"><span class="pre">response::header()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response4bodyEv"><code class="docutils literal notranslate"><span class="pre">response::body()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response7builderEv"><code class="docutils literal notranslate"><span class="pre">response::builder()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response9continue_Ev"><code class="docutils literal notranslate"><span class="pre">response::continue_()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response19switching_protocolsEv"><code class="docutils literal notranslate"><span class="pre">response::switching_protocols()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response10processingEv"><code class="docutils literal notranslate"><span class="pre">response::processing()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response2okEv"><code class="docutils literal notranslate"><span class="pre">response::ok()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response7createdEv"><code class="docutils literal notranslate"><span class="pre">response::created()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response8acceptedEv"><code class="docutils literal notranslate"><span class="pre">response::accepted()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response29non_authoritative_informationEv"><code class="docutils literal notranslate"><span class="pre">response::non_authoritative_information()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response10no_contentEv"><code class="docutils literal notranslate"><span class="pre">response::no_content()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response13reset_contentEv"><code class="docutils literal notranslate"><span class="pre">response::reset_content()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response15partial_contentEv"><code class="docutils literal notranslate"><span class="pre">response::partial_content()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response12multi_statusEv"><code class="docutils literal notranslate"><span class="pre">response::multi_status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response16already_reportedEv"><code class="docutils literal notranslate"><span class="pre">response::already_reported()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response7im_usedEv"><code class="docutils literal notranslate"><span class="pre">response::im_used()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response16multiple_choicesEv"><code class="docutils literal notranslate"><span class="pre">response::multiple_choices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response17moved_permanentlyEv"><code class="docutils literal notranslate"><span class="pre">response::moved_permanently()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response5foundEv"><code class="docutils literal notranslate"><span class="pre">response::found()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response9see_otherEv"><code class="docutils literal notranslate"><span class="pre">response::see_other()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response12not_modifiedEv"><code class="docutils literal notranslate"><span class="pre">response::not_modified()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response9use_proxyEv"><code class="docutils literal notranslate"><span class="pre">response::use_proxy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response18temporary_redirectEv"><code class="docutils literal notranslate"><span class="pre">response::temporary_redirect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response18permanent_redirectEv"><code class="docutils literal notranslate"><span class="pre">response::permanent_redirect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response11bad_requestEv"><code class="docutils literal notranslate"><span class="pre">response::bad_request()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response12unauthorizedEv"><code class="docutils literal notranslate"><span class="pre">response::unauthorized()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response16payment_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::payment_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response9forbiddenEv"><code class="docutils literal notranslate"><span class="pre">response::forbidden()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response9not_foundEv"><code class="docutils literal notranslate"><span class="pre">response::not_found()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response18method_not_allowedEv"><code class="docutils literal notranslate"><span class="pre">response::method_not_allowed()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response14not_acceptableEv"><code class="docutils literal notranslate"><span class="pre">response::not_acceptable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response29proxy_authentication_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::proxy_authentication_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response15request_timeoutEv"><code class="docutils literal notranslate"><span class="pre">response::request_timeout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response8conflictEv"><code class="docutils literal notranslate"><span class="pre">response::conflict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response4goneEv"><code class="docutils literal notranslate"><span class="pre">response::gone()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response15length_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::length_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response19precondition_failedEv"><code class="docutils literal notranslate"><span class="pre">response::precondition_failed()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response17payload_too_largeEv"><code class="docutils literal notranslate"><span class="pre">response::payload_too_large()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response12uri_too_longEv"><code class="docutils literal notranslate"><span class="pre">response::uri_too_long()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response22unsupported_media_typeEv"><code class="docutils literal notranslate"><span class="pre">response::unsupported_media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response21range_not_satisfiableEv"><code class="docutils literal notranslate"><span class="pre">response::range_not_satisfiable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response18expectation_failedEv"><code class="docutils literal notranslate"><span class="pre">response::expectation_failed()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response19misdirected_requestEv"><code class="docutils literal notranslate"><span class="pre">response::misdirected_request()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response20unprocessable_entityEv"><code class="docutils literal notranslate"><span class="pre">response::unprocessable_entity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response6lockedEv"><code class="docutils literal notranslate"><span class="pre">response::locked()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response17failed_dependencyEv"><code class="docutils literal notranslate"><span class="pre">response::failed_dependency()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response16upgrade_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::upgrade_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response21precondition_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::precondition_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response17too_many_requestsEv"><code class="docutils literal notranslate"><span class="pre">response::too_many_requests()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response31request_header_fields_too_largeEv"><code class="docutils literal notranslate"><span class="pre">response::request_header_fields_too_large()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response34connection_closed_without_responseEv"><code class="docutils literal notranslate"><span class="pre">response::connection_closed_without_response()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response29unavailable_for_legal_reasonsEv"><code class="docutils literal notranslate"><span class="pre">response::unavailable_for_legal_reasons()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response21client_closed_requestEv"><code class="docutils literal notranslate"><span class="pre">response::client_closed_request()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response21internal_server_errorEv"><code class="docutils literal notranslate"><span class="pre">response::internal_server_error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response15not_implementedEv"><code class="docutils literal notranslate"><span class="pre">response::not_implemented()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response11bad_gatewayEv"><code class="docutils literal notranslate"><span class="pre">response::bad_gateway()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response19service_unavailableEv"><code class="docutils literal notranslate"><span class="pre">response::service_unavailable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response15gateway_timeoutEv"><code class="docutils literal notranslate"><span class="pre">response::gateway_timeout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response26http_version_not_supportedEv"><code class="docutils literal notranslate"><span class="pre">response::http_version_not_supported()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response23variant_also_negotiatesEv"><code class="docutils literal notranslate"><span class="pre">response::variant_also_negotiates()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response20insufficient_storageEv"><code class="docutils literal notranslate"><span class="pre">response::insufficient_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response13loop_detectedEv"><code class="docutils literal notranslate"><span class="pre">response::loop_detected()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response12not_extendedEv"><code class="docutils literal notranslate"><span class="pre">response::not_extended()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response31network_authentication_requiredEv"><code class="docutils literal notranslate"><span class="pre">response::network_authentication_required()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web8response29network_connect_timeout_errorEv"><code class="docutils literal notranslate"><span class="pre">response::network_connect_timeout_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/reference/response.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Ramirisu.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
