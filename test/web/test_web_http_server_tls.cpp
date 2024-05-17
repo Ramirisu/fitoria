@@ -36,7 +36,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                   CHECK_EQ(req.path().at("repo"), "fitoria");
                   CHECK_EQ(req.path().match_pattern(), "/api/repos/{repo}");
                   CHECK_EQ(req.path().match_path(), "/api/repos/fitoria");
-                  CHECK_EQ(req.fields().get(http::field::content_type),
+                  CHECK_EQ(req.header().get(http::field::content_type),
                            http::fields::content_type::plaintext());
                   CHECK_EQ(body, "hello world");
                   co_return response::ok().build();

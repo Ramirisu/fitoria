@@ -113,59 +113,59 @@ public:
     return std::move(*this);
   };
 
-  auto fields() noexcept -> http::header&
+  auto header() noexcept -> http::header&
   {
     return header_;
   }
 
-  auto fields() const noexcept -> const http::header&
+  auto header() const noexcept -> const http::header&
   {
     return header_;
   }
 
-  auto set_field(std::string name, std::string_view value) & -> request&
+  auto set_header(std::string name, std::string_view value) & -> request&
   {
     header_.set(std::move(name), value);
     return *this;
   }
 
-  auto set_field(std::string name, std::string_view value) && -> request&&
+  auto set_header(std::string name, std::string_view value) && -> request&&
   {
     header_.set(std::move(name), value);
     return std::move(*this);
   }
 
-  auto set_field(http::field name, std::string_view value) & -> request&
+  auto set_header(http::field name, std::string_view value) & -> request&
   {
     header_.set(name, value);
     return *this;
   }
 
-  auto set_field(http::field name, std::string_view value) && -> request&&
+  auto set_header(http::field name, std::string_view value) && -> request&&
   {
     header_.set(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(std::string name, std::string_view value) & -> request&
+  auto insert_header(std::string name, std::string_view value) & -> request&
   {
     header_.insert(std::move(name), value);
     return *this;
   }
 
-  auto insert_field(std::string name, std::string_view value) && -> request&&
+  auto insert_header(std::string name, std::string_view value) && -> request&&
   {
     header_.insert(std::move(name), value);
     return std::move(*this);
   }
 
-  auto insert_field(http::field name, std::string_view value) & -> request&
+  auto insert_header(http::field name, std::string_view value) & -> request&
   {
     header_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(http::field name, std::string_view value) && -> request&&
+  auto insert_header(http::field name, std::string_view value) && -> request&&
   {
     header_.insert(name, value);
     return std::move(*this);
@@ -209,7 +209,7 @@ public:
 
   auto set_json(const boost::json::value& jv) & -> request&
   {
-    set_field(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, http::fields::content_type::json());
     auto str = boost::json::serialize(jv);
     set_body(std::as_bytes(std::span(str.begin(), str.end())));
     return *this;

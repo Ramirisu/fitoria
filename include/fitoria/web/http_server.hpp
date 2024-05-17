@@ -159,7 +159,7 @@ private:
         req.method(),
         http::version::v1_1,
         target,
-        std::move(req.fields()),
+        std::move(req.header()),
         std::make_shared<state_map>(),
         std::move(req.body()))));
   }
@@ -354,8 +354,8 @@ private:
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
       co_return response::bad_request()
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::plaintext())
           .set_body("request target is invalid");
     }
 
@@ -375,8 +375,8 @@ private:
     }
 
     co_return response::not_found()
-        .set_field(http::field::content_type,
-                   http::fields::content_type::plaintext())
+        .set_header(http::field::content_type,
+                    http::fields::content_type::plaintext())
         .set_body("request path is not found");
   }
 
@@ -389,7 +389,7 @@ private:
 
     auto r = response<empty_body>(res.status_code().value(),
                                   http::detail::to_impl_version(res.version()));
-    res.fields().to_impl(r);
+    res.header().to_impl(r);
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
@@ -413,7 +413,7 @@ private:
     auto r = response<vector_body<std::byte>>(
         res.status_code().value(),
         http::detail::to_impl_version(res.version()));
-    res.fields().to_impl(r);
+    res.header().to_impl(r);
     if (auto data = co_await async_read_until_eof<std::vector<std::byte>>(
             res.body().stream());
         data) {
@@ -437,7 +437,7 @@ private:
 
     auto r = response<empty_body>(res.status_code().value(),
                                   http::detail::to_impl_version(res.version()));
-    res.fields().to_impl(r);
+    res.header().to_impl(r);
     r.keep_alive(keep_alive);
     r.chunked(true);
 

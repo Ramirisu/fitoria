@@ -139,65 +139,65 @@ public:
     return std::move(*this);
   }
 
-  auto fields() noexcept -> http::header&
+  auto header() noexcept -> http::header&
   {
     return header_;
   }
 
-  auto fields() const noexcept -> const http::header&
+  auto header() const noexcept -> const http::header&
   {
     return header_;
   }
 
-  auto set_field(http::field name, std::string_view value) & -> http_client&
+  auto set_header(http::field name, std::string_view value) & -> http_client&
   {
     header_.set(name, value);
     return *this;
   }
 
-  auto set_field(http::field name, std::string_view value) && -> http_client&&
+  auto set_header(http::field name, std::string_view value) && -> http_client&&
   {
-    set_field(name, value);
+    set_header(name, value);
     return std::move(*this);
   }
 
-  auto set_field(std::string_view name,
-                 std::string_view value) & -> http_client&
+  auto set_header(std::string_view name,
+                  std::string_view value) & -> http_client&
   {
     header_.set(name, value);
     return *this;
   }
 
-  auto set_field(std::string_view name,
-                 std::string_view value) && -> http_client&&
+  auto set_header(std::string_view name,
+                  std::string_view value) && -> http_client&&
   {
-    set_field(name, value);
+    set_header(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(http::field name, std::string_view value) & -> http_client&
+  auto insert_header(http::field name, std::string_view value) & -> http_client&
   {
     header_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(http::field name,
-                    std::string_view value) && -> http_client&&
+  auto insert_header(http::field name,
+                     std::string_view value) && -> http_client&&
   {
-    insert_field(name, value);
+    insert_header(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(std::string name, std::string_view value) & -> http_client&
+  auto insert_header(std::string name, std::string_view value) & -> http_client&
   {
     header_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(std::string name,
-                    std::string_view value) && -> http_client&&
+  auto insert_header(std::string name,
+                     std::string_view value) && -> http_client&&
   {
-    insert_field(name, value);
+    insert_header(name, value);
     return std::move(*this);
   }
 
@@ -230,8 +230,8 @@ public:
 
   auto set_plaintext(std::string_view sv) & -> http_client&
   {
-    set_field(http::field::content_type,
-              http::fields::content_type::plaintext());
+    set_header(http::field::content_type,
+               http::fields::content_type::plaintext());
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
@@ -243,7 +243,7 @@ public:
 
   auto set_json(const boost::json::value& jv) & -> http_client&
   {
-    set_field(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, http::fields::content_type::json());
     auto str = boost::json::serialize(jv);
     set_body(std::as_bytes(std::span(str.begin(), str.end())));
     return *this;

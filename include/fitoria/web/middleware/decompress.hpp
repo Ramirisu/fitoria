@@ -34,7 +34,7 @@ class decompress_middleware {
 public:
   auto operator()(Request req) const -> Response
   {
-    if (auto str = req.fields().get(http::field::content_encoding); str) {
+    if (auto str = req.header().get(http::field::content_encoding); str) {
       auto encodings = web::detail::split_of(*str, ",");
       std::reverse(encodings.begin(), encodings.end());
 
@@ -58,9 +58,9 @@ public:
         *str = remove_last_encoding(*str);
       }
       if (str->empty()) {
-        req.fields().erase(http::field::content_encoding);
+        req.header().erase(http::field::content_encoding);
       } else {
-        req.fields().set(http::field::content_encoding, *str);
+        req.header().set(http::field::content_encoding, *str);
       }
     }
 

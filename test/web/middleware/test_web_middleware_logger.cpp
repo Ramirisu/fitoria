@@ -28,7 +28,7 @@ TEST_CASE("logger middleware")
 
   server.serve_request(
       "/",
-      request(http::verb::get).set_field(http::field::user_agent, "fitoria"),
+      request(http::verb::get).set_header(http::field::user_agent, "fitoria"),
       [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         co_return;

@@ -54,18 +54,18 @@ TEST_CASE("misc")
   c.set_method(http::verb::post);
   CHECK_EQ(c.method(), http::verb::post);
 
-  CHECK_EQ(c.fields().get(http::field::content_type), nullopt);
-  c.set_field(http::field::content_type,
-              http::fields::content_type::plaintext());
-  CHECK_EQ(c.fields().get(http::field::content_type),
+  CHECK_EQ(c.header().get(http::field::content_type), nullopt);
+  c.set_header(http::field::content_type,
+               http::fields::content_type::plaintext());
+  CHECK_EQ(c.header().get(http::field::content_type),
            http::fields::content_type::plaintext());
 
   c.set_plaintext("hello world");
-  CHECK_EQ(c.fields().get(http::field::content_type),
+  CHECK_EQ(c.header().get(http::field::content_type),
            http::fields::content_type::plaintext());
 
   c.set_json({ { "msg", "hello world" } });
-  CHECK_EQ(c.fields().get(http::field::content_type),
+  CHECK_EQ(c.header().get(http::field::content_type),
            http::fields::content_type::json());
 
   CHECK_EQ(c.transfer_timeout(), std::chrono::seconds(5));

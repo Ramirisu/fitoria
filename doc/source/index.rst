@@ -79,16 +79,16 @@ The following example demonstrates how to create an simple ``http_server`` and a
    auto hello_world() -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body("Hello World!");
    }
    
    auto echo(std::string body) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(body);
    }
    
@@ -131,8 +131,8 @@ First we have to create a ``net::ssl::context`` with server certificates and des
      auto server = http_server::builder(ioc)
                        .serve(route::get<"/">([]() -> awaitable<response> {
                          co_return response::ok()
-                             .set_field(http::field::content_type,
-                                        http::fields::content_type::plaintext())
+                             .set_header(http::field::content_type,
+                                         http::fields::content_type::plaintext())
                              .set_body("Hello World!");
                        }))
                        .build();
@@ -162,8 +162,8 @@ Threading
          = http_server::builder(ioc)
                .serve(route::get<"/">([](std::string body) -> awaitable<response> {
                  co_return response::ok()
-                     .set_field(http::field::content_type,
-                                http::fields::content_type::plaintext())
+                     .set_header(http::field::content_type,
+                                 http::fields::content_type::plaintext())
                      .set_body(body);
                }))
                .build();
@@ -342,8 +342,8 @@ Use ``request::path()`` to access the path parameters. (`Path Parameters Example
      }
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}", user.value()));
    }
    }
@@ -378,8 +378,8 @@ Use ``request::query()`` to access the query string parameters. (`Query String P
      }
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}", user.value()));
    }
 
@@ -455,8 +455,8 @@ fitoria provides a way to share data between multiple ``route`` s under the same
    
      if (auto value = (*cache)->get(*key); value) {
        co_return response::ok()
-           .set_field(http::field::content_type,
-                      http::fields::content_type::plaintext())
+           .set_header(http::field::content_type,
+                       http::fields::content_type::plaintext())
            .set_body(*value);
      } else {
        co_return response::not_found().build();
@@ -504,8 +504,8 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
      auto [user, order_id] = order;
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}, order_id: {}", user, order_id));
    }
    
@@ -517,8 +517,8 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
    auto get_order_struct(path_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -555,8 +555,8 @@ Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`
    auto get_order(query_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -770,8 +770,8 @@ Use ``web::stream_file`` to serve static files. (`Static Files Example <https://
      }
    
      co_return response::not_found()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("requsted file was not found: \"{}\"", path));
    }
    

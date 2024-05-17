@@ -67,12 +67,12 @@ public:
     return version_;
   }
 
-  auto fields() noexcept -> http::header&
+  auto header() noexcept -> http::header&
   {
     return header_;
   }
 
-  auto fields() const noexcept -> const http::header&
+  auto header() const noexcept -> const http::header&
   {
     return header_;
   }
@@ -224,57 +224,57 @@ public:
     return std::move(*this);
   }
 
-  auto set_field(std::string_view name,
-                 std::string_view value) & -> response_builder&
+  auto set_header(std::string_view name,
+                  std::string_view value) & -> response_builder&
   {
     header_.set(name, value);
     return *this;
   }
 
-  auto set_field(std::string_view name,
-                 std::string_view value) && -> response_builder&&
-  {
-    header_.set(name, value);
-    return std::move(*this);
-  }
-
-  auto set_field(http::field name,
-                 std::string_view value) & -> response_builder&
-  {
-    header_.set(name, value);
-    return *this;
-  }
-
-  auto set_field(http::field name,
-                 std::string_view value) && -> response_builder&&
+  auto set_header(std::string_view name,
+                  std::string_view value) && -> response_builder&&
   {
     header_.set(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(std::string_view name,
-                    std::string_view value) & -> response_builder&
+  auto set_header(http::field name,
+                  std::string_view value) & -> response_builder&
+  {
+    header_.set(name, value);
+    return *this;
+  }
+
+  auto set_header(http::field name,
+                  std::string_view value) && -> response_builder&&
+  {
+    header_.set(name, value);
+    return std::move(*this);
+  }
+
+  auto insert_header(std::string_view name,
+                     std::string_view value) & -> response_builder&
   {
     header_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(std::string_view name,
-                    std::string_view value) && -> response_builder&&
+  auto insert_header(std::string_view name,
+                     std::string_view value) && -> response_builder&&
   {
     header_.insert(name, value);
     return std::move(*this);
   }
 
-  auto insert_field(http::field name,
-                    std::string_view value) & -> response_builder&
+  auto insert_header(http::field name,
+                     std::string_view value) & -> response_builder&
   {
     header_.insert(name, value);
     return *this;
   }
 
-  auto insert_field(http::field name,
-                    std::string_view value) && -> response_builder&&
+  auto insert_header(http::field name,
+                     std::string_view value) && -> response_builder&&
   {
     header_.insert(name, value);
     return std::move(*this);
@@ -300,7 +300,7 @@ public:
 
   auto set_json(const boost::json::value& jv) -> response
   {
-    set_field(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, http::fields::content_type::json());
     auto str = boost::json::serialize(jv);
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }

@@ -32,39 +32,39 @@ TEST_CASE("status_code")
   CHECK_EQ(res.status_code(), http::status::ok);
 }
 
-TEST_CASE("insert_field")
+TEST_CASE("insert_header")
 {
   auto res = response::ok()
-                 .insert_field(http::field::content_type,
-                               http::fields::content_type::plaintext())
-                 .insert_field("content-encoding",
-                               http::fields::content_encoding::deflate())
+                 .insert_header(http::field::content_type,
+                                http::fields::content_type::plaintext())
+                 .insert_header("content-encoding",
+                                http::fields::content_encoding::deflate())
                  .build();
-  CHECK_EQ(res.fields().get(http::field::content_type),
+  CHECK_EQ(res.header().get(http::field::content_type),
            http::fields::content_type::plaintext());
-  CHECK_EQ(res.fields().get("Content-Type"),
+  CHECK_EQ(res.header().get("Content-Type"),
            http::fields::content_type::plaintext());
-  CHECK_EQ(res.fields().get(http::field::content_encoding),
+  CHECK_EQ(res.header().get(http::field::content_encoding),
            http::fields::content_encoding::deflate());
-  CHECK_EQ(res.fields().get("Content-Encoding"),
+  CHECK_EQ(res.header().get("Content-Encoding"),
            http::fields::content_encoding::deflate());
 }
 
-TEST_CASE("set_field")
+TEST_CASE("set_header")
 {
   auto res = response::ok()
-                 .set_field(http::field::content_type,
-                            http::fields::content_type::plaintext())
-                 .set_field("content-encoding",
-                            http::fields::content_encoding::deflate())
+                 .set_header(http::field::content_type,
+                             http::fields::content_type::plaintext())
+                 .set_header("content-encoding",
+                             http::fields::content_encoding::deflate())
                  .build();
-  CHECK_EQ(res.fields().get(http::field::content_type),
+  CHECK_EQ(res.header().get(http::field::content_type),
            http::fields::content_type::plaintext());
-  CHECK_EQ(res.fields().get("Content-Type"),
+  CHECK_EQ(res.header().get("Content-Type"),
            http::fields::content_type::plaintext());
-  CHECK_EQ(res.fields().get(http::field::content_encoding),
+  CHECK_EQ(res.header().get(http::field::content_encoding),
            http::fields::content_encoding::deflate());
-  CHECK_EQ(res.fields().get("Content-Encoding"),
+  CHECK_EQ(res.header().get("Content-Encoding"),
            http::fields::content_encoding::deflate());
 }
 

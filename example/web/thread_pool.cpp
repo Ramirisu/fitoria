@@ -17,8 +17,8 @@ int main()
       = http_server::builder(ioc)
             .serve(route::get<"/">([](std::string body) -> awaitable<response> {
               co_return response::ok()
-                  .set_field(http::field::content_type,
-                             http::fields::content_type::plaintext())
+                  .set_header(http::field::content_type,
+                              http::fields::content_type::plaintext())
                   .set_body(body);
             }))
             .build();

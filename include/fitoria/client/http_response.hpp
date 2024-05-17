@@ -55,12 +55,12 @@ public:
     return version_;
   }
 
-  auto fields() noexcept -> http::header&
+  auto header() noexcept -> http::header&
   {
     return header_;
   }
 
-  auto fields() const noexcept -> const http::header&
+  auto header() const noexcept -> const http::header&
   {
     return header_;
   }
@@ -105,7 +105,7 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (fields().get(http::field::content_type)
+    if (header().get(http::field::content_type)
         != http::fields::content_type::json()) {
       co_return unexpected { make_error_code(
           error::content_type_not_application_json) };

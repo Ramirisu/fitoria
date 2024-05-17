@@ -42,7 +42,7 @@ public:
               std::string(to_string(req.method())),
               req.path().match_path(),
               res.status_code(),
-              req.fields().get(http::field::user_agent).value_or(""),
+              req.header().get(http::field::user_agent).value_or(""),
               std::chrono::floor<std::chrono::microseconds>(clock_t::now()
                                                             - start_time));
 

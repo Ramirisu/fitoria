@@ -40,7 +40,7 @@ public:
   friend auto tag_invoke(from_request_t<form_of<T>>, request& req)
       -> awaitable<expected<form_of<T>, std::error_code>>
   {
-    if (req.fields().get(http::field::content_type)
+    if (req.header().get(http::field::content_type)
         != http::fields::content_type::form_urlencoded()) {
       co_return unexpected { make_error_code(
           error::content_type_not_application_form_urlencoded) };

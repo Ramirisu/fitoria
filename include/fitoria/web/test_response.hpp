@@ -28,7 +28,7 @@ class test_response {
 public:
   test_response(web::response response)
       : status_code_(response.status_code())
-      , header_(std::move(response.fields()))
+      , header_(std::move(response.header()))
       , body_(std::move(response.body().stream()))
   {
   }
@@ -46,12 +46,12 @@ public:
     return status_code_;
   }
 
-  auto fields() noexcept -> http::header&
+  auto header() noexcept -> http::header&
   {
     return header_;
   }
 
-  auto fields() const noexcept -> const http::header&
+  auto header() const noexcept -> const http::header&
   {
     return header_;
   }
@@ -96,7 +96,7 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (fields().get(http::field::content_type)
+    if (header().get(http::field::content_type)
         != http::fields::content_type::json()) {
       co_return unexpected { make_error_code(
           web::error::content_type_not_application_json) };

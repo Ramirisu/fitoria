@@ -338,7 +338,7 @@ private:
       }
       impl_->set_option(ws::stream_base::decorator(
           [&res, body = std::move(body)](ws::response_type& r) {
-            for (auto& field : res.fields()) {
+            for (auto& field : res.header()) {
               r.set(field.name(), field.value());
             }
             r.body() = std::move(*body);
@@ -374,11 +374,11 @@ private:
       make_bad_request(make_error_code(ws::error::bad_method));
       return;
     }
-    if (!req.fields().contains(http::field::host)) {
+    if (!req.header().contains(http::field::host)) {
       make_bad_request(make_error_code(ws::error::no_host));
       return;
     }
-    if (auto connection = req.fields().get(http::field::connection);
+    if (auto connection = req.header().get(http::field::connection);
         !connection) {
       make_bad_request(make_error_code(ws::error::no_connection));
       return;
@@ -387,7 +387,7 @@ private:
       make_bad_request(make_error_code(ws::error::no_connection_upgrade));
       return;
     }
-    if (auto upgrade = req.fields().get(http::field::upgrade); !upgrade) {
+    if (auto upgrade = req.header().get(http::field::upgrade); !upgrade) {
       make_bad_request(make_error_code(ws::error::no_upgrade));
       return;
     } else if (!boost::beast::http::token_list { *upgrade }.exists(
@@ -395,31 +395,31 @@ private:
       make_bad_request(make_error_code(ws::error::no_upgrade_websocket));
       return;
     }
-    if (auto key = req.fields().get(http::field::sec_websocket_key); !key) {
+    if (auto key = req.header().get(http::field::sec_websocket_key); !key) {
       make_bad_request(make_error_code(ws::error::no_sec_key));
       return;
     } else if (key->size() > ws::detail::sec_ws_key_type::static_capacity) {
       make_bad_request(make_error_code(ws::error::bad_sec_key));
       return;
     }
-    if (auto ver = req.fields().get(http::field::sec_websocket_version); !ver) {
+    if (auto ver = req.header().get(http::field::sec_websocket_version); !ver) {
       make_bad_request(make_error_code(ws::error::no_sec_version));
       return;
     } else if (*ver != "13") {
       builder.set_status_code(http::status::upgrade_required);
-      builder.set_field(http::field::sec_websocket_version, "13");
+      builder.set_header(http::field::sec_websocket_version, "13");
       impl_->set_response(builder.set_body(
           make_error_code(ws::error::bad_sec_version).message()));
     }
 
-    builder.set_field(http::field::upgrade, "websocket");
-    builder.set_field(http::field::connection, "Upgrade");
+    builder.set_header(http::field::upgrade, "websocket");
+    builder.set_header(http::field::connection, "Upgrade");
     {
       ws::detail::sec_ws_accept_type acc;
       ws::detail::make_sec_ws_accept(
-          acc, *req.fields().get(http::field::sec_websocket_key));
-      builder.set_field(http::field::sec_websocket_accept,
-                        boost::beast::to_string_view(acc));
+          acc, *req.header().get(http::field::sec_websocket_key));
+      builder.set_header(http::field::sec_websocket_accept,
+                         boost::beast::to_string_view(acc));
     }
 
     impl_->set_response(builder.build());

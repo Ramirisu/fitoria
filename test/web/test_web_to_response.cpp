@@ -26,8 +26,8 @@ TEST_CASE("response")
   auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<response> {
                       co_return response::ok()
-                          .set_field(http::field::content_type,
-                                     http::fields::content_type::plaintext())
+                          .set_header(http::field::content_type,
+                                      http::fields::content_type::plaintext())
                           .set_body("OK");
                     }))
                     .build();
@@ -35,7 +35,7 @@ TEST_CASE("response")
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
@@ -54,7 +54,7 @@ TEST_CASE("std::string")
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
@@ -76,7 +76,7 @@ TEST_CASE("std::vector<std::byte>")
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
@@ -97,7 +97,7 @@ TEST_CASE("std::vector<std::uint8_t>")
   server.serve_request(
       "/", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
@@ -124,14 +124,14 @@ TEST_CASE("std::variant")
   server.serve_request(
       "/yes", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
   server.serve_request(
       "/no", request(http::verb::get), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.fields().get(http::field::content_type),
+        CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
         CHECK_EQ(co_await res.as_string(), "OK");
       });

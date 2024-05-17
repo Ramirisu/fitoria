@@ -45,8 +45,8 @@ private:
         = std::tuple<expected<Args, std::error_code>&...> { args... };
     if (auto err = get_error_of<0>(pack); err) {
       co_return response::internal_server_error()
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::plaintext())
           .set_body(err->message());
     }
 

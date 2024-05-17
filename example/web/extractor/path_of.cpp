@@ -16,8 +16,8 @@ auto get_order_tuple(path_of<std::tuple<std::string, std::uint64_t>> order)
   auto [user, order_id] = order;
 
   co_return response::ok()
-      .set_field(http::field::content_type,
-                 http::fields::content_type::plaintext())
+      .set_header(http::field::content_type,
+                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}, order_id: {}", user, order_id));
 }
 
@@ -29,8 +29,8 @@ struct order_t {
 auto get_order_struct(path_of<order_t> order) -> awaitable<response>
 {
   co_return response::ok()
-      .set_field(http::field::content_type,
-                 http::fields::content_type::plaintext())
+      .set_header(http::field::content_type,
+                  http::fields::content_type::plaintext())
       .set_body(
           fmt::format("user: {}, order_id: {}", order.user, order.order_id));
 }

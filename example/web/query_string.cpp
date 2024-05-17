@@ -29,8 +29,8 @@ auto get_user(const request& req) -> awaitable<response>
   }
 
   co_return response::ok()
-      .set_field(http::field::content_type,
-                 http::fields::content_type::plaintext())
+      .set_header(http::field::content_type,
+                  http::fields::content_type::plaintext())
       .set_body(fmt::format("user: {}", user.value()));
 }
 }

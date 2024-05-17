@@ -49,7 +49,7 @@ TEST_CASE("compile with io_context")
             = co_await http_client()
                   .set_method(http::verb::post)
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
-                  .set_field(http::field::connection, "close")
+                  .set_header(http::field::connection, "close")
                   .set_plaintext("")
                   .async_send();
         CHECK_EQ(res->status_code(), http::status::ok);

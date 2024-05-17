@@ -275,8 +275,8 @@ TEST_CASE("form_of<T>")
   server.serve_request(
       "/",
       request(http::verb::get)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::form_urlencoded())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::form_urlencoded())
           .set_body("year=1994&month=06&day=15"),
       [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
@@ -302,7 +302,7 @@ TEST_CASE("http::header")
 
   server.serve_request(
       "/",
-      request(http::verb::get).insert_field(http::field::connection, "close"),
+      request(http::verb::get).insert_header(http::field::connection, "close"),
       [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK(!(co_await res.as_string()));
@@ -461,7 +461,7 @@ TEST_CASE("json_of<T>")
                          request(http::verb::get).set_json(user),
                          [=](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(), http::status::ok);
-                           CHECK_EQ(res.fields().get(http::field::content_type),
+                           CHECK_EQ(res.header().get(http::field::content_type),
                                     http::fields::content_type::json());
                            CHECK_EQ(co_await res.template as_json<user_t>(),
                                     user);

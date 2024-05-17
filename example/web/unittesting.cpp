@@ -19,13 +19,13 @@ auto login(form_of<user_t> user) -> awaitable<response>
 {
   if (user.username != "fitoria" || user.password != "123456") {
     co_return response::unauthorized()
-        .set_field(http::field::content_type,
-                   http::fields::content_type::plaintext())
+        .set_header(http::field::content_type,
+                    http::fields::content_type::plaintext())
         .set_body("incorrect username or password");
   }
   co_return response::ok()
-      .set_field(http::field::content_type,
-                 http::fields::content_type::plaintext())
+      .set_header(http::field::content_type,
+                  http::fields::content_type::plaintext())
       .set_body(fmt::format("{}, login succeeded", user.username));
 }
 
@@ -39,8 +39,8 @@ int main()
   server.serve_request(
       "/api/v1/login",
       request(http::verb::post)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::plaintext())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::plaintext())
           .set_body("username=fitoria&password=123456"),
       []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code()
@@ -54,8 +54,8 @@ int main()
   server.serve_request(
       "/api/v1/login",
       request(http::verb::post)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::form_urlencoded())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::form_urlencoded())
           .set_body("username=unknown&password=123456"),
       []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
@@ -66,8 +66,8 @@ int main()
   server.serve_request(
       "/api/v1/login",
       request(http::verb::post)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::form_urlencoded())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::form_urlencoded())
           .set_body("username=fitoria&password=123"),
       []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
@@ -78,12 +78,12 @@ int main()
   server.serve_request(
       "/api/v1/login",
       request(http::verb::post)
-          .set_field(http::field::content_type,
-                     http::fields::content_type::form_urlencoded())
+          .set_header(http::field::content_type,
+                      http::fields::content_type::form_urlencoded())
           .set_body("username=fitoria&password=123456"),
       []([[maybe_unused]] auto res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::ok);
-        FITORIA_ASSERT(res.fields().get(http::field::content_type)
+        FITORIA_ASSERT(res.header().get(http::field::content_type)
                        == http::fields::content_type::plaintext());
         FITORIA_ASSERT((co_await res.as_string())
                        == "fitoria, login succeeded");

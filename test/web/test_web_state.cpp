@@ -78,9 +78,9 @@ TEST_CASE("state access order on global, scope and route")
                             .serve(route::get<"/global">(
                                 [](request& req) -> awaitable<response> {
                                   co_return response::ok()
-                                      .set_field(http::field::content_type,
-                                                 http::fields::content_type::
-                                                     plaintext())
+                                      .set_header(http::field::content_type,
+                                                  http::fields::content_type::
+                                                      plaintext())
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
@@ -88,9 +88,9 @@ TEST_CASE("state access order on global, scope and route")
                             .serve(route::get<"/scope">(
                                 [](request& req) -> awaitable<response> {
                                   co_return response::ok()
-                                      .set_field(http::field::content_type,
-                                                 http::fields::content_type::
-                                                     plaintext())
+                                      .set_header(http::field::content_type,
+                                                  http::fields::content_type::
+                                                      plaintext())
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
@@ -98,7 +98,7 @@ TEST_CASE("state access order on global, scope and route")
                                 route::get<"/route">(
                                     [](request& req) -> awaitable<response> {
                                       co_return response::ok()
-                                          .set_field(
+                                          .set_header(
                                               http::field::content_type,
                                               http::fields::content_type::
                                                   plaintext())
