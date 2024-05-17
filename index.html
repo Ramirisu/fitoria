@@ -332,16 +332,16 @@ document.write(`
 <span class="k">auto</span><span class="w"> </span><span class="n">hello_world</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">echo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
 <span class="p">}</span>
 
@@ -375,8 +375,8 @@ document.write(`
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http_server</span><span class="o">::</span><span class="n">builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
 <span class="w">                    </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">([]()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                      </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">                          </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                                     </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">                          </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                                      </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">                          </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">);</span>
 <span class="w">                    </span><span class="p">}))</span>
 <span class="w">                    </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
@@ -401,8 +401,8 @@ document.write(`
 <span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">http_server</span><span class="o">::</span><span class="n">builder</span><span class="p">(</span><span class="n">ioc</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="n">serve</span><span class="p">(</span><span class="n">route</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="s">&quot;/&quot;</span><span class="o">&gt;</span><span class="p">([](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">              </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">                  </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">                  </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                              </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">                  </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
 <span class="w">            </span><span class="p">}))</span>
 <span class="w">            </span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
@@ -559,8 +559,8 @@ document.write(`
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">value</span><span class="p">()));</span>
 <span class="p">}</span>
 <span class="p">}</span>
@@ -590,8 +590,8 @@ document.write(`
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">value</span><span class="p">()));</span>
 <span class="p">}</span>
 </pre></div>
@@ -662,8 +662,8 @@ document.write(`
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">cache</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="p">);</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">        </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                   </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">        </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="o">*</span><span class="n">value</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">not_found</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
@@ -702,8 +702,8 @@ document.write(`
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">order</span><span class="p">;</span>
 
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order_id</span><span class="p">));</span>
 <span class="p">}</span>
 
@@ -715,8 +715,8 @@ document.write(`
 <span class="k">auto</span><span class="w"> </span><span class="n">get_order_struct</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">order_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span>
 <span class="w">          </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">order_id</span><span class="p">));</span>
 <span class="p">}</span>
@@ -749,8 +749,8 @@ document.write(`
 <span class="k">auto</span><span class="w"> </span><span class="n">get_order</span><span class="p">(</span><span class="n">query_of</span><span class="o">&lt;</span><span class="n">order_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span>
 <span class="w">          </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;user: {}, order_id: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">.</span><span class="n">order_id</span><span class="p">));</span>
 <span class="p">}</span>
@@ -799,6 +799,16 @@ document.write(`
 <td><p>no</p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">http::version</span></code></p></td>
+<td><p>Extract http version.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">http::header</span></code></p></td>
+<td><p>Extract headers from request headers.</p></td>
+<td><p>no</p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::connect_info</span></code></p></td>
 <td><p>Extract connection info.</p></td>
 <td><p>no</p></td>
@@ -814,25 +824,15 @@ document.write(`
 <td><p>no</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">std::tuple&lt;Ts...&gt;</span></code>, parameters are extracted in the order where they are in the path.&lt;br/&gt; <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::http::version</span></code></p></td>
-<td><p>Extract http version.</p></td>
-<td><p>no</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_map</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_map</span></code></p></td>
 <td><p>Extract query string parameters.</p></td>
 <td><p>no</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_of&lt;T&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_of&lt;T&gt;</span></code></p></td>
 <td><p>Extract query string parameters into type <code class="docutils literal notranslate"><span class="pre">T</span></code></p></td>
 <td><p>no</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::http_fields</span></code></p></td>
-<td><p>Extract fields from request headers.</p></td>
-<td><p>no</p></td>
-<td></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::state_of&lt;T&gt;</span></code></p></td>
 <td><p>Extract shared state of type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
@@ -849,18 +849,18 @@ document.write(`
 <td><p>yes</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::json_of&lt;T&gt;</span></code></p></td>
+<td><p>Extract body and parse it into json and convert to <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
+<td><p>yes</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
 <td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::string</span></code>.</p></td>
 <td><p>yes</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
 <td><p>Extract body as <code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code>.</p></td>
-<td><p>yes</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::json_of&lt;T&gt;</span></code></p></td>
-<td><p>Extract body and parse it into json and convert to <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
 <td><p>yes</p></td>
 <td></td>
 </tr>
@@ -996,8 +996,8 @@ document.write(`
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">not_found</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                 </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;requsted file was not found: </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">));</span>
 <span class="p">}</span>
 

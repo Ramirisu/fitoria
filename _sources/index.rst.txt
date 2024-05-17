@@ -79,16 +79,16 @@ The following example demonstrates how to create an simple ``http_server`` and a
    auto hello_world() -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body("Hello World!");
    }
    
    auto echo(std::string body) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(body);
    }
    
@@ -131,8 +131,8 @@ First we have to create a ``net::ssl::context`` with server certificates and des
      auto server = http_server::builder(ioc)
                        .serve(route::get<"/">([]() -> awaitable<response> {
                          co_return response::ok()
-                             .set_field(http::field::content_type,
-                                        http::fields::content_type::plaintext())
+                             .set_header(http::field::content_type,
+                                         http::fields::content_type::plaintext())
                              .set_body("Hello World!");
                        }))
                        .build();
@@ -162,8 +162,8 @@ Threading
          = http_server::builder(ioc)
                .serve(route::get<"/">([](std::string body) -> awaitable<response> {
                  co_return response::ok()
-                     .set_field(http::field::content_type,
-                                http::fields::content_type::plaintext())
+                     .set_header(http::field::content_type,
+                                 http::fields::content_type::plaintext())
                      .set_body(body);
                }))
                .build();
@@ -342,8 +342,8 @@ Use ``request::path()`` to access the path parameters. (`Path Parameters Example
      }
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}", user.value()));
    }
    }
@@ -378,8 +378,8 @@ Use ``request::query()`` to access the query string parameters. (`Query String P
      }
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}", user.value()));
    }
 
@@ -455,8 +455,8 @@ fitoria provides a way to share data between multiple ``route`` s under the same
    
      if (auto value = (*cache)->get(*key); value) {
        co_return response::ok()
-           .set_field(http::field::content_type,
-                      http::fields::content_type::plaintext())
+           .set_header(http::field::content_type,
+                       http::fields::content_type::plaintext())
            .set_body(*value);
      } else {
        co_return response::not_found().build();
@@ -504,8 +504,8 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
      auto [user, order_id] = order;
    
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("user: {}, order_id: {}", user, order_id));
    }
    
@@ -517,8 +517,8 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
    auto get_order_struct(path_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -555,8 +555,8 @@ Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`
    auto get_order(query_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -595,37 +595,37 @@ Use ``form_of<T>`` to extract urlencoded form from body into plain ``struct``. (
 Built-in Extractors
 """""""""""""""""""
 
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|        Extractor         |                        Description                        | Body Extractor |                                                                                                                                                                           |
-+==========================+===========================================================+================+===========================================================================================================================================================================+
-| ``web::request``         | Extract whole ``request``.                                | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::connect_info``    | Extract connection info.                                  | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::path_info``       | Extract path info parameter.                              | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::path_of<T>``      | Extract path parameter into type ``T``.                   | no             | ``T = std::tuple<Ts...>``, parameters are extracted in the order where they are in the path.<br/> ``T = aggregate``, parameters are extracted to the field of their name. |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::http::version``   | Extract http version.                                     | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::query_map``       | Extract query string parameters.                          | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::query_of<T>``     | Extract query string parameters into type ``T``           | no             | ``T = aggregate``, parameters are extracted to the field of their name.                                                                                                   |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::http_fields``     | Extract fields from request headers.                      | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::state_of<T>``     | Extract shared state of type ``T``.                       | no             | Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, extractor *copy the value*.                                                                      |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::websocket``       | Extract as websocket.                                     | no             |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::form_of<T>``      | Extract urlencoded form from body into type ``T``         | yes            | ``T = aggregate``, parameters are extracted to the field of their name.                                                                                                   |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``std::string``          | Extract body as ``std::string``.                          | yes            |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``std::vector<T>``       | Extract body as ``std::vector<T>``.                       | yes            |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``web::json_of<T>``      | Extract body and parse it into json and convert to ``T``. | yes            |                                                                                                                                                                           |
-+--------------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|       Extractor       |                        Description                        | Body Extractor |                                                                                                                                                                           |
++=======================+===========================================================+================+===========================================================================================================================================================================+
+| ``web::request``      | Extract whole ``request``.                                | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``http::version``     | Extract http version.                                     | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``http::header``      | Extract headers from request headers.                     | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::connect_info`` | Extract connection info.                                  | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::path_info``    | Extract path info parameter.                              | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::path_of<T>``   | Extract path parameter into type ``T``.                   | no             | ``T = std::tuple<Ts...>``, parameters are extracted in the order where they are in the path.<br/> ``T = aggregate``, parameters are extracted to the field of their name. |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::query_map``    | Extract query string parameters.                          | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::query_of<T>``  | Extract query string parameters into type ``T``           | no             | ``T = aggregate``, parameters are extracted to the field of their name.                                                                                                   |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::state_of<T>``  | Extract shared state of type ``T``.                       | no             | Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, extractor *copy the value*.                                                                      |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::websocket``    | Extract as websocket.                                     | no             |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::form_of<T>``   | Extract urlencoded form from body into type ``T``         | yes            | ``T = aggregate``, parameters are extracted to the field of their name.                                                                                                   |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``web::json_of<T>``   | Extract body and parse it into json and convert to ``T``. | yes            |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``std::string``       | Extract body as ``std::string``.                          | yes            |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``std::vector<T>``    | Extract body as ``std::vector<T>``.                       | yes            |                                                                                                                                                                           |
++-----------------------+-----------------------------------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 .. note:: 
 
@@ -770,8 +770,8 @@ Use ``web::stream_file`` to serve static files. (`Static Files Example <https://
      }
    
      co_return response::not_found()
-         .set_field(http::field::content_type,
-                    http::fields::content_type::plaintext())
+         .set_header(http::field::content_type,
+                     http::fields::content_type::plaintext())
          .set_body(fmt::format("requsted file was not found: \"{}\"", path));
    }
    
