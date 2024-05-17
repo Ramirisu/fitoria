@@ -17,6 +17,6 @@ pip install sphinx pydata-sphinx-theme breathe
 
 doxygen ./doxygen/Doxyfile
 
-sphinx-build -b html sphinx/source build_sphinx -D"breathe_projects.fitoria=../../build_doxygen/xml"
+sphinx-build -b html -E sphinx/source build_sphinx -D"breathe_projects.fitoria=../../build_doxygen/xml"
 
 ```
