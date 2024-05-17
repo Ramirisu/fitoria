@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>class http_server &#8212; fitoria  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/http_server';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Reference" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fitoria  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../overview/index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../overview/index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><code...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="class-http-server">
+<span id="http-server"></span><h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code><a class="headerlink" href="#class-http-server" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web11http_serverE">
+<span id="_CPPv3N7fitoria3web11http_serverE"></span><span id="_CPPv2N7fitoria3web11http_serverE"></span><span id="fitoria::web::http_server"></span><span class="target" id="classfitoria_1_1web_1_1http__server"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">http_server</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria3web11http_serverE" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server22max_listen_connectionsEv">
+<span id="_CPPv3NK7fitoria3web11http_server22max_listen_connectionsEv"></span><span id="_CPPv2NK7fitoria3web11http_server22max_listen_connectionsEv"></span><span id="fitoria::web::http_server::max_listen_connectionsC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a32b65f3a0c87446ce44fe13fd1571fbe"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_listen_connections</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server22max_listen_connectionsEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get the number of maxiumum concurrent connections.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server21tls_handshake_timeoutEv">
+<span id="_CPPv3NK7fitoria3web11http_server21tls_handshake_timeoutEv"></span><span id="_CPPv2NK7fitoria3web11http_server21tls_handshake_timeoutEv"></span><span id="fitoria::web::http_server::tls_handshake_timeoutC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a0bcf171fb388a9010661122ef003ce19"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tls_handshake_timeout</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server21tls_handshake_timeoutEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get the timeout for TLS handshake.</p>
+<dl class="simple">
+<dt>Return</dt><dd><p>If no timeout is set, <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> is returned.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server15reuqest_timeoutEv">
+<span id="_CPPv3NK7fitoria3web11http_server15reuqest_timeoutEv"></span><span id="_CPPv2NK7fitoria3web11http_server15reuqest_timeoutEv"></span><span id="fitoria::web::http_server::reuqest_timeoutC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a0ca3765268bec5202cd9aeb4b38eb6fb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reuqest_timeout</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server15reuqest_timeoutEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get the timeout for serving client request.</p>
+<dl class="simple">
+<dt>Return</dt><dd><p>If no timeout is set, <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> is returned.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server4bindENSt11string_viewENSt8uint16_tE">
+<span id="_CPPv3NK7fitoria3web11http_server4bindENSt11string_viewENSt8uint16_tE"></span><span id="_CPPv2NK7fitoria3web11http_server4bindENSt11string_viewENSt8uint16_tE"></span><span id="fitoria::web::http_server::bind__std::string_view.std::uint16_tC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1aeeb6ec7f72c2e6834c94b94ea2bf80a9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bind</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">port</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_serverE" title="fitoria::web::http_server"><span class="n"><span class="pre">http_server</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">error_code</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server4bindENSt11string_viewENSt8uint16_tE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Bind the address and port for listening HTTP connection.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server8bind_sslENSt11string_viewENSt8uint16_tERN3net3ssl7contextE">
+<span id="_CPPv3NK7fitoria3web11http_server8bind_sslENSt11string_viewENSt8uint16_tERN3net3ssl7contextE"></span><span id="_CPPv2NK7fitoria3web11http_server8bind_sslENSt11string_viewENSt8uint16_tERN3net3ssl7contextE"></span><span id="fitoria::web::http_server::bind_ssl__std::string_view.std::uint16_t.net::ssl::contextRC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a6a51f6ed8d3e109d6a9e3164525e4b72"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bind_ssl</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">port</span></span>, <span class="n"><span class="pre">net</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ssl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">context</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ssl_ctx</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_serverE" title="fitoria::web::http_server"><span class="n"><span class="pre">http_server</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">error_code</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server8bind_sslENSt11string_viewENSt8uint16_tERN3net3ssl7contextE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Bind the address, port and TLS context for listening HTTPS connection.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="classfitoria_1_1web_1_1http__server_1aa9d8a6da4a4876c69ed6d532faef319e"></span><span class="sig-name descname"><span class="pre">template&lt;typename</span> <span class="pre">ResponseHandler&gt;</span> <span class="pre">inline</span> <span class="pre">requires</span> <span class="pre">std::is_invocable_v&lt;</span> <span class="pre">ResponseHandler,</span> <span class="pre">test_response</span> <span class="pre">&gt;</span> <span class="pre">&amp;&amp;co_awaitable&lt;</span> <span class="pre">std::invoke_result_t&lt;</span> <span class="pre">ResponseHandler,</span> <span class="pre">test_response</span> <span class="pre">&gt;</span> <span class="pre">&gt;</span> <span class="pre">void</span> <span class="pre">serve_request</span> <span class="pre">(std::string_view</span> <span class="pre">path,</span> <span class="pre">request</span> <span class="pre">req,</span> <span class="pre">ResponseHandler</span> <span class="pre">handler)</span> <span class="pre">const</span></span></dt>
+<dd><p>Perform unit testing with mock <code class="docutils literal notranslate"><span class="pre">request</span></code>, no TCP connections will be
+established.</p>
+</dd></dl>
+
+</div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web11http_server7builderE">
+<span id="_CPPv3N7fitoria3web11http_server7builderE"></span><span id="_CPPv2N7fitoria3web11http_server7builderE"></span><span id="fitoria::web::http_server::builder"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">builder</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria3web11http_server7builderE" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web11http_server7builder26set_max_listen_connectionsEi">
+<span id="_CPPv3NR7fitoria3web11http_server7builder26set_max_listen_connectionsEi"></span><span id="_CPPv2NR7fitoria3web11http_server7builder26set_max_listen_connectionsEi"></span><span id="fitoria::web::http_server::builder::set_max_listen_connections__iR"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1ac7cc327f3b33df9b0bdbbe3afc767faf"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_max_listen_connections</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">num</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder26set_max_listen_connectionsEi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set the number of maxiumum concurrent connections.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE">
+<span id="_CPPv3NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE"></span><span id="_CPPv2NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE"></span><span id="fitoria::web::http_server::builder::set_tls_handshake_timeout__optional:duration_type:R"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1ae0635552b8281ca0d20a907b5769a988"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_tls_handshake_timeout</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">timeout</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set the timeout for TLS handshake.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable timeout.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE">
+<span id="_CPPv3NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE"></span><span id="_CPPv2NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE"></span><span id="fitoria::web::http_server::builder::set_request_timeout__optional:duration_type:R"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1abdd3461aa1ae0921b66a65b6ebbb1b5f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_request_timeout</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">timeout</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set the timeout for serving client request.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable timeout.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a5bcc8cba9dfea7a0f16e2b91fa985019"></span><span class="sig-name descname"><span class="pre">template&lt;typename</span> <span class="pre">F&gt;</span> <span class="pre">inline</span> <span class="pre">requires</span> <span class="pre">std::invocable&lt;</span> <span class="pre">F,</span> <span class="pre">std::exception_ptr</span> <span class="pre">&gt;</span> <span class="pre">auto</span> <span class="pre">set_exception_handler</span> <span class="pre">(F</span> <span class="pre">&amp;&amp;f)</span> <span class="pre">&amp;-&gt;</span> <span class="pre">builder</span> <span class="pre">&amp;</span></span></dt>
+<dd><p><p>Set the exception handler to handle any exception thrown from the server.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Set the exception handler to handle any exception thrown from the
+server. If is not set by user, the <code class="docutils literal notranslate"><span class="pre">default_exception_handler</span></code> will
+be used.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE">
+<span id="_CPPv3I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveE10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE"></span><span id="_CPPv2I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveE10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">basic_fixed_string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RoutePath</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="sig-name descname"><span class="n"><span class="pre">RouteServices</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Handler</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a2a2f98f80c249c49a7d4035ff4f70684"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">serve</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">route_impl</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE" title="fitoria::web::http_server::builder::serve::RoutePath"><span class="n"><span class="pre">RoutePath</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE" title="fitoria::web::http_server::builder::serve::RouteServices"><span class="n"><span class="pre">RouteServices</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE" title="fitoria::web::http_server::builder::serve::Handler"><span class="n"><span class="pre">Handler</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">route</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Add a <code class="docutils literal notranslate"><span class="pre">route</span></code> to the server.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Add a <code class="docutils literal notranslate"><span class="pre">route</span></code> to the server. Note that no duplicate <code class="docutils literal notranslate"><span class="pre">route</span></code> s are
+allowed.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE">
+<span id="_CPPv3I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveE10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE"></span><span id="_CPPv2I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveE10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">basic_fixed_string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Path</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="sig-name descname"><span class="n"><span class="pre">Services</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="sig-name descname"><span class="n"><span class="pre">Routes</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a5a3e6daaad2e76093d8b3534950ef9cd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">serve</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">scope_impl</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE" title="fitoria::web::http_server::builder::serve::Path"><span class="n"><span class="pre">Path</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE" title="fitoria::web::http_server::builder::serve::Services"><span class="n"><span class="pre">Services</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE" title="fitoria::web::http_server::builder::serve::Routes"><span class="n"><span class="pre">Routes</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">scope</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Add all <code class="docutils literal notranslate"><span class="pre">route</span></code> s from a <code class="docutils literal notranslate"><span class="pre">scope</span></code> to the server.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Add all <code class="docutils literal notranslate"><span class="pre">route</span></code> s from a <code class="docutils literal notranslate"><span class="pre">scope</span></code> to the server. Note that no
+duplicate routes are allowed.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web11http_server7builder5buildEv">
+<span id="_CPPv3N7fitoria3web11http_server7builder5buildEv"></span><span id="_CPPv2N7fitoria3web11http_server7builder5buildEv"></span><span id="fitoria::web::http_server::builder::build"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a50e2b9272bb84b0e0b37c8cbf8df868c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_serverE" title="fitoria::web::http_server"><span class="n"><span class="pre">http_server</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web11http_server7builder5buildEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code> object.</p>
+<dl class="simple">
+<dt>Description</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code> object, do not use <code class="docutils literal notranslate"><span class="pre">builder</span></code> after
+calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web11http_serverE"><code class="docutils literal notranslate"><span class="pre">http_server</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web11http_server22max_listen_connectionsEv"><code class="docutils literal notranslate"><span class="pre">http_server::max_listen_connections()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web11http_server21tls_handshake_timeoutEv"><code class="docutils literal notranslate"><span class="pre">http_server::tls_handshake_timeout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web11http_server15reuqest_timeoutEv"><code class="docutils literal notranslate"><span class="pre">http_server::reuqest_timeout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web11http_server4bindENSt11string_viewENSt8uint16_tE"><code class="docutils literal notranslate"><span class="pre">http_server::bind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web11http_server8bind_sslENSt11string_viewENSt8uint16_tERN3net3ssl7contextE"><code class="docutils literal notranslate"><span class="pre">http_server::bind_ssl()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web11http_server7builderE"><code class="docutils literal notranslate"><span class="pre">http_server::builder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web11http_server7builder26set_max_listen_connectionsEi"><code class="docutils literal notranslate"><span class="pre">http_server::builder::set_max_listen_connections()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE"><code class="docutils literal notranslate"><span class="pre">http_server::builder::set_tls_handshake_timeout()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE"><code class="docutils literal notranslate"><span class="pre">http_server::builder::set_request_timeout()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_18basic_fixed_stringDp0ENR7fitoria3web11http_server7builder5serveER7builder10route_implI9RoutePathNSt5tupleIDp13RouteServicesEE7HandlerE"><code class="docutils literal notranslate"><span class="pre">http_server::builder::serve()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_18basic_fixed_stringDpDpENR7fitoria3web11http_server7builder5serveER7builder10scope_implI4PathNSt5tupleIDp8ServicesEENSt5tupleIDp6RoutesEEE"><code class="docutils literal notranslate"><span class="pre">http_server::builder::serve()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web11http_server7builder5buildEv"><code class="docutils literal notranslate"><span class="pre">http_server::builder::build()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/reference/http_server.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Ramirisu.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
