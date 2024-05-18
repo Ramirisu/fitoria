@@ -1,8 +1,5 @@
-.. _http_status_code:
-
 ********************************************************************************
-``class status_code``
+``enum field``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::http::status_code
-   :members:
+.. doxygenenum:: fitoria::http::field

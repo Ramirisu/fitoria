@@ -1,8 +1,5 @@
-.. _http_server:
-
 ********************************************************************************
-``class http_server``
+``enum status_class``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::web::http_server
-   :members:
+.. doxygenenum:: fitoria::http::status_class
