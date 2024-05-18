@@ -1,0 +1,12 @@
+.bd-main .bd-content .bd-article-container {
+  max-width: 1600px;
+}
+.bd-page-width {
+  max-width: 1600px;
+}
+.bd-sidebar-primary {
+  max-width: 320px;
+}
+.navbar-brand {
+  padding: 10px 30px;
+}
