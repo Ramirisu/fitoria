@@ -1,3 +1,4 @@
+:html_theme.sidebar_secondary.remove: true
 
 ********************************************************************************
 Welcome to fitoria's documentation!
@@ -5,11 +6,28 @@ Welcome to fitoria's documentation!
 
 ``fitoria`` is a modern C++20, cross-platform web framework.
 
+
+Overview
+================================================================================
+
+Information about using this library.
+
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    overview/index
+
+
+Reference
+================================================================================
+
+Detailed class and function reference.
+
+.. toctree::
+   :maxdepth: 2
+
    reference/index
+
 
 .. _license:
 

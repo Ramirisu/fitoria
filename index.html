@@ -29,7 +29,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3e5af226" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e317af12" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
@@ -213,10 +213,6 @@ document.write(`
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
-      <span class="fa-solid fa-outdent"></span>
-    </label>
-  
 </div>
 
     </header>
@@ -322,15 +318,63 @@ document.write(`
   <section id="welcome-to-fitoria-s-documentation">
 <h1>Welcome to fitoria’s documentation!<a class="headerlink" href="#welcome-to-fitoria-s-documentation" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">fitoria</span></code> is a modern C++20, cross-platform web framework.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Information about using this library.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/tls.html">TLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/threading.html">Threading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/graceful_shutdown.html">Graceful Shutdown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/performance.html">Maximize Performance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/method.html">Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/route.html">Route</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/scope.html">Scope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/path_parameter.html">Path Parameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/query_string_parameter.html">Query String Parameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/extractor.html">Extractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/response.html">Response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/middleware.html">Middleware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/static_file.html">Static File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/websocket.html">WebSocket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/web/unittesting.html">Unit Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/log/level.html">Level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/log/filter.html">Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/log/registry.html">Registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/log/log.html">Log Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/log/format.html">Format Messages</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
+<p>Detailed class and function reference.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/verb.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">verb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/field.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">field</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/fields.html"><code class="docutils literal notranslate"><span class="pre">namespace</span> <span class="pre">fields</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/version.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">version</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/status.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">status</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/status_class.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">status_class</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/http/status_code.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/web/http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/web/response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/web/response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 <section id="license">
-<span id="id1"></span><h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
+<span id="id1"></span><h3>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h3>
 <p>This project is distributed under the <a class="reference external" href="https://www.boost.org/LICENSE_1_0.txt">Boost Software License 1.0</a></p>
+</section>
 </section>
 </section>
 
@@ -359,32 +403,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="_sources/index.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
-
-</div></div>
               
             
           </div>
