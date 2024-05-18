@@ -27,7 +27,7 @@ namespace fields {
 
     inline std::string_view plaintext() noexcept
     {
-      return "text/plain; charset=utf-8";
+      return "text/plain";
     }
 
     inline std::string_view html() noexcept
