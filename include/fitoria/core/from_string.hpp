@@ -15,6 +15,7 @@
 
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/tag_invoke.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <string>
 
@@ -33,18 +34,35 @@ struct from_string_t {
     return tag_invoke(*this, s);
   }
 
-  friend auto tag_invoke(from_string_t<R>, const std::string& s)
-      -> expected<R, std::error_code>
+  friend auto tag_invoke(from_string_t<R>,
+                         const std::string& s) -> expected<R, std::error_code>
     requires(std::same_as<R, std::string>)
   {
     return s;
   }
 
-  friend auto tag_invoke(from_string_t<R>, const std::string& s)
-      -> expected<R, std::error_code>
-    requires(std::is_integral_v<R> || std::is_floating_point_v<R>)
+  friend auto tag_invoke(from_string_t<R>,
+                         const std::string& s) -> expected<R, std::error_code>
+    requires(!std::same_as<R, bool>
+             && (std::is_integral_v<R> || std::is_floating_point_v<R>))
   {
     return detail::from_string_impl<R>(s);
+  }
+
+  friend auto tag_invoke(from_string_t<R>,
+                         const std::string& s) -> expected<R, std::error_code>
+    requires std::same_as<R, bool>
+  {
+    if (iequals(s, "1") || iequals(s, "t") || iequals(s, "true")
+        || iequals(s, "y") || iequals(s, "yes")) {
+      return true;
+    }
+    if (iequals(s, "0") || iequals(s, "f") || iequals(s, "false")
+        || iequals(s, "n") || iequals(s, "no")) {
+      return false;
+    }
+
+    return unexpected { make_error_code(std::errc::invalid_argument) };
   }
 };
 

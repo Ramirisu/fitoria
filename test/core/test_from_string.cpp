@@ -19,6 +19,26 @@ TEST_CASE("string")
   CHECK_EQ(from_string<std::string>(s), s);
 }
 
+TEST_CASE("bool")
+{
+  CHECK_EQ(from_string<bool>("1"), true);
+  CHECK_EQ(from_string<bool>("T"), true);
+  CHECK_EQ(from_string<bool>("TrUe"), true);
+  CHECK_EQ(from_string<bool>("Y"), true);
+  CHECK_EQ(from_string<bool>("YeS"), true);
+
+  CHECK_EQ(from_string<bool>("0"), false);
+  CHECK_EQ(from_string<bool>("F"), false);
+  CHECK_EQ(from_string<bool>("FaLse"), false);
+  CHECK_EQ(from_string<bool>("N"), false);
+  CHECK_EQ(from_string<bool>("No"), false);
+
+  CHECK(!from_string<bool>(""));
+  CHECK(!from_string<bool>("A"));
+  CHECK(!from_string<bool>("trues"));
+  CHECK(!from_string<bool>("yess"));
+}
+
 TEST_CASE("integral")
 {
   const auto n = std::string("-123");
