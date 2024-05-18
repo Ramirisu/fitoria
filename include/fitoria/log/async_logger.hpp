@@ -113,7 +113,12 @@ public:
   ~async_logger()
   {
     channel_.cancel();
-    fut_.get();
+
+    // TODO: investigate if it hangs when `-fsanitizer=address` is on ?
+    if (auto status = fut_.wait_for(std::chrono::seconds(30));
+        status == std::future_status::ready) {
+      fut_.get();
+    }
   }
 
   void add_writer(std::shared_ptr<async_writer> writer)
