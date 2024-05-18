@@ -27,3 +27,14 @@ exclude_patterns = []
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_title = "fitoria"
+
+html_theme_options = {
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/Ramirisu/fitoria",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        }
+    ],
+}
