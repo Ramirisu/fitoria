@@ -1,6 +1,9 @@
 
+********************************************************************************
 Welcome to fitoria's documentation!
 ********************************************************************************
+
+``fitoria`` is a modern C++20, cross-platform web framework.
 
 .. toctree::
    :maxdepth: 1
