@@ -1,8 +1,7 @@
-.. _response:
-
 ********************************************************************************
-``class response``
+``enum version``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::web::response
-   :members:
+.. doxygenenum:: fitoria::http::version
+
+.. doxygenfunction:: fitoria::http::to_string

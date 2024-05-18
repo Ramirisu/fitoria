@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_HTTP_FIELD_HPP
-#define FITORIA_HTTP_FIELD_HPP
+#ifndef FITORIA_HTTP_STATUS_HPP
+#define FITORIA_HTTP_STATUS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -19,24 +19,23 @@ namespace http {
 
 #if !defined(FITORIA_DOC)
 
-using boost::beast::http::field;
+using boost::beast::http::status;
 
 #else
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// HTTP field
+/// HTTP status code
 ///
 /// Description
-///     HTTP field, alias of ``boost::beast::http::field``
+///     HTTP status code, alias of ``boost::beast::http::status``
 ///
 /// .. seealso::
-///    `boost::beast::http::field
-///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__field.html>`_
+///    `boost::beast::http::status
+///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__status.html>`_
 ///
 /// @endverbatim
-
-enum field {};
+enum status {};
 
 #endif
 

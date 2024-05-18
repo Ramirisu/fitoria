@@ -7,11 +7,11 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/http/field.hpp>
+#include <fitoria/http/fields.hpp>
 
 using namespace fitoria;
 
-TEST_SUITE_BEGIN("[fitoria.web.field]");
+TEST_SUITE_BEGIN("[fitoria.web.fields]");
 
 TEST_CASE("authorization")
 {

@@ -28,7 +28,12 @@ enum class version : std::uint8_t {
   v3_0,
 };
 
-inline std::string to_string(version ver)
+/// @verbatim embed:rst:leading-slashes
+///
+/// Convert ``version`` into string
+///
+/// @endverbatim
+inline auto to_string(version ver) -> std::string
 {
   switch (ver) {
   case version::v0_9:
@@ -47,6 +52,7 @@ inline std::string to_string(version ver)
 
   return "unknown";
 }
+
 namespace detail {
   inline version from_impl_version(unsigned int ver)
   {

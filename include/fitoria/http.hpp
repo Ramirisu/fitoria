@@ -12,7 +12,10 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/http/field.hpp>
+#include <fitoria/http/fields.hpp>
 #include <fitoria/http/header.hpp>
+#include <fitoria/http/status.hpp>
+#include <fitoria/http/status_class.hpp>
 #include <fitoria/http/status_code.hpp>
 #include <fitoria/http/verb.hpp>
 #include <fitoria/http/version.hpp>

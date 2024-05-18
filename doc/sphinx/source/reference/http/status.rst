@@ -1,8 +1,5 @@
-.. _response_builder:
-
 ********************************************************************************
-``class response_builder``
+``enum status``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::web::response_builder
-   :members:
+.. doxygenenum:: fitoria::http::status

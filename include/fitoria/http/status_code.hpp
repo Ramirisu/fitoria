@@ -11,15 +11,14 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/http.hpp>
 #include <fitoria/core/utility.hpp>
+
+#include <fitoria/http/status.hpp>
+#include <fitoria/http/status_class.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace http {
-
-using boost::beast::http::status;
-using boost::beast::http::status_class;
 
 class status_code {
 public:

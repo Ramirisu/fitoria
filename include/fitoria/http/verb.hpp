@@ -17,8 +17,28 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http {
 
+#if !defined(FITORIA_DOC)
+
 using boost::beast::http::verb;
 
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// HTTP method
+///
+/// Description
+///     HTTP method, alias of ``boost::beast::http::verb``
+///
+/// .. seealso::
+///    `boost::beast::http::verb
+///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__verb.html>`_
+///
+/// @endverbatim
+
+enum verb {};
+
+#endif
 }
 
 FITORIA_NAMESPACE_END

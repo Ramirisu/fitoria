@@ -1,4 +1,4 @@
-fitoria_add_test(NAME test_http_field SRCS test_http_field.cpp)
+fitoria_add_test(NAME test_http_fields SRCS test_http_fields.cpp)
 fitoria_add_test(NAME test_http_status_code SRCS test_http_status_code.cpp)
 fitoria_add_test(NAME test_http_version SRCS test_http_version.cpp)
 fitoria_add_test(NAME test_http_header SRCS test_http_header.cpp)
