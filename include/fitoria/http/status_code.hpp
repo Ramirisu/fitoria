@@ -23,21 +23,41 @@ using boost::beast::http::status_class;
 
 class status_code {
 public:
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``status_code`` with specific ``http::status``.
+  ///
+  /// @endverbatim
   status_code(status value)
       : value_(value)
   {
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``status_code`` with an integer.
+  ///
+  /// @endverbatim
   status_code(int value)
       : value_(static_cast<status>(value))
   {
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get status code
+  ///
+  /// @endverbatim
   auto value() const noexcept -> status
   {
     return value_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get status category
+  ///
+  /// @endverbatim
   auto category() const noexcept -> status_class
   {
     return to_status_class(value_);
