@@ -22,6 +22,7 @@ Overview
    web/query_string_parameter
    web/state
    web/extractor
+   web/response
    web/middleware
    web/static_file
    web/websocket
