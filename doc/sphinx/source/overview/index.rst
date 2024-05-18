@@ -5,34 +5,34 @@ Overview
 .. toctree:: 
    :caption: Server
 
-   getting_started
-   tls
-   threading
-   graceful_shutdown
-   performance
+   web/getting_started
+   web/tls
+   web/threading
+   web/graceful_shutdown
+   web/performance
 
 
 .. toctree:: 
    :caption: Handlers
 
-   method
-   route
-   scope
-   path_parameter
-   query_string_parameter
-   state
-   extractor
-   middleware
-   static_file
-   websocket
-   unittesting
+   web/method
+   web/route
+   web/scope
+   web/path_parameter
+   web/query_string_parameter
+   web/state
+   web/extractor
+   web/middleware
+   web/static_file
+   web/websocket
+   web/unittesting
 
 
 .. toctree:: 
    :caption: Log
 
-   log_level
-   log_filtering
-   logger_registry
-   log_message
-   logger_format_message
+   log/level
+   log/filter
+   log/registry
+   log/log
+   log/format
