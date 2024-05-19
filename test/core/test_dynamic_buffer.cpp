@@ -9,6 +9,7 @@
 
 #include <fitoria/core/dynamic_buffer.hpp>
 
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -23,30 +24,62 @@ TEST_CASE("is_dynamic_buffer")
       net::is_dynamic_buffer<dynamic_buffer<std::vector<std::uint8_t>>>::value);
 }
 
-TEST_CASE("dynamic_buffer")
+TEST_CASE("basic")
 {
   auto buffer = dynamic_buffer<std::string>();
   CHECK_EQ(buffer.size(), 0);
   CHECK_EQ(buffer.max_size(), std::string().max_size());
   CHECK_EQ(buffer.size(), 0);
   CHECK_EQ(buffer.cdata().size(), 0);
+  {
+    auto w = buffer.prepare(4);
+    CHECK_EQ(w.size(), 4);
+    ((char*)w.data())[0] = 'a';
+    ((char*)w.data())[1] = 'b';
+    buffer.commit(2);
+  }
+  {
+    auto r = buffer.cdata();
+    CHECK_EQ(r.size(), 2);
+    CHECK_EQ(((char*)r.data())[0], 'a');
+    CHECK_EQ(((char*)r.data())[1], 'b');
+    buffer.consume(1);
+    CHECK_EQ(buffer.size(), 1);
+  }
+  {
+    auto w = buffer.prepare(4);
+    CHECK_EQ(w.size(), 4);
+    ((char*)w.data())[0] = 'c';
+    ((char*)w.data())[1] = 'd';
+    buffer.commit(2);
+  }
+  {
+    auto r = buffer.cdata();
+    CHECK_EQ(r.size(), 3);
+    CHECK_EQ(((char*)r.data())[0], 'b');
+    CHECK_EQ(((char*)r.data())[1], 'c');
+    CHECK_EQ(((char*)r.data())[2], 'd');
+    buffer.consume(2);
+    CHECK_EQ(buffer.size(), 1);
+  }
+}
 
-  auto writable = buffer.prepare(1024);
-  CHECK_EQ(writable.size(), 1024);
-  std::memset(writable.data(), 'x', 256);
-  buffer.commit(256);
-  CHECK_EQ(buffer.size(), 256);
-  CHECK_EQ(buffer.data().size(), 256);
-  CHECK_EQ(buffer.cdata().size(), 256);
+TEST_CASE("with limit: required size less than or equal")
+{
+  auto buffer = dynamic_buffer<std::string>(256);
+  buffer.prepare(128);
+  buffer.commit(128);
+  buffer.consume(64);
+  buffer.prepare(192);
+  buffer.commit(192);
+}
 
-  buffer.consume(128);
-  CHECK_EQ(buffer.size(), 128);
-  CHECK_EQ(buffer.data().size(), 128);
-  CHECK_EQ(buffer.cdata().size(), 128);
-
-  auto s = buffer.release();
-  CHECK_EQ(s.size(), 128);
-  CHECK_EQ(s, std::string(128, 'x'));
+TEST_CASE("with limit: required size too large")
+{
+  auto buffer = dynamic_buffer<std::string>(256);
+  buffer.prepare(128);
+  buffer.commit(128);
+  CHECK_THROWS_AS(buffer.prepare(129), std::length_error);
 }
 
 TEST_SUITE_END();

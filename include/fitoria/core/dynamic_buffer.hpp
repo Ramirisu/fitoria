@@ -13,83 +13,185 @@
 
 #include <fitoria/core/net.hpp>
 
-#include <algorithm>
-#include <utility>
-
 FITORIA_NAMESPACE_BEGIN
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// An adapter that turns ``Container`` into a type that satisfies
+/// ``net::DynamicBuffer`` concept.
+///
+/// Description
+///     An adapter that turns ``Container`` into a type that satisfies
+///     ``net::DynamicBuffer`` concept. Note that ``Container`` must use
+///     contiguous storage.
+///
+///     .. code-block::
+///
+///                      readable    writable
+///        |-----------|-----------|-----------|-----------|-----------|
+///        0        roffset     woffset     c.size()  c.capacity()    limit
+///
+/// @endverbatim
 template <typename Container>
 class dynamic_buffer {
 public:
   using const_buffers_type = net::const_buffer;
   using mutable_buffers_type = net::mutable_buffer;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``dynamic_buffer` with maximum capacity of
+  /// ``Container::max_size()``
+  ///
+  /// @endverbatim
+  dynamic_buffer()
+      : limit_(container_.max_size())
+  {
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``dynamic_buffer` with maximum capacity of
+  /// ``std::size_t limit``
+  ///
+  /// @endverbatim
+  dynamic_buffer(std::size_t limit)
+      : limit_(limit)
+  {
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get a constant buffer sequence representing readable bytes.
+  ///
+  /// @endverbatim
   auto cdata() const -> const_buffers_type
   {
-    return { container_.data() + readable_, size() };
+    return { container_.data() + roffset_, size() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get a constant buffer sequence representing readable bytes.
+  ///
+  /// @endverbatim
   auto data() const -> const_buffers_type
   {
-    return { container_.data() + readable_, size() };
+    return { container_.data() + roffset_, size() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get a mutable buffer sequence representing readable bytes.
+  ///
+  /// @endverbatim
   auto data() -> mutable_buffers_type
   {
-    return { container_.data() + readable_, size() };
+    return { container_.data() + roffset_, size() };
   }
 
-  void consume(std::size_t size)
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Remove bytes starting from the beginning of readable bytes.
+  ///
+  /// @endverbatim
+  void consume(std::size_t n)
   {
-    readable_ = std::min(readable_ + size, writable_);
+    roffset_ = std::min(roffset_ + n, woffset_);
+    if (roffset_ == woffset_) {
+      roffset_ = 0;
+      woffset_ = 0;
+    }
   }
 
-  auto prepare(std::size_t size) -> mutable_buffers_type
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get a mutable buffer sequence representing writable bytes.
+  ///
+  /// @endverbatim
+  auto prepare(std::size_t n) -> mutable_buffers_type
   {
-    container_.resize(writable_ + size);
-    return { container_.data() + writable_, size };
+    if (n <= (limit_ - woffset_)) {
+      container_.resize(woffset_ + n);
+    } else if (n <= (limit_ - size())) {
+      compress();
+    } else {
+      FITORIA_THROW_OR(std::length_error("dynamic_buffer too large"),
+                       std::terminate());
+    }
+
+    return { container_.data() + woffset_, n };
   }
 
-  void commit(std::size_t size)
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Convert writable bytes into readable bytes.
+  ///
+  /// @endverbatim
+  void commit(std::size_t n)
   {
-    writable_ = std::min(writable_ + size, container_.size());
+    woffset_ = std::min(woffset_ + n, container_.size());
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the number of readable bytes.
+  ///
+  /// @endverbatim
   auto size() const noexcept -> std::size_t
   {
-    return writable_ - readable_;
+    return woffset_ - roffset_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the maximum allowed of the capacity.
+  ///
+  /// @endverbatim
   auto max_size() const noexcept -> std::size_t
   {
-    return container_.max_size();
+    return limit_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the capacity.
+  ///
+  /// @endverbatim
   auto capacity() const noexcept -> std::size_t
   {
     return container_.capacity();
   }
 
-  void compress()
-  {
-    std::move(container_.begin() + readable_,
-              container_.begin() + writable_,
-              container_.begin());
-    container_.resize(size());
-    writable_ = size();
-    readable_ = 0;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Release the underlying ``Container`` instance.
+  ///
+  /// Description
+  ///     Release the underlying ``Container`` instance, which only contains
+  ///     readable bytes
+  ///
+  /// @endverbatim
   auto release() -> Container
   {
     compress();
+    container_.resize(size());
     return std::move(container_);
   }
 
 private:
-  std::size_t readable_ = 0;
-  std::size_t writable_ = 0;
+  void compress()
+  {
+    const auto len = size();
+    std::memmove(container_.data(), container_.data() + roffset_, len);
+    woffset_ = len;
+    roffset_ = 0;
+  }
+
   Container container_;
+  std::size_t roffset_ = 0;
+  std::size_t woffset_ = 0;
+  std::size_t limit_;
 };
 
 FITORIA_NAMESPACE_END

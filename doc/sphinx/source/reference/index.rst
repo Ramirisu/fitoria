@@ -3,6 +3,13 @@ Reference
 ********************************************************************************
 
 .. toctree:: 
+   :caption: fitoria
+   :maxdepth: 1
+
+   core/dynamic_buffer
+
+
+.. toctree:: 
    :caption: fitoria::http
    :maxdepth: 1
 
