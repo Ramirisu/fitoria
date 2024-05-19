@@ -29,7 +29,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=e317af12" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=c1155663" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
@@ -497,7 +497,7 @@ document.write(`
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">http::version</span></code></p></td>
-<td><p>Extract http version.</p></td>
+<td><p>Extract HTTP version.</p></td>
 <td><p>no</p></td>
 <td></td>
 </tr>
@@ -519,7 +519,11 @@ document.write(`
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">web::path_of&lt;T&gt;</span></code></p></td>
 <td><p>Extract path parameter into type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p></td>
 <td><p>no</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">std::tuple&lt;Ts...&gt;</span></code>, parameters are extracted in the order where they are in the path.&lt;br/&gt; <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">std::tuple&lt;Ts...&gt;</span></code>, parameters are extracted in the order where they are in the path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">aggregate</span></code>, parameters are extracted to the field of their name.</p></li>
+</ul>
+</td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web::query_map</span></code></p></td>
 <td><p>Extract query string parameters.</p></td>
