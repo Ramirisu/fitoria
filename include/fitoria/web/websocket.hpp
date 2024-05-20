@@ -28,6 +28,11 @@ namespace web {
 
 class http_server;
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for upgrading the HTTP request to websocket protocol.
+///
+/// @endverbatim
 class websocket {
   friend class http_server;
   friend class context;
@@ -55,14 +60,29 @@ public:
     internal_error = 1011,
   };
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Wrapper type indicating that a ``text`` message is received.
+  ///
+  /// @endverbatim
   struct text_t {
     std::string value;
   };
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Wrapper type indicating that a ``binary`` message is received.
+  ///
+  /// @endverbatim
   struct binary_t {
     std::vector<std::byte> value;
   };
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Wrapper type indicating that a close control frame is received.
+  ///
+  /// @endverbatim
   struct close_t { };
 
   using message_type = std::variant<text_t, binary_t, close_t>;
@@ -229,20 +249,40 @@ public:
             boost::beast::role_type::server);
   };
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Provides APIs for interacting with the websocket protocol.
+  ///
+  /// @endverbatim
   class context {
     friend class websocket;
 
   public:
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Send a websocket ping control frame asynchronously.
+    ///
+    /// @endverbatim
     auto async_ping() -> awaitable<expected<void, std::error_code>>
     {
       return ws_.impl_->async_ping();
     }
 
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Read a complete message asynchronously.
+    ///
+    /// @endverbatim
     auto async_read() -> awaitable<expected<message_type, std::error_code>>
     {
       return ws_.impl_->async_read();
     }
 
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Write a complete ``text`` message asynchronously.
+    ///
+    /// @endverbatim
     template <typename T, std::size_t N>
     auto async_write_text(std::span<T, N> buffer)
         -> awaitable<expected<void, std::error_code>>
@@ -250,12 +290,22 @@ public:
       return ws_.impl_->async_write_text(as_const_buffer(buffer));
     }
 
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Write a complete ``text`` message asynchronously.
+    ///
+    /// @endverbatim
     auto async_write_text(std::string_view text)
         -> awaitable<expected<void, std::error_code>>
     {
       return async_write_text(std::span { text.data(), text.size() });
     }
 
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Write a complete ``binary`` message asynchronously.
+    ///
+    /// @endverbatim
     template <typename T, std::size_t N>
     auto async_write_binary(std::span<T, N> buffer)
         -> awaitable<expected<void, std::error_code>>
@@ -263,6 +313,11 @@ public:
       return ws_.impl_->async_write_binary(as_const_buffer(buffer));
     }
 
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Send a websocket close control frame asynchronously.
+    ///
+    /// @endverbatim
     auto
     async_close(close_code code) -> awaitable<expected<void, std::error_code>>
     {
