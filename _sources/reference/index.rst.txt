@@ -29,3 +29,4 @@ Reference
    web/http_server
    web/response_builder
    web/response
+   web/websocket
