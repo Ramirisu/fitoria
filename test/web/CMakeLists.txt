@@ -4,11 +4,6 @@ fitoria_add_test(NAME test_web_async_readable_stream SRCS
 fitoria_add_test(NAME test_web_connect_info SRCS test_web_connect_info.cpp)
 fitoria_add_test(NAME test_web_error SRCS test_web_error.cpp)
 fitoria_add_test(NAME test_web_from_request SRCS test_web_from_request.cpp)
-fitoria_add_test(NAME test_web_http_server_io_context SRCS
-                 test_web_http_server_io_context.cpp)
-fitoria_add_test(NAME test_web_http_server_tls SRCS
-                 test_web_http_server_tls.cpp)
-fitoria_add_test(NAME test_web_http_server SRCS test_web_http_server.cpp)
 fitoria_add_test(NAME test_web_json SRCS test_web_json.cpp)
 fitoria_add_test(NAME test_web_path_info SRCS test_web_path_info.cpp)
 fitoria_add_test(NAME test_web_path_matcher SRCS test_web_path_matcher.cpp)
@@ -24,3 +19,4 @@ fitoria_add_test(NAME test_web_to_response SRCS test_web_to_response.cpp)
 fitoria_add_test(NAME test_web_websocket SRCS test_web_websocket.cpp)
 
 add_subdirectory(middleware)
+add_subdirectory(server)
