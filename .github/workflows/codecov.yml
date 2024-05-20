@@ -67,12 +67,16 @@ jobs:
         working-directory: ${{ github.workspace }}/build
         run: ctest --output-on-failure .
 
-      - name: Upload code coverage report
+      - name: Generate code coverage report
         shell: bash
         run: |
           sudo apt install lcov
           lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file coverage.info
           lcov --gcov-tool=gcov-13 --extract coverage.info $(pwd)'/include/fitoria/*' --output-file coverage.info
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov -t ${CODECOV_TOKEN}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.2.0
+        with:
+          file: coverage.info
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
