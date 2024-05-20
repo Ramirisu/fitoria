@@ -389,9 +389,9 @@ document.write(`
                   
   <section id="extractor">
 <h1>Extractor<a class="headerlink" href="#extractor" title="Link to this heading">#</a></h1>
-<p>Extractors provide a more convenient way to help user access information from <code class="docutils literal notranslate"><span class="pre">request</span></code>. Users can specify as many extractors as compiler allows per handler.</p>
+<p>Extractors provide a more convenient way to help users access information from the incoming <code class="docutils literal notranslate"><span class="pre">request</span></code>. Users can specify as many extractors as compiler allows per handler.</p>
 <section id="path">
-<span id="path-extractor"></span><h2>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h2>
+<h2>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_order_tuple</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
 <span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
@@ -436,7 +436,7 @@ document.write(`
 </div>
 </section>
 <section id="query">
-<span id="query-extractor"></span><h2>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h2>
+<h2>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
@@ -455,7 +455,7 @@ document.write(`
 </div>
 </section>
 <section id="form">
-<span id="form-extractor"></span><h2>Form<a class="headerlink" href="#form" title="Link to this heading">#</a></h2>
+<h2>Form<a class="headerlink" href="#form" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">form_of&lt;T&gt;</span></code> to extract urlencoded form from body into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp">Form Extractor Example</a>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">login</span><span class="w"> </span><span class="p">{</span>
 
@@ -472,6 +472,22 @@ document.write(`
 
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">().</span><span class="n">build</span><span class="p">();</span>
 <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="state">
+<h2>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">state_of&lt;T&gt;</span></code> to extract shared states. Note that unlike <code class="docutils literal notranslate"><span class="pre">request::state&lt;T&gt;()</span></code> which returns <code class="docutils literal notranslate"><span class="pre">optional&lt;T&amp;&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">state_of</span></code> extractor <em>copy the value</em>.  (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/state_of.cpp">State Extractor Example</a>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">counter_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">index</span><span class="p">(</span><span class="n">state_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">counter_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;index page has been called {} times.&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">counter</span><span class="o">-&gt;</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)));</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -623,6 +639,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path">Path</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#query">Query</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#form">Form</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state">State</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-extractors">Built-in Extractors</a></li>
 </ul>
   </nav></div>
