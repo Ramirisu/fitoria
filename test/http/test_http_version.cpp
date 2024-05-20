@@ -13,6 +13,26 @@ using namespace fitoria::http;
 
 TEST_SUITE_BEGIN("[fitoria.http.version]");
 
+TEST_CASE("from_impl_version")
+{
+  CHECK_EQ(detail::from_impl_version(9), version::v0_9);
+  CHECK_EQ(detail::from_impl_version(10), version::v1_0);
+  CHECK_EQ(detail::from_impl_version(11), version::v1_1);
+  CHECK_EQ(detail::from_impl_version(20), version::v2_0);
+  CHECK_EQ(detail::from_impl_version(30), version::v3_0);
+  CHECK_EQ(detail::from_impl_version(0), version::unknown);
+}
+
+TEST_CASE("to_impl_version")
+{
+  CHECK_EQ(detail::to_impl_version(version::v0_9), 9);
+  CHECK_EQ(detail::to_impl_version(version::v1_0), 10);
+  CHECK_EQ(detail::to_impl_version(version::v1_1), 11);
+  CHECK_EQ(detail::to_impl_version(version::v2_0), 20);
+  CHECK_EQ(detail::to_impl_version(version::v3_0), 30);
+  CHECK_EQ(detail::to_impl_version(version::unknown), 11);
+}
+
 TEST_CASE("to_string")
 {
   CHECK_EQ(to_string(version::unknown), "unknown");

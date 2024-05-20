@@ -34,8 +34,9 @@ public:
   {
     switch (static_cast<error>(condition)) {
     case error::content_type_not_application_json:
-      return "unexpected Content-Type received, expected \"Content-Type: "
-             "application/json\"";
+      // clang-format off
+      return "unexpected Content-Type received, expected \"Content-Type: application/json\"";
+      // clang-format on
     default:
       break;
     }
