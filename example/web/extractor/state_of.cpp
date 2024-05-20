@@ -14,12 +14,13 @@ using namespace fitoria::web;
 
 using counter_t = std::atomic<std::size_t>;
 
-auto index(state_of<std::shared_ptr<counter_t>> counter) -> awaitable<response>
+auto get_index(state_of<std::shared_ptr<counter_t>> counter)
+    -> awaitable<response>
 {
   co_return response::ok()
       .set_header(http::field::content_type,
                   http::fields::content_type::plaintext())
-      .set_body(fmt::format("index page has been called {} times.",
+      .set_body(fmt::format("index page has been acquired {} times.",
                             counter->fetch_add(1, std::memory_order_relaxed)));
 }
 
@@ -29,7 +30,7 @@ int main()
 
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
-                    .serve(route::get<"/">(index).use_state(counter))
+                    .serve(route::get<"/">(get_index).use_state(counter))
                     .build();
 
   server.bind("127.0.0.1", 8080);

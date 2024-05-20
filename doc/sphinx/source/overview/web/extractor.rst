@@ -105,12 +105,13 @@ Use ``state_of<T>`` to extract shared states. Note that unlike ``request::state<
 
    using counter_t = std::atomic<std::size_t>;
    
-   auto index(state_of<std::shared_ptr<counter_t>> counter) -> awaitable<response>
+   auto get_index(state_of<std::shared_ptr<counter_t>> counter)
+       -> awaitable<response>
    {
      co_return response::ok()
          .set_header(http::field::content_type,
                      http::fields::content_type::plaintext())
-         .set_body(fmt::format("index page has been called {} times.",
+         .set_body(fmt::format("index page has been acquired {} times.",
                                counter->fetch_add(1, std::memory_order_relaxed)));
    }
 
