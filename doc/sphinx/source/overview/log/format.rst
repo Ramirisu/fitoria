@@ -2,7 +2,7 @@
 Format Messages
 ********************************************************************************
 
-``formatter`` allows user to customize the style of the messages being logged. Fields are mapped by named arguments and users can specify detailed format for each field.
+``formatter`` allows users to customize the style of the messages being logged. Fields are mapped by named arguments and users can specify detailed format for each field.
 
 .. code-block:: cpp
 

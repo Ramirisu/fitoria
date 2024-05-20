@@ -2,7 +2,7 @@
 Extractor
 ********************************************************************************
 
-Extractors provide a more convenient way to help user access information from ``request``. Users can specify as many extractors as compiler allows per handler.
+Extractors provide a more convenient way to help users access information from the incoming ``request``. Users can specify as many extractors as compiler allows per handler.
 
 .. _path_extractor:
 
