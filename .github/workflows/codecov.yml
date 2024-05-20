@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os_cxx.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       matrix:
         os_cxx:
@@ -49,11 +49,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=${{ matrix.os_cxx.cxx }} \
             -DCMAKE_CXX_STANDARD:STRING=${{ matrix.std }} \
             -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
-            -DFITORIA_BUILD_EXAMPLES=OFF \
             -DFITORIA_BUILD_TESTS=ON \
-            -DFITORIA_DISABLE_OPENSSL=OFF \
-            -DFITORIA_DISABLE_ZLIB=OFF \
-            -DFITORIA_DISABLE_BROTLI=OFF \
             -DFITORIA_ENABLE_CODECOV=ON \
             -DVCPKG_BINARY_SOURCES="${{ env.VCPKG_BINARY_SOURCES }}" \
             -DVCPKG_MANIFEST_FEATURES="${{ env.VCPKG_MANIFEST_FEATURES }}"
@@ -71,12 +67,13 @@ jobs:
         shell: bash
         run: |
           sudo apt install lcov
-          lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file coverage.info
-          lcov --gcov-tool=gcov-13 --extract coverage.info $(pwd)'/include/fitoria/*' --output-file coverage.info
+          mkdir .coverage
+          lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./.coverage/coverage.info
+          lcov --gcov-tool=gcov-13 --extract ./.coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./.coverage/coverage.info
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.2.0
         with:
-          file: coverage.info
+          file: ./.coverage/coverage.info
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

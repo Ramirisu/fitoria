@@ -1,21 +1,21 @@
-# Configure
+#!/bin/sh
+
 cmake \
   -B build \
-  -DCMAKE_CXX_COMPILER=/usr/bin/g++-12 \
+  -G Ninja \
+  -DCMAKE_CXX_COMPILER=/usr/bin/g++-13 \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DFITORIA_BUILD_TESTS=ON \
   -DFITORIA_ENABLE_CODECOV=ON \
-  -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake
+  -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake \
+  -DVCPKG_MANIFEST_FEATURES="tls;zlib;brotli;liburing;test"
 
-# Build
-cmake --build build
+cmake --build build -j2
 
-# Test
 cd build && ctest && cd ..
 
-# Generate coverage trace file
-lcov --gcov-tool=gcov-12 --capture --directory $(pwd)'/build' --output-file coverage.info
-lcov --gcov-tool=gcov-12 --extract coverage.info $(pwd)'/include/fitoria/*' --output-file coverage.info
+mkdir .coverage
+lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./.coverage/coverage.info
+lcov --gcov-tool=gcov-13 --extract ./.coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./.coverage/coverage.info
 
-# Generate coverage report in html
-genhtml -o coverage_report --legend --title "fitoria" --prefix=./ coverage.info
+genhtml -o ./.coverage/html --legend --title "fitoria" --prefix=./ ./.coverage/coverage.info

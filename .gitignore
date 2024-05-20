@@ -4,7 +4,7 @@
 out
 build
 coverage_report
-coverage.info
+.coverage
 CMakePresets.json
 compile_commands.json
 doc/build_doxygen
