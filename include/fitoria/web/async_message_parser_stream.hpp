@@ -29,7 +29,7 @@ class async_message_parser_stream {
 public:
   using is_async_readable_stream = void;
 
-  async_message_parser_stream(flat_buffer buffer,
+  async_message_parser_stream(std::shared_ptr<flat_buffer> buffer,
                               Stream stream,
                               std::shared_ptr<Parser> parser)
       : buffer_(std::move(buffer))
@@ -71,7 +71,7 @@ public:
     parser_->get().body().size = buffer.size();
 
     auto bytes_read
-        = co_await async_read(stream_, buffer_, *parser_, use_awaitable);
+        = co_await async_read(stream_, *buffer_, *parser_, use_awaitable);
     if (!bytes_read
         && bytes_read.error() != boost::beast::http::error::need_buffer) {
       co_return unexpected { bytes_read.error() };
@@ -82,7 +82,7 @@ public:
   }
 
 private:
-  flat_buffer buffer_;
+  std::shared_ptr<flat_buffer> buffer_;
   Stream stream_;
   std::shared_ptr<Parser> parser_;
   bool return_0_at_first_call_;

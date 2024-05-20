@@ -481,10 +481,10 @@ private:
       co_return std::move(**exp);
     }
 
-    flat_buffer buffer;
+    auto buffer = std::make_shared<flat_buffer>();
     auto parser = std::make_shared<response_parser<buffer_body>>();
     if (auto bytes_read
-        = co_await async_read_header(stream, buffer, *parser, use_awaitable);
+        = co_await async_read_header(stream, *buffer, *parser, use_awaitable);
         !bytes_read) {
       co_return unexpected { bytes_read.error() };
     }
@@ -496,7 +496,7 @@ private:
         [&]() -> any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
             return async_message_parser_stream(
-                std::move(buffer), std::move(stream), parser);
+                buffer, std::move(stream), parser);
           }
           return async_readable_vector_stream();
         }());

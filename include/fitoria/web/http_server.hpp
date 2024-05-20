@@ -290,8 +290,9 @@ private:
     using boost::beast::http::response;
     using boost::beast::websocket::is_upgrade;
 
+    auto buffer = std::make_shared<flat_buffer>();
+
     for (;;) {
-      flat_buffer buffer;
       auto parser = std::make_shared<request_parser<buffer_body>>();
       parser->body_limit(boost::none);
 
@@ -300,7 +301,7 @@ private:
       }
 
       if (auto bytes_read
-          = co_await async_read_header(stream, buffer, *parser, use_awaitable);
+          = co_await async_read_header(stream, *buffer, *parser, use_awaitable);
           !bytes_read) {
         co_return unexpected { bytes_read.error() };
       }
@@ -342,8 +343,7 @@ private:
           session_state,
           [&]() -> any_async_readable_stream {
             if (parser->get().has_content_length() || parser->get().chunked()) {
-              return async_message_parser_stream(
-                  std::move(buffer), stream, parser);
+              return async_message_parser_stream(buffer, stream, parser);
             }
 
             return async_readable_vector_stream();
