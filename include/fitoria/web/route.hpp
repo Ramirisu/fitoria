@@ -134,8 +134,23 @@ private:
   }
 };
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides the way to create routes.
+///
+/// Description
+///     A path and a method and a handler for serving the route must be
+///     specified for construction. And users can optionally bind it with
+///     ``state`` s and ``middleware`` s.
+///
+/// @endverbatim
 class route {
 public:
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with specific method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto handle(http::verb method, Handler&& handler)
   {
@@ -144,6 +159,11 @@ public:
         method, {}, {}, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with **any** method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto any(Handler&& handler)
   {
@@ -152,6 +172,11 @@ public:
         http::verb::unknown, {}, {}, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``GET`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto get(Handler&& handler)
   {
@@ -159,6 +184,11 @@ public:
     return handle<Path>(http::verb::get, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``POST`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto post(Handler&& handler)
   {
@@ -166,6 +196,11 @@ public:
     return handle<Path>(http::verb::post, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``PUT`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto put(Handler&& handler)
   {
@@ -173,6 +208,11 @@ public:
     return handle<Path>(http::verb::put, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``PATCH`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto patch(Handler&& handler)
   {
@@ -180,6 +220,11 @@ public:
     return handle<Path>(http::verb::patch, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``DELETE`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto delete_(Handler&& handler)
   {
@@ -187,6 +232,11 @@ public:
     return handle<Path>(http::verb::delete_, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``HEAD`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto head(Handler&& handler)
   {
@@ -194,6 +244,11 @@ public:
     return handle<Path>(http::verb::head, std::forward<Handler>(handler));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create a new route with ``OPTIONS`` method.
+  ///
+  /// @endverbatim
   template <basic_fixed_string Path, typename Handler>
   static auto options(Handler&& handler)
   {

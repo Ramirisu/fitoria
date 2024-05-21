@@ -27,6 +27,8 @@ Reference
    :maxdepth: 1
 
    web/http_server
+   web/route
+   web/scope
    web/response_builder
    web/response
    web/websocket

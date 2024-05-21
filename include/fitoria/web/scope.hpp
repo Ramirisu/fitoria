@@ -118,6 +118,18 @@ public:
   }
 };
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides the way to create scopes.
+///
+/// Description
+///     A path and must be specified for construction. And users can optionally
+///     bind it with ``state`` s and ``middleware`` s. Note that ``state`` s
+///     bound for a ``scope`` will be shared between all ``route`` s under the
+///     same ``scope``, whereas ``middleware`` s will be distinct instances for
+///     each ``route``.
+///
+/// @endverbatim
 template <basic_fixed_string Path = "">
 inline auto scope()
 {
