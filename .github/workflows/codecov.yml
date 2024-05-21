@@ -75,5 +75,6 @@ jobs:
         uses: codecov/codecov-action@v4.2.0
         with:
           file: ./.coverage/coverage.info
+          disable_search: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
