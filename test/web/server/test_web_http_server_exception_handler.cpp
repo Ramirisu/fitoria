@@ -41,7 +41,7 @@ TEST_CASE("unhandled exception from handler")
                       co_return response::ok().build();
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -51,19 +51,20 @@ TEST_CASE("unhandled exception from handler")
   net::co_spawn(
       ioc,
       [&]() -> awaitable<void> {
-        CHECK(!(co_await http_client()
-                    .set_method(http::verb::get)
-                    .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
-                    .set_header(http::field::connection, "close")
-                    .set_plaintext("text")
-                    .async_send()));
+        REQUIRE(
+            !(co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
+                  .set_header(http::field::connection, "close")
+                  .set_plaintext("text")
+                  .async_send()));
       },
       net::use_future)
       .get();
 
   // wait for exception thrown
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  CHECK(got_exception);
+  REQUIRE(got_exception);
 }
 
 #endif

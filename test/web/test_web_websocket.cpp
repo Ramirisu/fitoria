@@ -26,44 +26,46 @@ auto server_handler(websocket::context& ctx) -> awaitable<void>
 
   auto msg = co_await ctx.async_read();
   for (int seq = 0; msg; seq += 2) {
-    if (std::visit(
-            overloaded {
-                [&seq](websocket::binary_t binary) {
-                  CHECK(seq % 4 == 0);
-                  CHECK(range_equal(
-                      binary.value,
-                      fmt::format("sequence number: {}", seq),
-                      [](auto l, auto r) { return to_underlying(l) == r; }));
-                  return false;
-                },
-                [&seq](websocket::text_t text) {
-                  CHECK(seq % 4 == 2);
-                  CHECK_EQ(text.value, fmt::format("sequence number: {}", seq));
-                  return false;
-                },
-                [&seq, &close_called](websocket::close_t) {
-                  CHECK(seq == 100);
-                  close_called = true;
-                  return true;
-                } },
-            *msg)) {
+    if (std::visit(overloaded { [&seq](websocket::binary_t binary) {
+                                 REQUIRE(seq % 4 == 0);
+                                 REQUIRE(range_equal(
+                                     binary.value,
+                                     fmt::format("sequence number: {}", seq),
+                                     [](auto l, auto r) {
+                                       return to_underlying(l) == r;
+                                     }));
+                                 return false;
+                               },
+                                [&seq](websocket::text_t text) {
+                                  REQUIRE(seq % 4 == 2);
+                                  REQUIRE_EQ(
+                                      text.value,
+                                      fmt::format("sequence number: {}", seq));
+                                  return false;
+                                },
+                                [&seq, &close_called](websocket::close_t) {
+                                  REQUIRE(seq == 100);
+                                  close_called = true;
+                                  return true;
+                                } },
+                   *msg)) {
       break;
     }
 
-    CHECK(co_await ctx.async_ping());
+    REQUIRE(co_await ctx.async_ping());
 
     const auto out = fmt::format("sequence number: {}", seq + 1);
     if (seq % 4 == 0) {
-      CHECK(co_await ctx.async_write_text(out));
+      REQUIRE(co_await ctx.async_write_text(out));
     } else {
-      CHECK(co_await ctx.async_write_binary(
+      REQUIRE(co_await ctx.async_write_binary(
           std::span { out.data(), out.size() }));
     }
 
     msg = co_await ctx.async_read();
   }
 
-  CHECK(close_called);
+  REQUIRE(close_called);
 }
 
 template <typename Stream>
@@ -73,17 +75,17 @@ auto client_handler(Stream& stream) -> awaitable<void>
     const auto out = fmt::format("sequence number: {}", seq);
     if (seq % 4 == 0) {
       stream.binary(true);
-      CHECK(co_await stream.async_write(
+      REQUIRE(co_await stream.async_write(
           net::const_buffer(out.data(), out.size()), use_awaitable));
     } else {
       stream.text(true);
-      CHECK(co_await stream.async_write(
+      REQUIRE(co_await stream.async_write(
           net::const_buffer(out.data(), out.size()), use_awaitable));
     }
 
     dynamic_buffer<std::string> buffer;
-    CHECK(co_await stream.async_read(buffer, use_awaitable));
-    CHECK_EQ(buffer.release(), fmt::format("sequence number: {}", seq + 1));
+    REQUIRE(co_await stream.async_read(buffer, use_awaitable));
+    REQUIRE_EQ(buffer.release(), fmt::format("sequence number: {}", seq + 1));
   }
 
   co_await stream.async_close(boost::beast::websocket::close_code::none,
@@ -100,7 +102,7 @@ TEST_CASE("websocket")
               co_return ws.set_handler(server_handler);
             }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -112,10 +114,11 @@ TEST_CASE("websocket")
       [&]() -> awaitable<void> {
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
-        CHECK(co_await boost::beast::get_lowest_layer(stream).async_connect(
+        REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
-        CHECK(co_await stream.async_handshake("localhost", "/", use_awaitable));
+        REQUIRE(
+            co_await stream.async_handshake("localhost", "/", use_awaitable));
 
         co_await client_handler(stream);
       },
@@ -151,12 +154,13 @@ TEST_CASE("secure websocket")
         auto stream = boost::beast::websocket::stream<
             boost::beast::ssl_stream<boost::beast::tcp_stream>>(
             co_await net::this_coro::executor, ssl_ctx);
-        CHECK(co_await boost::beast::get_lowest_layer(stream).async_connect(
+        REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
-        CHECK(co_await stream.next_layer().async_handshake(
+        REQUIRE(co_await stream.next_layer().async_handshake(
             net::ssl::stream_base::client, use_awaitable));
-        CHECK(co_await stream.async_handshake("localhost", "/", use_awaitable));
+        REQUIRE(
+            co_await stream.async_handshake("localhost", "/", use_awaitable));
 
         co_await client_handler(stream);
       },
@@ -179,7 +183,7 @@ TEST_CASE("async_close")
                   });
             }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -191,15 +195,16 @@ TEST_CASE("async_close")
       [&]() -> awaitable<void> {
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
-        CHECK(co_await boost::beast::get_lowest_layer(stream).async_connect(
+        REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
-        CHECK(co_await stream.async_handshake("localhost", "/", use_awaitable));
+        REQUIRE(
+            co_await stream.async_handshake("localhost", "/", use_awaitable));
 
         dynamic_buffer<std::string> buffer;
         auto result = co_await stream.async_read(buffer, use_awaitable);
-        CHECK_EQ(result.error(),
-                 make_error_code(boost::beast::websocket::error::closed));
+        REQUIRE_EQ(result.error(),
+                   make_error_code(boost::beast::websocket::error::closed));
       },
       net::use_future)
       .get();
@@ -216,13 +221,13 @@ TEST_CASE("idle_timeout and no keep alive pings")
               ws.set_keep_alive_pings(false);
               co_return ws.set_handler(
                   [](websocket::context& ctx) -> awaitable<void> {
-                    CHECK_EQ(co_await ctx.async_read(),
-                             fitoria::unexpected { make_error_code(
-                                 boost::beast::error::timeout) });
+                    REQUIRE_EQ(co_await ctx.async_read(),
+                               fitoria::unexpected { make_error_code(
+                                   boost::beast::error::timeout) });
                   });
             }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -234,17 +239,18 @@ TEST_CASE("idle_timeout and no keep alive pings")
       [&]() -> awaitable<void> {
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
-        CHECK(co_await boost::beast::get_lowest_layer(stream).async_connect(
+        REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
-        CHECK(co_await stream.async_handshake("localhost", "/", use_awaitable));
+        REQUIRE(
+            co_await stream.async_handshake("localhost", "/", use_awaitable));
 
         auto timer = net::steady_timer(co_await net::this_coro::executor);
         timer.expires_after(std::chrono::seconds(1));
         co_await timer.async_wait(use_awaitable);
 
         dynamic_buffer<std::string> buffer;
-        CHECK(!co_await stream.async_read(buffer, use_awaitable));
+        REQUIRE(!co_await stream.async_read(buffer, use_awaitable));
       },
       net::use_future)
       .get();

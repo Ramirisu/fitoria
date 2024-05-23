@@ -26,11 +26,11 @@ TEST_CASE("socket reuse address")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc).build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 #if defined(FITORIA_TARGET_WINDOWS)
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 #else
-  CHECK(!server.bind(server_ip, port));
+  REQUIRE(!server.bind(server_ip, port));
 #endif
 }
 
@@ -58,7 +58,7 @@ TEST_CASE("invalid target")
                           co_return response::ok().build();
                         }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -80,10 +80,10 @@ TEST_CASE("invalid target")
                          .set_header(http::field::connection, "close")
                          .set_plaintext("text")
                          .async_send();
-          CHECK_EQ(res->status_code(), http::status::not_found);
-          CHECK_EQ(res->header().get(http::field::content_type),
-                   http::fields::content_type::plaintext());
-          CHECK_EQ(co_await res->as_string(), "request path is not found");
+          REQUIRE_EQ(res->status_code(), http::status::not_found);
+          REQUIRE_EQ(res->header().get(http::field::content_type),
+                     http::fields::content_type::plaintext());
+          REQUIRE_EQ(co_await res->as_string(), "request path is not found");
         },
         net::use_future)
         .get();
@@ -97,11 +97,11 @@ TEST_CASE("expect: 100-continue")
   auto server = http_server::builder(ioc)
                     .serve(route::post<"/api/v1/post">(
                         [](std::string body) -> awaitable<response> {
-                          CHECK_EQ(body, "text");
+                          REQUIRE_EQ(body, "text");
                           co_return response::ok().build();
                         }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -120,8 +120,8 @@ TEST_CASE("expect: 100-continue")
                        .set_header(http::field::connection, "close")
                        .set_plaintext("text")
                        .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(co_await res->as_string(), "");
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();

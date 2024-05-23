@@ -38,59 +38,60 @@ TEST_CASE("generic request")
                     const query_map& query,
                     std::string body) -> awaitable<response> {
                   auto test_connection = [=](auto& conn) {
-                    CHECK_EQ(conn.local().address(),
-                             net::ip::make_address(server_ip));
-                    CHECK_EQ(conn.remote().address(),
-                             net::ip::make_address(server_ip));
+                    REQUIRE_EQ(conn.local().address(),
+                               net::ip::make_address(server_ip));
+                    REQUIRE_EQ(conn.remote().address(),
+                               net::ip::make_address(server_ip));
                   };
                   test_connection(req.connection());
                   test_connection(connection);
 
-                  CHECK_EQ(req.method(), http::verb::get);
+                  REQUIRE_EQ(req.method(), http::verb::get);
 
                   auto test_path = [](auto& path) {
-                    CHECK_EQ(path.match_pattern(),
-                             "/api/v1/users/{user}/filmography/years/{year}");
-                    CHECK_EQ(path.match_path(),
-                             "/api/v1/users/RinaHidaka/filmography/years/2022");
+                    REQUIRE_EQ(path.match_pattern(),
+                               "/api/v1/users/{user}/filmography/years/{year}");
+                    REQUIRE_EQ(
+                        path.match_path(),
+                        "/api/v1/users/RinaHidaka/filmography/years/2022");
 
-                    CHECK_EQ(path.at("user"), "RinaHidaka");
-                    CHECK_EQ(path.at("year"), "2022");
+                    REQUIRE_EQ(path.at("user"), "RinaHidaka");
+                    REQUIRE_EQ(path.at("year"), "2022");
                   };
                   test_path(req.path());
                   test_path(path);
 
-                  CHECK_EQ(ver, http::version::v1_1);
+                  REQUIRE_EQ(ver, http::version::v1_1);
 
                   auto test_query = [](auto& query) {
-                    CHECK_EQ(query.size(), 2);
-                    CHECK_EQ(query.at("name"), "Rina Hidaka");
-                    CHECK_EQ(query.at("birth"), "1994/06/15");
+                    REQUIRE_EQ(query.size(), 2);
+                    REQUIRE_EQ(query.at("name"), "Rina Hidaka");
+                    REQUIRE_EQ(query.at("birth"), "1994/06/15");
                   };
                   test_query(req.query());
                   test_query(static_cast<const request&>(req).query());
                   test_query(query);
 
                   auto test_header = [](auto& header) {
-                    CHECK_EQ(header.get(http::field::content_type),
-                             http::fields::content_type::plaintext());
+                    REQUIRE_EQ(header.get(http::field::content_type),
+                               http::fields::content_type::plaintext());
                   };
 
                   test_header(req.header());
                   test_header(static_cast<const request&>(req).header());
                   test_header(header);
 
-                  CHECK(range_in_set(
+                  REQUIRE(range_in_set(
                       req.header().equal_range(http::field::user_agent),
                       [](auto&& p) { return p->value(); },
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
 
-                  CHECK_EQ(body, "happy birthday");
+                  REQUIRE_EQ(body, "happy birthday");
                   auto buffer = std::array<std::byte, 4096>();
-                  CHECK(!(co_await req.body().async_read_some(
+                  REQUIRE(!(co_await req.body().async_read_some(
                       net::buffer(buffer))));
-                  CHECK(!(
+                  REQUIRE(!(
                       co_await async_read_until_eof<std::string>(req.body())));
 
                   co_return response::ok()
@@ -100,7 +101,7 @@ TEST_CASE("generic request")
                       .build();
                 }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -124,13 +125,13 @@ TEST_CASE("generic request")
                        .insert_header(http::field::user_agent, "fitoria")
                        .set_plaintext(text)
                        .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(range_in_set(
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE(range_in_set(
             res->header().equal_range(http::field::user_agent),
             [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
-        CHECK_EQ(co_await res->as_string(), "");
+        REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -144,13 +145,13 @@ TEST_CASE("request to route accepting wildcard")
       = http_server::builder(ioc)
             .serve(route::get<"/api/v1/#wildcard">(
                 [=](const path_info& path_info) -> awaitable<response> {
-                  CHECK_EQ(path_info.match_pattern(), "/api/v1/#wildcard");
-                  CHECK_EQ(path_info.match_path(), "/api/v1/any/path");
-                  CHECK_EQ(path_info.get("wildcard"), "any/path");
+                  REQUIRE_EQ(path_info.match_pattern(), "/api/v1/#wildcard");
+                  REQUIRE_EQ(path_info.match_path(), "/api/v1/any/path");
+                  REQUIRE_EQ(path_info.get("wildcard"), "any/path");
                   co_return response::ok().build();
                 }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -166,8 +167,8 @@ TEST_CASE("request to route accepting wildcard")
                            boost::urls::scheme::http, port, "/api/v1/any/path"))
                        .set_header(http::field::connection, "close")
                        .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(co_await res->as_string(), "");
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();
@@ -180,13 +181,14 @@ TEST_CASE("request with null body")
   auto server
       = http_server::builder(ioc)
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
-              CHECK_EQ(req.header().get(http::field::connection), "close");
-              CHECK(!req.header().get(http::field::content_length));
-              CHECK(!(co_await async_read_until_eof<std::string>(req.body())));
+              REQUIRE_EQ(req.header().get(http::field::connection), "close");
+              REQUIRE(!req.header().get(http::field::content_length));
+              REQUIRE(
+                  !(co_await async_read_until_eof<std::string>(req.body())));
               co_return response::ok().build();
             }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -202,7 +204,7 @@ TEST_CASE("request with null body")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -214,15 +216,15 @@ TEST_CASE("request with empty body")
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
-            .serve(route::post<"/">(
-                [](const request& req, std::string str) -> awaitable<response> {
-                  CHECK_EQ(req.header().get(http::field::connection), "close");
-                  CHECK_EQ(req.header().get(http::field::content_length), "0");
-                  CHECK_EQ(str, "");
-                  co_return response::ok().build();
-                }))
+            .serve(route::post<"/">([](const request& req,
+                                       std::string str) -> awaitable<response> {
+              REQUIRE_EQ(req.header().get(http::field::connection), "close");
+              REQUIRE_EQ(req.header().get(http::field::content_length), "0");
+              REQUIRE_EQ(str, "");
+              co_return response::ok().build();
+            }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -239,7 +241,7 @@ TEST_CASE("request with empty body")
                   .set_header(http::field::connection, "close")
                   .set_plaintext("")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -251,18 +253,18 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server::builder(ioc)
-                    .serve(route::post<"/">(
-                        [text](const request& req,
-                               std::string data) -> awaitable<response> {
-                          CHECK_EQ(req.header().get(http::field::content_type),
-                                   http::fields::content_type::plaintext());
-                          CHECK(!req.header().get(http::field::content_length));
-                          CHECK_EQ(data, text);
-                          co_return response::ok().build();
-                        }))
-                    .build();
-  CHECK(server.bind(server_ip, port));
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::post<"/">([text](const request& req, std::string data)
+                                        -> awaitable<response> {
+              REQUIRE_EQ(req.header().get(http::field::content_type),
+                         http::fields::content_type::plaintext());
+              REQUIRE(!req.header().get(http::field::content_length));
+              REQUIRE_EQ(data, text);
+              co_return response::ok().build();
+            }))
+            .build();
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -281,8 +283,8 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                               http::fields::content_type::plaintext())
                   .set_stream(async_readable_chunk_stream<5>(text))
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(co_await res->as_string(), "");
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();

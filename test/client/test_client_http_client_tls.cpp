@@ -35,16 +35,16 @@ TEST_CASE("async_send")
                    .set_method(http::verb::get)
                    .set_url("https://httpbun.com/get")
                    .async_send(ssl_ctx);
-    CHECK_EQ(res->status_code().value(), http::status::ok);
-    CHECK(!(co_await res->as_string())->empty());
+    REQUIRE_EQ(res->status_code().value(), http::status::ok);
+    REQUIRE(!(co_await res->as_string())->empty());
   });
 
   sync_wait([&]() -> awaitable<void> {
     auto ssl_ctx = get_certs();
-    CHECK(!(co_await http_client()
-                .set_method(http::verb::get)
-                .set_url("")
-                .async_send(ssl_ctx)));
+    REQUIRE(!(co_await http_client()
+                  .set_method(http::verb::get)
+                  .set_url("")
+                  .async_send(ssl_ctx)));
   });
 }
 
@@ -62,7 +62,7 @@ TEST_CASE("handshake_timeout")
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port));
         acceptor.listen();
         auto socket = co_await acceptor.async_accept(use_awaitable);
-        CHECK(socket);
+        REQUIRE(socket);
 
         auto timer = net::steady_timer(co_await net::this_coro::executor);
         timer.expires_after(std::chrono::seconds(5));
@@ -87,8 +87,8 @@ TEST_CASE("handshake_timeout")
                   .set_method(http::verb::get)
                   .set_url(to_local_url(boost::urls::scheme::https, port, "/"))
                   .async_send(ssl_ctx);
-        CHECK(!res);
-        CHECK_EQ(res.error(), make_error_code(net::error::timed_out));
+        REQUIRE(!res);
+        REQUIRE_EQ(res.error(), make_error_code(net::error::timed_out));
       },
       net::use_future)
       .get();

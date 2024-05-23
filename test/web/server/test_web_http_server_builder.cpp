@@ -33,7 +33,7 @@ TEST_CASE("builder")
                         try {
                           std::rethrow_exception(ptr);
                         } catch (...) {
-                          CHECK(false);
+                          REQUIRE(false);
                         }
                       }
                     })
@@ -42,16 +42,16 @@ TEST_CASE("builder")
                       co_return response::ok().build();
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
   scope_exit guard([&]() { ioc.stop(); });
   std::this_thread::sleep_for(server_start_wait_time);
 
-  CHECK_EQ(server.max_listen_connections(), 2048);
-  CHECK_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
-  CHECK_EQ(server.reuqest_timeout(), std::chrono::seconds(10));
+  REQUIRE_EQ(server.max_listen_connections(), 2048);
+  REQUIRE_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
+  REQUIRE_EQ(server.reuqest_timeout(), std::chrono::seconds(10));
 
   net::co_spawn(
       ioc,
@@ -62,8 +62,8 @@ TEST_CASE("builder")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(co_await res->as_string(), "");
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
       .get();

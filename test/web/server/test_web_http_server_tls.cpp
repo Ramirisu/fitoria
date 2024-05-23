@@ -31,14 +31,14 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
       = http_server::builder(ioc)
             .serve(route::get<"/api/repos/{repo}">(
                 [](request& req, std::string body) -> awaitable<response> {
-                  CHECK_EQ(req.method(), http::verb::get);
-                  CHECK_EQ(req.path().size(), 1);
-                  CHECK_EQ(req.path().at("repo"), "fitoria");
-                  CHECK_EQ(req.path().match_pattern(), "/api/repos/{repo}");
-                  CHECK_EQ(req.path().match_path(), "/api/repos/fitoria");
-                  CHECK_EQ(req.header().get(http::field::content_type),
-                           http::fields::content_type::plaintext());
-                  CHECK_EQ(body, "hello world");
+                  REQUIRE_EQ(req.method(), http::verb::get);
+                  REQUIRE_EQ(req.path().size(), 1);
+                  REQUIRE_EQ(req.path().at("repo"), "fitoria");
+                  REQUIRE_EQ(req.path().match_pattern(), "/api/repos/{repo}");
+                  REQUIRE_EQ(req.path().match_path(), "/api/repos/fitoria");
+                  REQUIRE_EQ(req.header().get(http::field::content_type),
+                             http::fields::content_type::plaintext());
+                  REQUIRE_EQ(body, "hello world");
                   co_return response::ok().build();
                 }))
             .build();
@@ -61,7 +61,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                       boost::urls::scheme::https, port, "/api/repos/fitoria"))
                   .set_plaintext("hello world")
                   .async_send(ssl_ctx);
-        CHECK_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -120,7 +120,7 @@ TEST_CASE("tls_handshake_timeout")
         auto ssl_ctx
             = cert::get_client_ssl_ctx(net::ssl::context::method::tls_client);
         auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
-        CHECK(co_await get_lowest_layer(stream).async_connect(
+        REQUIRE(co_await get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
 
@@ -128,8 +128,8 @@ TEST_CASE("tls_handshake_timeout")
         timer.expires_after(std::chrono::seconds(5));
         co_await timer.async_wait(use_awaitable);
 
-        CHECK(!(co_await stream.async_handshake(net::ssl::stream_base::client,
-                                                use_awaitable)));
+        REQUIRE(!(co_await stream.async_handshake(net::ssl::stream_base::client,
+                                                  use_awaitable)));
       },
       net::use_future)
       .get();

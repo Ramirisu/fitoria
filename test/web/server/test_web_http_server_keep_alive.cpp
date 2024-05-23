@@ -33,7 +33,7 @@ TEST_CASE("request with keep-alive")
                       .set_body(body);
                 }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -44,7 +44,7 @@ TEST_CASE("request with keep-alive")
       ioc,
       [&]() -> awaitable<void> {
         auto stream = tcp_stream(co_await net::this_coro::executor);
-        CHECK(co_await stream.async_connect(
+        REQUIRE(co_await stream.async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
 
@@ -57,7 +57,7 @@ TEST_CASE("request with keep-alive")
           req.insert(http::field::content_type, "text/plain");
           req.body() = fmt::format("sequence: {}", i);
           req.prepare_payload();
-          CHECK(co_await http::async_write(stream, req, use_awaitable));
+          REQUIRE(co_await http::async_write(stream, req, use_awaitable));
         }
 
         // then receive all the responses
@@ -65,10 +65,11 @@ TEST_CASE("request with keep-alive")
         for (std::size_t i = 0; i < 10; ++i) {
           namespace http = boost::beast::http;
           auto res = http::response<http::string_body>();
-          CHECK(co_await http::async_read(stream, buffer, res, use_awaitable));
-          CHECK(res.keep_alive());
-          CHECK_EQ(res.at(http::field::content_type), "text/plain");
-          CHECK_EQ(res.body(), fmt::format("sequence: {}", i));
+          REQUIRE(
+              co_await http::async_read(stream, buffer, res, use_awaitable));
+          REQUIRE(res.keep_alive());
+          REQUIRE_EQ(res.at(http::field::content_type), "text/plain");
+          REQUIRE_EQ(res.body(), fmt::format("sequence: {}", i));
         }
       },
       net::use_future)

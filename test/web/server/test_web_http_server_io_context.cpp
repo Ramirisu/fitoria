@@ -35,7 +35,7 @@ TEST_CASE("compile with io_context")
                           co_return response::ok().build();
                         }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });

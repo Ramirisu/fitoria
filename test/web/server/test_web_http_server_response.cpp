@@ -29,7 +29,7 @@ TEST_CASE("response status only")
                       co_return response::no_content().build();
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -45,11 +45,11 @@ TEST_CASE("response status only")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::no_content);
-        CHECK_EQ(res->header().get(http::field::connection), "close");
-        CHECK(!res->header().get(http::field::content_length));
-        CHECK(!(co_await async_read_until_eof<std::string>(res->body())));
-        CHECK(!(co_await res->as_string()));
+        REQUIRE_EQ(res->status_code(), http::status::no_content);
+        REQUIRE_EQ(res->header().get(http::field::connection), "close");
+        REQUIRE(!res->header().get(http::field::content_length));
+        REQUIRE(!(co_await async_read_until_eof<std::string>(res->body())));
+        REQUIRE(!(co_await res->as_string()));
       },
       net::use_future)
       .get();
@@ -69,7 +69,7 @@ TEST_CASE("response with plain text")
                           .set_body(text);
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -85,13 +85,13 @@ TEST_CASE("response with plain text")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(res->header().get(http::field::connection), "close");
-        CHECK_EQ(res->header().get(http::field::content_type),
-                 http::fields::content_type::plaintext());
-        CHECK_EQ(res->header().get(http::field::content_length),
-                 std::to_string(text.size()));
-        CHECK_EQ(co_await res->as_string(), text);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->header().get(http::field::connection), "close");
+        REQUIRE_EQ(res->header().get(http::field::content_type),
+                   http::fields::content_type::plaintext());
+        REQUIRE_EQ(res->header().get(http::field::content_length),
+                   std::to_string(text.size()));
+        REQUIRE_EQ(co_await res->as_string(), text);
       },
       net::use_future)
       .get();
@@ -111,7 +111,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                           .set_stream(async_readable_chunk_stream<5>(text));
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -127,11 +127,11 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(res->header().get(http::field::content_type),
-                 http::fields::content_type::plaintext());
-        CHECK(!res->header().get(http::field::content_length));
-        CHECK_EQ(co_await res->as_string(), text);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->header().get(http::field::content_type),
+                   http::fields::content_type::plaintext());
+        REQUIRE(!res->header().get(http::field::content_length));
+        REQUIRE_EQ(co_await res->as_string(), text);
       },
       net::use_future)
       .get();
@@ -146,7 +146,7 @@ TEST_CASE("response with default HTTP/1.1")
                       co_return response::ok().build();
                     }))
                     .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -162,9 +162,9 @@ TEST_CASE("response with default HTTP/1.1")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK_EQ(res->header().get(http::field::connection), "close");
-        CHECK_EQ(res->version(), http::version::v1_1);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->header().get(http::field::connection), "close");
+        REQUIRE_EQ(res->version(), http::version::v1_1);
       },
       net::use_future)
       .get();
@@ -180,7 +180,7 @@ TEST_CASE("response with HTTP/1.0")
               co_return response::ok().set_version(http::version::v1_0).build();
             }))
             .build();
-  CHECK(server.bind(server_ip, port));
+  REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -196,9 +196,9 @@ TEST_CASE("response with HTTP/1.0")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
-        CHECK(!res->header().get(http::field::connection));
-        CHECK_EQ(res->version(), http::version::v1_0);
+        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE(!res->header().get(http::field::connection));
+        REQUIRE_EQ(res->version(), http::version::v1_0);
       },
       net::use_future)
       .get();
