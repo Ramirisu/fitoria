@@ -25,6 +25,7 @@ The library is ***experimental*** and still under development, not recommended f
 - Cross-platform, write once and run across Windows, Linux and MacOS
 - Support HTTP/1.1
 - Support SSL up to TLS 1.3
+- Support Unix Domain Socket
 - Support WebSocket
 
 More details can be found in the [documentation](https://ramirisu.github.io/fitoria/)

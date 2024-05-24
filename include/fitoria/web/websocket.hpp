@@ -39,10 +39,15 @@ class websocket {
 
   using duration_type = std::chrono::steady_clock::duration;
 #if defined(FITORIA_HAS_OPENSSL)
-  using stream_type = std::variant<websocket_stream<shared_tcp_stream>,
-                                   websocket_stream<shared_ssl_stream>>;
+  using stream_type = std::variant<
+      websocket_stream<shared_tcp_stream<net::ip::tcp>>,
+      websocket_stream<shared_tcp_stream<net::local::stream_protocol>>,
+      websocket_stream<shared_ssl_stream<net::ip::tcp>>,
+      websocket_stream<shared_ssl_stream<net::local::stream_protocol>>>;
 #else
-  using stream_type = std::variant<websocket_stream<shared_tcp_stream>>;
+  using stream_type = std::variant<
+      websocket_stream<shared_tcp_stream<net::ip::tcp>>,
+      websocket_stream<shared_tcp_stream<net::local::stream_protocol>>>;
 #endif
 
 public:
@@ -90,14 +95,24 @@ public:
 
   class impl_type {
   public:
-    impl_type(shared_tcp_stream stream)
+    impl_type(shared_tcp_stream<net::ip::tcp> stream)
         : stream_(std::in_place_index<0>, std::move(stream))
     {
     }
 
-#if defined(FITORIA_HAS_OPENSSL)
-    impl_type(shared_ssl_stream stream)
+    impl_type(shared_tcp_stream<net::local::stream_protocol> stream)
         : stream_(std::in_place_index<1>, std::move(stream))
+    {
+    }
+
+#if defined(FITORIA_HAS_OPENSSL)
+    impl_type(shared_ssl_stream<net::ip::tcp> stream)
+        : stream_(std::in_place_index<2>, std::move(stream))
+    {
+    }
+
+    impl_type(shared_ssl_stream<net::local::stream_protocol> stream)
+        : stream_(std::in_place_index<3>, std::move(stream))
     {
     }
 #endif
@@ -333,13 +348,23 @@ public:
     websocket& ws_;
   };
 
-  websocket(shared_tcp_stream stream)
+  websocket(shared_tcp_stream<net::ip::tcp> stream)
+      : impl_(std::make_shared<impl_type>(std::move(stream)))
+  {
+  }
+
+  websocket(shared_tcp_stream<net::local::stream_protocol> stream)
       : impl_(std::make_shared<impl_type>(std::move(stream)))
   {
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  websocket(shared_ssl_stream stream)
+  websocket(shared_ssl_stream<net::ip::tcp> stream)
+      : impl_(std::make_shared<impl_type>(std::move(stream)))
+  {
+  }
+
+  websocket(shared_ssl_stream<net::local::stream_protocol> stream)
       : impl_(std::make_shared<impl_type>(std::move(stream)))
   {
   }

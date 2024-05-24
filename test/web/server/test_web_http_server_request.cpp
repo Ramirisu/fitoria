@@ -38,10 +38,8 @@ TEST_CASE("generic request")
                     const query_map& query,
                     std::string body) -> awaitable<response> {
                   auto test_connection = [=](auto& conn) {
-                    REQUIRE_EQ(conn.local().address(),
-                               net::ip::make_address(server_ip));
-                    REQUIRE_EQ(conn.remote().address(),
-                               net::ip::make_address(server_ip));
+                    REQUIRE_EQ(conn.local(), server_ip);
+                    REQUIRE_EQ(conn.remote(), server_ip);
                   };
                   test_connection(req.connection());
                   test_connection(connection);

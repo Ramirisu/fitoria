@@ -139,7 +139,7 @@ TEST_CASE("secure websocket")
             }))
             .build();
   auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context_base::tls_server);
-  server.bind_ssl(server_ip, port, ssl_ctx);
+  server.bind(server_ip, port, ssl_ctx);
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });

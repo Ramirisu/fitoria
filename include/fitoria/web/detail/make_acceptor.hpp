@@ -19,36 +19,35 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::detail {
 
+template <typename Endpoint>
 inline auto make_acceptor(const executor_type& ex,
-                          std::string_view addr,
-                          std::uint16_t port,
+                          Endpoint endpoint,
                           int max_listen_connections)
-    -> expected<socket_acceptor, std::error_code>
+    -> expected<socket_acceptor<typename Endpoint::protocol_type>,
+                std::error_code>
 {
-  auto endpoint = make_endpoint(addr, port);
-  if (!endpoint) {
-    return unexpected { endpoint.error() };
-  }
-
-  auto acceptor = socket_acceptor(ex);
+  auto acceptor = socket_acceptor<typename Endpoint::protocol_type>(ex);
 
   boost::system::error_code ec;
-  acceptor.open(endpoint->protocol(), ec); // NOLINT
+  acceptor.open(endpoint.protocol(), ec);
   if (ec) {
     return unexpected { ec };
   }
 
-  acceptor.set_option(net::socket_base::reuse_address(true), ec); // NOLINT
+  // https://github.com/chriskohlhoff/asio/issues/622
+  constexpr auto reuse_addr = !std::same_as<typename Endpoint::protocol_type,
+                                            net::local::stream_protocol>;
+  acceptor.set_option(net::socket_base::reuse_address(reuse_addr), ec);
   if (ec) {
     return unexpected { ec };
   }
 
-  acceptor.bind(*endpoint, ec); // NOLINT
+  acceptor.bind(endpoint, ec);
   if (ec) {
     return unexpected { ec };
   }
 
-  acceptor.listen(max_listen_connections, ec); // NOLINT
+  acceptor.listen(max_listen_connections, ec);
   if (ec) {
     return unexpected { ec };
   }

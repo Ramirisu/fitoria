@@ -2,11 +2,9 @@
 TLS
 ********************************************************************************
 
-First we have to create a ``net::ssl::context`` with server certificates and desired TLS configurations. And then call ``http_server::bind_ssl(...)`` with the ssl context to enable TLS for incoming connections. (`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_)
+Plain TCP connections are insecure, fitoria supports TLS connections using ``OpenSSL``. Users can call ``http_server::bind(..., ssl_ctx)`` with ``net::ssl::context`` to enable the TLS connections.
 
-.. note::
-
-   In order to enable TLS support, ``openssl`` must be installed. 
+(`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_)
 
 .. code-block:: cpp
    
@@ -25,7 +23,11 @@ First we have to create a ``net::ssl::context`` with server certificates and des
      server.bind("127.0.0.1", 8080);
      
      auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
-     server.bind_ssl("127.0.0.1", 8443, ssl_ctx);
+     server.bind("127.0.0.1", 8443, ssl_ctx);
    
      ioc.run();
    }
+
+.. note::
+
+   In order to enable TLS support, ``OpenSSL`` must be installed. 

@@ -116,14 +116,19 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Bind the address and port for listening HTTP connection.
+  /// Binds address and create an acceptor for TCP connections.
   ///
   /// @endverbatim
-  auto bind(std::string_view addr, std::uint16_t port) const
+  auto bind(std::string_view ip_addr, std::uint16_t port) const
       -> expected<const http_server&, std::error_code>
   {
+    auto endpoint = detail::make_endpoint(ip_addr, port);
+    if (!endpoint) {
+      return unexpected { endpoint.error() };
+    }
+
     auto acceptor
-        = detail::make_acceptor(ex_, addr, port, max_listen_connections_);
+        = detail::make_acceptor(ex_, *endpoint, max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
@@ -137,16 +142,86 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Bind the address, port and TLS context for listening HTTPS connection.
+  /// Binds address and create an acceptor for TLS connections.
   ///
   /// @endverbatim
-  auto bind_ssl(std::string_view addr,
-                std::uint16_t port,
-                net::ssl::context& ssl_ctx) const
+  auto bind(std::string_view ip_addr,
+            std::uint16_t port,
+            net::ssl::context& ssl_ctx) const
       -> expected<const http_server&, std::error_code>
   {
+    auto endpoint = detail::make_endpoint(ip_addr, port);
+    if (!endpoint) {
+      return unexpected { endpoint.error() };
+    }
+
     auto acceptor
-        = detail::make_acceptor(ex_, addr, port, max_listen_connections_);
+        = detail::make_acceptor(ex_, *endpoint, max_listen_connections_);
+    if (!acceptor) {
+      return unexpected { acceptor.error() };
+    }
+
+    net::co_spawn(
+        ex_, do_listen(std::move(*acceptor), ssl_ctx), exception_handler_);
+
+    return expected<const http_server&, std::error_code>(*this);
+  }
+
+#endif
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Binds address and create an acceptor for local (Unix domain socket)
+  /// connections.
+  ///
+  /// Description
+  ///     Binds address and create an acceptor for local (Unix domain socket)
+  ///     connections. Make sure that no file is at the ``file_path``, or system
+  ///     call ``bind`` may return error.
+  ///
+  /// @endverbatim
+  auto bind_local(std::string_view file_path) const
+      -> expected<const http_server&, std::error_code>
+  {
+    auto endpoint = detail::make_endpoint(file_path);
+    if (!endpoint) {
+      return unexpected { endpoint.error() };
+    }
+
+    auto acceptor
+        = detail::make_acceptor(ex_, *endpoint, max_listen_connections_);
+    if (!acceptor) {
+      return unexpected { acceptor.error() };
+    }
+
+    net::co_spawn(ex_, do_listen(std::move(*acceptor)), exception_handler_);
+
+    return expected<const http_server&, std::error_code>(*this);
+  }
+
+#if defined(FITORIA_HAS_OPENSSL)
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Binds address and create an acceptor for local (Unix domain socket) TLS
+  /// connections.
+  ///
+  /// Description
+  ///     Binds address and create an acceptor for local (Unix domain socket)
+  ///     TLS connections. Make sure that no file is at the ``file_path``, or
+  ///     system call ``bind`` may return error.
+  ///
+  /// @endverbatim
+  auto bind_local(std::string_view file_path, net::ssl::context& ssl_ctx) const
+      -> expected<const http_server&, std::error_code>
+  {
+    auto endpoint = detail::make_endpoint(file_path);
+    if (!endpoint) {
+      return unexpected { endpoint.error() };
+    }
+
+    auto acceptor
+        = detail::make_acceptor(ex_, *endpoint, max_listen_connections_);
     if (!acceptor) {
       return unexpected { acceptor.error() };
     }
@@ -191,45 +266,47 @@ private:
                           std::string target,
                           ResponseHandler handler) const -> awaitable<void>
   {
-    co_await handler(test_response(co_await do_handler(
-        connect_info(
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0),
-            net::ip::tcp::endpoint(net::ip::make_address("127.0.0.1"), 0)),
-        req.method(),
-        http::version::v1_1,
-        target,
-        std::move(req.header()),
-        std::make_shared<state_map>(),
-        std::move(req.body()))));
+    co_await handler(test_response(
+        co_await do_handler(connect_info("127.0.0.1", "127.0.0.1"),
+                            req.method(),
+                            http::version::v1_1,
+                            target,
+                            std::move(req.header()),
+                            std::make_shared<state_map>(),
+                            std::move(req.body()))));
   }
 
-  auto do_listen(socket_acceptor acceptor) const -> awaitable<void>
-  {
-    for (;;) {
-      if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
-        net::co_spawn(ex_,
-                      do_session(shared_tcp_stream(std::move(*socket))),
-                      exception_handler_);
-      }
-    }
-  }
-
-#if defined(FITORIA_HAS_OPENSSL)
-  auto do_listen(socket_acceptor acceptor,
-                 net::ssl::context& ssl_ctx) const -> awaitable<void>
+  template <typename Protocol>
+  auto do_listen(socket_acceptor<Protocol> acceptor) const -> awaitable<void>
   {
     for (;;) {
       if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
         net::co_spawn(
             ex_,
-            do_session(shared_ssl_stream(std::move(*socket), ssl_ctx)),
+            do_session(shared_tcp_stream<Protocol>(std::move(*socket))),
             exception_handler_);
+      }
+    }
+  }
+
+#if defined(FITORIA_HAS_OPENSSL)
+  template <typename Protocol>
+  auto do_listen(socket_acceptor<Protocol> acceptor,
+                 net::ssl::context& ssl_ctx) const -> awaitable<void>
+  {
+    for (;;) {
+      if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
+        net::co_spawn(ex_,
+                      do_session(shared_ssl_stream<Protocol>(std::move(*socket),
+                                                             ssl_ctx)),
+                      exception_handler_);
       }
     }
   }
 #endif
 
-  auto do_session(shared_tcp_stream stream) const -> awaitable<void>
+  template <typename Protocol>
+  auto do_session(shared_tcp_stream<Protocol> stream) const -> awaitable<void>
   {
     if (auto result = co_await do_session_impl(stream); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
@@ -240,7 +317,8 @@ private:
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
-  auto do_session(shared_ssl_stream stream) const -> awaitable<void>
+  template <typename Protocol>
+  auto do_session(shared_ssl_stream<Protocol> stream) const -> awaitable<void>
   {
     if (auto result = co_await do_handshake(stream); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
@@ -255,7 +333,8 @@ private:
     }
   }
 
-  auto do_handshake(shared_ssl_stream& stream) const
+  template <typename Protocol>
+  auto do_handshake(shared_ssl_stream<Protocol>& stream) const
       -> awaitable<expected<void, std::error_code>>
   {
     using namespace net::experimental::awaitable_operators;

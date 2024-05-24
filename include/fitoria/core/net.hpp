@@ -32,28 +32,32 @@ using awaitable = boost::asio::awaitable<T, executor_type>;
 constexpr auto use_awaitable
     = as_expected_t<boost::asio::use_awaitable_t<executor_type>> {};
 
+template <typename Protocol>
 using socket_acceptor
-    = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, executor_type>;
+    = boost::asio::basic_socket_acceptor<Protocol, executor_type>;
 
-using tcp_stream
-    = boost::beast::basic_stream<boost::asio::ip::tcp, executor_type>;
+template <typename Protocol>
+using basic_stream = boost::beast::basic_stream<Protocol, executor_type>;
 
 #if defined(FITORIA_HAS_OPENSSL)
 
-using ssl_stream = boost::beast::ssl_stream<tcp_stream>;
+template <typename Protocol>
+using ssl_stream = boost::beast::ssl_stream<basic_stream<Protocol>>;
 
 #endif
 
+template <typename Protocol>
 class shared_tcp_stream {
-  std::shared_ptr<tcp_stream> stream_;
+  std::shared_ptr<basic_stream<Protocol>> stream_;
 
 public:
-  using executor_type = typename tcp_stream::executor_type;
-  using socket_type = typename tcp_stream::socket_type;
+  using executor_type = typename basic_stream<Protocol>::executor_type;
+  using socket_type = typename basic_stream<Protocol>::socket_type;
 
   template <not_decay_to<shared_tcp_stream> Arg>
   shared_tcp_stream(Arg&& arg)
-      : stream_(std::make_shared<tcp_stream>(std::forward<Arg>(arg)))
+      : stream_(
+            std::make_shared<basic_stream<Protocol>>(std::forward<Arg>(arg)))
   {
   }
 
@@ -128,16 +132,18 @@ public:
 
 #if defined(FITORIA_HAS_OPENSSL)
 
+template <typename Protocol>
 class shared_ssl_stream {
-  std::shared_ptr<ssl_stream> stream_;
+  std::shared_ptr<ssl_stream<Protocol>> stream_;
 
 public:
-  using executor_type = typename ssl_stream::executor_type;
-  using next_layer_type = typename ssl_stream::next_layer_type;
+  using executor_type = typename ssl_stream<Protocol>::executor_type;
+  using next_layer_type = typename ssl_stream<Protocol>::next_layer_type;
 
   template <typename Arg>
   shared_ssl_stream(Arg&& arg, boost::asio::ssl::context& ssl_ctx)
-      : stream_(std::make_shared<ssl_stream>(std::forward<Arg>(arg), ssl_ctx))
+      : stream_(std::make_shared<ssl_stream<Protocol>>(std::forward<Arg>(arg),
+                                                       ssl_ctx))
   {
   }
 

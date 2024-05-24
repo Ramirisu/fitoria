@@ -20,11 +20,11 @@ TEST_CASE("executor_type")
       std::same_as<awaitable<int>, net::awaitable<int, net::any_io_executor>>);
   static_assert(
       std::same_as<
-          socket_acceptor,
+          socket_acceptor<net::ip::tcp>,
           net::basic_socket_acceptor<net::ip::tcp, net::any_io_executor>>);
   static_assert(
       std::same_as<
-          tcp_stream,
+          basic_stream<net::ip::tcp>,
           boost::beast::basic_stream<net::ip::tcp, net::any_io_executor>>);
 }
 

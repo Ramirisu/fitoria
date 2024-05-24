@@ -393,7 +393,7 @@ private:
       co_return unexpected { results.error() };
     }
 
-    auto stream = tcp_stream(co_await net::this_coro::executor);
+    auto stream = basic_stream<net::ip::tcp>(co_await net::this_coro::executor);
 
     if (auto result = co_await stream.async_connect(*results, use_awaitable);
         !result) {
@@ -412,7 +412,8 @@ private:
       co_return unexpected { results.error() };
     }
 
-    auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
+    auto stream
+        = ssl_stream<net::ip::tcp>(co_await net::this_coro::executor, ssl_ctx);
 
     // Set SNI Hostname (many hosts need this to handshake successfully)
     if (!SSL_set_tlsext_host_name(stream.native_handle(),
@@ -435,8 +436,9 @@ private:
     co_return co_await do_http_request(std::move(stream));
   }
 
-  auto
-  do_handshake(ssl_stream& stream) -> awaitable<expected<void, std::error_code>>
+  template <typename Protocol>
+  auto do_handshake(ssl_stream<Protocol>& stream)
+      -> awaitable<expected<void, std::error_code>>
   {
     using namespace net::experimental::awaitable_operators;
 

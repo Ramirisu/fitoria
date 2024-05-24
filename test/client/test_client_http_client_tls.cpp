@@ -55,7 +55,8 @@ TEST_CASE("handshake_timeout")
   net::co_spawn(
       ioc,
       [&]() -> awaitable<void> {
-        auto acceptor = socket_acceptor(co_await net::this_coro::executor);
+        auto acceptor
+            = socket_acceptor<net::ip::tcp>(co_await net::this_coro::executor);
         acceptor.open(net::ip::tcp::v4());
         acceptor.set_option(net::socket_base::reuse_address(true));
         acceptor.bind(

@@ -11,6 +11,7 @@ fitoria_add_example(NAME state SRCS state.cpp)
 fitoria_add_example(NAME thread_pool SRCS thread_pool.cpp)
 fitoria_add_example(NAME tls SRCS tls.cpp)
 fitoria_add_example(NAME unittesting SRCS unittesting.cpp)
+fitoria_add_example(NAME unix_domain_socket SRCS unix_domain_socket.cpp)
 fitoria_add_example(NAME websocket SRCS websocket.cpp)
 
 add_subdirectory(extractor)

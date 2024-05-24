@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os_cxx.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -65,30 +65,36 @@ jobs:
         if: matrix.os_cxx.cxx == 'cl'
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Free disk space on ubunut
+        if: startsWith(matrix.os_cxx.os, 'ubuntu')
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: true
+
       - name: Install dependencies on windows
         if: startsWith(matrix.os_cxx.os, 'windows')
         shell: pwsh
         run: |
-          choco install ninja cmake
-          ninja --version
-          cmake --version
+          choco install ninja
 
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os_cxx.os, 'ubuntu')
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build cmake
-          ninja --version
-          cmake --version
+          sudo apt-get install ninja-build
 
       - name: Install dependencies on macos
         if: startsWith(matrix.os_cxx.os, 'macos')
         shell: bash
         run: |
-          brew install cmake ninja pkg-config
-          ninja --version
-          cmake --version
+          brew install ninja pkg-config
 
       - name: Configure
         shell: bash
@@ -114,7 +120,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: cmake --build build --config ${{ matrix.build_type }} -j3
+        run: cmake --build build --config ${{ matrix.build_type }} -j2
 
       - name: Test
         shell: bash

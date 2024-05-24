@@ -6,6 +6,8 @@ fitoria_add_test(NAME test_web_http_server_io_context SRCS
                  test_web_http_server_io_context.cpp)
 fitoria_add_test(NAME test_web_http_server_keep_alive SRCS
                  test_web_http_server_keep_alive.cpp)
+fitoria_add_test(NAME test_web_http_server_local_socket SRCS
+                 test_web_http_server_local_socket.cpp)
 fitoria_add_test(NAME test_web_http_server_misc SRCS
                  test_web_http_server_misc.cpp)
 fitoria_add_test(NAME test_web_http_server_request SRCS

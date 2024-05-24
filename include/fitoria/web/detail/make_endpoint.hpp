@@ -17,16 +17,32 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web::detail {
 
-inline auto make_endpoint(std::string_view addr, std::uint16_t port)
+/// @verbatim embed:rst:leading-slashes
+///
+/// Create a TCP/IP endpoint by IP and port.
+///
+/// @endverbatim
+inline auto make_endpoint(std::string_view ip_addr, std::uint16_t port)
     -> expected<net::ip::tcp::endpoint, std::error_code>
 {
   boost::system::error_code ec;
-  auto address = net::ip::make_address(addr, ec);
+  auto address = net::ip::make_address(ip_addr, ec);
   if (ec) {
     return unexpected { ec };
   }
 
   return net::ip::tcp::endpoint(address, port);
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Create an unix domain socket endpoint by file path.
+///
+/// @endverbatim
+inline auto make_endpoint(std::string_view file_path)
+    -> expected<net::local::stream_protocol::endpoint, std::error_code>
+{
+  return net::local::stream_protocol::endpoint(file_path);
 }
 
 }

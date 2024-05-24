@@ -22,24 +22,31 @@ public:
   connect_info() = default;
 
   connect_info(net::ip::tcp::endpoint local, net::ip::tcp::endpoint remote)
-      : local_(std::move(local))
-      , remote_(std::move(remote))
+      : local_(local.address().to_string())
+      , remote_(remote.address().to_string())
   {
   }
 
-  auto local() const -> const net::ip::tcp::endpoint&
+  connect_info(net::local::stream_protocol::endpoint local,
+               net::local::stream_protocol::endpoint remote)
+      : local_(local.path())
+      , remote_(remote.path())
+  {
+  }
+
+  auto local() const -> const std::string&
   {
     return local_;
   }
 
-  auto remote() const -> const net::ip::tcp::endpoint&
+  auto remote() const -> const std::string&
   {
     return remote_;
   }
 
 private:
-  net::ip::tcp::endpoint local_;
-  net::ip::tcp::endpoint remote_;
+  std::string local_;
+  std::string remote_;
 };
 
 }

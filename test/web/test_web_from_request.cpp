@@ -36,12 +36,8 @@ TEST_CASE("connect_info")
       = http_server::builder(ioc)
             .serve(route::get<"/">(
                 [](const connect_info& connection) -> awaitable<response> {
-                  CHECK_EQ(connection.local().address(),
-                           net::ip::make_address("127.0.0.1"));
-                  CHECK_EQ(connection.local().port(), 0);
-                  CHECK_EQ(connection.remote().address(),
-                           net::ip::make_address("127.0.0.1"));
-                  CHECK_EQ(connection.remote().port(), 0);
+                  CHECK_EQ(connection.local(), "127.0.0.1");
+                  CHECK_EQ(connection.remote(), "127.0.0.1");
                   co_return response::ok().build();
                 }))
             .build();

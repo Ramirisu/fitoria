@@ -43,7 +43,8 @@ TEST_CASE("request with keep-alive")
   net::co_spawn(
       ioc,
       [&]() -> awaitable<void> {
-        auto stream = tcp_stream(co_await net::this_coro::executor);
+        auto stream
+            = basic_stream<net::ip::tcp>(co_await net::this_coro::executor);
         REQUIRE(co_await stream.async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));

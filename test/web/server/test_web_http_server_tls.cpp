@@ -43,7 +43,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                 }))
             .build();
   auto ssl_ctx = cert::get_server_ssl_ctx(server_ssl_ver);
-  server.bind_ssl(server_ip, port, ssl_ctx);
+  server.bind(server_ip, port, ssl_ctx);
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -107,7 +107,7 @@ TEST_CASE("tls_handshake_timeout")
                     .build();
   auto ssl_ctx
       = cert::get_server_ssl_ctx(net::ssl::context::method::tls_server);
-  server.bind_ssl(server_ip, port, ssl_ctx);
+  server.bind(server_ip, port, ssl_ctx);
 
   net::thread_pool tp(1);
   net::post(tp, [&]() { ioc.run(); });
@@ -119,7 +119,8 @@ TEST_CASE("tls_handshake_timeout")
       [&]() -> awaitable<void> {
         auto ssl_ctx
             = cert::get_client_ssl_ctx(net::ssl::context::method::tls_client);
-        auto stream = ssl_stream(co_await net::this_coro::executor, ssl_ctx);
+        auto stream = ssl_stream<net::ip::tcp>(
+            co_await net::this_coro::executor, ssl_ctx);
         REQUIRE(co_await get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
             use_awaitable));
