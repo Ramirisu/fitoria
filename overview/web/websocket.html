@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="websocket">
 <h1>WebSocket<a class="headerlink" href="#websocket" title="Link to this heading">#</a></h1>
-<p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a>)</p>
+<p>fitoria supports websocket by using the <code class="docutils literal notranslate"><span class="pre">websocket</span></code> extractor.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp">WebSocket Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ws_handler</span><span class="p">(</span><span class="n">websocket</span><span class="o">::</span><span class="n">context</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="n">async_read</span><span class="p">();</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>

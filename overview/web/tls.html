@@ -395,7 +395,7 @@ document.write(`
   <section id="tls">
 <h1>TLS<a class="headerlink" href="#tls" title="Link to this heading">#</a></h1>
 <p>Plain TCP connections are insecure, fitoria supports TLS connections using <code class="docutils literal notranslate"><span class="pre">OpenSSL</span></code>. Users can call <code class="docutils literal notranslate"><span class="pre">http_server::bind(...,</span> <span class="pre">ssl_ctx)</span></code> with <code class="docutils literal notranslate"><span class="pre">net::ssl::context</span></code> to enable the TLS connections.</p>
-<p>(<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp">TLS Example</a>)</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp">TLS Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>

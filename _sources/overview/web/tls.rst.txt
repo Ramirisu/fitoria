@@ -4,7 +4,7 @@ TLS
 
 Plain TCP connections are insecure, fitoria supports TLS connections using ``OpenSSL``. Users can call ``http_server::bind(..., ssl_ctx)`` with ``net::ssl::context`` to enable the TLS connections.
 
-(`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_)
+`TLS Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/tls.cpp>`_
 
 .. code-block:: cpp
    

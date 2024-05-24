@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="query-string-parameter">
 <h1>Query String Parameter<a class="headerlink" href="#query-string-parameter" title="Link to this heading">#</a></h1>
-<p>Use <code class="docutils literal notranslate"><span class="pre">request::query()</span></code> to access the query string parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp">Query String Parameters Example</a>)</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">request::query()</span></code> to access the query string parameters.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp">Query String Parameters Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_user</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">query</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">);</span>

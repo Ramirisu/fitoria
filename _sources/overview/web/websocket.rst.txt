@@ -2,7 +2,9 @@
 WebSocket
 ********************************************************************************
 
-fitoria supports websocket by using the ``websocket`` extractor. (`WebSocket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp>`_)
+fitoria supports websocket by using the ``websocket`` extractor. 
+
+`WebSocket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/websocket.cpp>`_
 
 .. code-block:: cpp
 

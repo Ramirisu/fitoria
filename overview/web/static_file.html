@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="static-file">
 <h1>Static File<a class="headerlink" href="#static-file" title="Link to this heading">#</a></h1>
-<p>Use <code class="docutils literal notranslate"><span class="pre">web::stream_file</span></code> to serve static files. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp">Static Files Example</a>)</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">web::stream_file</span></code> to serve static files.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp">Static Files Example</a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The example code uses wildcard matching without checking the actual value of the path, which may cause serious security implications such as path traversal attack (<code class="docutils literal notranslate"><span class="pre">../</span></code>). Users should perform the validation on the input path carefully.</p>

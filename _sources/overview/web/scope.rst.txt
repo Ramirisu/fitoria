@@ -2,7 +2,9 @@
 Scope
 ********************************************************************************
 
-Use ``scope`` to group one or more ``route`` s. (`Scope Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp>`_)
+Use ``scope`` to group one or more ``route`` s. 
+
+`Scope Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp>`_
 
 .. code-block:: cpp
 

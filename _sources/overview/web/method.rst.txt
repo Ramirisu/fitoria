@@ -2,7 +2,9 @@
 Method
 ********************************************************************************
 
-Register a handler that serves specific method defined under ``enum class http::verb::*`` by calling ``route::handle(...)``, or simply use ``route::get(...)``, ``route::post(...)``, ``route::put(...)``, ``route::patch(...)``, ``route::delete_(...)``, ``route::head(...)``, ``route::options(...)`` for convenience. ``route::any(...)`` can be used for registering a handler that serves any method. (`Method Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp>`_)
+Register a handler that serves specific method defined under ``enum class http::verb::*`` by calling ``route::handle(...)``, or simply use ``route::get(...)``, ``route::post(...)``, ``route::put(...)``, ``route::patch(...)``, ``route::delete_(...)``, ``route::head(...)``, ``route::options(...)`` for convenience. ``route::any(...)`` can be used for registering a handler that serves any method. 
+
+`Method Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/method.cpp>`_
 
 .. code-block:: cpp
 

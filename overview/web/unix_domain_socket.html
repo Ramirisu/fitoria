@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="unix-domain-socket">
 <h1>Unix Domain Socket<a class="headerlink" href="#unix-domain-socket" title="Link to this heading">#</a></h1>
-<p>In addition to TCP connections, fitoria also supports connections with Unix domain socket (AF_UNIX). Users can call the <code class="docutils literal notranslate"><span class="pre">http_server::bind_local(...)</span></code> to bind specific file path. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unix_domain_socket.cpp">Unix Domain Socket Example</a>)</p>
+<p>In addition to TCP connections, fitoria also supports connections with Unix domain socket (AF_UNIX). Users can call the <code class="docutils literal notranslate"><span class="pre">http_server::bind_local(...)</span></code> to bind specific file path.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unix_domain_socket.cpp">Unix Domain Socket Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>

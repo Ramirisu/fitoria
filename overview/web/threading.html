@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="threading">
 <h1>Threading<a class="headerlink" href="#threading" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">net::io_context::run()</span></code> can be called by multiple threads simutaneously to enable threading. In the following example we create a <code class="docutils literal notranslate"><span class="pre">net::static_thread_pool</span></code> to run the <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/thread_pool.cpp">Thread Pool Example</a>)</p>
+<p><code class="docutils literal notranslate"><span class="pre">net::io_context::run()</span></code> can be called by multiple threads simutaneously to enable threading. In the following example we create a <code class="docutils literal notranslate"><span class="pre">net::static_thread_pool</span></code> to run the <code class="docutils literal notranslate"><span class="pre">net::io_context</span></code>.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/thread_pool.cpp">Thread Pool Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">ioc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="o">::</span><span class="n">io_context</span><span class="p">();</span>

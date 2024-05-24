@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="path-parameter">
 <h1>Path Parameter<a class="headerlink" href="#path-parameter" title="Link to this heading">#</a></h1>
-<p>Use <code class="docutils literal notranslate"><span class="pre">request::path()</span></code> to access the path parameters. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp">Path Parameters Example</a>)</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">request::path()</span></code> to access the path parameters.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp">Path Parameters Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">users</span><span class="o">::</span><span class="nn">get_user</span><span class="w"> </span><span class="p">{</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">api</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>

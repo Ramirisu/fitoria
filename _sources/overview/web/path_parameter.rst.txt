@@ -2,7 +2,9 @@
 Path Parameter
 ********************************************************************************
 
-Use ``request::path()`` to access the path parameters. (`Path Parameters Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp>`_)
+Use ``request::path()`` to access the path parameters. 
+
+`Path Parameters Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/path_parameter.cpp>`_
 
 .. code-block:: cpp
 

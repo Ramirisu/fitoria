@@ -394,7 +394,8 @@ document.write(`
                   
   <section id="state">
 <h1>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h1>
-<p>fitoria provides a way to share data between multiple <code class="docutils literal notranslate"><span class="pre">route</span></code> s under the same <code class="docutils literal notranslate"><span class="pre">scope</span></code> by configuring the data via <code class="docutils literal notranslate"><span class="pre">scope::use_state(State&amp;&amp;)</span></code>. (<a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp">State Example</a>)</p>
+<p>fitoria provides a way to share data between multiple <code class="docutils literal notranslate"><span class="pre">route</span></code> s under the same <code class="docutils literal notranslate"><span class="pre">scope</span></code> by configuring the data via <code class="docutils literal notranslate"><span class="pre">scope::use_state(State&amp;&amp;)</span></code>.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp">State Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cache</span><span class="w"> </span><span class="p">{</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">simple_cache</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">map_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unordered_string_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
