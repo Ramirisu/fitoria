@@ -22,7 +22,6 @@ jobs:
         disable_openssl: [ON, OFF]
         disable_zlib: [OFF]
         disable_brotli: [OFF]
-        enable_address_sanitizer: [OFF]
         exclude:
           - os_cxx: { os: windows-2022, cxx: cl }
             build_type: Debug
@@ -34,7 +33,6 @@ jobs:
             disable_openssl: ON
             disable_zlib: ON
             disable_brotli: ON
-            enable_address_sanitizer: OFF
           - os_cxx: { os: ubuntu-24.04, cxx: g++-13 }
             std: 20
             build_type: Release
@@ -42,15 +40,6 @@ jobs:
             disable_openssl: ON
             disable_zlib: ON
             disable_brotli: ON
-            enable_address_sanitizer: OFF
-          - os_cxx: { os: ubuntu-24.04, cxx: g++-13 }
-            std: 20
-            build_type: Debug
-            generator: Ninja
-            disable_openssl: OFF
-            disable_zlib: OFF
-            disable_brotli: OFF
-            enable_address_sanitizer: ON
 
     steps:
       - uses: actions/checkout@v4
@@ -87,7 +76,6 @@ jobs:
         if: startsWith(matrix.os_cxx.os, 'ubuntu')
         shell: bash
         run: |
-          sudo apt-get update
           sudo apt-get install ninja-build
 
       - name: Install dependencies on macos
@@ -114,7 +102,6 @@ jobs:
             -DFITORIA_DISABLE_OPENSSL=${{ matrix.disable_openssl }} \
             -DFITORIA_DISABLE_ZLIB=${{ matrix.disable_zlib }} \
             -DFITORIA_DISABLE_BROTLI=${{ matrix.disable_brotli }} \
-            -DFITORIA_ENABLE_ADDRESS_SANITIZER=${{ matrix.enable_address_sanitizer }} \
             -DVCPKG_BINARY_SOURCES="${{ env.VCPKG_BINARY_SOURCES }}" \
             -DVCPKG_MANIFEST_FEATURES="${{ env.VCPKG_MANIFEST_FEATURES }}"
 

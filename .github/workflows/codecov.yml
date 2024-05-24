@@ -28,13 +28,22 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
+      - name: Free disk space on ubunut
+        if: startsWith(matrix.os_cxx.os, 'ubuntu')
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: true
+
       - name: Install dependencies on ubuntu
         if: startsWith(matrix.os_cxx.os, 'ubuntu')
         run: |
-          sudo apt-get update
-          sudo apt-get install ninja-build cmake
-          ninja --version
-          cmake --version
+          sudo apt-get install ninja-build
 
       - name: Configure
         shell: bash
