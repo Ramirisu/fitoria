@@ -2,7 +2,9 @@
 Static File
 ********************************************************************************
 
-Use ``web::stream_file`` to serve static files. (`Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp>`_)
+Use ``web::stream_file`` to serve static files. 
+
+`Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp>`_
 
 .. note::
    

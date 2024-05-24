@@ -13,7 +13,7 @@ Overview
 Information about using this library.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    overview/index
 

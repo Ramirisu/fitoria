@@ -7,7 +7,9 @@ Extractors provide a more convenient way to help users access information from t
 Path
 ================================================================================
 
-Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plain ``struct``. (`Path Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp>`_)
+Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plain ``struct``.
+
+`Path Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp>`_
 
 .. code-block:: cpp
 
@@ -54,7 +56,9 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
 Query
 ================================================================================
 
-Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`Query Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp>`_)
+Use ``query_of<T>`` to extract query string parameters into plain ``struct``. 
+
+`Query Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp>`_
 
 .. code-block:: cpp
 
@@ -75,7 +79,9 @@ Use ``query_of<T>`` to extract query string parameters into plain ``struct``. (`
 Form
 ================================================================================
 
-Use ``form_of<T>`` to extract urlencoded form from body into plain ``struct``. (`Form Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp>`_)
+Use ``form_of<T>`` to extract urlencoded form from body into plain ``struct``.
+
+`Form Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp>`_
 
 .. code-block:: cpp
 
@@ -99,7 +105,9 @@ Use ``form_of<T>`` to extract urlencoded form from body into plain ``struct``. (
 State
 ================================================================================
 
-Use ``state_of<T>`` to extract shared states. Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, ``state_of`` extractor *copy the value*.  (`State Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/state_of.cpp>`_)
+Use ``state_of<T>`` to extract shared states. Note that unlike ``request::state<T>()`` which returns ``optional<T&>``, ``state_of`` extractor *copy the value*. 
+
+`State Extractor Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/state_of.cpp>`_
 
 .. code-block:: cpp
 
