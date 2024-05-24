@@ -13,6 +13,7 @@ Overview
 
    web/getting_started
    web/tls
+   web/unix_domain_socket
    web/threading
    web/graceful_shutdown
    web/performance
