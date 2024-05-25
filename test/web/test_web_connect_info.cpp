@@ -20,8 +20,8 @@ TEST_CASE("connect_info")
   auto server
       = http_server::builder(ioc)
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
-              CHECK_EQ(req.connection().local(), "127.0.0.1");
-              CHECK_EQ(req.connection().remote(), "127.0.0.1");
+              CHECK_EQ(req.connection().local(), "localhost");
+              CHECK_EQ(req.connection().remote(), "localhost");
               co_return response::ok().build();
             }))
             .build();

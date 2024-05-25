@@ -33,6 +33,8 @@
 #include <boost/asio/experimental/awaitable_operators.hpp>
 #include <boost/asio/experimental/concurrent_channel.hpp>
 
+#include <boost/beast/_experimental/test/stream.hpp>
+
 #if defined(FITORIA_CXX_COMPILER_MSVC)
 // boost/asio/buffer.hpp(247): warning C4702: unreachable code
 #pragma warning(pop)

@@ -21,16 +21,24 @@ class connect_info {
 public:
   connect_info() = default;
 
-  connect_info(net::ip::tcp::endpoint local, net::ip::tcp::endpoint remote)
-      : local_(local.address().to_string())
-      , remote_(remote.address().to_string())
+  explicit connect_info(
+      const net::basic_stream_socket<net::ip::tcp, executor_type>& socket)
+      : local_(socket.local_endpoint().address().to_string())
+      , remote_(socket.remote_endpoint().address().to_string())
   {
   }
 
-  connect_info(net::local::stream_protocol::endpoint local,
-               net::local::stream_protocol::endpoint remote)
-      : local_(local.path())
-      , remote_(remote.path())
+  explicit connect_info(
+      const net::basic_stream_socket<net::local::stream_protocol,
+                                     executor_type>& socket)
+      : local_(socket.local_endpoint().path())
+      , remote_(socket.remote_endpoint().path())
+  {
+  }
+
+  explicit connect_info(const test_stream&)
+      : local_("localhost")
+      , remote_("localhost")
   {
   }
 

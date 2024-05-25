@@ -46,28 +46,30 @@ using ssl_stream = boost::beast::ssl_stream<basic_stream<Protocol>>;
 
 #endif
 
+using test_stream = boost::beast::test::basic_stream<executor_type>;
+
 template <typename Protocol>
-class shared_tcp_stream {
+class shared_basic_stream {
   std::shared_ptr<basic_stream<Protocol>> stream_;
 
 public:
   using executor_type = typename basic_stream<Protocol>::executor_type;
   using socket_type = typename basic_stream<Protocol>::socket_type;
 
-  template <not_decay_to<shared_tcp_stream> Arg>
-  shared_tcp_stream(Arg&& arg)
+  template <not_decay_to<shared_basic_stream> Arg>
+  shared_basic_stream(Arg&& arg)
       : stream_(
             std::make_shared<basic_stream<Protocol>>(std::forward<Arg>(arg)))
   {
   }
 
-  shared_tcp_stream(const shared_tcp_stream&) = default;
+  shared_basic_stream(const shared_basic_stream&) = default;
 
-  shared_tcp_stream& operator=(const shared_tcp_stream&) = default;
+  shared_basic_stream& operator=(const shared_basic_stream&) = default;
 
-  shared_tcp_stream(shared_tcp_stream&&) = default;
+  shared_basic_stream(shared_basic_stream&&) = default;
 
-  shared_tcp_stream& operator=(shared_tcp_stream&&) = default;
+  shared_basic_stream& operator=(shared_basic_stream&&) = default;
 
   auto get_executor() -> executor_type
   {
@@ -105,8 +107,14 @@ public:
                                     std::forward<ReadHandler>(handler));
   }
 
+  void shutdown(boost::asio::socket_base::shutdown_type what,
+                boost::system::error_code& ec)
+  {
+    socket().shutdown(what, ec);
+  }
+
   friend void teardown(boost::beast::role_type role,
-                       shared_tcp_stream& stream,
+                       shared_basic_stream& stream,
                        boost::system::error_code& ec)
   {
     using boost::beast::websocket::teardown;
@@ -115,7 +123,7 @@ public:
 
   template <class TeardownHandler>
   friend void async_teardown(boost::beast::role_type role,
-                             shared_tcp_stream& stream,
+                             shared_basic_stream& stream,
                              TeardownHandler&& handler)
   {
     using boost::beast::websocket::async_teardown;
@@ -123,10 +131,91 @@ public:
         role, stream.socket(), std::forward<TeardownHandler>(handler));
   }
 
-  friend void beast_close_socket(shared_tcp_stream& stream)
+  friend void beast_close_socket(shared_basic_stream& stream)
   {
     boost::system::error_code ec;
     ec = stream.socket().close(ec);
+  }
+};
+
+class shared_test_stream {
+  std::shared_ptr<test_stream> stream_;
+
+public:
+  using executor_type = typename test_stream::executor_type;
+  using socket_type = test_stream;
+
+  template <not_decay_to<shared_test_stream> Arg>
+  shared_test_stream(Arg&& arg)
+      : stream_(std::make_shared<test_stream>(std::forward<Arg>(arg)))
+  {
+  }
+
+  shared_test_stream(const shared_test_stream&) = default;
+
+  shared_test_stream& operator=(const shared_test_stream&) = default;
+
+  shared_test_stream(shared_test_stream&&) = default;
+
+  shared_test_stream& operator=(shared_test_stream&&) = default;
+
+  auto get_executor() -> executor_type
+  {
+    return stream_->get_executor();
+  }
+
+  auto socket() -> socket_type&
+  {
+    return *stream_;
+  }
+
+  void expires_after(boost::asio::steady_timer::duration) { }
+
+  void expires_never() { }
+
+  template <typename ConstBufferSequence, typename WriteHandler>
+  auto async_write_some(const ConstBufferSequence& buffers,
+                        WriteHandler&& handler)
+  {
+    return stream_->async_write_some(buffers,
+                                     std::forward<WriteHandler>(handler));
+  }
+
+  template <typename MutableBufferSequence, typename ReadHandler>
+  auto async_read_some(const MutableBufferSequence& buffers,
+                       ReadHandler&& handler)
+  {
+    return stream_->async_read_some(buffers,
+                                    std::forward<ReadHandler>(handler));
+  }
+
+  void shutdown(boost::asio::socket_base::shutdown_type,
+                boost::system::error_code& ec)
+  {
+    ec = {};
+    stream_->close();
+  }
+
+  friend void teardown(boost::beast::role_type,
+                       shared_test_stream& stream,
+                       boost::system::error_code&)
+  {
+    stream.stream_->close();
+  }
+
+  template <class TeardownHandler>
+  friend void async_teardown(boost::beast::role_type role,
+                             shared_test_stream& stream,
+                             TeardownHandler&& handler)
+  {
+    boost::system::error_code ec;
+    teardown(role, stream, ec);
+    handler(ec);
+  }
+
+  friend void beast_close_socket(shared_test_stream& stream)
+  {
+    stream.stream_->close();
   }
 };
 

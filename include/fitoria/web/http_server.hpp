@@ -266,14 +266,14 @@ private:
                           std::string target,
                           ResponseHandler handler) const -> awaitable<void>
   {
-    co_await handler(test_response(
-        co_await do_handler(connect_info("127.0.0.1", "127.0.0.1"),
-                            req.method(),
-                            http::version::v1_1,
-                            target,
-                            std::move(req.header()),
-                            std::make_shared<state_map>(),
-                            std::move(req.body()))));
+    co_await handler(test_response(co_await do_handler(
+        connect_info(test_stream(co_await net::this_coro::executor)),
+        req.method(),
+        http::version::v1_1,
+        target,
+        std::move(req.header()),
+        std::make_shared<state_map>(),
+        std::move(req.body()))));
   }
 
   template <typename Protocol>
@@ -283,7 +283,7 @@ private:
       if (auto socket = co_await acceptor.async_accept(use_awaitable); socket) {
         net::co_spawn(
             ex_,
-            do_session(shared_tcp_stream<Protocol>(std::move(*socket))),
+            do_session(shared_basic_stream<Protocol>(std::move(*socket))),
             exception_handler_);
       }
     }
@@ -306,14 +306,14 @@ private:
 #endif
 
   template <typename Protocol>
-  auto do_session(shared_tcp_stream<Protocol> stream) const -> awaitable<void>
+  auto do_session(shared_basic_stream<Protocol> stream) const -> awaitable<void>
   {
     if (auto result = co_await do_session_impl(stream); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);
     }
 
     boost::system::error_code ec;
-    stream.socket().shutdown(net::ip::tcp::socket::shutdown_send, ec); // NOLINT
+    stream.shutdown(net::ip::tcp::socket::shutdown_send, ec);
   }
 
 #if defined(FITORIA_HAS_OPENSSL)
@@ -413,8 +413,7 @@ private:
       }
 
       auto res = co_await do_handler(
-          connect_info(get_lowest_layer(stream).socket().local_endpoint(),
-                       get_lowest_layer(stream).socket().remote_endpoint()),
+          connect_info(get_lowest_layer(stream).socket()),
           parser->get().method(),
           http::detail::from_impl_version(parser->get().version()),
           std::string(parser->get().target()),

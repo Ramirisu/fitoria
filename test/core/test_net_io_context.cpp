@@ -16,6 +16,7 @@ TEST_SUITE_BEGIN("[fitoria.core.net.io_context]");
 
 TEST_CASE("executor_type")
 {
+
   static_assert(std::same_as<executor_type, net::io_context::executor_type>);
   static_assert(
       std::same_as<awaitable<int>,
@@ -28,6 +29,26 @@ TEST_CASE("executor_type")
       std::same_as<basic_stream<net::ip::tcp>,
                    boost::beast::basic_stream<net::ip::tcp,
                                               net::io_context::executor_type>>);
+  static_assert(
+      std::same_as<basic_stream<net::local::stream_protocol>,
+                   boost::beast::basic_stream<net::local::stream_protocol,
+                                              net::io_context::executor_type>>);
+#if defined(FITORIA_HAS_OPENSSL)
+  static_assert(
+      std::same_as<ssl_stream<net::ip::tcp>,
+                   boost::beast::ssl_stream<boost::beast::basic_stream<
+                       net::ip::tcp,
+                       net::io_context::executor_type>>>);
+  static_assert(
+      std::same_as<ssl_stream<net::local::stream_protocol>,
+                   boost::beast::ssl_stream<boost::beast::basic_stream<
+                       net::local::stream_protocol,
+                       net::io_context::executor_type>>>);
+#endif
+  static_assert(
+      std::same_as<
+          test_stream,
+          boost::beast::test::basic_stream<net::io_context::executor_type>>);
 }
 
 TEST_SUITE_END();
