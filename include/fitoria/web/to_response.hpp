@@ -43,8 +43,7 @@ namespace to_response_ns {
     auto operator()(T&& t) const -> response
     {
       return response::ok()
-          .set_header(http::field::content_type,
-                      http::fields::content_type::plaintext())
+          .set_header(http::field::content_type, mime::text_plain())
           .set_body(std::forward<T>(t));
     }
 
@@ -54,7 +53,7 @@ namespace to_response_ns {
     {
       return response::ok()
           .set_header(http::field::content_type,
-                      http::fields::content_type::octet_stream())
+                      mime::application_octet_stream())
           .set_body(std::as_bytes(std::span(t.begin(), t.end())));
     }
 

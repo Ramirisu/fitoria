@@ -13,8 +13,7 @@ using namespace fitoria::web;
 auto resp() -> awaitable<response>
 {
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body("Hello World!");
 }
 
@@ -59,8 +58,7 @@ public:
   friend auto tag_invoke(fitoria::web::to_response_t, Self&& self) -> response
   {
     return response::not_found()
-        .set_header(http::field::content_type,
-                    http::fields::content_type::plaintext())
+        .set_header(http::field::content_type, mime::text_plain())
         .set_body(self.message());
   }
 };

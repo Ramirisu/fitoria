@@ -271,7 +271,7 @@ public:
 
   auto set_json(const boost::json::value& jv) -> test_request
   {
-    set_header(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, mime::application_json());
     auto str = boost::json::serialize(jv);
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }

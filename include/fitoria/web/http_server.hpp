@@ -384,9 +384,7 @@ private:
             = websocket(stream);
       } else {
         if (auto it = parser->get().find(http::field::expect);
-            it != parser->get().end()
-            && iequals(it->value(),
-                       http::fields::expect::one_hundred_continue())) {
+            it != parser->get().end() && iequals(it->value(), "100-continue")) {
           if (auto bytes_written = co_await async_write(
                   stream,
                   response<empty_body>(http::status::continue_, 11),
@@ -456,8 +454,7 @@ private:
     auto req_url = boost::urls::parse_origin_form(target);
     if (!req_url) {
       co_return response::bad_request()
-          .set_header(http::field::content_type,
-                      http::fields::content_type::plaintext())
+          .set_header(http::field::content_type, mime::text_plain())
           .set_body("request target is invalid");
     }
 
@@ -477,8 +474,7 @@ private:
     }
 
     co_return response::not_found()
-        .set_header(http::field::content_type,
-                    http::fields::content_type::plaintext())
+        .set_header(http::field::content_type, mime::text_plain())
         .set_body("request path is not found");
   }
 

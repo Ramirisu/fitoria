@@ -18,8 +18,7 @@ auto get_index(state_of<std::shared_ptr<counter_t>> counter)
     -> awaitable<response>
 {
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(fmt::format("index page has been acquired {} times.",
                             counter->fetch_add(1, std::memory_order_relaxed)));
 }

@@ -13,6 +13,7 @@
 
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/type_traits.hpp>
+#include <fitoria/core/utility.hpp>
 
 #include <fitoria/web/detail/string.hpp>
 
@@ -35,23 +36,23 @@ public:
   auto operator()(Request req) const -> Response
   {
     if (auto str = req.header().get(http::field::content_encoding); str) {
-      auto encodings = web::detail::split_of(*str, ",");
-      std::reverse(encodings.begin(), encodings.end());
+      auto encs = web::detail::split_of(*str, ",");
+      std::reverse(encs.begin(), encs.end());
 
-      for (auto& encoding : encodings) {
-        if (encoding == http::fields::content_encoding::deflate()) {
+      for (auto& enc : encs) {
+        if (iequals(enc, "deflate")) {
           req.set_stream(detail::async_inflate_stream(std::move(req.body())));
 #if defined(FITORIA_HAS_ZLIB)
-        } else if (encoding == http::fields::content_encoding::gzip()) {
+        } else if (iequals(enc, "gzip")) {
           req.set_stream(
               detail::async_gzip_inflate_stream(std::move(req.body())));
 #endif
 #if defined(FITORIA_HAS_BROTLI)
-        } else if (encoding == http::fields::content_encoding::brotli()) {
+        } else if (iequals(enc, "brotli")) {
           req.set_stream(
               detail::async_brotli_inflate_stream(std::move(req.body())));
 #endif
-        } else if (encoding == http::fields::content_encoding::identity()) {
+        } else if (iequals(enc, "identity")) {
         } else {
           break;
         }

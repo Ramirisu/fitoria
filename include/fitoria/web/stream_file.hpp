@@ -54,8 +54,7 @@ public:
   friend auto tag_invoke(to_response_t, Self&& self) -> response
   {
     return response::ok()
-        .set_header(http::field::content_type,
-                    http::fields::content_type::octet_stream())
+        .set_header(http::field::content_type, mime::application_octet_stream())
         .set_stream(async_readable_file_stream(self.release()));
   }
 };

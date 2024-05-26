@@ -82,7 +82,7 @@ TEST_CASE("invalid target")
                          .async_send();
           REQUIRE_EQ(res->status_code(), http::status::not_found);
           REQUIRE_EQ(res->header().get(http::field::content_type),
-                     http::fields::content_type::plaintext());
+                     mime::text_plain());
           REQUIRE_EQ(co_await res->as_string(), "request path is not found");
         },
         net::use_future)
@@ -115,8 +115,7 @@ TEST_CASE("expect: 100-continue")
                        .set_method(http::verb::post)
                        .set_url(to_local_url(
                            boost::urls::scheme::http, port, "/api/v1/post"))
-                       .set_header(http::field::expect,
-                                   http::fields::expect::one_hundred_continue())
+                       .set_header(http::field::expect, "100-continue")
                        .set_header(http::field::connection, "close")
                        .set_plaintext("text")
                        .async_send();

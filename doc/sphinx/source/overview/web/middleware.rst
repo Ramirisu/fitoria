@@ -27,7 +27,7 @@ fitoria provides middlewares which allow users to modify ``reqeust`` and ``respo
    
        std::cout << fmt::format(
            "HTTP/{} {} {}",
-           http::version::v1_1,
+           res.version(),
            to_underlying(res.status_code().value()),
            std::string(obsolete_reason(res.status_code().value())))
                  << std::endl;

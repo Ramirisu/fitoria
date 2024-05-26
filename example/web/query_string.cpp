@@ -20,7 +20,6 @@ using namespace fitoria::web;
 // <
 // user: ramirisu
 
-namespace api::v1::users {
 auto get_user(const request& req) -> awaitable<response>
 {
   auto user = req.query().get("user");
@@ -29,19 +28,16 @@ auto get_user(const request& req) -> awaitable<response>
   }
 
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(fmt::format("user: {}", user.value()));
-}
 }
 
 int main()
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server::builder(ioc)
-            .serve(route::get<"/api/v1/users">(api::v1::users::get_user))
-            .build();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/api/v1/users">(get_user))
+                    .build();
   server.bind("127.0.0.1", 8080);
 
   ioc.run();

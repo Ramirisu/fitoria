@@ -79,8 +79,7 @@ TEST_CASE("state access order on global, scope and route")
                                 [](request& req) -> awaitable<response> {
                                   co_return response::ok()
                                       .set_header(http::field::content_type,
-                                                  http::fields::content_type::
-                                                      plaintext())
+                                                  mime::text_plain())
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
@@ -89,8 +88,7 @@ TEST_CASE("state access order on global, scope and route")
                                 [](request& req) -> awaitable<response> {
                                   co_return response::ok()
                                       .set_header(http::field::content_type,
-                                                  http::fields::content_type::
-                                                      plaintext())
+                                                  mime::text_plain())
                                       .set_body(
                                           req.state<shared_resource>()->value);
                                 }))
@@ -98,10 +96,8 @@ TEST_CASE("state access order on global, scope and route")
                                 route::get<"/route">(
                                     [](request& req) -> awaitable<response> {
                                       co_return response::ok()
-                                          .set_header(
-                                              http::field::content_type,
-                                              http::fields::content_type::
-                                                  plaintext())
+                                          .set_header(http::field::content_type,
+                                                      mime::text_plain())
                                           .set_body(req.state<shared_resource>()
                                                         ->value);
                                     })

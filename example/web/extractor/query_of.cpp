@@ -18,8 +18,7 @@ struct order_t {
 auto get_order(query_of<order_t> order) -> awaitable<response>
 {
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(
           fmt::format("user: {}, order_id: {}", order.user, order.order_id));
 }

@@ -15,6 +15,7 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/http.hpp>
+#include <fitoria/mime.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
@@ -209,7 +210,7 @@ public:
 
   auto set_json(const boost::json::value& jv) & -> request&
   {
-    set_header(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, mime::application_json());
     auto str = boost::json::serialize(jv);
     set_body(std::as_bytes(std::span(str.begin(), str.end())));
     return *this;

@@ -29,7 +29,7 @@ public:
 
     std::cout << fmt::format(
         "HTTP/{} {} {}",
-        http::version::v1_1,
+        res.version(),
         to_underlying(res.status_code().value()),
         std::string(obsolete_reason(res.status_code().value())))
               << std::endl;
@@ -82,8 +82,7 @@ private:
 auto get_user(request& req) -> awaitable<response>
 {
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(req.path().get("user").value_or("{{unknown}}"));
 }
 

@@ -34,8 +34,8 @@ public:
   friend auto tag_invoke(from_request_t<json_of<T>>, request& req)
       -> awaitable<expected<json_of<T>, std::error_code>>
   {
-    if (req.header().get(http::field::content_type)
-        != http::fields::content_type::json()) {
+    if (auto ct = req.header().get(http::field::content_type);
+        !ct || *ct != mime::application_json()) {
       co_return unexpected { make_error_code(
           error::content_type_not_application_json) };
     }

@@ -19,8 +19,7 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
      auto [user, order_id] = order;
    
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(fmt::format("user: {}, order_id: {}", user, order_id));
    }
    
@@ -32,8 +31,7 @@ Use ``path_of<T>`` to extract path parameters into ``std::tuple<Ts...>`` or plai
    auto get_order_struct(path_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -70,8 +68,7 @@ Use ``query_of<T>`` to extract query string parameters into plain ``struct``.
    auto get_order(query_of<order_t> order) -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(
              fmt::format("user: {}, order_id: {}", order.user, order.order_id));
    }
@@ -117,8 +114,7 @@ Use ``state_of<T>`` to extract shared states. Note that unlike ``request::state<
        -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(fmt::format("index page has been acquired {} times.",
                                counter->fetch_add(1, std::memory_order_relaxed)));
    }

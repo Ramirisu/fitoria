@@ -271,16 +271,15 @@ TEST_CASE("form_of<T>")
                 }))
             .build();
 
-  server.serve_request(
-      "/",
-      test_request::get()
-          .set_header(http::field::content_type,
-                      http::fields::content_type::form_urlencoded())
-          .set_body("year=1994&month=06&day=15"),
-      [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), "");
-      });
+  server.serve_request("/",
+                       test_request::get()
+                           .set_header(http::field::content_type,
+                                       mime::application_www_form_urlencoded())
+                           .set_body("year=1994&month=06&day=15"),
+                       [](auto res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
 
   ioc.run();
 }
@@ -462,7 +461,7 @@ TEST_CASE("json_of<T>")
                          [=](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(), http::status::ok);
                            CHECK_EQ(res.header().get(http::field::content_type),
-                                    http::fields::content_type::json());
+                                    mime::application_json());
                            CHECK_EQ(co_await res.template as_json<user_t>(),
                                     user);
                          });

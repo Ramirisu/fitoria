@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/http.hpp>
+#include <fitoria/mime.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
@@ -105,8 +106,8 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (header().get(http::field::content_type)
-        != http::fields::content_type::json()) {
+    if (auto ct = header().get(http::field::content_type);
+        !ct || *ct != mime::application_json()) {
       co_return unexpected { make_error_code(
           error::content_type_not_application_json) };
     }

@@ -82,7 +82,7 @@ jobs:
         if: startsWith(matrix.os_cxx.os, 'macos')
         shell: bash
         run: |
-          brew install ninja pkg-config
+          brew install ninja
 
       - name: Configure
         shell: bash

@@ -24,8 +24,7 @@ auto get_static_file(const path_info& pi)
   }
 
   co_return response::not_found()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(fmt::format("requsted file was not found: \"{}\"", path));
 }
 

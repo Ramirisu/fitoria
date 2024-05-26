@@ -74,8 +74,7 @@ auto get(const request& req) -> awaitable<response>
 
   if (auto value = (*cache)->get(*key); value) {
     co_return response::ok()
-        .set_header(http::field::content_type,
-                    http::fields::content_type::plaintext())
+        .set_header(http::field::content_type, mime::text_plain())
         .set_body(*value);
   } else {
     co_return response::not_found().build();

@@ -61,14 +61,14 @@ TEST_CASE("response with plain text")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server::builder(ioc)
-                    .serve(route::get<"/">([text]() -> awaitable<response> {
-                      co_return response::ok()
-                          .set_header(http::field::content_type,
-                                      http::fields::content_type::plaintext())
-                          .set_body(text);
-                    }))
-                    .build();
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::get<"/">([text]() -> awaitable<response> {
+              co_return response::ok()
+                  .set_header(http::field::content_type, mime::text_plain())
+                  .set_body(text);
+            }))
+            .build();
   REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
@@ -88,7 +88,7 @@ TEST_CASE("response with plain text")
         REQUIRE_EQ(res->status_code(), http::status::ok);
         REQUIRE_EQ(res->header().get(http::field::connection), "close");
         REQUIRE_EQ(res->header().get(http::field::content_type),
-                   http::fields::content_type::plaintext());
+                   mime::text_plain());
         REQUIRE_EQ(res->header().get(http::field::content_length),
                    std::to_string(text.size()));
         REQUIRE_EQ(co_await res->as_string(), text);
@@ -103,14 +103,14 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
 
   const auto port = generate_port();
   auto ioc = net::io_context();
-  auto server = http_server::builder(ioc)
-                    .serve(route::get<"/">([text]() -> awaitable<response> {
-                      co_return response::ok()
-                          .set_header(http::field::content_type,
-                                      http::fields::content_type::plaintext())
-                          .set_stream(async_readable_chunk_stream<5>(text));
-                    }))
-                    .build();
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::get<"/">([text]() -> awaitable<response> {
+              co_return response::ok()
+                  .set_header(http::field::content_type, mime::text_plain())
+                  .set_stream(async_readable_chunk_stream<5>(text));
+            }))
+            .build();
   REQUIRE(server.bind(server_ip, port));
 
   net::thread_pool tp(1);
@@ -129,7 +129,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
         REQUIRE_EQ(res->header().get(http::field::content_type),
-                   http::fields::content_type::plaintext());
+                   mime::text_plain());
         REQUIRE(!res->header().get(http::field::content_length));
         REQUIRE_EQ(co_await res->as_string(), text);
       },

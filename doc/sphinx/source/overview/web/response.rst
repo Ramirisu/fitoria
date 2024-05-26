@@ -11,8 +11,7 @@ Response converters help users to automatically convert returned type into ``res
    auto resp() -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body("Hello World!");
    }
    
@@ -63,8 +62,7 @@ Response converters help users to automatically convert returned type into ``res
      friend auto tag_invoke(fitoria::web::to_response_t, Self&& self) -> response
      {
        return response::not_found()
-           .set_header(http::field::content_type,
-                       http::fields::content_type::plaintext())
+           .set_header(http::field::content_type, mime::text_plain())
            .set_body(self.message());
      }
    };

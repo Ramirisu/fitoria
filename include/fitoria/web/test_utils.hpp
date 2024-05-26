@@ -80,7 +80,7 @@ auto do_sized_request(Stream& stream, std::string path, test_request& tr)
   }
 
   if (auto field = tr.header().get(http::field::expect);
-      field && iequals(*field, http::fields::expect::one_hundred_continue())) {
+      field && iequals(*field, "100-continue")) {
     if (auto res = co_await handle_expect_100_continue(stream); !res || *res) {
       co_return res;
     }
@@ -115,7 +115,7 @@ auto do_chunked_request(Stream& stream, std::string path, test_request& tr)
   }
 
   if (auto field = tr.header().get(http::field::expect);
-      field && iequals(*field, http::fields::expect::one_hundred_continue())) {
+      field && iequals(*field, "100-continue")) {
     if (auto res = co_await handle_expect_100_continue(stream); !res || *res) {
       co_return res;
     }

@@ -230,8 +230,7 @@ public:
 
   auto set_plaintext(std::string_view sv) & -> http_client&
   {
-    set_header(http::field::content_type,
-               http::fields::content_type::plaintext());
+    set_header(http::field::content_type, mime::text_plain());
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
@@ -243,7 +242,7 @@ public:
 
   auto set_json(const boost::json::value& jv) & -> http_client&
   {
-    set_header(http::field::content_type, http::fields::content_type::json());
+    set_header(http::field::content_type, mime::application_json());
     auto str = boost::json::serialize(jv);
     set_body(std::as_bytes(std::span(str.begin(), str.end())));
     return *this;
@@ -532,8 +531,8 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = header_.get(http::field::expect); field
-        && iequals(*field, http::fields::expect::one_hundred_continue())) {
+    if (auto field = header_.get(http::field::expect);
+        field && iequals(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;
@@ -569,8 +568,8 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = header_.get(http::field::expect); field
-        && iequals(*field, http::fields::expect::one_hundred_continue())) {
+    if (auto field = header_.get(http::field::expect);
+        field && iequals(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;

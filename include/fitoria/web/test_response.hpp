@@ -104,8 +104,8 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (header().get(http::field::content_type)
-        != http::fields::content_type::json()) {
+    if (auto ct = header().get(http::field::content_type);
+        !ct || *ct != mime::application_json()) {
       co_return unexpected { make_error_code(
           web::error::content_type_not_application_json) };
     }

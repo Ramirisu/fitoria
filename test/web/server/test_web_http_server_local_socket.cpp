@@ -32,11 +32,10 @@ TEST_CASE("bind_local")
                 route::post<"/">([=](const http::header& header,
                                      std::string body) -> awaitable<response> {
                   REQUIRE_EQ(header.get(http::field::content_type),
-                             http::fields::content_type::plaintext());
+                             mime::text_plain());
                   REQUIRE_EQ(body, "Hello World!");
                   co_return response::ok()
-                      .set_header(http::field::content_type,
-                                  http::fields::content_type::plaintext())
+                      .set_header(http::field::content_type, mime::text_plain())
                       .set_body("Hello World!");
                 }))
             .build();
@@ -88,11 +87,10 @@ TEST_CASE("bind_local TLS")
                 route::post<"/">([=](const http::header& header,
                                      std::string body) -> awaitable<response> {
                   REQUIRE_EQ(header.get(http::field::content_type),
-                             http::fields::content_type::plaintext());
+                             mime::text_plain());
                   REQUIRE_EQ(body, "Hello World!");
                   co_return response::ok()
-                      .set_header(http::field::content_type,
-                                  http::fields::content_type::plaintext())
+                      .set_header(http::field::content_type, mime::text_plain())
                       .set_body("Hello World!");
                 }))
             .build();

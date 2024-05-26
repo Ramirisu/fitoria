@@ -6,16 +6,11 @@
 //
 #pragma once
 
-#ifndef FITORIA_HPP
-#define FITORIA_HPP
+#ifndef FITORIA_MIME_HPP
+#define FITORIA_MIME_HPP
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/client.hpp>
-#include <fitoria/encoding.hpp>
-#include <fitoria/http.hpp>
-#include <fitoria/log.hpp>
-#include <fitoria/mime.hpp>
-#include <fitoria/web.hpp>
+#include <fitoria/mime/mime_view.hpp>
 
 #endif

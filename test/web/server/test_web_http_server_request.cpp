@@ -72,7 +72,7 @@ TEST_CASE("generic request")
 
                   auto test_header = [](auto& header) {
                     REQUIRE_EQ(header.get(http::field::content_type),
-                               http::fields::content_type::plaintext());
+                               mime::text_plain());
                   };
 
                   test_header(req.header());
@@ -256,7 +256,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
             .serve(route::post<"/">([text](const request& req, std::string data)
                                         -> awaitable<response> {
               REQUIRE_EQ(req.header().get(http::field::content_type),
-                         http::fields::content_type::plaintext());
+                         mime::text_plain());
               REQUIRE(!req.header().get(http::field::content_length));
               REQUIRE_EQ(data, text);
               co_return response::ok().build();
@@ -277,8 +277,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   .set_method(http::verb::post)
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
-                  .set_header(http::field::content_type,
-                              http::fields::content_type::plaintext())
+                  .set_header(http::field::content_type, mime::text_plain())
                   .set_stream(async_readable_chunk_stream<5>(text))
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);

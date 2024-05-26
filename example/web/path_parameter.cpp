@@ -20,8 +20,7 @@ using namespace fitoria::web;
 // <
 // user: david
 
-namespace api::v1::users::get_user {
-auto api(const request& req) -> awaitable<response>
+auto get_user(const request& req) -> awaitable<response>
 {
   auto user = req.path().get("user");
   if (!user) {
@@ -29,18 +28,15 @@ auto api(const request& req) -> awaitable<response>
   }
 
   co_return response::ok()
-      .set_header(http::field::content_type,
-                  http::fields::content_type::plaintext())
+      .set_header(http::field::content_type, mime::text_plain())
       .set_body(fmt::format("user: {}", user.value()));
-}
 }
 
 int main()
 {
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
-                    .serve(route::get<"/api/v1/users/{user}">(
-                        api::v1::users::get_user::api))
+                    .serve(route::get<"/api/v1/users/{user}">(get_user))
                     .build();
   server.bind("127.0.0.1", 8080);
 

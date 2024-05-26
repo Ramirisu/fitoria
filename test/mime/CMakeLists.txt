@@ -1,0 +1,1 @@
+fitoria_add_test(NAME test_mime_mime_view SRCS test_mime_mime_view.cpp)

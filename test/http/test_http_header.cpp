@@ -8,6 +8,7 @@
 #include <fitoria/test/test.hpp>
 
 #include <fitoria/http/header.hpp>
+#include <fitoria/mime.hpp>
 
 using namespace fitoria;
 using namespace fitoria::http;
@@ -19,15 +20,13 @@ TEST_CASE("basic")
   header h;
   const auto& ch = h;
 
-  h.set(http::field::content_type, http::fields::content_type::plaintext());
-  CHECK_EQ(h.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(h.get("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(h.get("content-type"), http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get("content-type"), http::fields::content_type::plaintext());
+  h.set(http::field::content_type, mime::text_plain());
+  CHECK_EQ(h.get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(h.get("Content-Type"), mime::text_plain());
+  CHECK_EQ(h.get("content-type"), mime::text_plain());
+  CHECK_EQ(ch.get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(ch.get("Content-Type"), mime::text_plain());
+  CHECK_EQ(ch.get("content-type"), mime::text_plain());
   CHECK(h.contains(http::field::content_type));
   CHECK(h.contains("Content-Type"));
   CHECK(h.contains("content-type"));
@@ -64,25 +63,22 @@ TEST_CASE("insert")
   header h;
   const auto& ch = h;
 
-  h.insert(http::field::content_type, http::fields::content_type::plaintext());
-  CHECK_EQ(h.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(h.get("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(h.get("content-type"), http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get(http::field::content_type),
-           http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get("Content-Type"), http::fields::content_type::plaintext());
-  CHECK_EQ(ch.get("content-type"), http::fields::content_type::plaintext());
+  h.insert(http::field::content_type, mime::text_plain());
+  CHECK_EQ(h.get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(h.get("Content-Type"), mime::text_plain());
+  CHECK_EQ(h.get("content-type"), mime::text_plain());
+  CHECK_EQ(ch.get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(ch.get("Content-Type"), mime::text_plain());
+  CHECK_EQ(ch.get("content-type"), mime::text_plain());
   CHECK(h.contains(http::field::content_type));
   CHECK(h.contains("Content-Type"));
   CHECK(h.contains("content-type"));
 
-  h.insert(http::field::content_type, http::fields::content_type::json());
+  h.insert(http::field::content_type, mime::application_json());
   CHECK_EQ(h.size(), 2);
   {
-    const auto exp
-        = std::set<std::string_view> { http::fields::content_type::plaintext(),
-                                       http::fields::content_type::json() };
+    const auto exp = std::set<std::string_view> { mime::text_plain(),
+                                                  mime::application_json() };
     auto iters = h.equal_range(http::field::content_type);
     int match_count = 0;
     for (auto iter = iters.first; iter != iters.second; ++iter) {
@@ -93,8 +89,7 @@ TEST_CASE("insert")
     CHECK_EQ(match_count, 2);
   }
 
-  h.set(http::field::content_type,
-        http::fields::content_type::form_urlencoded());
+  h.set(http::field::content_type, mime::application_www_form_urlencoded());
   CHECK_EQ(h.size(), 1);
 }
 

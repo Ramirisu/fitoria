@@ -25,8 +25,7 @@ Use ``web::stream_file`` to serve static files.
      }
    
      co_return response::not_found()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(fmt::format("requsted file was not found: \"{}\"", path));
    }
    

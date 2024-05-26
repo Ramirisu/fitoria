@@ -67,8 +67,7 @@ TEST_CASE("deflate")
     server.serve_request(
         "/",
         test_request::post()
-            .set_header(http::field::content_encoding,
-                        http::fields::content_encoding::deflate())
+            .set_header(http::field::content_encoding, "deflate")
             .set_stream(get_stream(test_case.chunked, compressed)),
         [](auto res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
@@ -117,8 +116,7 @@ TEST_CASE("gzip")
     server.serve_request(
         "/",
         test_request::post()
-            .set_header(http::field::content_encoding,
-                        http::fields::content_encoding::gzip())
+            .set_header(http::field::content_encoding, "gzip")
             .set_stream(get_stream(test_case.chunked, compressed)),
         [](auto res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
@@ -160,10 +158,7 @@ TEST_CASE("decompress")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding,
-                        fmt::format("{}, {}, {}",
-                                    http::fields::content_encoding::deflate(),
-                                    http::fields::content_encoding::identity(),
-                                    http::fields::content_encoding::gzip()))
+                        "deflate, identity, gzip")
             .set_stream(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
@@ -184,10 +179,7 @@ TEST_CASE("decompress")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding,
-                        fmt::format("{}, {}, {}",
-                                    http::fields::content_encoding::gzip(),
-                                    http::fields::content_encoding::identity(),
-                                    http::fields::content_encoding::deflate()))
+                        "gzip, identity, deflate")
             .set_stream(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
@@ -211,10 +203,7 @@ TEST_CASE("decompress")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding,
-                        fmt::format("{}, {}, {}",
-                                    http::fields::content_encoding::deflate(),
-                                    http::fields::content_encoding::identity(),
-                                    http::fields::content_encoding::brotli()))
+                        "deflate, identity, brotli")
             .set_stream(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
@@ -233,10 +222,7 @@ TEST_CASE("decompress")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding,
-                        fmt::format("{}, {}, {}",
-                                    http::fields::content_encoding::brotli(),
-                                    http::fields::content_encoding::identity(),
-                                    http::fields::content_encoding::deflate()))
+                        "brotli, identity, deflate")
             .set_stream(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
