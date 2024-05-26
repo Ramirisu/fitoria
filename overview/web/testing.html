@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Unit Testing &#8212; fitoria</title>
+    <title>Testing &#8212; fitoria</title>
   
   
   
@@ -39,7 +39,7 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'overview/web/unittesting';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'overview/web/testing';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Level" href="../log/level.html" />
@@ -326,7 +326,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
 <li class="toctree-l1"><a class="reference internal" href="static_file.html">Static File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="websocket.html">WebSocket</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Unit Testing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Testing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Log</span></p>
 <ul class="nav bd-sidenav">
@@ -375,7 +375,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Overview</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Unit Testing</li>
+    <li class="breadcrumb-item active" aria-current="page">Testing</li>
   </ul>
 </nav>
 </div>
@@ -392,10 +392,10 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="unit-testing">
-<h1>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading">#</a></h1>
-<p>Unit testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> for the handlers without creating any TCP connections.</p>
-<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/unittesting.cpp">Testing Example</a></p>
+  <section id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h1>
+<p>Testing is important for software quality assurance, fitoria provides <code class="docutils literal notranslate"><span class="pre">http_server::serve_request()</span></code> to test the mock <code class="docutils literal notranslate"><span class="pre">test_request</span></code> against the <code class="docutils literal notranslate"><span class="pre">http_server</span></code> using fake connections.</p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/testing.cpp">Testing Example</a></p>
 </section>
 
 
@@ -439,7 +439,7 @@ document.write(`
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../_sources/overview/web/unittesting.rst.txt">
+    <a href="../../_sources/overview/web/testing.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
