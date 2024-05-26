@@ -196,6 +196,13 @@ public:
     stream_->close();
   }
 
+  friend auto connect(shared_test_stream& local) -> shared_test_stream
+  {
+    auto remote = shared_test_stream(local.get_executor());
+    connect(*local.stream_, *remote.stream_);
+    return remote;
+  }
+
   friend void teardown(boost::beast::role_type,
                        shared_test_stream& stream,
                        boost::system::error_code&)

@@ -27,9 +27,9 @@ TEST_CASE("connect_info")
             .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
+        CHECK_EQ(co_await res.as_string(), "");
       });
 
   ioc.run();

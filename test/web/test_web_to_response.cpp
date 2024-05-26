@@ -33,7 +33,7 @@ TEST_CASE("response")
                     .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
@@ -52,7 +52,7 @@ TEST_CASE("std::string")
                     .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
@@ -74,7 +74,7 @@ TEST_CASE("std::vector<std::byte>")
             .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
@@ -95,7 +95,7 @@ TEST_CASE("std::vector<std::uint8_t>")
                     .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
@@ -122,14 +122,14 @@ TEST_CASE("std::variant")
             .build();
 
   server.serve_request(
-      "/yes", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/yes", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::plaintext());
         CHECK_EQ(co_await res.as_string(), "OK");
       });
   server.serve_request(
-      "/no", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/no", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(res.header().get(http::field::content_type),
                  http::fields::content_type::octet_stream());
@@ -159,7 +159,7 @@ TEST_CASE("stream_file")
                     .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [&](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [&](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         CHECK_EQ(co_await res.as_string(), data);
       });

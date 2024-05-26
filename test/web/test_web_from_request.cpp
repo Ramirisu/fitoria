@@ -43,9 +43,9 @@ TEST_CASE("connect_info")
             .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
+        CHECK_EQ(co_await res.as_string(), "");
       });
 
   ioc.run();
@@ -63,9 +63,9 @@ TEST_CASE("path_info")
                     .build();
 
   server.serve_request(
-      "/fitoria", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/fitoria", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
+        CHECK_EQ(co_await res.as_string(), "");
       });
 
   ioc.run();
@@ -88,10 +88,10 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
             .build();
 
   server.serve_request("/1994/June/15",
-                       request(http::verb::get),
+                       test_request::get().build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -114,7 +114,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, from_string conversion error")
             .build();
 
   server.serve_request("/2147483648/June/15",
-                       request(http::verb::get),
+                       test_request::get().build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(),
                                   http::status::internal_server_error);
@@ -141,7 +141,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, nb of params do not match")
             .build();
 
   server.serve_request(
-      "/06/15", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/06/15", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::internal_server_error);
         co_return;
       });
@@ -164,11 +164,12 @@ TEST_CASE("path_of<T = aggregate>")
                 }))
             .build();
 
-  server.serve_request(
-      "/1994/06/15", request(http::verb::get), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
-      });
+  server.serve_request("/1994/06/15",
+                       test_request::get().build(),
+                       [](auto res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
 
   ioc.run();
 }
@@ -187,7 +188,7 @@ TEST_CASE("path_of<T = aggregate>, not match")
             .build();
 
   server.serve_request(
-      "/06/15", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/06/15", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::internal_server_error);
         co_return;
       });
@@ -211,13 +212,14 @@ TEST_CASE("query_map")
                     .build();
 
   server.serve_request("/",
-                       request(http::verb::get)
+                       test_request::get()
                            .set_query("year", "1994")
                            .set_query("month", "06")
-                           .set_query("day", "15"),
+                           .set_query("day", "15")
+                           .build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -239,13 +241,14 @@ TEST_CASE("query_of<T>")
             .build();
 
   server.serve_request("/",
-                       request(http::verb::get)
+                       test_request::get()
                            .set_query("year", "1994")
                            .set_query("month", "06")
-                           .set_query("day", "15"),
+                           .set_query("day", "15")
+                           .build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -270,13 +273,13 @@ TEST_CASE("form_of<T>")
 
   server.serve_request(
       "/",
-      request(http::verb::get)
+      test_request::get()
           .set_header(http::field::content_type,
                       http::fields::content_type::form_urlencoded())
           .set_body("year=1994&month=06&day=15"),
       [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
+        CHECK_EQ(co_await res.as_string(), "");
       });
 
   ioc.run();
@@ -296,13 +299,14 @@ TEST_CASE("http::header")
                 }))
             .build();
 
-  server.serve_request(
-      "/",
-      request(http::verb::get).insert_header(http::field::connection, "close"),
-      [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
-      });
+  server.serve_request("/",
+                       test_request::get()
+                           .insert_header(http::field::connection, "close")
+                           .build(),
+                       [](auto res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
 
   ioc.run();
 }
@@ -319,9 +323,9 @@ TEST_CASE("state_of<T>")
                     .build();
 
   server.serve_request(
-      "/", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK(!(co_await res.as_string()));
+        CHECK_EQ(co_await res.as_string(), "");
       });
 
   ioc.run();
@@ -339,10 +343,10 @@ TEST_CASE("std::string")
                     .build();
 
   server.serve_request("/",
-                       request(http::verb::post).set_body("abc"),
+                       test_request::post().set_body("abc"),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -361,10 +365,10 @@ TEST_CASE("std::vector<std::byte>")
             .build();
 
   server.serve_request("/",
-                       request(http::verb::post).set_body("abc"),
+                       test_request::post().set_body("abc"),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -383,10 +387,10 @@ TEST_CASE("std::vector<std::uint8_t>")
             .build();
 
   server.serve_request("/",
-                       request(http::verb::post).set_body("abc"),
+                       test_request::post().set_body("abc"),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK(!(co_await res.as_string()));
+                         CHECK_EQ(co_await res.as_string(), "");
                        });
 
   ioc.run();
@@ -454,7 +458,7 @@ TEST_CASE("json_of<T>")
       .birth = "1994/06/15",
     };
     server.serve_request("/",
-                         request(http::verb::get).set_json(user),
+                         test_request::get().set_json(user),
                          [=](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(), http::status::ok);
                            CHECK_EQ(res.header().get(http::field::content_type),
@@ -468,7 +472,7 @@ TEST_CASE("json_of<T>")
                                            { "birth", "1994/06/15" } };
     server.serve_request(
         "/",
-        request(http::verb::get).set_body(boost::json::serialize(json)),
+        test_request::get().set_body(boost::json::serialize(json)),
         [](auto res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::internal_server_error);
           co_return;
@@ -477,7 +481,7 @@ TEST_CASE("json_of<T>")
   {
     const auto json = boost::json::value { { "name", "Rina Hidaka" } };
     server.serve_request("/",
-                         request(http::verb::get).set_json(json),
+                         test_request::get().set_json(json),
                          [](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(),
                                     http::status::internal_server_error);

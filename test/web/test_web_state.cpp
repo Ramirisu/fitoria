@@ -48,12 +48,12 @@ TEST_CASE("state shares the same instance")
             .build();
 
   server.serve_request(
-      "/modify", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/modify", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         co_return;
       });
   server.serve_request(
-      "/check", request(http::verb::get), [](auto res) -> awaitable<void> {
+      "/check", test_request::get().build(), [](auto res) -> awaitable<void> {
         CHECK_EQ(res.status_code(), http::status::ok);
         co_return;
       });
@@ -109,19 +109,19 @@ TEST_CASE("state access order on global, scope and route")
             .build();
 
   server.serve_request("/api/v1/global",
-                       request(http::verb::get),
+                       test_request::get().build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "global");
                        });
   server.serve_request("/api/v1/scope",
-                       request(http::verb::get),
+                       test_request::get().build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "scope");
                        });
   server.serve_request("/api/v1/route",
-                       request(http::verb::get),
+                       test_request::get().build(),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "route");

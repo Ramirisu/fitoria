@@ -33,13 +33,13 @@ TEST_CASE("exception_handler middleware")
             .build();
 
   server.serve_request("/api/",
-                       request(http::verb::get).set_body("throw: false"),
+                       test_request::get().set_body("throw: false"),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/api/",
-                       request(http::verb::get).set_body("throw: true"),
+                       test_request::get().set_body("throw: true"),
                        [](auto res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(),
                                   http::status::internal_server_error);

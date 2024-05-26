@@ -28,7 +28,7 @@
 #include <fitoria/web/router.hpp>
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/state_storage.hpp>
-#include <fitoria/web/test_response.hpp>
+#include <fitoria/web/test_utils.hpp>
 #include <fitoria/web/websocket.hpp>
 
 #include <system_error>
@@ -236,46 +236,31 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Perform unit testing with mock ``request``, no TCP connections will be
-  /// established.
+  /// Provides testing with a mock ``test_request`` against the ``http_server``
+  /// using fake connections.
   ///
   /// @endverbatim
   template <typename ResponseHandler>
     requires std::is_invocable_v<ResponseHandler, test_response>
       && co_awaitable<std::invoke_result_t<ResponseHandler, test_response>>
-  void serve_request(std::string_view path,
-                     request req,
+  void serve_request(std::string path,
+                     test_request req,
                      ResponseHandler handler) const
   {
-    auto target = [&]() -> std::string {
-      boost::urls::url url;
-      url.set_path(path);
-      url.set_query(req.query().to_string());
-      return std::string(url.encoded_target());
-    }();
-
-    net::co_spawn(ex_,
-                  serve_request_impl(
-                      std::move(req), std::move(target), std::move(handler)),
-                  net::detached);
+    auto stream = shared_test_stream(ex_);
+    net::co_spawn(ex_, do_session(connect(stream)), net::detached);
+    net::co_spawn(
+        ex_,
+        [](shared_test_stream stream,
+           std::string path,
+           test_request tr,
+           ResponseHandler handler) -> awaitable<void> {
+          co_await handler(*(co_await do_http_request(stream, path, tr)));
+        }(stream, std::move(path), std::move(req), std::move(handler)),
+        net::detached);
   }
 
 private:
-  template <typename ResponseHandler>
-  auto serve_request_impl(request req,
-                          std::string target,
-                          ResponseHandler handler) const -> awaitable<void>
-  {
-    co_await handler(test_response(co_await do_handler(
-        connect_info(test_stream(co_await net::this_coro::executor)),
-        req.method(),
-        http::version::v1_1,
-        target,
-        std::move(req.header()),
-        std::make_shared<state_map>(),
-        std::move(req.body()))));
-  }
-
   template <typename Protocol>
   auto do_listen(socket_acceptor<Protocol> acceptor) const -> awaitable<void>
   {
@@ -305,8 +290,8 @@ private:
   }
 #endif
 
-  template <typename Protocol>
-  auto do_session(shared_basic_stream<Protocol> stream) const -> awaitable<void>
+  template <typename Stream>
+  auto do_session(Stream stream) const -> awaitable<void>
   {
     if (auto result = co_await do_session_impl(stream); !result) {
       FITORIA_THROW_OR(std::system_error(result.error()), co_return);

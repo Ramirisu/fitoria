@@ -26,13 +26,14 @@ TEST_CASE("logger middleware")
                        })))
             .build();
 
-  server.serve_request(
-      "/",
-      request(http::verb::get).set_header(http::field::user_agent, "fitoria"),
-      [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        co_return;
-      });
+  server.serve_request("/",
+                       test_request::get()
+                           .set_header(http::field::user_agent, "fitoria")
+                           .build(),
+                       [](auto res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         co_return;
+                       });
 
   ioc.run();
 }
