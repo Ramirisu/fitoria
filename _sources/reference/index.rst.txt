@@ -10,12 +10,18 @@ Reference
 
 
 .. toctree:: 
+   :caption: fitoria::mime
+   :maxdepth: 1
+
+   mime/mime_view
+
+
+.. toctree:: 
    :caption: fitoria::http
    :maxdepth: 1
 
    http/verb
    http/field
-   http/fields
    http/version
    http/status
    http/status_class
