@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_DETAIL_STRING_HPP
-#define FITORIA_WEB_DETAIL_STRING_HPP
+#ifndef FITORIA_CORE_STRINGS_HPP
+#define FITORIA_CORE_STRINGS_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -16,8 +16,6 @@
 #include <vector>
 
 FITORIA_NAMESPACE_BEGIN
-
-namespace web::detail {
 
 inline auto ltrim(std::string_view s) noexcept -> std::string_view
 {
@@ -42,8 +40,8 @@ inline auto trim(std::string_view s) noexcept -> std::string_view
   return ltrim(rtrim(s));
 }
 
-inline auto split_of(std::string_view sv, std::string_view delim)
-    -> std::vector<std::string_view>
+inline auto split_of(std::string_view sv,
+                     std::string_view delim) -> std::vector<std::string_view>
 {
   auto tokens = std::vector<std::string_view>();
 
@@ -57,8 +55,6 @@ inline auto split_of(std::string_view sv, std::string_view delim)
   tokens.push_back(trim(sv));
 
   return tokens;
-}
-
 }
 
 FITORIA_NAMESPACE_END

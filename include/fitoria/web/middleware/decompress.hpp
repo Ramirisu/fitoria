@@ -12,10 +12,9 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/net.hpp>
+#include <fitoria/core/strings.hpp>
 #include <fitoria/core/type_traits.hpp>
 #include <fitoria/core/utility.hpp>
-
-#include <fitoria/web/detail/string.hpp>
 
 #include <fitoria/web/middleware/detail/async_brotli_inflate_stream.hpp>
 #include <fitoria/web/middleware/detail/async_deflate_stream.hpp>
@@ -36,7 +35,7 @@ public:
   auto operator()(Request req) const -> Response
   {
     if (auto str = req.header().get(http::field::content_encoding); str) {
-      auto encs = web::detail::split_of(*str, ",");
+      auto encs = split_of(*str, ",");
       std::reverse(encs.begin(), encs.end());
 
       for (auto& enc : encs) {
