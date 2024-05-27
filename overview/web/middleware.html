@@ -416,7 +416,7 @@ document.write(`
 
 <span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span>
 <span class="w">        </span><span class="s">&quot;HTTP/{} {} {}&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="n">http</span><span class="o">::</span><span class="n">version</span><span class="o">::</span><span class="n">v1_1</span><span class="p">,</span>
+<span class="w">        </span><span class="n">res</span><span class="p">.</span><span class="n">version</span><span class="p">(),</span>
 <span class="w">        </span><span class="n">to_underlying</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">status_code</span><span class="p">().</span><span class="n">value</span><span class="p">()),</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="n">obsolete_reason</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">status_code</span><span class="p">().</span><span class="n">value</span><span class="p">())))</span>
 <span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>

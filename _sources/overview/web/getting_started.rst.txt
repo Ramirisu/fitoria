@@ -16,16 +16,14 @@ The following example demonstrates how to create a simple ``http_server`` and at
    auto hello_world() -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body("Hello World!");
    }
    
    auto echo(std::string body) -> awaitable<response>
    {
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(body);
    }
    

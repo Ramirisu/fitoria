@@ -16,7 +16,6 @@ Use ``request::query()`` to access the query string parameters.
      }
    
      co_return response::ok()
-         .set_header(http::field::content_type,
-                     http::fields::content_type::plaintext())
+         .set_header(http::field::content_type, mime::text_plain())
          .set_body(fmt::format("user: {}", user.value()));
    }

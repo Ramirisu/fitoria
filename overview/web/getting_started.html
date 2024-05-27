@@ -404,16 +404,14 @@ document.write(`
 <span class="k">auto</span><span class="w"> </span><span class="n">hello_world</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span><span class="w"> </span><span class="n">mime</span><span class="o">::</span><span class="n">text_plain</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">echo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="k">co_return</span><span class="w"> </span><span class="n">response</span><span class="o">::</span><span class="n">ok</span><span class="p">()</span>
-<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">http</span><span class="o">::</span><span class="n">fields</span><span class="o">::</span><span class="n">content_type</span><span class="o">::</span><span class="n">plaintext</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="n">set_header</span><span class="p">(</span><span class="n">http</span><span class="o">::</span><span class="n">field</span><span class="o">::</span><span class="n">content_type</span><span class="p">,</span><span class="w"> </span><span class="n">mime</span><span class="o">::</span><span class="n">text_plain</span><span class="p">())</span>
 <span class="w">      </span><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
 <span class="p">}</span>
 
