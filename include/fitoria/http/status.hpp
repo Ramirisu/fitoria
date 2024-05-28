@@ -35,7 +35,7 @@ using boost::beast::http::status;
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__status.html>`_
 ///
 /// @endverbatim
-enum status {};
+enum class status {};
 
 #endif
 

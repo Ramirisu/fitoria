@@ -36,7 +36,7 @@ using boost::beast::http::field;
 ///
 /// @endverbatim
 
-enum field {};
+enum class field {};
 
 #endif
 

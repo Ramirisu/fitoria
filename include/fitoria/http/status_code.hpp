@@ -62,8 +62,7 @@ public:
     return to_status_class(value_);
   }
 
-  friend constexpr bool operator==(const status_code&, const status_code&)
-      = default;
+  friend bool operator==(const status_code&, const status_code&) = default;
 
 private:
   status value_;

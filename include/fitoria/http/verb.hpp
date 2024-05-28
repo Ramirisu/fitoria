@@ -35,8 +35,7 @@ using boost::beast::http::verb;
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__verb.html>`_
 ///
 /// @endverbatim
-
-enum verb {};
+enum class verb {};
 
 #endif
 }
