@@ -395,20 +395,41 @@ private:
         }
       }
 
-      auto res = co_await do_handler(
-          connect_info(get_lowest_layer(stream).socket()),
-          parser->get().method(),
-          http::detail::from_impl_version(parser->get().version()),
-          std::string(parser->get().target()),
-          http::header::from_impl(parser->get()),
-          session_state,
-          [&]() -> any_async_readable_stream {
-            if (parser->get().has_content_length() || parser->get().chunked()) {
-              return async_message_parser_stream(buffer, stream, parser);
-            }
+      auto res = web::response();
+      if (auto url = boost::urls::parse_origin_form(parser->get().target());
+          url) {
+        if (auto route
+            = router_.try_find(parser->get().method(), url.value().path());
+            route) {
+          auto req = web::request(
+              connect_info(get_lowest_layer(stream).socket()),
+              path_info(std::string(route->matcher().pattern()),
+                        url->path(),
+                        route->matcher().match(url->path()).value()),
+              parser->get().method(),
+              http::detail::from_impl_version(parser->get().version()),
+              query_map::from(url->params()),
+              http::header::from_impl(parser->get()),
+              [&]() -> any_async_readable_stream {
+                if (parser->get().has_content_length()
+                    || parser->get().chunked()) {
+                  return async_message_parser_stream(buffer, stream, parser);
+                }
 
-            return async_readable_vector_stream();
-          }());
+                return async_readable_vector_stream();
+              }(),
+              route->states().copy_prepend(session_state));
+          res = co_await route->operator()(req);
+        } else {
+          res = web::response::not_found()
+                    .set_header(http::field::content_type, mime::text_plain())
+                    .set_body("request path is not found");
+        }
+      } else {
+        res = web::response::bad_request()
+                  .set_header(http::field::content_type, mime::text_plain())
+                  .set_body("request target is invalid");
+      }
 
       if (upgrade) {
         auto& ws = *std::any_cast<websocket>(
@@ -441,41 +462,6 @@ private:
     }
 
     co_return expected<void, std::error_code>();
-  }
-
-  auto do_handler(connect_info conn_info,
-                  http::verb method,
-                  http::version version,
-                  std::string target,
-                  http::header fields,
-                  shared_state_map session_state,
-                  any_async_readable_stream body) const -> awaitable<response>
-  {
-    auto req_url = boost::urls::parse_origin_form(target);
-    if (!req_url) {
-      co_return response::bad_request()
-          .set_header(http::field::content_type, mime::text_plain())
-          .set_body("request target is invalid");
-    }
-
-    if (auto route = router_.try_find(method, req_url.value().path()); route) {
-      auto req
-          = request(std::move(conn_info),
-                    path_info(std::string(route->matcher().pattern()),
-                              req_url->path(),
-                              route->matcher().match(req_url->path()).value()),
-                    method,
-                    version,
-                    query_map::from(req_url->params()),
-                    std::move(fields),
-                    std::move(body),
-                    route->states().copy_prepend(session_state));
-      co_return co_await route->operator()(req);
-    }
-
-    co_return response::not_found()
-        .set_header(http::field::content_type, mime::text_plain())
-        .set_body("request path is not found");
   }
 
   template <typename Stream>
