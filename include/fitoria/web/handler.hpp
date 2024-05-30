@@ -32,41 +32,63 @@ class handler_middleware<Request, Response, Next, std::tuple<Args...>> {
   friend class handler;
 
 public:
-  auto operator()(Request req) const -> Response
+  auto operator()(Request) const -> Response
+    requires(sizeof...(Args) == 0)
   {
-    co_return co_await invoke_with_args(co_await from_request<Args>(req)...);
+    co_return to_response(co_await next_());
   }
 
-private:
-  auto
-  invoke_with_args(expected<Args, std::error_code>... args) const -> Response
+  auto operator()(Request req) const -> Response
+    requires(sizeof...(Args) > 0)
   {
-    const auto pack
-        = std::tuple<expected<Args, std::error_code>&...> { args... };
-    if (auto err = get_error_of<0>(pack); err) {
-      co_return response::internal_server_error()
-          .set_header(http::field::content_type, mime::text_plain())
-          .set_body(err->message());
+    auto args = std::tuple<optional<Args>...>();
+    if (auto res = co_await extract_arg<0>(req, args); res) {
+      co_return std::move(*res);
+    } else {
+      co_return co_await std::apply(
+          [this](auto&&... args) -> Response {
+            co_return to_response(
+                co_await next_(std::forward<Args>(args.value())...));
+          },
+          args);
     }
-
-    co_return to_response(co_await next_(std::forward<Args>(args.value())...));
   }
 
   template <std::size_t I>
-  auto get_error_of(const std::tuple<expected<Args, std::error_code>&...>& args)
-      const -> optional<std::error_code>
+  auto extract_arg(Request req, std::tuple<optional<Args>...>& args) const
+      -> awaitable<optional<response>>
   {
     if constexpr (I < sizeof...(Args)) {
-      if (auto& arg = std::get<I>(args); !arg) {
-        return arg.error();
+      if (auto result = co_await extract_arg_impl<
+              std::tuple_element_t<I, std::tuple<Args...>>>(req,
+                                                            std::get<I>(args));
+          result) {
+        co_return result;
+      } else {
+        co_return co_await extract_arg<I + 1>(req, args);
       }
-
-      return get_error_of<I + 1>(args);
     } else {
-      return nullopt;
+      co_return nullopt;
     }
   }
 
+  template <typename Arg>
+  auto extract_arg_impl(Request req, optional<Arg>& arg) const
+      -> awaitable<optional<response>>
+  {
+    if (auto result = co_await from_request<Arg>(req); result) {
+      arg.emplace(*result);
+      co_return nullopt;
+    } else {
+      // TODO: customizable resonse
+      // co_return to_response(std::move(result.error()));
+      co_return response::internal_server_error()
+          .set_header(http::field::content_type, mime::text_plain())
+          .set_body(result.error().message());
+    }
+  }
+
+private:
   template <typename Next2>
   handler_middleware(construct_t, Next2&& next)
       : next_(std::forward<Next2>(next))
