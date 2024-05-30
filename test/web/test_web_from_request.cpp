@@ -116,8 +116,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, from_string conversion error")
   server.serve_request("/2147483648/June/15",
                        test_request::get().build(),
                        [](auto res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(),
-                                  http::status::internal_server_error);
+                         CHECK_EQ(res.status_code(), http::status::bad_request);
                          co_return;
                        });
 
@@ -142,7 +141,7 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>, nb of params do not match")
 
   server.serve_request(
       "/06/15", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::internal_server_error);
+        CHECK_EQ(res.status_code(), http::status::bad_request);
         co_return;
       });
 
@@ -473,7 +472,7 @@ TEST_CASE("json_of<T>")
         "/",
         test_request::get().set_body(boost::json::serialize(json)),
         [](auto res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::internal_server_error);
+          CHECK_EQ(res.status_code(), http::status::bad_request);
           co_return;
         });
   }
@@ -483,7 +482,7 @@ TEST_CASE("json_of<T>")
                          test_request::get().set_json(json),
                          [](auto res) -> awaitable<void> {
                            CHECK_EQ(res.status_code(),
-                                    http::status::internal_server_error);
+                                    http::status::bad_request);
                            co_return;
                          });
   }

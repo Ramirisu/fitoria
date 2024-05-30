@@ -18,6 +18,7 @@
 
 #include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/request.hpp>
+#include <fitoria/web/response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -28,71 +29,85 @@ namespace from_request_ns {
   struct from_request_t {
     constexpr auto operator()(request& req) const
         noexcept(is_nothrow_tag_invocable_v<from_request_t<R>, request&>)
-            -> awaitable<expected<R, std::error_code>>
+            -> awaitable<expected<R, response>>
       requires is_tag_invocable_v<from_request_t<R>, request&>
     {
       static_assert(
           std::same_as<tag_invoke_result_t<from_request_t<R>, request&>,
-                       awaitable<expected<R, std::error_code>>>);
+                       awaitable<expected<R, response>>>);
       return tag_invoke(*this, req);
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, request&> || std::same_as<R, const request&>)
     {
       co_return req;
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, const connect_info&>)
     {
       co_return req.connection();
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, const path_info&>)
     {
       co_return req.path();
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, const query_map&>)
     {
       co_return req.query();
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(decay_to<R, http::version>)
     {
       co_return req.version();
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, const http::header&>)
     {
       co_return req.header();
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(std::same_as<R, std::string>)
     {
-      return async_read_until_eof<R>(req.body());
+      if (auto result = co_await async_read_until_eof<R>(req.body()); result) {
+        co_return std::move(*result);
+      } else {
+        co_return unexpected { response::bad_request()
+                                   .set_header(http::field::content_type,
+                                               mime::text_plain())
+                                   .set_body("unable to read request body.") };
+      }
     }
 
-    friend auto tag_invoke(from_request_t<R>, request& req)
-        -> awaitable<expected<R, std::error_code>>
+    friend auto tag_invoke(from_request_t<R>,
+                           request& req) -> awaitable<expected<R, response>>
       requires(is_specialization_of_v<R, std::vector>)
     {
       static_assert(not_cvref<R>, "R must not be cvref qualified");
 
-      return async_read_until_eof<R>(req.body());
+      if (auto result = co_await async_read_until_eof<R>(req.body()); result) {
+        co_return std::move(*result);
+      } else {
+        co_return unexpected { response::bad_request()
+                                   .set_header(http::field::content_type,
+                                               mime::text_plain())
+                                   .set_body("unable to read request body.") };
+      }
     }
   };
 

@@ -13,7 +13,6 @@
 
 #include <fitoria/web/detail/extract_query.hpp>
 
-#include <fitoria/web/error.hpp>
 #include <fitoria/web/from_request.hpp>
 
 #if defined(FITORIA_HAS_BOOST_PFR)
@@ -37,15 +36,28 @@ public:
   }
 
   friend auto tag_invoke(from_request_t<query_of<T>>, request& req)
-      -> awaitable<expected<query_of<T>, std::error_code>>
+      -> awaitable<expected<query_of<T>, response>>
   {
     if (req.query().size() != boost::pfr::tuple_size_v<T>) {
-      co_return unexpected { make_error_code(
-          error::extractor_field_count_not_match) };
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("numbers of key/value pairs are not expected.")
+      };
     }
 
-    co_return detail::extract_query<query_of<T>>::extract(
-        req.query(), std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
+    if (auto result = detail::extract_query<query_of<T>>::extract(
+            req.query(),
+            std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
+        result) {
+      co_return std::move(*result);
+    } else {
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("keys or value types are not matched.")
+      };
+    }
   }
 };
 

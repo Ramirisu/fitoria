@@ -38,12 +38,19 @@ public:
   }
 
   friend auto tag_invoke(from_request_t<form_of<T>>, request& req)
-      -> awaitable<expected<form_of<T>, std::error_code>>
+      -> awaitable<expected<form_of<T>, response>>
   {
-    if (auto ct = req.header().get(http::field::content_type);
-        !ct || *ct != mime::application_www_form_urlencoded()) {
-      co_return unexpected { make_error_code(
-          error::content_type_not_application_form_urlencoded) };
+    if (auto ct = req.header().get(http::field::content_type); !ct) {
+      co_return unexpected { response::bad_request()
+                                 .set_header(http::field::content_type,
+                                             mime::text_plain())
+                                 .set_body("\"Content-Type\" is expected.") };
+    } else if (*ct != mime::application_www_form_urlencoded()) {
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("\"Content-Type\" is not matched.")
+      };
     }
 
     auto body = co_await from_request<std::string>(req);
@@ -53,16 +60,32 @@ public:
 
     auto form = detail::as_form(*body);
     if (!form) {
-      co_return unexpected { form.error() };
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("invalid format for request body.")
+      };
     }
 
     if (form->size() != boost::pfr::tuple_size_v<T>) {
-      co_return unexpected { make_error_code(
-          error::extractor_field_count_not_match) };
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("numbers of key/value pairs are not expected.")
+      };
     }
 
-    co_return detail::extract_query<form_of<T>>::extract(
-        *form, std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
+    if (auto result = detail::extract_query<form_of<T>>::extract(
+            *form, std::make_index_sequence<boost::pfr::tuple_size_v<T>> {});
+        result) {
+      co_return std::move(*result);
+    } else {
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("keys or value types are not matched.")
+      };
+    }
   }
 };
 

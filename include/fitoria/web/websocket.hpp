@@ -404,14 +404,18 @@ public:
   }
 
   friend auto tag_invoke(from_request_t<websocket>, request& req)
-      -> awaitable<expected<websocket, std::error_code>>
+      -> awaitable<expected<websocket, response>>
   {
     if (auto ws = req.state<websocket>(); ws) {
       ws->build_response(req);
       co_return *ws;
     }
 
-    co_return unexpected { make_error_code(error::not_upgrade) };
+    co_return unexpected {
+      response::bad_request()
+          .set_header(http::field::content_type, mime::text_plain())
+          .set_body("\"Connection: Upgrade\" is expected.")
+    };
   }
 
 private:

@@ -32,19 +32,34 @@ public:
   }
 
   friend auto tag_invoke(from_request_t<json_of<T>>, request& req)
-      -> awaitable<expected<json_of<T>, std::error_code>>
+      -> awaitable<expected<json_of<T>, response>>
   {
-    if (auto ct = req.header().get(http::field::content_type);
-        !ct || *ct != mime::application_json()) {
-      co_return unexpected { make_error_code(
-          error::content_type_not_application_json) };
+    if (auto ct = req.header().get(http::field::content_type); !ct) {
+      co_return unexpected { response::bad_request()
+                                 .set_header(http::field::content_type,
+                                             mime::text_plain())
+                                 .set_body("\"Content-Type\" is expected.") };
+    } else if (*ct != mime::application_json()) {
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("\"Content-Type\" is not matched.")
+      };
     }
 
-    if (auto str = co_await async_read_until_eof<std::string>(req.body());
-        str) {
-      co_return detail::as_json<T>(*str);
+    auto body = co_await from_request<std::string>(req);
+    if (!body) {
+      co_return unexpected { body.error() };
+    }
+
+    if (auto form = detail::as_json<T>(*body); form) {
+      co_return std::move(*form);
     } else {
-      co_return unexpected { str.error() };
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body("invalid format for request body.")
+      };
     }
   }
 };

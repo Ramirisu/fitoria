@@ -47,8 +47,7 @@ public:
     } else {
       co_return co_await std::apply(
           [this](auto&&... args) -> Response {
-            co_return to_response(
-                co_await next_(std::forward<Args>(args.value())...));
+            co_return to_response(co_await next_(std::forward<Args>(*args)...));
           },
           args);
     }
@@ -80,11 +79,7 @@ public:
       arg.emplace(*result);
       co_return nullopt;
     } else {
-      // TODO: customizable resonse
-      // co_return to_response(std::move(result.error()));
-      co_return response::internal_server_error()
-          .set_header(http::field::content_type, mime::text_plain())
-          .set_body(result.error().message());
+      co_return std::move(result.error());
     }
   }
 

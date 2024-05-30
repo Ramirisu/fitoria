@@ -32,13 +32,16 @@ public:
   }
 
   friend auto tag_invoke(from_request_t<state_of<T>>, request& req)
-      -> awaitable<expected<state_of<T>, std::error_code>>
+      -> awaitable<expected<state_of<T>, response>>
   {
     if (auto result = req.state<T>(); result) {
       co_return state_of<T>(*result);
     }
 
-    co_return unexpected { make_error_code(error::state_not_found) };
+    co_return unexpected { response::internal_server_error()
+                               .set_header(http::field::content_type,
+                                           mime::text_plain())
+                               .set_body("unable to find state.") };
   }
 };
 

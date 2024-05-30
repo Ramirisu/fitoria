@@ -20,6 +20,7 @@
 #include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 
+#include <memory>
 #include <span>
 
 FITORIA_NAMESPACE_BEGIN
@@ -31,28 +32,46 @@ class response_builder;
 class response {
   friend class response_builder;
 
-  http::status_code status_code_ = http::status::ok;
-  http::version version_ = http::version::v1_1;
-  http::header header_;
-  any_body body_;
+  struct impl_type {
+    http::status_code status_code = http::status::ok;
+    http::version version = http::version::v1_1;
+    http::header header;
+    any_body body;
+
+    impl_type() = default;
+
+    impl_type(http::status_code status_code,
+              http::version version,
+              http::header header,
+              any_body body)
+        : status_code(status_code)
+        , version(version)
+        , header(std::move(header))
+        , body(std::move(body))
+    {
+    }
+  };
+
+  std::shared_ptr<impl_type> impl_;
 
   response(http::status_code status_code,
            http::version version,
            http::header header,
            any_body body)
-      : status_code_(status_code)
-      , version_(version)
-      , header_(std::move(header))
-      , body_(std::move(body))
+      : impl_(std::make_shared<impl_type>(
+            status_code, version, std::move(header), std::move(body)))
   {
   }
 
 public:
-  response() = default;
+  response()
+      : impl_(std::make_shared<impl_type>())
+  {
+  }
 
-  response(const response&) = delete;
+  response(const response&) = default;
 
-  response& operator=(const response&) = delete;
+  response& operator=(const response&) = default;
 
   response(response&&) = default;
 
@@ -65,7 +84,7 @@ public:
   /// @endverbatim
   auto status_code() const noexcept -> http::status_code
   {
-    return status_code_;
+    return impl_->status_code;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -75,7 +94,7 @@ public:
   /// @endverbatim
   auto version() const noexcept -> http::version
   {
-    return version_;
+    return impl_->version;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -85,12 +104,12 @@ public:
   /// @endverbatim
   auto header() noexcept -> http::header&
   {
-    return header_;
+    return impl_->header;
   }
 
   auto header() const noexcept -> const http::header&
   {
-    return header_;
+    return impl_->header;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -100,12 +119,12 @@ public:
   /// @endverbatim
   auto body() noexcept -> any_body&
   {
-    return body_;
+    return impl_->body;
   }
 
   auto body() const noexcept -> const any_body&
   {
-    return body_;
+    return impl_->body;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -860,7 +879,10 @@ public:
 
 inline auto response::builder() -> response_builder
 {
-  return { status_code_, version_, std::move(header_), std::move(body_) };
+  return { impl_->status_code,
+           impl_->version,
+           std::move(impl_->header),
+           std::move(impl_->body) };
 }
 
 inline auto response::continue_() -> response_builder
