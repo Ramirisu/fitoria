@@ -17,32 +17,39 @@
 #include <fitoria/core/tag_invoke.hpp>
 #include <fitoria/core/utility.hpp>
 
-#include <string>
+#include <string_view>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace from_string_ns {
 template <typename R>
 struct from_string_t {
-  auto operator()(const std::string& s) const
-      noexcept(is_nothrow_tag_invocable_v<from_string_t<R>, const std::string&>)
-    requires is_tag_invocable_v<from_string_t<R>, const std::string&>
+  auto operator()(std::string_view s) const
+      noexcept(is_nothrow_tag_invocable_v<from_string_t<R>, std::string_view>)
+    requires is_tag_invocable_v<from_string_t<R>, std::string_view>
   {
     static_assert(
-        std::same_as<tag_invoke_result_t<from_string_t<R>, const std::string&>,
+        std::same_as<tag_invoke_result_t<from_string_t<R>, std::string_view>,
                      expected<R, std::error_code>>);
     return tag_invoke(*this, s);
   }
 
   friend auto tag_invoke(from_string_t<R>,
-                         const std::string& s) -> expected<R, std::error_code>
-    requires(std::same_as<R, std::string>)
+                         std::string_view s) -> expected<R, std::error_code>
+    requires(std::same_as<R, std::string_view>)
   {
     return s;
   }
 
   friend auto tag_invoke(from_string_t<R>,
-                         const std::string& s) -> expected<R, std::error_code>
+                         std::string_view s) -> expected<R, std::error_code>
+    requires(std::same_as<R, std::string>)
+  {
+    return std::string(s);
+  }
+
+  friend auto tag_invoke(from_string_t<R>,
+                         std::string_view s) -> expected<R, std::error_code>
     requires(!std::same_as<R, bool>
              && (std::is_integral_v<R> || std::is_floating_point_v<R>))
   {
@@ -50,7 +57,7 @@ struct from_string_t {
   }
 
   friend auto tag_invoke(from_string_t<R>,
-                         const std::string& s) -> expected<R, std::error_code>
+                         std::string_view s) -> expected<R, std::error_code>
     requires std::same_as<R, bool>
   {
     if (iequals(s, "1") || iequals(s, "t") || iequals(s, "true")

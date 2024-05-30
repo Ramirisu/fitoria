@@ -14,7 +14,7 @@
 #include <fitoria/core/expected.hpp>
 
 #include <charconv>
-#include <string>
+#include <string_view>
 #if defined(FITORIA_TARGET_MACOS)
 #include <cstdlib>
 #endif
@@ -24,7 +24,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace detail {
 
 template <typename R>
-auto from_string_impl(const std::string& s) -> expected<R, std::error_code>
+auto from_string_impl(std::string_view s) -> expected<R, std::error_code>
 {
   auto value = R {};
 
@@ -39,8 +39,8 @@ auto from_string_impl(const std::string& s) -> expected<R, std::error_code>
 #if defined(FITORIA_TARGET_MACOS)
 
 template <>
-inline auto from_string_impl<float>(const std::string& s)
-    -> expected<float, std::error_code>
+inline auto
+from_string_impl<float>(std::string_view s) -> expected<float, std::error_code>
 {
   char* end {};
   float value = std::strtof(s.data(), &end);
@@ -56,7 +56,7 @@ inline auto from_string_impl<float>(const std::string& s)
 }
 
 template <>
-inline auto from_string_impl<double>(const std::string& s)
+inline auto from_string_impl<double>(std::string_view s)
     -> expected<double, std::error_code>
 {
   char* end {};
@@ -73,7 +73,7 @@ inline auto from_string_impl<double>(const std::string& s)
 }
 
 template <>
-inline auto from_string_impl<long double>(const std::string& s)
+inline auto from_string_impl<long double>(std::string_view s)
     -> expected<long double, std::error_code>
 {
   char* end {};

@@ -13,6 +13,12 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("[fitoria.core.from_string]");
 
+TEST_CASE("string_view")
+{
+  const auto s = std::string_view("-123");
+  CHECK_EQ(from_string<std::string_view>(s), s);
+}
+
 TEST_CASE("string")
 {
   const auto s = std::string("-123");
