@@ -12,8 +12,8 @@
 using namespace fitoria::web;
 
 #define TEST_PARSE_CT_AND_RT(wildcard, path, success)                          \
-  static_assert(path_parser<wildcard>().parse<path>() == success);             \
-  CHECK(path_parser<wildcard>().parse(path) == success);
+  static_assert(path_parser<wildcard>().parse<path>() == (success));           \
+  CHECK(path_parser<wildcard>().parse(path) == (success));
 
 TEST_SUITE_BEGIN("[fitoria.web.path_parser]");
 

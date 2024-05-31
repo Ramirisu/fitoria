@@ -80,19 +80,19 @@ public:
     impl_[name] = value;
   }
 
-  auto get(std::string_view name) noexcept -> optional<mapped_type&>
+  auto get(std::string_view name) noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
-      return optional<mapped_type&>(it->second);
+      return { it->second };
     }
 
     return nullopt;
   }
 
-  auto get(std::string_view name) const noexcept -> optional<const mapped_type&>
+  auto get(std::string_view name) const noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
-      return optional<const mapped_type&>(it->second);
+      return { it->second };
     }
 
     return nullopt;

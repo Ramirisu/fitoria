@@ -11,7 +11,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-forwarding-reference-overload,
-  -bugprone-use-after-move,gprone-exception-escape
+  -bugprone-use-after-move,
   modernize-*,
   -modernize-avoid-c-arrays,
   -modernize-use-default-member-init,

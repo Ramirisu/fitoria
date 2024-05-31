@@ -32,7 +32,7 @@ auto server_handler(websocket::context& ctx) -> awaitable<void>
                                      binary.value,
                                      fmt::format("sequence number: {}", seq),
                                      [](auto l, auto r) {
-                                       return to_underlying(l) == r;
+                                       return l == static_cast<std::byte>(r);
                                      }));
                                  return false;
                                },
