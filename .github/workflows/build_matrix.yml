@@ -40,6 +40,13 @@ jobs:
             disable_openssl: ON
             disable_zlib: ON
             disable_brotli: ON
+          - os_cxx: { os: ubuntu-24.04, cxx: g++-13 }
+            std: 23
+            build_type: Debug
+            generator: Ninja
+            disable_openssl: OFF
+            disable_zlib: OFF
+            disable_brotli: OFF
 
     steps:
       - uses: actions/checkout@v4
