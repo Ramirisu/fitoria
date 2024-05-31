@@ -52,14 +52,18 @@ class http_server {
               router_type router,
               optional<int> max_listen_connections,
               optional<duration_type> tls_handshake_timeout,
-              optional<duration_type> reuqest_timeout,
+              optional<duration_type> request_timeout,
+              optional<std::uint32_t> request_header_limit,
+              optional<std::uint64_t> request_body_limit,
               optional<exception_handler_t> exception_handler)
       : ex_(std::move(ex))
       , router_(std::move(router))
       , max_listen_connections_(max_listen_connections.value_or(
             static_cast<int>(net::socket_base::max_listen_connections)))
       , tls_handshake_timeout_(tls_handshake_timeout)
-      , reuqest_timeout_(reuqest_timeout)
+      , request_timeout_(request_timeout)
+      , request_header_limit_(request_header_limit)
+      , request_body_limit_(request_body_limit)
       , exception_handler_(
             exception_handler.value_or(default_exception_handler))
   {
@@ -92,8 +96,9 @@ public:
   ///
   /// Get the timeout for TLS handshake.
   ///
-  /// Return
-  ///      If no timeout is set, ``nullopt`` is returned.
+  /// Description
+  ///     Get the timeout for TLS handshake. If no timeout is set, ``nullopt``
+  ///     is returned.
   ///
   /// @endverbatim
   auto tls_handshake_timeout() const noexcept -> optional<duration_type>
@@ -105,13 +110,42 @@ public:
   ///
   /// Get the timeout for serving client request.
   ///
-  /// Return
-  ///     If no timeout is set, ``nullopt`` is returned.
+  /// Description
+  ///     Get the timeout for serving client request. If no timeout is set,
+  ///     ``nullopt`` is returned.
   ///
   /// @endverbatim
-  auto reuqest_timeout() const noexcept -> optional<duration_type>
+  auto request_timeout() const noexcept -> optional<duration_type>
   {
-    return reuqest_timeout_;
+    return request_timeout_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the maximum size in bytes for reading client request header.
+  ///
+  /// Description
+  ///     Get the maximum size in bytes for reading client request header.
+  ///     ``nullopt`` indicates no size check will be performed.
+  ///
+  /// @endverbatim
+  auto request_header_limit() const noexcept -> optional<std::uint32_t>
+  {
+    return request_header_limit_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the maximum size in bytes for reading client request body.
+  ///
+  /// Description
+  ///     Get the maximum size in bytes for reading client request body.
+  ///     ``nullopt`` indicates no size check will be performed.
+  ///
+  /// @endverbatim
+  auto request_body_limit() const noexcept -> optional<std::uint64_t>
+  {
+    return request_body_limit_;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -358,16 +392,26 @@ private:
 
     for (;;) {
       auto parser = std::make_shared<request_parser<buffer_body>>();
-      parser->body_limit(boost::none);
+      parser->header_limit(request_header_limit_.value_or(UINT32_MAX));
+      parser->body_limit(request_body_limit_.value_or(UINT64_MAX));
 
-      if (reuqest_timeout_) {
-        get_lowest_layer(stream).expires_after(*reuqest_timeout_);
+      if (request_timeout_) {
+        get_lowest_layer(stream).expires_after(*request_timeout_);
       }
 
       if (auto bytes_read
           = co_await async_read_header(stream, *buffer, *parser, use_awaitable);
           !bytes_read) {
-        co_return unexpected { bytes_read.error() };
+        if (bytes_read.error()
+            == make_error_code(boost::beast::http::error::header_limit)) {
+          auto res
+              = web::response::bad_request()
+                    .set_header(http::field::content_type, mime::text_plain())
+                    .set_body("request header size exceeds limit");
+          co_return co_await do_response(stream, res, false);
+        } else {
+          co_return unexpected { bytes_read.error() };
+        }
       }
 
       const bool keep_alive = parser->get().keep_alive();
@@ -439,19 +483,7 @@ private:
           co_return unexpected { result.error() };
         }
       } else {
-        if (auto exp = co_await std::visit(
-                overloaded {
-                    [&](any_body::null) {
-                      return do_null_body_response(stream, res, keep_alive);
-                    },
-                    [&](any_body::sized) {
-                      return do_sized_response(stream, res, keep_alive);
-                    },
-                    [&](any_body::chunked) {
-                      return do_chunked_response(stream, res, keep_alive);
-                    } },
-                res.body().size());
-            !exp) {
+        if (auto exp = co_await do_response(stream, res, keep_alive); !exp) {
           co_return unexpected { exp.error() };
         }
       }
@@ -462,6 +494,23 @@ private:
     }
 
     co_return expected<void, std::error_code>();
+  }
+
+  template <typename Stream>
+  auto do_response(Stream& stream, response& res, bool keep_alive) const
+      -> awaitable<expected<void, std::error_code>>
+  {
+    co_return co_await std::visit(
+        overloaded { [&](any_body::null) {
+                      return do_null_body_response(stream, res, keep_alive);
+                    },
+                     [&](any_body::sized) {
+                       return do_sized_response(stream, res, keep_alive);
+                     },
+                     [&](any_body::chunked) {
+                       return do_chunked_response(stream, res, keep_alive);
+                     } },
+        res.body().size());
   }
 
   template <typename Stream>
@@ -559,7 +608,9 @@ private:
   router_type router_;
   int max_listen_connections_;
   optional<duration_type> tls_handshake_timeout_;
-  optional<duration_type> reuqest_timeout_;
+  optional<duration_type> request_timeout_;
+  optional<std::uint32_t> request_header_limit_;
+  optional<std::uint64_t> request_body_limit_;
   exception_handler_t exception_handler_;
 };
 
@@ -635,6 +686,52 @@ public:
   set_request_timeout(optional<duration_type> timeout) && noexcept -> builder&&
   {
     set_request_timeout(timeout);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the maximum size in bytes for reading client request header.
+  ///
+  /// Description
+  ///     Set the maximum size in bytes for reading client request header. Pass
+  ///     ``nullopt`` to disable header size check. Default limit is 8KB.
+  ///
+  /// @endverbatim
+  auto
+  set_request_header_limit(optional<std::uint32_t> limit) & noexcept -> builder&
+  {
+    request_header_limit_ = limit;
+    return *this;
+  }
+
+  auto set_request_header_limit(optional<std::uint32_t> limit) && noexcept
+      -> builder&&
+  {
+    set_request_header_limit(limit);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set the maximum size in bytes for reading client request body.
+  ///
+  /// Description
+  ///     Set the maximum size in bytes for reading client request body. Pass
+  ///     ``nullopt`` to disable body size check. Default limit is 1MB.
+  ///
+  /// @endverbatim
+  auto
+  set_request_body_limit(optional<std::uint64_t> limit) & noexcept -> builder&
+  {
+    request_body_limit_ = limit;
+    return *this;
+  }
+
+  auto
+  set_request_body_limit(optional<std::uint64_t> limit) && noexcept -> builder&&
+  {
+    set_request_body_limit(limit);
     return std::move(*this);
   }
 
@@ -749,6 +846,8 @@ public:
              max_listen_connections_,
              tls_handshake_timeout_,
              request_timeout_,
+             request_header_limit_,
+             request_body_limit_,
              std::move(exception_handler_) };
   }
 
@@ -758,6 +857,8 @@ private:
   optional<int> max_listen_connections_;
   optional<duration_type> tls_handshake_timeout_ = std::chrono::seconds(3);
   optional<duration_type> request_timeout_ = std::chrono::seconds(5);
+  optional<std::uint32_t> request_header_limit_ = 8 * 1024;
+  optional<std::uint64_t> request_body_limit_ = 1 * 1024 * 1024;
   optional<exception_handler_t> exception_handler_;
 };
 

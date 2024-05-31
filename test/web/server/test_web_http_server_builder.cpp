@@ -27,6 +27,8 @@ TEST_CASE("builder")
                     .set_max_listen_connections(2048)
                     .set_tls_handshake_timeout(std::chrono::seconds(5))
                     .set_request_timeout(std::chrono::seconds(10))
+                    .set_request_header_limit(nullopt)
+                    .set_request_body_limit(nullopt)
 #if !FITORIA_NO_EXCEPTIONS
                     .set_exception_handler([](std::exception_ptr ptr) {
                       if (ptr) {
@@ -51,7 +53,9 @@ TEST_CASE("builder")
 
   REQUIRE_EQ(server.max_listen_connections(), 2048);
   REQUIRE_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
-  REQUIRE_EQ(server.reuqest_timeout(), std::chrono::seconds(10));
+  REQUIRE_EQ(server.request_timeout(), std::chrono::seconds(10));
+  REQUIRE_EQ(server.request_header_limit(), nullopt);
+  REQUIRE_EQ(server.request_body_limit(), nullopt);
 
   net::co_spawn(
       ioc,
