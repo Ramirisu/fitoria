@@ -27,7 +27,7 @@ using boost::beast::http::field;
 ///
 /// HTTP field
 ///
-/// Description
+/// DESCRIPTION
 ///     HTTP field, alias of ``boost::beast::http::field``
 ///
 /// .. seealso::

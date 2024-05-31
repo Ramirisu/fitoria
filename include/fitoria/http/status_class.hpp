@@ -27,7 +27,7 @@ using boost::beast::http::status_class;
 ///
 /// HTTP status category
 ///
-/// Description
+/// DESCRIPTION
 ///     HTTP status category, alias of ``boost::beast::http::status_class``
 ///
 /// .. seealso::

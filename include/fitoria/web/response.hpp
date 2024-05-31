@@ -131,7 +131,7 @@ public:
   ///
   /// Create the ``response_builder`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Create the ``response_builder`` instance. Note that do not use current
   ///     ``response`` instance anymore after calling this function.
   ///
@@ -681,7 +681,7 @@ public:
   ///
   /// Set http header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set http header. The input ``name`` will be canonicalized before
   ///    inserting it. Note that any existing header with the same name will be
   ///    removed before the insertion.
@@ -705,7 +705,7 @@ public:
   ///
   /// Set http header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set http header. Note that any existing header with the same name will
   ///    be removed before the insertion.
   ///
@@ -728,7 +728,7 @@ public:
   ///
   /// Insert http header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Insert http header. The input ``name`` will be canonicalized before
   ///    inserting it. Note that any existing header with the same name
   ///    will be kept.
@@ -752,7 +752,7 @@ public:
   ///
   /// Insert http header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Insert http header. Note that any existing header with the same name
   ///    will be kept.
   ///
@@ -775,7 +775,7 @@ public:
   ///
   /// Create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Create the ``response`` instance. Note that do not use current
   ///     ``response_builder`` instance anymore after calling this function.
   ///
@@ -789,7 +789,7 @@ public:
   ///
   /// Set a raw body and create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set a raw body and create the ``response`` instance. Note that do not
   ///    use current ``response_builder`` instance anymore after calling this
   ///    function.
@@ -807,7 +807,7 @@ public:
   ///
   /// Set a raw body and create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set a raw body and create the ``response`` instance. Note that do not
   ///    use current ``response_builder`` instance anymore after calling this
   ///    function.
@@ -823,7 +823,7 @@ public:
   ///
   /// Set a json object as the body and create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set a json object as the body and create the ``response`` instance.
   ///    ``Content-Type: application/json`` will be automatically inserted. Note
   ///    that do not use current ``response_builder`` instance anymore after
@@ -842,7 +842,7 @@ public:
   /// Set an object of type ``T`` that is converiable to a json object as the
   /// body and create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set an object of type ``T`` that is converiable to a json object as the
   ///    the body and create the ``response`` instance. ``Content-Type:
   ///    application/json`` will be automatically inserted. Note that do not use
@@ -861,7 +861,7 @@ public:
   ///
   /// Set a stream body and create the ``response`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///    Set a stream body and create the ``response`` instance. A stream body
   ///    will be sent with ``Transfer-Encoding: chunked``. Note that do not use
   ///    current ``response_builder`` instance anymore after calling this

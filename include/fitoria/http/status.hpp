@@ -27,7 +27,7 @@ using boost::beast::http::status;
 ///
 /// HTTP status code
 ///
-/// Description
+/// DESCRIPTION
 ///     HTTP status code, alias of ``boost::beast::http::status``
 ///
 /// .. seealso::

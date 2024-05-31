@@ -27,7 +27,7 @@ using boost::beast::http::verb;
 ///
 /// HTTP method
 ///
-/// Description
+/// DESCRIPTION
 ///     HTTP method, alias of ``boost::beast::http::verb``
 ///
 /// .. seealso::

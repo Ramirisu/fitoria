@@ -122,7 +122,7 @@ public:
 ///
 /// Provides the way to create scopes.
 ///
-/// Description
+/// DESCRIPTION
 ///     A path and must be specified for construction. And users can optionally
 ///     bind it with ``state`` s and ``middleware`` s. Note that ``state`` s
 ///     bound for a ``scope`` will be shared between all ``route`` s under the

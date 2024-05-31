@@ -96,7 +96,7 @@ public:
   ///
   /// Get the timeout for TLS handshake.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Get the timeout for TLS handshake. If no timeout is set, ``nullopt``
   ///     is returned.
   ///
@@ -110,7 +110,7 @@ public:
   ///
   /// Get the timeout for serving client request.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Get the timeout for serving client request. If no timeout is set,
   ///     ``nullopt`` is returned.
   ///
@@ -124,7 +124,7 @@ public:
   ///
   /// Get the maximum size in bytes for reading client request header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Get the maximum size in bytes for reading client request header.
   ///     ``nullopt`` indicates no size check will be performed.
   ///
@@ -138,7 +138,7 @@ public:
   ///
   /// Get the maximum size in bytes for reading client request body.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Get the maximum size in bytes for reading client request body.
   ///     ``nullopt`` indicates no size check will be performed.
   ///
@@ -208,7 +208,7 @@ public:
   /// Binds address and create an acceptor for local (Unix domain socket)
   /// connections.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Binds address and create an acceptor for local (Unix domain socket)
   ///     connections. Make sure that no file is at the ``file_path``, or system
   ///     call ``bind`` may return error.
@@ -240,7 +240,7 @@ public:
   /// Binds address and create an acceptor for local (Unix domain socket) TLS
   /// connections.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Binds address and create an acceptor for local (Unix domain socket)
   ///     TLS connections. Make sure that no file is at the ``file_path``, or
   ///     system call ``bind`` may return error.
@@ -649,8 +649,8 @@ public:
   ///
   /// Set the timeout for TLS handshake.
   ///
-  /// Description
-  ///      Pass ``nullopt`` to disable timeout.
+  /// DESCRIPTION
+  ///     Pass ``nullopt`` to disable timeout.
   ///
   /// @endverbatim
   auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
@@ -671,8 +671,8 @@ public:
   ///
   /// Set the timeout for serving client request.
   ///
-  /// Description
-  ///      Pass ``nullopt`` to disable timeout.
+  /// DESCRIPTION
+  ///     Pass ``nullopt`` to disable timeout.
   ///
   /// @endverbatim
   auto
@@ -693,7 +693,7 @@ public:
   ///
   /// Set the maximum size in bytes for reading client request header.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Set the maximum size in bytes for reading client request header. Pass
   ///     ``nullopt`` to disable header size check. Default limit is 8KB.
   ///
@@ -716,7 +716,7 @@ public:
   ///
   /// Set the maximum size in bytes for reading client request body.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Set the maximum size in bytes for reading client request body. Pass
   ///     ``nullopt`` to disable body size check. Default limit is 1MB.
   ///
@@ -741,7 +741,7 @@ public:
   ///
   /// Set the exception handler to handle any exception thrown from the server.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Set the exception handler to handle any exception thrown from the
   ///     server. If is not set by user, the ``default_exception_handler`` will
   ///     be used.
@@ -768,7 +768,7 @@ public:
   ///
   /// Add a ``route`` to the server.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Add a ``route`` to the server. Note that no duplicate ``route`` s are
   ///     allowed.
   ///
@@ -802,7 +802,7 @@ public:
   ///
   /// Add all ``route`` s from a ``scope`` to the server.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Add all ``route`` s from a ``scope`` to the server. Note that no
   ///     duplicate routes are allowed.
   ///
@@ -832,7 +832,7 @@ public:
   ///
   /// Create the ``http_server`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Create the ``http_server`` instance. Note that do not use current
   ///     ``builder`` instacne anymore after calling this function.
   ///

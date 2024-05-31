@@ -20,7 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 /// An adapter that turns ``Container`` into a type that satisfies
 /// ``net::DynamicBuffer`` concept.
 ///
-/// Description
+/// DESCRIPTION
 ///     An adapter that turns ``Container`` into a type that satisfies
 ///     ``net::DynamicBuffer`` concept. Note that ``Container`` must use
 ///     contiguous storage.
@@ -167,7 +167,7 @@ public:
   ///
   /// Release the underlying ``Container`` instance.
   ///
-  /// Description
+  /// DESCRIPTION
   ///     Release the underlying ``Container`` instance, which only contains
   ///     readable bytes
   ///

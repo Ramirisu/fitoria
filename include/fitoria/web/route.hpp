@@ -138,7 +138,7 @@ private:
 ///
 /// Provides the way to create routes.
 ///
-/// Description
+/// DESCRIPTION
 ///     A path and a method and a handler for serving the route must be
 ///     specified for construction. And users can optionally bind it with
 ///     ``state`` s and ``middleware`` s.

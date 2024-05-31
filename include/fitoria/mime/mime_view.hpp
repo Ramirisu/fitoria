@@ -30,7 +30,9 @@ public:
   ///
   /// Get complete string of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get complete string of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
   ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
@@ -44,7 +46,9 @@ public:
   ///
   /// Get **essense** part of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get **essense** part of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain"``
   ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
@@ -58,7 +62,9 @@ public:
   ///
   /// Get **type** part of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get **type** part of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``"text"``
   ///     - ``"image/svg+xml"`` -> ``"image"``
   ///
@@ -72,7 +78,9 @@ public:
   ///
   /// Get **subtype** part of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get **subtype** part of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``"plain"``
   ///     - ``"image/svg+xml"`` -> ``"svg"``
   ///
@@ -86,7 +94,9 @@ public:
   ///
   /// Get **suffix** part of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get **suffix** part of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``""``
   ///     - ``"image/svg+xml"`` -> ``"xml"``
   ///
@@ -100,7 +110,9 @@ public:
   ///
   /// Get parameters of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get parameters of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``{ { "charset", "utf-8" } }``
   ///     - ``"image/svg+xml"`` -> ``{}``
   ///
@@ -114,7 +126,9 @@ public:
   ///
   /// Get complete string of the mime.
   ///
-  /// Return
+  /// DESCRIPTION
+  ///     Get complete string of the mime.
+  ///
   ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
   ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
