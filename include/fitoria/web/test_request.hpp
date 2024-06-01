@@ -119,11 +119,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``test_request_builder`` instance.
+  /// Create the builder for further modification.
   ///
   /// DESCRIPTION
-  ///     Create the ``test_request_builder`` instance. Note that do not use
-  ///     current ``test_request`` instance anymore after calling this function.
+  ///     Create the builder for further modification. Note that current object
+  ///     is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto builder() -> test_request_builder;
@@ -356,11 +356,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``test_request`` instance.
+  /// Create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///    Create the ``test_request`` instance. Note that do not use current
-  ///     ``test_request_builder`` instance anymore after calling this function.
+  ///     Create the ``test_request``. Note that current object is no longer
+  ///     usable after calling this function.
   ///
   /// @endverbatim
   auto build() -> test_request

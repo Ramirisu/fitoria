@@ -29,23 +29,32 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
-class request {
-public:
-  request(http::verb method)
-      : method_(method)
-  {
-  }
+class http_server;
+class request_builder;
 
-  request(connect_info conn_info,
-          path_info path_info,
+class request {
+  friend class request_builder;
+  friend class http_server;
+
+  connect_info connection_;
+  path_info path_;
+  http::verb method_;
+  http::version version_;
+  query_map query_;
+  http::header header_;
+  any_async_readable_stream body_;
+  state_storage states_;
+
+  request(connect_info connection,
+          path_info path,
           http::verb method,
           http::version version,
           query_map query,
           http::header header,
           any_async_readable_stream body,
           state_storage states)
-      : conn_info_(std::move(conn_info))
-      , path_info_(std::move(path_info))
+      : connection_(std::move(connection))
+      , path_(std::move(path))
       , method_(method)
       , version_(version)
       , query_(std::move(query))
@@ -55,218 +64,420 @@ public:
   {
   }
 
+public:
+  request(const request&) = delete;
+
+  request& operator=(const request&) = delete;
+
+  request(request&&) = default;
+
+  request& operator=(request&&) = default;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get connection information.
+  ///
+  /// @endverbatim
   auto connection() const noexcept -> const connect_info&
   {
-    return conn_info_;
+    return connection_;
   }
 
-  auto path() noexcept -> path_info&
-  {
-    return path_info_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get path matching information
+  ///
+  /// @endverbatim
   auto path() const noexcept -> const path_info&
   {
-    return path_info_;
+    return path_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP method.
+  ///
+  /// @endverbatim
   auto method() const noexcept -> http::verb
   {
     return method_;
   }
 
-  auto set_method(http::verb method) & noexcept -> request&
-  {
-    method_ = method;
-    return *this;
-  }
-
-  auto set_method(http::verb method) && noexcept -> request&&
-  {
-    method_ = method;
-    return std::move(*this);
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP version.
+  ///
+  /// @endverbatim
   auto version() const noexcept -> const http::version&
   {
     return version_;
   }
 
-  auto query() noexcept -> query_map&
-  {
-    return query_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get query string.
+  ///
+  /// @endverbatim
   auto query() const noexcept -> const query_map&
   {
     return query_;
   }
 
-  auto set_query(std::string name, std::string value) & -> request&
-  {
-    query_.set(std::move(name), std::move(value));
-    return *this;
-  };
-
-  auto set_query(std::string name, std::string value) && -> request&&
-  {
-    query_.set(std::move(name), std::move(value));
-    return std::move(*this);
-  };
-
-  auto header() noexcept -> http::header&
-  {
-    return header_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP header.
+  ///
+  /// @endverbatim
   auto header() const noexcept -> const http::header&
   {
     return header_;
   }
 
-  auto set_header(std::string name, std::string_view value) & -> request&
-  {
-    header_.set(std::move(name), value);
-    return *this;
-  }
-
-  auto set_header(std::string name, std::string_view value) && -> request&&
-  {
-    header_.set(std::move(name), value);
-    return std::move(*this);
-  }
-
-  auto set_header(http::field name, std::string_view value) & -> request&
-  {
-    header_.set(name, value);
-    return *this;
-  }
-
-  auto set_header(http::field name, std::string_view value) && -> request&&
-  {
-    header_.set(name, value);
-    return std::move(*this);
-  }
-
-  auto insert_header(std::string name, std::string_view value) & -> request&
-  {
-    header_.insert(std::move(name), value);
-    return *this;
-  }
-
-  auto insert_header(std::string name, std::string_view value) && -> request&&
-  {
-    header_.insert(std::move(name), value);
-    return std::move(*this);
-  }
-
-  auto insert_header(http::field name, std::string_view value) & -> request&
-  {
-    header_.insert(name, value);
-    return *this;
-  }
-
-  auto insert_header(http::field name, std::string_view value) && -> request&&
-  {
-    header_.insert(name, value);
-    return std::move(*this);
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() noexcept -> any_async_readable_stream&
   {
     return body_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() const noexcept -> const any_async_readable_stream&
   {
     return body_;
   }
 
-  template <std::size_t N>
-  auto set_body(std::span<const std::byte, N> bytes) & -> request&
-  {
-    body_ = async_readable_vector_stream(bytes);
-    return *this;
-  }
-
-  template <std::size_t N>
-  auto set_body(std::span<const std::byte, N> bytes) && -> request&&
-  {
-    set_body(bytes);
-    return std::move(*this);
-  }
-
-  auto set_body(std::string_view sv) & -> request&
-  {
-    set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
-    return *this;
-  }
-
-  auto set_body(std::string_view sv) && -> request&&
-  {
-    set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
-    return std::move(*this);
-  }
-
-  auto set_json(const boost::json::value& jv) & -> request&
-  {
-    set_header(http::field::content_type, mime::application_json());
-    auto str = boost::json::serialize(jv);
-    set_body(std::as_bytes(std::span(str.begin(), str.end())));
-    return *this;
-  }
-
-  auto set_json(const boost::json::value& jv) && -> request&&
-  {
-    set_json(jv);
-    return std::move(*this);
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get associated states.
+  ///
+  /// @endverbatim
   template <typename T>
-    requires(boost::json::has_value_from<T>::value)
-  auto set_json(const T& obj) & -> request&
-  {
-    return set_json(boost::json::value_from(obj));
-  }
-
-  template <typename T>
-    requires(boost::json::has_value_from<T>::value)
-  auto set_json(const T& obj) && -> request&&
-  {
-    set_json(boost::json::value_from(obj));
-    return std::move(*this);
-  }
-
-  template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) & -> request&
-  {
-    body_ = std::forward<AsyncReadableStream>(stream);
-    return *this;
-  }
-
-  template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) && -> request&&
-  {
-    set_stream(std::forward<AsyncReadableStream>(stream));
-    return std::move(*this);
-  }
-
-  template <typename T>
-  auto state() const -> optional<T&>
+  auto state() const noexcept -> optional<T&>
   {
     return states_.state<T>();
   }
 
-private:
-  connect_info conn_info_;
-  path_info path_info_;
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the builder for furthur modification.
+  ///
+  /// DESCRIPTION
+  ///     Create the builder for furthur modification. Note that current object
+  ///     is no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  auto builder() -> request_builder;
+};
+
+class request_builder {
+  friend class request;
+
+  connect_info connection_;
+  path_info path_;
   http::verb method_;
   http::version version_;
   query_map query_;
   http::header header_;
-  any_async_readable_stream body_ = async_readable_vector_stream();
+  any_async_readable_stream body_;
   state_storage states_;
+
+  request_builder(connect_info connection,
+                  path_info path,
+                  http::verb method,
+                  http::version version,
+                  query_map query,
+                  http::header header,
+                  any_async_readable_stream body,
+                  state_storage states)
+      : connection_(std::move(connection))
+      , path_(std::move(path))
+      , method_(method)
+      , version_(version)
+      , query_(std::move(query))
+      , header_(std::move(header))
+      , body_(std::move(body))
+      , states_(std::move(states))
+  {
+  }
+
+public:
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP method.
+  ///
+  /// @endverbatim
+  auto set_method(http::verb method) & noexcept -> request_builder&
+  {
+    method_ = method;
+    return *this;
+  }
+
+  auto set_method(http::verb method) && noexcept -> request_builder&&
+  {
+    method_ = method;
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set query string.
+  ///
+  /// @endverbatim
+  auto set_query(std::string name, std::string value) & -> request_builder&
+  {
+    query_.set(std::move(name), std::move(value));
+    return *this;
+  };
+
+  auto set_query(std::string name, std::string value) && -> request_builder&&
+  {
+    query_.set(std::move(name), std::move(value));
+    return std::move(*this);
+  };
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get query string map.
+  ///
+  /// @endverbatim
+  auto query() noexcept -> query_map&
+  {
+    return query_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Set HTTP header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name will be
+  ///    removed before the insertion.
+  ///
+  /// @endverbatim
+  auto set_header(std::string_view name,
+                  std::string_view value) & -> request_builder&
+  {
+    header_.set(name, value);
+    return *this;
+  }
+
+  auto set_header(std::string_view name,
+                  std::string_view value) && -> request_builder&&
+  {
+    header_.set(name, value);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Set HTTP header. Note that any existing header with the same name will
+  ///    be removed before the insertion.
+  ///
+  /// @endverbatim
+  auto set_header(http::field name,
+                  std::string_view value) & -> request_builder&
+  {
+    header_.set(name, value);
+    return *this;
+  }
+
+  auto set_header(http::field name,
+                  std::string_view value) && -> request_builder&&
+  {
+    header_.set(name, value);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Insert HTTP header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
+  auto insert_header(std::string_view name,
+                     std::string_view value) & -> request_builder&
+  {
+    header_.insert(name, value);
+    return *this;
+  }
+
+  auto insert_header(std::string_view name,
+                     std::string_view value) && -> request_builder&&
+  {
+    header_.insert(name, value);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Insert HTTP header. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
+  auto insert_header(http::field name,
+                     std::string_view value) & -> request_builder&
+  {
+    header_.insert(name, value);
+    return *this;
+  }
+
+  auto insert_header(http::field name,
+                     std::string_view value) && -> request_builder&&
+  {
+    header_.insert(name, value);
+    return std::move(*this);
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP header map.
+  ///
+  /// @endverbatim
+  auto header() noexcept -> http::header&
+  {
+    return header_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``request`` instance. Note that do not
+  ///    use current ``request_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
+  template <std::size_t N>
+  auto set_body(std::span<const std::byte, N> bytes) -> request
+  {
+    body_ = async_readable_vector_stream(bytes);
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``request`` instance. Note that do not
+  ///    use current ``request_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
+  auto set_body(std::string_view sv) -> request
+  {
+    set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a json object as the body and create the ``request`` instance.
+  ///    ``Content-Type: application/json`` will be automatically inserted. Note
+  ///    that do not use current ``request_builder`` instance anymore after
+  ///    calling this function.
+  ///
+  /// @endverbatim
+  auto set_json(const boost::json::value& jv) -> request
+  {
+    auto str = boost::json::serialize(jv);
+    set_header(http::field::content_type, mime::application_json());
+    set_body(std::as_bytes(std::span(str.begin(), str.end())));
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set an object of type ``T`` that is converiable to a json object as the
+  /// body and create the ``request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set an object of type ``T`` that is converiable to a json object as the
+  ///    the body and create the ``request`` instance. ``Content-Type:
+  ///    application/json`` will be automatically inserted. Note that do not use
+  ///    current ``request_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
+  template <typename T>
+    requires(boost::json::has_value_from<T>::value)
+  auto set_json(const T& obj) -> request
+  {
+    return set_json(boost::json::value_from(obj));
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a stream body and create the ``request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a stream body and create the ``request`` instance. Note that do not
+  ///    use current ``request_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
+  template <async_readable_stream AsyncReadableStream>
+  auto set_stream(AsyncReadableStream&& stream) -> request
+  {
+    body_ = std::forward<AsyncReadableStream>(stream);
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``request``.
+  ///
+  /// DESCRIPTION
+  ///     Create the ``request``. Note that current object is no longer usable
+  ///     after calling this function.
+  ///
+  /// @endverbatim
+  auto build() -> request
+  {
+    return { std::move(connection_),
+             std::move(path_),
+             method_,
+             version_,
+             std::move(query_),
+             std::move(header_),
+             std::move(body_),
+             std::move(states_) };
+  }
 };
+
+inline auto request::builder() -> request_builder
+{
+  return { std::move(connection_),
+           std::move(path_),
+           method_,
+           version_,
+           std::move(query_),
+           std::move(header_),
+           std::move(body_),
+           std::move(states_) };
+}
 
 }
 

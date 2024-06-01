@@ -38,30 +38,37 @@ public:
       auto encs = split_of(*str, ",");
       std::reverse(encs.begin(), encs.end());
 
+      auto body = std::move(req.body());
+
       for (auto& enc : encs) {
         if (iequals(enc, "deflate")) {
-          req.set_stream(detail::async_inflate_stream(std::move(req.body())));
+          body = detail::async_inflate_stream(std::move(body));
 #if defined(FITORIA_HAS_ZLIB)
         } else if (iequals(enc, "gzip")) {
-          req.set_stream(
-              detail::async_gzip_inflate_stream(std::move(req.body())));
+          body = detail::async_gzip_inflate_stream(std::move(body));
 #endif
 #if defined(FITORIA_HAS_BROTLI)
         } else if (iequals(enc, "brotli")) {
-          req.set_stream(
-              detail::async_brotli_inflate_stream(std::move(req.body())));
+          body = detail::async_brotli_inflate_stream(std::move(body));
 #endif
         } else if (iequals(enc, "identity")) {
         } else {
-          break;
+          co_return response::bad_request()
+              .set_header(http::field::content_type, mime::text_plain())
+              .set_body("unsupported \"Content-Encoding\".");
         }
         *str = remove_last_encoding(*str);
       }
+
+      auto builder = req.builder();
+
       if (str->empty()) {
-        req.header().erase(http::field::content_encoding);
+        builder.header().erase(http::field::content_encoding);
       } else {
-        req.header().set(http::field::content_encoding, *str);
+        builder.set_header(http::field::content_encoding, *str);
       }
+
+      req = builder.set_stream(std::move(body));
     }
 
     co_return co_await next_(req);

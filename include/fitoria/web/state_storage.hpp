@@ -59,7 +59,7 @@ public:
   }
 
   template <typename T>
-  auto state() const -> optional<T&>
+  auto state() const noexcept -> optional<T&>
   {
     static_assert(not_cvref<T>, "T must not be cvref qualified");
     for (auto& map : maps_) {

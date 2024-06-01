@@ -107,6 +107,11 @@ public:
     return impl_->header;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() noexcept -> any_body&
   {
     return impl_->body;
@@ -124,11 +129,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``response_builder`` instance.
+  /// Create the builder for further modification.
   ///
   /// DESCRIPTION
-  ///     Create the ``response_builder`` instance. Note that do not use current
-  ///     ``response`` instance anymore after calling this function.
+  ///     Create the builder for further modification. Note that current object
+  ///     is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto builder() -> response_builder;
@@ -768,20 +773,6 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``response`` instance.
-  ///
-  /// DESCRIPTION
-  ///    Create the ``response`` instance. Note that do not use current
-  ///     ``response_builder`` instance anymore after calling this function.
-  ///
-  /// @endverbatim
-  auto build() -> response
-  {
-    return { status_code_, version_, std::move(header_), std::move(body_) };
-  }
-
-  /// @verbatim embed:rst:leading-slashes
-  ///
   /// Set a raw body and create the ``response`` instance.
   ///
   /// DESCRIPTION
@@ -826,8 +817,8 @@ public:
   /// @endverbatim
   auto set_json(const boost::json::value& jv) -> response
   {
-    set_header(http::field::content_type, mime::application_json());
     auto str = boost::json::serialize(jv);
+    set_header(http::field::content_type, mime::application_json());
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }
 
@@ -868,6 +859,20 @@ public:
     body_ = any_body(any_body::chunked(),
                      std::forward<AsyncReadableStream>(stream));
     return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``response``.
+  ///
+  /// DESCRIPTION
+  ///     Create the ``response``. Note that current object is no longer usable
+  ///     after calling this function.
+  ///
+  /// @endverbatim
+  auto build() -> response
+  {
+    return { status_code_, version_, std::move(header_), std::move(body_) };
   }
 };
 

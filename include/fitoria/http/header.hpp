@@ -97,12 +97,12 @@ public:
     return nullopt;
   }
 
-  auto equal_range(std::string_view name) -> std::pair<iterator, iterator>
+  auto equal_range(std::string_view name) const -> std::pair<iterator, iterator>
   {
     return impl_.equal_range(name);
   }
 
-  auto equal_range(http::field name) -> std::pair<iterator, iterator>
+  auto equal_range(http::field name) const -> std::pair<iterator, iterator>
   {
     return impl_.equal_range(name);
   }
