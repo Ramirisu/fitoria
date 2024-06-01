@@ -15,6 +15,7 @@
 #include <fitoria/core/json.hpp>
 
 #include <fitoria/http.hpp>
+#include <fitoria/mime.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/any_body.hpp>
@@ -62,60 +63,118 @@ public:
 
   test_request& operator=(test_request&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP method.
+  ///
+  /// @endverbatim
   auto method() const noexcept -> http::verb
   {
     return method_;
   }
 
-  auto version() const noexcept -> http::version
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP version.
+  ///
+  /// @endverbatim
+  auto version() const noexcept -> const http::version&
   {
     return version_;
   }
 
-  auto header() noexcept -> http::header&
-  {
-    return header_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP header.
+  ///
+  /// @endverbatim
   auto header() const noexcept -> const http::header&
   {
     return header_;
   }
 
-  auto query() noexcept -> query_map&
-  {
-    return query_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get query string.
+  ///
+  /// @endverbatim
   auto query() const noexcept -> const query_map&
   {
     return query_;
   }
-
   auto body() noexcept -> any_body&
   {
     return body_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() const noexcept -> const any_body&
   {
     return body_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``test_request_builder`` instance.
+  ///
+  /// DESCRIPTION
+  ///     Create the ``test_request_builder`` instance. Note that do not use
+  ///     current ``test_request`` instance anymore after calling this function.
+  ///
+  /// @endverbatim
   auto builder() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto get() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto post() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto put() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto patch() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto delete_() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto head() -> test_request_builder;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``test_request_builder`` with specific HTTP method.
+  ///
+  /// @endverbatim
   static auto options() -> test_request_builder;
 };
 
@@ -155,6 +214,11 @@ public:
 
   test_request_builder& operator=(test_request_builder&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP method.
+  ///
+  /// @endverbatim
   auto set_method(http::verb method) & noexcept -> test_request_builder&
   {
     method_ = method;
@@ -167,6 +231,11 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP version.
+  ///
+  /// @endverbatim
   auto set_version(http::version version) & noexcept -> test_request_builder&
   {
     version_ = version;
@@ -179,13 +248,22 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Set HTTP header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name will be
+  ///    removed before the insertion.
+  ///
+  /// @endverbatim
   auto set_header(std::string_view name,
                   std::string_view value) & -> test_request_builder&
   {
     header_.set(name, value);
     return *this;
   }
-
   auto set_header(std::string_view name,
                   std::string_view value) && -> test_request_builder&&
   {
@@ -193,6 +271,15 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Set HTTP header. Note that any existing header with the same name will
+  ///    be removed before the insertion.
+  ///
+  /// @endverbatim
   auto set_header(http::field name,
                   std::string_view value) & -> test_request_builder&
   {
@@ -207,6 +294,16 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Insert HTTP header. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
   auto insert_header(std::string_view name,
                      std::string_view value) & -> test_request_builder&
   {
@@ -221,6 +318,15 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert HTTP header.
+  ///
+  /// DESCRIPTION
+  ///    Insert HTTP header. Note that any existing header with the same name
+  ///    will be kept.
+  ///
+  /// @endverbatim
   auto insert_header(http::field name,
                      std::string_view value) & -> test_request_builder&
   {
@@ -248,6 +354,15 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Create the ``test_request`` instance. Note that do not use current
+  ///     ``test_request_builder`` instance anymore after calling this function.
+  ///
+  /// @endverbatim
   auto build() -> test_request
   {
     return {
@@ -255,6 +370,16 @@ public:
     };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``test_request`` instance. Note that do
+  ///    not use current ``test_request_builder`` instance anymore after calling
+  ///    this function.
+  ///
+  /// @endverbatim
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) -> test_request
   {
@@ -263,12 +388,32 @@ public:
     return build();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``test_request`` instance. Note that do
+  ///    not use current ``test_request_builder`` instance anymore after calling
+  ///    this function.
+  ///
+  /// @endverbatim
   auto set_body(std::string_view sv) -> test_request
   {
-    // TODO: plaintext?
     return set_body(std::as_bytes(std::span(sv.begin(), sv.end())));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a json object as the body and create the ``test_request`` instance.
+  ///    ``Content-Type: application/json`` will be automatically inserted. Note
+  ///    that do not use current ``test_request_builder`` instance anymore after
+  ///    calling this function.
+  ///
+  /// @endverbatim
   auto set_json(const boost::json::value& jv) -> test_request
   {
     set_header(http::field::content_type, mime::application_json());
@@ -276,6 +421,19 @@ public:
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set an object of type ``T`` that is converiable to a json object as the
+  /// body and create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set an object of type ``T`` that is converiable to a json object as the
+  ///    the body and create the ``test_request`` instance. ``Content-Type:
+  ///    application/json`` will be automatically inserted. Note that do not use
+  ///    current ``test_request_builder`` instance anymore after calling this
+  ///    function.
+  ///
+  /// @endverbatim
   template <typename T>
     requires(boost::json::has_value_from<T>::value)
   auto set_json(const T& obj) -> test_request
@@ -283,6 +441,17 @@ public:
     return set_json(boost::json::value_from(obj));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a stream body and create the ``test_request`` instance.
+  ///
+  /// DESCRIPTION
+  ///    Set a stream body and create the ``test_request`` instance. A stream
+  ///    body will be sent with ``Transfer-Encoding: chunked``. Note that do not
+  ///    use current ``test_request_builder`` instance anymore after calling
+  ///    this function.
+  ///
+  /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) -> test_request
   {

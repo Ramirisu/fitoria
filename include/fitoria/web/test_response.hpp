@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/http.hpp>
+#include <fitoria/mime.hpp>
 
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_read_into_stream_file.hpp>
@@ -44,31 +45,41 @@ public:
 
   test_response& operator=(test_response&&) = default;
 
-  auto status_code() const noexcept -> http::status_code
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP status code.
+  ///
+  /// @endverbatim
+  auto status_code() const noexcept -> const http::status_code&
   {
     return status_code_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP version.
+  ///
+  /// @endverbatim
   auto version() const noexcept -> const http::version&
   {
     return version_;
   }
 
-  auto header() noexcept -> http::header&
-  {
-    return header_;
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get HTTP header.
+  ///
+  /// @endverbatim
   auto header() const noexcept -> const http::header&
   {
     return header_;
   }
 
-  auto body() noexcept -> optional<web::any_async_readable_stream&>
-  {
-    return optional<web::any_async_readable_stream&>(body_);
-  }
-
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
   auto body() const noexcept -> optional<const web::any_async_readable_stream&>
   {
     return optional<const web::any_async_readable_stream&>(body_);
