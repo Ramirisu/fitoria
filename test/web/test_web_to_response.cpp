@@ -32,13 +32,14 @@ TEST_CASE("response")
             }))
             .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::text_plain());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::text_plain());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
 
   ioc.run();
 }
@@ -51,13 +52,14 @@ TEST_CASE("std::string")
                         []() -> awaitable<std::string> { co_return "OK"; }))
                     .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::text_plain());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::text_plain());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
 
   ioc.run();
 }
@@ -73,13 +75,14 @@ TEST_CASE("std::vector<std::byte>")
             }))
             .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::application_octet_stream());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::application_octet_stream());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
 
   ioc.run();
 }
@@ -94,13 +97,14 @@ TEST_CASE("std::vector<std::uint8_t>")
                         }))
                     .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::application_octet_stream());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::application_octet_stream());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
 
   ioc.run();
 }
@@ -121,20 +125,22 @@ TEST_CASE("std::variant")
                 }))
             .build();
 
-  server.serve_request(
-      "/yes", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::text_plain());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
-  server.serve_request(
-      "/no", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(res.header().get(http::field::content_type),
-                 mime::application_octet_stream());
-        CHECK_EQ(co_await res.as_string(), "OK");
-      });
+  server.serve_request("/yes",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::text_plain());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
+  server.serve_request("/no",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::application_octet_stream());
+                         CHECK_EQ(co_await res.as_string(), "OK");
+                       });
 
   ioc.run();
 }
@@ -158,11 +164,12 @@ TEST_CASE("stream_file")
                     }))
                     .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [&](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), data);
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [&](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), data);
+                       });
 
   ioc.run();
 }

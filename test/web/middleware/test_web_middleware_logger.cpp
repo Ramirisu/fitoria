@@ -30,7 +30,7 @@ TEST_CASE("logger middleware")
                        test_request::get()
                            .set_header(http::field::user_agent, "fitoria")
                            .build(),
-                       [](auto res) -> awaitable<void> {
+                       [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          co_return;
                        });

@@ -39,7 +39,7 @@ int main()
       test_request::post()
           .set_header(http::field::content_type, mime::text_plain())
           .set_body("username=fitoria&password=123456"),
-      []([[maybe_unused]] auto res) -> awaitable<void> {
+      []([[maybe_unused]] test_response res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code()
                        == http::status::internal_server_error);
         FITORIA_ASSERT(
@@ -48,44 +48,44 @@ int main()
                "application/x-www-form-urlencoded\"");
         co_return;
       });
-  server.serve_request("/api/v1/login",
-                       test_request::post()
-                           .set_header(http::field::content_type,
-                                       mime::application_www_form_urlencoded())
-                           .set_body("username=unknown&password=123456"),
-                       []([[maybe_unused]] auto res) -> awaitable<void> {
-                         FITORIA_ASSERT(res.status_code()
-                                        == http::status::unauthorized);
-                         FITORIA_ASSERT((co_await res.as_string())
-                                        == "incorrect username or password");
-                         co_return;
-                       });
-  server.serve_request("/api/v1/login",
-                       test_request::post()
-                           .set_header(http::field::content_type,
-                                       mime::application_www_form_urlencoded())
-                           .set_body("username=fitoria&password=123"),
-                       []([[maybe_unused]] auto res) -> awaitable<void> {
-                         FITORIA_ASSERT(res.status_code()
-                                        == http::status::unauthorized);
-                         FITORIA_ASSERT((co_await res.as_string())
-                                        == "incorrect username or password");
-                         co_return;
-                       });
-  server.serve_request("/api/v1/login",
-                       test_request::post()
-                           .set_header(http::field::content_type,
-                                       mime::application_www_form_urlencoded())
-                           .set_body("username=fitoria&password=123456"),
-                       []([[maybe_unused]] auto res) -> awaitable<void> {
-                         FITORIA_ASSERT(res.status_code() == http::status::ok);
-                         FITORIA_ASSERT(
-                             res.header().get(http::field::content_type)
-                             == mime::text_plain());
-                         FITORIA_ASSERT((co_await res.as_string())
-                                        == "fitoria, login succeeded");
-                         co_return;
-                       });
+  server.serve_request(
+      "/api/v1/login",
+      test_request::post()
+          .set_header(http::field::content_type,
+                      mime::application_www_form_urlencoded())
+          .set_body("username=unknown&password=123456"),
+      []([[maybe_unused]] test_response res) -> awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "incorrect username or password");
+        co_return;
+      });
+  server.serve_request(
+      "/api/v1/login",
+      test_request::post()
+          .set_header(http::field::content_type,
+                      mime::application_www_form_urlencoded())
+          .set_body("username=fitoria&password=123"),
+      []([[maybe_unused]] test_response res) -> awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "incorrect username or password");
+        co_return;
+      });
+  server.serve_request(
+      "/api/v1/login",
+      test_request::post()
+          .set_header(http::field::content_type,
+                      mime::application_www_form_urlencoded())
+          .set_body("username=fitoria&password=123456"),
+      []([[maybe_unused]] test_response res) -> awaitable<void> {
+        FITORIA_ASSERT(res.status_code() == http::status::ok);
+        FITORIA_ASSERT(res.header().get(http::field::content_type)
+                       == mime::text_plain());
+        FITORIA_ASSERT((co_await res.as_string())
+                       == "fitoria, login succeeded");
+        co_return;
+      });
 
   ioc.run();
 }

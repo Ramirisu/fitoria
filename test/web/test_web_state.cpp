@@ -47,16 +47,18 @@ TEST_CASE("state shares the same instance")
                         })))
             .build();
 
-  server.serve_request(
-      "/modify", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        co_return;
-      });
-  server.serve_request(
-      "/check", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        co_return;
-      });
+  server.serve_request("/modify",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         co_return;
+                       });
+  server.serve_request("/check",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         co_return;
+                       });
 
   ioc.run();
 }
@@ -106,19 +108,19 @@ TEST_CASE("state access order on global, scope and route")
 
   server.serve_request("/api/v1/global",
                        test_request::get().build(),
-                       [](auto res) -> awaitable<void> {
+                       [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "global");
                        });
   server.serve_request("/api/v1/scope",
                        test_request::get().build(),
-                       [](auto res) -> awaitable<void> {
+                       [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "scope");
                        });
   server.serve_request("/api/v1/route",
                        test_request::get().build(),
-                       [](auto res) -> awaitable<void> {
+                       [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
                          CHECK_EQ(co_await res.as_string(), "route");
                        });

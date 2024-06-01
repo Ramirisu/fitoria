@@ -26,11 +26,12 @@ TEST_CASE("connect_info")
             }))
             .build();
 
-  server.serve_request(
-      "/", test_request::get().build(), [](auto res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
-        CHECK_EQ(co_await res.as_string(), "");
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(co_await res.as_string(), "");
+                       });
 
   ioc.run();
 }
