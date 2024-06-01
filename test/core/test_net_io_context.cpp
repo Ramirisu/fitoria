@@ -36,12 +36,12 @@ TEST_CASE("executor_type")
 #if defined(FITORIA_HAS_OPENSSL)
   static_assert(
       std::same_as<ssl_stream<net::ip::tcp>,
-                   boost::beast::ssl_stream<boost::beast::basic_stream<
+                   boost::asio::ssl::stream<boost::beast::basic_stream<
                        net::ip::tcp,
                        net::io_context::executor_type>>>);
   static_assert(
       std::same_as<ssl_stream<net::local::stream_protocol>,
-                   boost::beast::ssl_stream<boost::beast::basic_stream<
+                   boost::asio::ssl::stream<boost::beast::basic_stream<
                        net::local::stream_protocol,
                        net::io_context::executor_type>>>);
 #endif

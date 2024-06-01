@@ -34,11 +34,11 @@ TEST_CASE("executor_type")
   static_assert(
       std::same_as<
           ssl_stream<net::ip::tcp>,
-          boost::beast::ssl_stream<
+          boost::asio::ssl::stream<
               boost::beast::basic_stream<net::ip::tcp, net::any_io_executor>>>);
   static_assert(
       std::same_as<ssl_stream<net::local::stream_protocol>,
-                   boost::beast::ssl_stream<
+                   boost::asio::ssl::stream<
                        boost::beast::basic_stream<net::local::stream_protocol,
                                                   net::any_io_executor>>>);
 #endif

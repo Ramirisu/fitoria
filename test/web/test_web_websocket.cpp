@@ -151,8 +151,7 @@ TEST_CASE("secure websocket")
       [&]() -> awaitable<void> {
         auto ssl_ctx
             = cert::get_client_ssl_ctx(net::ssl::context_base::tls_client);
-        auto stream = boost::beast::websocket::stream<
-            boost::beast::ssl_stream<boost::beast::tcp_stream>>(
+        auto stream = websocket_stream<shared_ssl_stream<net::ip::tcp>>(
             co_await net::this_coro::executor, ssl_ctx);
         REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
             net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),

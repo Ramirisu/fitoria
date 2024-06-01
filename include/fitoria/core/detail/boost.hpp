@@ -27,7 +27,6 @@
 
 #if defined(FITORIA_HAS_OPENSSL)
 #include <boost/asio/ssl.hpp>
-#include <boost/beast/ssl.hpp>
 #endif
 
 #include <boost/asio/experimental/awaitable_operators.hpp>

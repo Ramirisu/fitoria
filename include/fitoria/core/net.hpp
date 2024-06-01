@@ -42,7 +42,7 @@ using basic_stream = boost::beast::basic_stream<Protocol, executor_type>;
 #if defined(FITORIA_HAS_OPENSSL)
 
 template <typename Protocol>
-using ssl_stream = boost::beast::ssl_stream<basic_stream<Protocol>>;
+using ssl_stream = boost::asio::ssl::stream<basic_stream<Protocol>>;
 
 #endif
 
