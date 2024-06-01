@@ -326,6 +326,8 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="websocket.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">websocket</span></code></a></li>
@@ -461,12 +463,10 @@ will be kept.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder5buildEv">
 <span id="_CPPv3N7fitoria3web20test_request_builder5buildEv"></span><span id="_CPPv2N7fitoria3web20test_request_builder5buildEv"></span><span id="fitoria::web::test_request_builder::build"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a0805bc674d725060a08613f1bf778234"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder5buildEv" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><dl class="simple">
-<dt>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance. Note that do not use current</dt><dd><p><code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after calling this function.</p>
-</dd>
-</dl>
+<dt>DESCRIPTION</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. Note that current object is no longer
+usable after calling this function.</p>
 </dd>
 </dl>
 </p>

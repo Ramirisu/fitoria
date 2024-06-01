@@ -35,6 +35,8 @@ Reference
    web/http_server
    web/route
    web/scope
+   web/request_builder
+   web/request
    web/response_builder
    web/response
    web/websocket
