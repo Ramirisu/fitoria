@@ -68,7 +68,7 @@ public:
         builder.set_header(http::field::content_encoding, *str);
       }
 
-      req = builder.set_stream(std::move(body));
+      req = builder.set_body(std::move(body));
     }
 
     co_return co_await next_(req);

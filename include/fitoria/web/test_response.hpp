@@ -80,16 +80,36 @@ public:
   /// Get body.
   ///
   /// @endverbatim
-  auto body() const noexcept -> optional<const web::any_async_readable_stream&>
+  auto body() noexcept -> any_async_readable_stream&
   {
-    return optional<const web::any_async_readable_stream&>(body_);
+    return body_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get body.
+  ///
+  /// @endverbatim
+  auto body() const noexcept -> const any_async_readable_stream&
+  {
+    return body_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Read complete body as ``std::string``.
+  ///
+  /// @endverbatim
   auto as_string() -> awaitable<expected<std::string, std::error_code>>
   {
     return web::async_read_until_eof<std::string>(body_);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Read complete body as ``std::vector<Byte>``.
+  ///
+  /// @endverbatim
   template <typename Byte>
   auto as_vector() -> awaitable<expected<std::vector<Byte>, std::error_code>>
   {
@@ -97,6 +117,12 @@ public:
   }
 
 #if defined(BOOST_ASIO_HAS_FILE)
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Read complete body into file.
+  ///
+  /// @endverbatim
   auto as_file(const std::string& path)
       -> awaitable<expected<std::size_t, std::error_code>>
   {
@@ -112,6 +138,11 @@ public:
   }
 #endif
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Read complete body into type ``T``.
+  ///
+  /// @endverbatim
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {

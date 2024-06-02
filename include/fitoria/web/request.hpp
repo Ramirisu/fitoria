@@ -40,8 +40,8 @@ class request {
   path_info path_;
   http::verb method_;
   http::version version_;
-  query_map query_;
   http::header header_;
+  query_map query_;
   any_async_readable_stream body_;
   state_storage states_;
 
@@ -49,16 +49,16 @@ class request {
           path_info path,
           http::verb method,
           http::version version,
-          query_map query,
           http::header header,
+          query_map query,
           any_async_readable_stream body,
           state_storage states)
       : connection_(std::move(connection))
       , path_(std::move(path))
       , method_(method)
       , version_(version)
-      , query_(std::move(query))
       , header_(std::move(header))
+      , query_(std::move(query))
       , body_(std::move(body))
       , states_(std::move(states))
   {
@@ -183,8 +183,8 @@ class request_builder {
   path_info path_;
   http::verb method_;
   http::version version_;
-  query_map query_;
   http::header header_;
+  query_map query_;
   any_async_readable_stream body_;
   state_storage states_;
 
@@ -192,16 +192,16 @@ class request_builder {
                   path_info path,
                   http::verb method,
                   http::version version,
-                  query_map query,
                   http::header header,
+                  query_map query,
                   any_async_readable_stream body,
                   state_storage states)
       : connection_(std::move(connection))
       , path_(std::move(path))
       , method_(method)
       , version_(version)
-      , query_(std::move(query))
       , header_(std::move(header))
+      , query_(std::move(query))
       , body_(std::move(body))
       , states_(std::move(states))
   {
@@ -223,33 +223,6 @@ public:
   {
     method_ = method;
     return std::move(*this);
-  }
-
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Set query string.
-  ///
-  /// @endverbatim
-  auto set_query(std::string name, std::string value) & -> request_builder&
-  {
-    query_.set(std::move(name), std::move(value));
-    return *this;
-  };
-
-  auto set_query(std::string name, std::string value) && -> request_builder&&
-  {
-    query_.set(std::move(name), std::move(value));
-    return std::move(*this);
-  };
-
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Get query string map.
-  ///
-  /// @endverbatim
-  auto query() noexcept -> query_map&
-  {
-    return query_;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -358,12 +331,54 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``request`` instance.
+  /// Set query string.
+  ///
+  /// @endverbatim
+  auto set_query(std::string name, std::string value) & -> request_builder&
+  {
+    query_.set(std::move(name), std::move(value));
+    return *this;
+  };
+
+  auto set_query(std::string name, std::string value) && -> request_builder&&
+  {
+    query_.set(std::move(name), std::move(value));
+    return std::move(*this);
+  };
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get query string map.
+  ///
+  /// @endverbatim
+  auto query() noexcept -> query_map&
+  {
+    return query_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a null body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``request`` instance. Note that do not
-  ///    use current ``request_builder`` instance anymore after calling this
-  ///    function.
+  ///    Set a null body and create the ``response``. If you do not want to
+  ///    modify the existing body, call ``build()`` instead. Note that current
+  ///    object is no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  auto set_body() -> request
+  {
+    body_ = async_readable_vector_stream();
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``request``.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``request``. Note that current object is
+  ///    no longer usable after calling this function.
   ///
   /// @endverbatim
   template <std::size_t N>
@@ -375,12 +390,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``request`` instance.
+  /// Set a raw body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``request`` instance. Note that do not
-  ///    use current ``request_builder`` instance anymore after calling this
-  ///    function.
+  ///    Set a raw body and create the ``request``. Note that current object is
+  ///    no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_body(std::string_view sv) -> request
@@ -391,13 +405,28 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a json object as the body and create the ``request`` instance.
+  /// Set a raw body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a json object as the body and create the ``request`` instance.
+  ///    Set a raw body and create the ``request``. Note that current object is
+  ///    no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  template <async_readable_stream AsyncReadableStream>
+  auto set_body(AsyncReadableStream&& stream) -> request
+  {
+    body_ = std::forward<AsyncReadableStream>(stream);
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``request``.
+  ///
+  /// DESCRIPTION
+  ///    Set a json object as the body and create the ``request``.
   ///    ``Content-Type: application/json`` will be automatically inserted. Note
-  ///    that do not use current ``request_builder`` instance anymore after
-  ///    calling this function.
+  ///    that current object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_json(const boost::json::value& jv) -> request
@@ -411,14 +440,13 @@ public:
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Set an object of type ``T`` that is converiable to a json object as the
-  /// body and create the ``request`` instance.
+  /// body and create the ``request``.
   ///
   /// DESCRIPTION
   ///    Set an object of type ``T`` that is converiable to a json object as the
-  ///    the body and create the ``request`` instance. ``Content-Type:
-  ///    application/json`` will be automatically inserted. Note that do not use
-  ///    current ``request_builder`` instance anymore after calling this
-  ///    function.
+  ///    the body and create the ``request``. ``Content-Type: application/json``
+  ///    will be automatically inserted. Note that current object is no longer
+  ///    usable after calling this function.
   ///
   /// @endverbatim
   template <typename T>
@@ -430,28 +458,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a stream body and create the ``request`` instance.
+  /// Do not modify the body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a stream body and create the ``request`` instance. Note that do not
-  ///    use current ``request_builder`` instance anymore after calling this
-  ///    function.
-  ///
-  /// @endverbatim
-  template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) -> request
-  {
-    body_ = std::forward<AsyncReadableStream>(stream);
-    return build();
-  }
-
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Create the ``request``.
-  ///
-  /// DESCRIPTION
-  ///     Create the ``request``. Note that current object is no longer usable
-  ///     after calling this function.
+  ///     Do not modify the body and create the ``request``. If you want to
+  ///     remove existing body, call `set_body()` instead. Note that current
+  ///     object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto build() -> request
@@ -460,8 +472,8 @@ public:
              std::move(path_),
              method_,
              version_,
-             std::move(query_),
              std::move(header_),
+             std::move(query_),
              std::move(body_),
              std::move(states_) };
   }
@@ -473,8 +485,8 @@ inline auto request::builder() -> request_builder
            std::move(path_),
            method_,
            version_,
-           std::move(query_),
            std::move(header_),
+           std::move(query_),
            std::move(body_),
            std::move(states_) };
 }

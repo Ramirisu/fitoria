@@ -773,12 +773,27 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``response`` instance.
+  /// Set a null body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``response`` instance. Note that do not
-  ///    use current ``response_builder`` instance anymore after calling this
-  ///    function.
+  ///    Set a null body and create the ``response``. If you do not want to
+  ///    modify the existing body, call ``build()`` instead. Note that current
+  ///    object is no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  auto set_body() -> response
+  {
+    body_ = any_body();
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a raw body and create the ``response``.
+  ///
+  /// DESCRIPTION
+  ///    Set a raw body and create the ``response``. Note that current object is
+  ///    no longer usable after calling this function.
   ///
   /// @endverbatim
   template <std::size_t N>
@@ -791,12 +806,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``response`` instance.
+  /// Set a raw body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``response`` instance. Note that do not
-  ///    use current ``response_builder`` instance anymore after calling this
-  ///    function.
+  ///    Set a raw body and create the ``response``. Note that current object is
+  ///    no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_body(std::string_view sv) -> response
@@ -806,13 +820,29 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a json object as the body and create the ``response`` instance.
+  /// Set a raw body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a json object as the body and create the ``response`` instance.
+  ///    Set a raw body and create the ``response``. Note that current object is
+  ///    no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  template <async_readable_stream AsyncReadableStream>
+  auto set_body(AsyncReadableStream&& stream) -> response
+  {
+    body_ = any_body(any_body::chunked(),
+                     std::forward<AsyncReadableStream>(stream));
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``response``.
+  ///
+  /// DESCRIPTION
+  ///    Set a json object as the body and create the ``response``.
   ///    ``Content-Type: application/json`` will be automatically inserted. Note
-  ///    that do not use current ``response_builder`` instance anymore after
-  ///    calling this function.
+  ///    that current object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_json(const boost::json::value& jv) -> response
@@ -825,14 +855,13 @@ public:
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Set an object of type ``T`` that is converiable to a json object as the
-  /// body and create the ``response`` instance.
+  /// body and create the ``response``.
   ///
   /// DESCRIPTION
   ///    Set an object of type ``T`` that is converiable to a json object as the
-  ///    the body and create the ``response`` instance. ``Content-Type:
-  ///    application/json`` will be automatically inserted. Note that do not use
-  ///    current ``response_builder`` instance anymore after calling this
-  ///    function.
+  ///    the body and create the ``response``. ``Content-Type:
+  ///    application/json`` will be automatically inserted. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
   template <typename T>
@@ -844,13 +873,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a stream body and create the ``response`` instance.
+  /// Set a stream body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a stream body and create the ``response`` instance. A stream body
-  ///    will be sent with ``Transfer-Encoding: chunked``. Note that do not use
-  ///    current ``response_builder`` instance anymore after calling this
-  ///    function.
+  ///    Set a stream body and create the ``response``. A stream body will be
+  ///    sent with ``Transfer-Encoding: chunked``. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
@@ -863,11 +891,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``response``.
+  /// Do not modify the body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///     Create the ``response``. Note that current object is no longer usable
-  ///     after calling this function.
+  ///     Do not modify the body and create the ``response``. If you want to
+  ///     remove existing body, call `set_body()` instead. Note that current
+  ///     object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto build() -> response

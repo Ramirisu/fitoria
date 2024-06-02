@@ -452,8 +452,8 @@ private:
                         route->matcher().match(url->path()).value()),
               parser->get().method(),
               http::detail::from_impl_version(parser->get().version()),
-              query_map::from(url->params()),
               http::header::from_impl(parser->get()),
+              query_map::from(url->params()),
               [&]() -> any_async_readable_stream {
                 if (parser->get().has_content_length()
                     || parser->get().chunked()) {

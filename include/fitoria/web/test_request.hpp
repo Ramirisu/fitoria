@@ -341,6 +341,11 @@ public:
     return std::move(*this);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set query string.
+  ///
+  /// @endverbatim
   auto set_query(std::string name, std::string value) & -> test_request_builder&
   {
     query_.set(std::move(name), std::move(value));
@@ -356,28 +361,27 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Create the ``test_request``.
+  /// Set a null body and create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///     Create the ``test_request``. Note that current object is no longer
-  ///     usable after calling this function.
+  ///    Set a null body and create the ``test_request``. If you do not want to
+  ///    modify the existing body, call ``build()`` instead. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
-  auto build() -> test_request
+  auto set_body() -> test_request
   {
-    return {
-      method_, version_, std::move(header_), std::move(query_), std::move(body_)
-    };
+    body_ = any_body();
+    return build();
   }
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``test_request`` instance.
+  /// Set a raw body and create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``test_request`` instance. Note that do
-  ///    not use current ``test_request_builder`` instance anymore after calling
-  ///    this function.
+  ///    Set a raw body and create the ``test_request``. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
   template <std::size_t N>
@@ -390,12 +394,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a raw body and create the ``test_request`` instance.
+  /// Set a raw body and create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``test_request`` instance. Note that do
-  ///    not use current ``test_request_builder`` instance anymore after calling
-  ///    this function.
+  ///    Set a raw body and create the ``test_request``. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_body(std::string_view sv) -> test_request
@@ -405,33 +408,48 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a json object as the body and create the ``test_request`` instance.
+  /// Set a raw body and create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///    Set a json object as the body and create the ``test_request`` instance.
+  ///    Set a raw body and create the ``test_request``. Note that current
+  ///    object is no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  template <async_readable_stream AsyncReadableStream>
+  auto set_body(AsyncReadableStream&& stream) -> test_request
+  {
+    body_ = any_body(any_body::chunked(),
+                     std::forward<AsyncReadableStream>(stream));
+    return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Set a json object as the body and create the ``test_request``.
+  ///
+  /// DESCRIPTION
+  ///    Set a json object as the body and create the ``test_request``.
   ///    ``Content-Type: application/json`` will be automatically inserted. Note
-  ///    that do not use current ``test_request_builder`` instance anymore after
-  ///    calling this function.
+  ///    that current object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_json(const boost::json::value& jv) -> test_request
   {
-    set_header(http::field::content_type, mime::application_json());
     auto str = boost::json::serialize(jv);
+    set_header(http::field::content_type, mime::application_json());
     return set_body(std::as_bytes(std::span(str.begin(), str.end())));
   }
 
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Set an object of type ``T`` that is converiable to a json object as the
-  /// body and create the ``test_request`` instance.
+  /// body and create the ``test_request``.
   ///
   /// DESCRIPTION
   ///    Set an object of type ``T`` that is converiable to a json object as the
-  ///    the body and create the ``test_request`` instance. ``Content-Type:
-  ///    application/json`` will be automatically inserted. Note that do not use
-  ///    current ``test_request_builder`` instance anymore after calling this
-  ///    function.
+  ///    the body and create the ``test_request``. ``Content-Type:
+  ///    application/json`` will be automatically inserted. Note that current
+  ///    object is no longer usable after calling this function.
   ///
   /// @endverbatim
   template <typename T>
@@ -443,13 +461,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set a stream body and create the ``test_request`` instance.
+  /// Set a stream body and create the ``test_request``.
   ///
   /// DESCRIPTION
-  ///    Set a stream body and create the ``test_request`` instance. A stream
-  ///    body will be sent with ``Transfer-Encoding: chunked``. Note that do not
-  ///    use current ``test_request_builder`` instance anymore after calling
-  ///    this function.
+  ///    Set a stream body and create the ``test_request``. A stream body will
+  ///    be sent with ``Transfer-Encoding: chunked``. Note that current object
+  ///    is no longer usable after calling this function.
   ///
   /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
@@ -458,6 +475,23 @@ public:
     body_ = any_body(any_body::chunked(),
                      std::forward<AsyncReadableStream>(stream));
     return build();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Do not modify the body and create the ``test_request``.
+  ///
+  /// DESCRIPTION
+  ///     Do not modify the body and create the ``test_request``. If you want to
+  ///     remove existing body, call `set_body()` instead. Note that current
+  ///     object is no longer usable after calling this function.
+  ///
+  /// @endverbatim
+  auto build() -> test_request
+  {
+    return {
+      method_, version_, std::move(header_), std::move(query_), std::move(body_)
+    };
   }
 };
 
