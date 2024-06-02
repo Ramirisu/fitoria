@@ -277,9 +277,10 @@ private:
 /// ``"application/javascript"``
 ///
 /// @endverbatim
-inline auto application_javascript() -> mime_view
+inline auto application_javascript() noexcept -> const mime_view&
 {
-  return *mime_view::parse("application/javascript");
+  static auto m = *mime_view::parse("application/javascript");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -287,9 +288,10 @@ inline auto application_javascript() -> mime_view
 /// ``"application/json"``
 ///
 /// @endverbatim
-inline auto application_json() -> mime_view
+inline auto application_json() noexcept -> const mime_view&
 {
-  return *mime_view::parse("application/json");
+  static auto m = *mime_view::parse("application/json");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -297,9 +299,10 @@ inline auto application_json() -> mime_view
 /// ``"application/octet-stream"``
 ///
 /// @endverbatim
-inline auto application_octet_stream() -> mime_view
+inline auto application_octet_stream() noexcept -> const mime_view&
 {
-  return *mime_view::parse("application/octet-stream");
+  static auto m = *mime_view::parse("application/octet-stream");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -307,9 +310,10 @@ inline auto application_octet_stream() -> mime_view
 /// ``"application/pdf"``
 ///
 /// @endverbatim
-inline auto application_pdf() -> mime_view
+inline auto application_pdf() noexcept -> const mime_view&
 {
-  return *mime_view::parse("application/pdf");
+  static auto m = *mime_view::parse("application/pdf");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -317,9 +321,10 @@ inline auto application_pdf() -> mime_view
 /// ``"application/x-www-form-urlencoded"``
 ///
 /// @endverbatim
-inline auto application_www_form_urlencoded() -> mime_view
+inline auto application_www_form_urlencoded() noexcept -> const mime_view&
 {
-  return *mime_view::parse("application/x-www-form-urlencoded");
+  static auto m = *mime_view::parse("application/x-www-form-urlencoded");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -327,9 +332,10 @@ inline auto application_www_form_urlencoded() -> mime_view
 /// ``"image/bmp"``
 ///
 /// @endverbatim
-inline auto image_bmp() -> mime_view
+inline auto image_bmp() noexcept -> const mime_view&
 {
-  return *mime_view::parse("image/bmp");
+  static auto m = *mime_view::parse("image/bmp");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -337,9 +343,10 @@ inline auto image_bmp() -> mime_view
 /// ``"image/gif"``
 ///
 /// @endverbatim
-inline auto image_gif() -> mime_view
+inline auto image_gif() noexcept -> const mime_view&
 {
-  return *mime_view::parse("image/gif");
+  static auto m = *mime_view::parse("image/gif");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -347,9 +354,10 @@ inline auto image_gif() -> mime_view
 /// ``"image/jpeg"``
 ///
 /// @endverbatim
-inline auto image_jpeg() -> mime_view
+inline auto image_jpeg() noexcept -> const mime_view&
 {
-  return *mime_view::parse("image/jpeg");
+  static auto m = *mime_view::parse("image/jpeg");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -357,9 +365,10 @@ inline auto image_jpeg() -> mime_view
 /// ``"image/png"``
 ///
 /// @endverbatim
-inline auto image_png() -> mime_view
+inline auto image_png() noexcept -> const mime_view&
 {
-  return *mime_view::parse("image/png");
+  static auto m = *mime_view::parse("image/png");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -367,9 +376,10 @@ inline auto image_png() -> mime_view
 /// ``"image/svg+xml"``
 ///
 /// @endverbatim
-inline auto image_svg() -> mime_view
+inline auto image_svg() noexcept -> const mime_view&
 {
-  return *mime_view::parse("image/svg+xml");
+  static auto m = *mime_view::parse("image/svg+xml");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -377,9 +387,10 @@ inline auto image_svg() -> mime_view
 /// ``"text/html"``
 ///
 /// @endverbatim
-inline auto text_html() -> mime_view
+inline auto text_html() noexcept -> const mime_view&
 {
-  return *mime_view::parse("text/html");
+  static auto m = *mime_view::parse("text/html");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -387,9 +398,10 @@ inline auto text_html() -> mime_view
 /// ``"text/javascript"``
 ///
 /// @endverbatim
-inline auto text_javascript() -> mime_view
+inline auto text_javascript() noexcept -> const mime_view&
 {
-  return *mime_view::parse("text/javascript");
+  static auto m = *mime_view::parse("text/javascript");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -397,9 +409,10 @@ inline auto text_javascript() -> mime_view
 /// ``"text/plain"``
 ///
 /// @endverbatim
-inline auto text_plain() -> mime_view
+inline auto text_plain() noexcept -> const mime_view&
 {
-  return *mime_view::parse("text/plain");
+  static auto m = *mime_view::parse("text/plain");
+  return m;
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -407,9 +420,10 @@ inline auto text_plain() -> mime_view
 /// ``"text/xml"``
 ///
 /// @endverbatim
-inline auto text_xml() -> mime_view
+inline auto text_xml() noexcept -> const mime_view&
 {
-  return *mime_view::parse("text/xml");
+  static auto m = *mime_view::parse("text/xml");
+  return m;
 }
 
 }
