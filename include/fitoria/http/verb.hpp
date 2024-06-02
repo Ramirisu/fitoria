@@ -25,12 +25,14 @@ using boost::beast::http::verb;
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// HTTP method
+/// Defines HTTP method constants.
 ///
 /// DESCRIPTION
-///     HTTP method, alias of ``boost::beast::http::verb``
+///     Defines HTTP method constants, which are aliases of
+///     ``boost::beast::http::verb``
 ///
 /// .. seealso::
+///
 ///    `boost::beast::http::verb
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__verb.html>`_
 ///

@@ -24,6 +24,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type representing server's outgoing response for testing purpose.
+///
+/// @endverbatim
 class test_response {
 public:
   test_response(http::status_code status_code,

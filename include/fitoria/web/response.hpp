@@ -29,6 +29,11 @@ namespace web {
 
 class response_builder;
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type representing server's outgoing response.
+///
+/// @endverbatim
 class response {
   friend class response_builder;
 
@@ -603,6 +608,11 @@ public:
 #endif
 };
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type for constructing an instance of ``response``.
+///
+/// @endverbatim
 class response_builder {
   friend class response;
 

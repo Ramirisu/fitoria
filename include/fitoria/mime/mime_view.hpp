@@ -24,6 +24,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace mime {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A non-owning reference to a valid MIME type.
+///
+/// @endverbatim
 class mime_view {
 public:
   /// @verbatim embed:rst:leading-slashes

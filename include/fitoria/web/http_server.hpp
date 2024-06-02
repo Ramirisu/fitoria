@@ -37,6 +37,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// An HTTP Server for handling client requests.
+///
+/// @endverbatim
 class http_server {
   using request_type = request&;
   using response_type = awaitable<response>;
@@ -84,7 +89,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get the number of maxiumum concurrent connections.
+  /// Get the number of maximum concurrent connections.
   ///
   /// @endverbatim
   auto max_listen_connections() const noexcept -> int
@@ -630,7 +635,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set the number of maxiumum concurrent connections.
+  /// Set the number of maximum concurrent connections.
   ///
   /// @endverbatim
   auto set_max_listen_connections(int num) & noexcept -> builder&

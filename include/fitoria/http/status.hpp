@@ -25,12 +25,14 @@ using boost::beast::http::status;
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// HTTP status code
+/// Defines HTTP status code constants.
 ///
 /// DESCRIPTION
-///     HTTP status code, alias of ``boost::beast::http::status``
+///     Defines HTTP status code constants, which are aliases of
+///     ``boost::beast::http::status``
 ///
 /// .. seealso::
+///
 ///    `boost::beast::http::status
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__status.html>`_
 ///

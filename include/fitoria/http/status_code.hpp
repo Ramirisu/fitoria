@@ -20,6 +20,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides an utility for HTTP status code.
+///
+/// @endverbatim
 class status_code {
 public:
   /// @verbatim embed:rst:leading-slashes
@@ -44,7 +49,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get status code
+  /// Get status code.
   ///
   /// @endverbatim
   auto value() const noexcept -> status
@@ -54,7 +59,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get status category
+  /// Get status category.
   ///
   /// @endverbatim
   auto category() const noexcept -> status_class

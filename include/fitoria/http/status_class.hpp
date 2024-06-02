@@ -25,12 +25,14 @@ using boost::beast::http::status_class;
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// HTTP status category
+/// Defines HTTP status category constants.
 ///
 /// DESCRIPTION
-///     HTTP status category, alias of ``boost::beast::http::status_class``
+///     Defines HTTP status category constants, which are aliases of
+///     ``boost::beast::http::status_class``.
 ///
 /// .. seealso::
+///
 ///    `boost::beast::http::status_class
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__status_class.html>`_
 ///

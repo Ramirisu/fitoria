@@ -19,6 +19,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type for dealing with query string parameters.
+///
+/// @endverbatim
 class query_map {
   using map_type = unordered_string_map<std::string>;
 
@@ -35,8 +40,18 @@ public:
   using iterator = typename map_type::iterator;
   using const_iterator = typename map_type::const_iterator;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// The default constructor creates an empty map.
+  ///
+  /// @endverbatim
   query_map() = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct the map by a list of key/value pairs.
+  ///
+  /// @endverbatim
   query_map(std::initializer_list<value_type> init)
       : map_(std::move(init))
   {
@@ -55,31 +70,61 @@ public:
     return map_.empty();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the number of key/value pairs.
+  ///
+  /// @endverbatim
   auto size() const noexcept -> size_type
   {
     return map_.size();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the maximum possible number of key/value pairs.
+  ///
+  /// @endverbatim
   auto max_size() const noexcept -> size_type
   {
     return map_.max_size();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Checks if the container contains element with specific key.
+  ///
+  /// @endverbatim
   auto contains(const std::string& name) const noexcept -> bool
   {
     return map_.contains(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Clear the contents.
+  ///
+  /// @endverbatim
   void clear() noexcept
   {
     map_.clear();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Insert new element or update value of existing element with specific key.
+  ///
+  /// @endverbatim
   void set(std::string name, std::string value)
   {
     map_.insert({ std::move(name), std::move(value) });
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   template <typename Key>
   auto get(Key&& key) noexcept -> optional<mapped_type&>
   {
@@ -90,6 +135,11 @@ public:
     return nullopt;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   template <typename Key>
   auto get(Key&& key) const noexcept -> optional<const mapped_type&>
   {
@@ -100,6 +150,11 @@ public:
     return nullopt;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Remove element with specific key.
+  ///
+  /// @endverbatim
   auto erase(const std::string& name) -> optional<mapped_type>
   {
     if (auto it = map_.find(name); it != map_.end()) {
@@ -111,21 +166,41 @@ public:
     return nullopt;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   auto at(const std::string& name) -> mapped_type&
   {
     return map_.at(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   auto at(const std::string& name) const -> const mapped_type&
   {
     return map_.at(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get or insert specific element.
+  ///
+  /// @endverbatim
   auto operator[](const std::string& name) -> mapped_type&
   {
     return map_[name];
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Converts key/value pairs to query string.
+  ///
+  /// @endverbatim
   auto to_string() const -> std::string
   {
     std::string query;
@@ -142,31 +217,61 @@ public:
     return query;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto begin() noexcept -> iterator
   {
     return map_.begin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto begin() const noexcept -> const_iterator
   {
     return map_.begin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto cbegin() const noexcept -> const_iterator
   {
     return map_.cbegin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto end() noexcept -> iterator
   {
     return map_.end();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto end() const noexcept -> const_iterator
   {
     return map_.end();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto cend() const noexcept -> const_iterator
   {
     return map_.cend();

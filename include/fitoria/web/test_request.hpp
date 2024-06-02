@@ -30,6 +30,11 @@ namespace web {
 
 class test_request_builder;
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type representing client's incoming request for testing purpose.
+///
+/// @endverbatim
 class test_request {
   friend class test_request_builder;
 
@@ -178,6 +183,11 @@ public:
   static auto options() -> test_request_builder;
 };
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type for constructing an instance of ``test_request``.
+///
+/// @endverbatim
 class test_request_builder {
   friend class test_request;
 

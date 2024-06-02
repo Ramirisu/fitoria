@@ -25,12 +25,14 @@ using boost::beast::http::field;
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// HTTP field
+/// Defines HTTP field constants.
 ///
 /// DESCRIPTION
-///     HTTP field, alias of ``boost::beast::http::field``
+///     Defines HTTP field constants, which are aliases of
+///     ``boost::beast::http::field``
 ///
 /// .. seealso::
+///
 ///    `boost::beast::http::field
 ///    <https://www.boost.org/libs/beast/doc/html/beast/ref/boost__beast__http__field.html>`_
 ///

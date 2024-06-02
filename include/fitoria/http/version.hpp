@@ -19,18 +19,53 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Defines HTTP version constants.
+///
+/// @endverbatim
 enum class version : std::uint8_t {
   unknown,
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// ``HTTP/0.9``
+  ///
+  /// @endverbatim
   v0_9,
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// ``HTTP/1.0``
+  ///
+  /// @endverbatim
   v1_0,
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// ``HTTP/1.1``
+  ///
+  /// @endverbatim
   v1_1,
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// ``HTTP/2.0``
+  ///
+  /// @endverbatim
   v2_0,
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// ``HTTP/3.0``
+  ///
+  /// @endverbatim
   v3_0,
 };
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// Convert ``version`` into string
+/// Convert ``version`` into string.
 ///
 /// @endverbatim
 inline auto to_string(version ver) -> std::string

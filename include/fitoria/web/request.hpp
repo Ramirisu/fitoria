@@ -32,6 +32,11 @@ namespace web {
 class http_server;
 class request_builder;
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type representing client's incoming request.
+///
+/// @endverbatim
 class request {
   friend class request_builder;
   friend class http_server;
@@ -176,6 +181,11 @@ public:
   auto builder() -> request_builder;
 };
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// A type for constructing an instance of ``request``.
+///
+/// @endverbatim
 class request_builder {
   friend class request;
 
