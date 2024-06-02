@@ -20,27 +20,24 @@
 #include <fitoria/log/log.hpp>
 
 #include <fitoria/http.hpp>
+#include <fitoria/mime.hpp>
+
+#include <fitoria/web/detail/as_json.hpp>
 
 #include <fitoria/web/any_body.hpp>
 #include <fitoria/web/async_message_parser_stream.hpp>
+#include <fitoria/web/async_read_into_stream_file.hpp>
+#include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/async_readable_stream_concept.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 #include <fitoria/web/async_write_chunks.hpp>
+#include <fitoria/web/error.hpp>
 #include <fitoria/web/query_map.hpp>
-
-#include <fitoria/client/http_response.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace client {
 
-using web::any_async_readable_stream;
-using web::any_body;
-using web::async_message_parser_stream;
-using web::async_read_until_eof;
-using web::async_readable_stream;
-using web::async_readable_vector_stream;
-using web::async_write_chunks;
 using web::query_map;
 
 class http_client {
@@ -53,6 +50,103 @@ class http_client {
   };
 
 public:
+  class http_response {
+  public:
+    http_response(http::status_code status_code,
+                  http::version version,
+                  http::header header,
+                  web::any_async_readable_stream body)
+        : status_code_(status_code)
+        , version_(version)
+        , header_(std::move(header))
+        , body_(std::move(body))
+    {
+    }
+
+    http_response(const http_response&) = delete;
+
+    http_response& operator=(const http_response&) = delete;
+
+    http_response(http_response&&) = default;
+
+    http_response& operator=(http_response&&) = default;
+
+    auto status_code() const noexcept -> const http::status_code&
+    {
+      return status_code_;
+    }
+
+    auto version() const noexcept -> const http::version&
+    {
+      return version_;
+    }
+
+    auto header() const noexcept -> const http::header&
+    {
+      return header_;
+    }
+
+    auto body() noexcept -> web::any_async_readable_stream&
+    {
+      return body_;
+    }
+
+    auto body() const noexcept -> const web::any_async_readable_stream&
+    {
+      return body_;
+    }
+
+    auto as_string() -> awaitable<expected<std::string, std::error_code>>
+    {
+      return web::async_read_until_eof<std::string>(body_);
+    }
+
+    template <typename Byte>
+    auto as_vector() -> awaitable<expected<std::vector<Byte>, std::error_code>>
+    {
+      return web::async_read_until_eof<std::vector<Byte>>(body_);
+    }
+
+#if defined(BOOST_ASIO_HAS_FILE)
+    auto as_file(const std::string& path)
+        -> awaitable<expected<std::size_t, std::error_code>>
+    {
+      auto file = net::stream_file(co_await net::this_coro::executor);
+
+      boost::system::error_code ec; // NOLINTNEXTLINE
+      file.open(path, net::file_base::create | net::file_base::write_only, ec);
+      if (ec) {
+        co_return unexpected { ec };
+      }
+
+      co_return co_await async_read_into_stream_file(body_, file);
+    }
+#endif
+
+    template <typename T = boost::json::value>
+    auto as_json() -> awaitable<expected<T, std::error_code>>
+    {
+      if (auto ct = header().get(http::field::content_type);
+          !ct || *ct != mime::application_json()) {
+        co_return unexpected { make_error_code(
+            web::error::unexpected_content_type) };
+      }
+
+      if (auto str = co_await web::async_read_until_eof<std::string>(body_);
+          str) {
+        co_return web::detail::as_json<T>(*str);
+      } else {
+        co_return unexpected { str.error() };
+      }
+    }
+
+  private:
+    http::status_code status_code_ = http::status::ok;
+    http::version version_ = http::version::v1_1;
+    http::header header_;
+    web::any_async_readable_stream body_;
+  };
+
   auto set_url(std::string_view url) & -> http_client&
   {
     resource_ = parse_uri(url);
@@ -204,8 +298,8 @@ public:
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) & -> http_client&
   {
-    body_ = any_body(any_body::sized { bytes.size() },
-                     async_readable_vector_stream(bytes));
+    body_ = web::any_body(web::any_body::sized { bytes.size() },
+                          web::async_readable_vector_stream(bytes));
     return *this;
   }
 
@@ -269,15 +363,15 @@ public:
     return std::move(*this);
   }
 
-  template <async_readable_stream AsyncReadableStream>
+  template <web::async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) & -> http_client&
   {
-    body_ = any_body(any_body::chunked(),
-                     std::forward<AsyncReadableStream>(stream));
+    body_ = web::any_body(web::any_body::chunked(),
+                          std::forward<AsyncReadableStream>(stream));
     return *this;
   }
 
-  template <async_readable_stream AsyncReadableStream>
+  template <web::async_readable_stream AsyncReadableStream>
   auto set_stream(AsyncReadableStream&& stream) && -> http_client&&
   {
     set_stream(std::forward<AsyncReadableStream>(stream));
@@ -472,9 +566,11 @@ private:
     }
     if (auto exp = co_await std::visit(
             overloaded {
-                [&](any_body::null) { return do_sized_request(stream); },
-                [&](any_body::sized) { return do_sized_request(stream); },
-                [&](any_body::chunked) { return do_chunked_request(stream); } },
+                [&](web::any_body::null) { return do_sized_request(stream); },
+                [&](web::any_body::sized) { return do_sized_request(stream); },
+                [&](web::any_body::chunked) {
+                  return do_chunked_request(stream);
+                } },
             body_.size());
         !exp) {
       co_return unexpected { exp.error() };
@@ -494,12 +590,12 @@ private:
         parser->get().result(),
         http::detail::from_impl_version(parser->get().version()),
         http::header::from_impl(parser->get()),
-        [&]() -> any_async_readable_stream {
+        [&]() -> web::any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
-            return async_message_parser_stream(
+            return web::async_message_parser_stream(
                 buffer, std::move(stream), parser);
           }
-          return async_readable_vector_stream();
+          return web::async_readable_vector_stream();
         }());
   }
 
@@ -515,8 +611,8 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     header_.to_impl(req);
     req.set(http::field::host, resource_->host);
-    if (auto data
-        = co_await async_read_until_eof<std::vector<std::byte>>(body_.stream());
+    if (auto data = co_await web::async_read_until_eof<std::vector<std::byte>>(
+            body_.stream());
         data) {
       req.body() = std::move(*data);
     } else if (data.error() != make_error_code(net::error::eof)) {
@@ -576,7 +672,8 @@ private:
       }
     }
 
-    if (auto res = co_await async_write_chunks(stream, body_.stream()); !res) {
+    if (auto res = co_await web::async_write_chunks(stream, body_.stream());
+        !res) {
       co_return unexpected { res.error() };
     }
 
@@ -602,7 +699,7 @@ private:
           res.result(),
           http::detail::from_impl_version(res.version()),
           http::header::from_impl(res),
-          async_readable_vector_stream(std::move(res.body())));
+          web::async_readable_vector_stream(std::move(res.body())));
     }
 
     co_return nullopt;
@@ -621,7 +718,7 @@ private:
   query_map query_;
   http::verb method_ = http::verb::unknown;
   http::header header_;
-  any_body body_;
+  web::any_body body_;
   optional<duration_type> handshake_timeout_ = std::chrono::seconds(3);
   optional<duration_type> transfer_timeout_ = std::chrono::seconds(5);
 };

@@ -1,4 +1,3 @@
-fitoria_add_test(NAME test_client_error SRCS test_client_error.cpp)
 fitoria_add_test(NAME test_client_http_client_io_context SRCS
                  test_client_http_client_io_context.cpp)
 fitoria_add_test(NAME test_client_http_client_tls SRCS
