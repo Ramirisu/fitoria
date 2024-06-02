@@ -36,7 +36,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace client {
+namespace test {
 
 using web::query_map;
 

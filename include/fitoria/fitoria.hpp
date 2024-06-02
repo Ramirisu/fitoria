@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/client.hpp>
 #include <fitoria/encoding.hpp>
 #include <fitoria/http.hpp>
 #include <fitoria/log.hpp>

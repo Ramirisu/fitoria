@@ -8,10 +8,10 @@
 #include <fitoria/test/test.hpp>
 
 #include <fitoria/test/cert.hpp>
+#include <fitoria/test/http_client.hpp>
 #include <fitoria/test/http_server_utils.hpp>
 #include <fitoria/test/utility.hpp>
 
-#include <fitoria/client.hpp>
 #include <fitoria/web.hpp>
 
 #include <filesystem>
@@ -19,7 +19,6 @@
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
-using fitoria::client::http_client;
 
 TEST_SUITE_BEGIN("[fitoria.web.http_server.bind_local]");
 

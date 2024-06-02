@@ -7,12 +7,10 @@
 
 #include <fitoria/test/test.hpp>
 
+#include <fitoria/test/http_client.hpp>
 #include <fitoria/test/http_server_utils.hpp>
 
-#include <fitoria/client.hpp>
-
 using namespace fitoria;
-using namespace fitoria::client;
 using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.client.http_client]");
