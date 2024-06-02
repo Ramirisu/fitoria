@@ -45,12 +45,20 @@ public:
                                  .set_header(http::field::content_type,
                                              mime::text_plain())
                                  .set_body("\"Content-Type\" is expected.") };
-    } else if (*ct != mime::application_www_form_urlencoded()) {
-      co_return unexpected {
-        response::bad_request()
-            .set_header(http::field::content_type, mime::text_plain())
-            .set_body("\"Content-Type\" is not matched.")
-      };
+    } else {
+      if (auto mime = mime::mime_view::parse(*ct); !mime) {
+        co_return unexpected {
+          response::bad_request()
+              .set_header(http::field::content_type, mime::text_plain())
+              .set_body("invalid MIME format for \"Content-Type\".")
+        };
+      } else if (mime->essence() != mime::application_www_form_urlencoded()) {
+        co_return unexpected {
+          response::bad_request()
+              .set_header(http::field::content_type, mime::text_plain())
+              .set_body("\"Content-Type\" is not matched.")
+        };
+      }
     }
 
     auto body = co_await from_request<std::string>(req);
