@@ -149,7 +149,7 @@ public:
     if (auto ct = header().get(http::field::content_type);
         !ct || *ct != mime::application_json()) {
       co_return unexpected { make_error_code(
-          web::error::content_type_not_application_json) };
+          web::error::unexpected_content_type) };
     }
 
     if (auto str = co_await web::async_read_until_eof<std::string>(body_);
