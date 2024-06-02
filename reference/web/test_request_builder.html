@@ -461,12 +461,19 @@ will be kept.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder5buildEv">
-<span id="_CPPv3N7fitoria3web20test_request_builder5buildEv"></span><span id="_CPPv2N7fitoria3web20test_request_builder5buildEv"></span><span id="fitoria::web::test_request_builder::build"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a0805bc674d725060a08613f1bf778234"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder5buildEv" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
+<dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web20test_request_builder9set_queryENSt6stringENSt6stringE">
+<span id="_CPPv3NR7fitoria3web20test_request_builder9set_queryENSt6stringENSt6stringE"></span><span id="_CPPv2NR7fitoria3web20test_request_builder9set_queryENSt6stringENSt6stringE"></span><span id="fitoria::web::test_request_builder::set_query__ss.ssR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a0f429c09ac8a30c54c27b4638c0e136f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_query</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web20test_request_builderE" title="fitoria::web::test_request_builder"><span class="n"><span class="pre">test_request_builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web20test_request_builder9set_queryENSt6stringENSt6stringE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set query string.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder8set_bodyEv">
+<span id="_CPPv3N7fitoria3web20test_request_builder8set_bodyEv"></span><span id="_CPPv2N7fitoria3web20test_request_builder8set_bodyEv"></span><span id="fitoria::web::test_request_builder::set_body"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a3405e7abd2aa039f6dd8cceaa0b89f1a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder8set_bodyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set a null body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. Note that current object is no longer
-usable after calling this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a null body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. If you do not want to
+modify the existing body, call <code class="docutils literal notranslate"><span class="pre">build()</span></code> instead. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -475,11 +482,10 @@ usable after calling this function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyE12test_requestNSt4spanIKNSt4byteE1NEE">
 <span id="_CPPv3I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyENSt4spanIKNSt4byteE1NEE"></span><span id="_CPPv2I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyENSt4spanIKNSt4byteE1NEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a6022f37be975212fe365717f4573c77a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">byte</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyE12test_requestNSt4spanIKNSt4byteE1NEE" title="fitoria::web::test_request_builder::set_body::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bytes</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyE12test_requestNSt4spanIKNSt4byteE1NEE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance. Note that do
-not use current <code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after calling
-this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -488,11 +494,22 @@ this function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder8set_bodyENSt11string_viewE">
 <span id="_CPPv3N7fitoria3web20test_request_builder8set_bodyENSt11string_viewE"></span><span id="_CPPv2N7fitoria3web20test_request_builder8set_bodyENSt11string_viewE"></span><span id="fitoria::web::test_request_builder::set_body__std::string_view"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a1c56a88e94f86040e286367915d89d6f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sv</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder8set_bodyENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance. Note that do
-not use current <code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after calling
-this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. Note that current
+object is no longer usable after calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyE12test_requestRR19AsyncReadableStream">
+<span id="_CPPv3I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyERR19AsyncReadableStream"></span><span id="_CPPv2I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyERR19AsyncReadableStream"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">async_readable_stream</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AsyncReadableStream</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a324796755a3c39949d3670bdf62d8824"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyE12test_requestRR19AsyncReadableStream" title="fitoria::web::test_request_builder::set_body::AsyncReadableStream"><span class="n"><span class="pre">AsyncReadableStream</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyE12test_requestRR19AsyncReadableStream" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -501,12 +518,11 @@ this function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder8set_jsonERKN5boost4json5valueE">
 <span id="_CPPv3N7fitoria3web20test_request_builder8set_jsonERKN5boost4json5valueE"></span><span id="_CPPv2N7fitoria3web20test_request_builder8set_jsonERKN5boost4json5valueE"></span><span id="fitoria::web::test_request_builder::set_json__boost::json::valueCR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a54eb79d7d20894cef5ba6b5436f420cf"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_json</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">boost</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">json</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">value</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">jv</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder8set_jsonERKN5boost4json5valueE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+<dd><p><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.
+<dt>DESCRIPTION</dt><dd><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">application/json</span></code> will be automatically inserted. Note
-that do not use current <code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after
-calling this function.</p>
+that current object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -516,13 +532,12 @@ calling this function.</p>
 <dt class="sig sig-object cpp">
 <span class="target" id="classfitoria_1_1web_1_1test__request__builder_1aed0994d5650d60a2b2f8bd0483d16d5c"></span><span class="sig-name descname"><span class="pre">template&lt;typename</span> <span class="pre">T&gt;</span> <span class="pre">inline</span>&#160; <span class="pre">requires</span> <span class="pre">(boost::json::has_value_from&lt;</span> <span class="pre">T</span> <span class="pre">&gt;::value)</span> <span class="pre">auto</span> <span class="pre">set_json(const</span> <span class="pre">T</span> <span class="pre">&amp;obj)</span> <span class="pre">-&gt;</span> <span class="pre">test_request</span></span></dt>
 <dd><p><p>Set an object of type <code class="docutils literal notranslate"><span class="pre">T</span></code> that is converiable to a json object as the
-body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
 <dt>DESCRIPTION</dt><dd><p>Set an object of type <code class="docutils literal notranslate"><span class="pre">T</span></code> that is converiable to a json object as the
-the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance. <code class="docutils literal notranslate"><span class="pre">Content-Type:</span>
-<span class="pre">application/json</span></code> will be automatically inserted. Note that do not use
-current <code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after calling this
-function.</p>
+the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. <code class="docutils literal notranslate"><span class="pre">Content-Type:</span>
+<span class="pre">application/json</span></code> will be automatically inserted. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -531,12 +546,24 @@ function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamE12test_requestRR19AsyncReadableStream">
 <span id="_CPPv3I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamERR19AsyncReadableStream"></span><span id="_CPPv2I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamERR19AsyncReadableStream"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">async_readable_stream</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AsyncReadableStream</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a664d99dacd44999ab8f79f7b2f16db01"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_stream</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamE12test_requestRR19AsyncReadableStream" title="fitoria::web::test_request_builder::set_stream::AsyncReadableStream"><span class="n"><span class="pre">AsyncReadableStream</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamE12test_requestRR19AsyncReadableStream" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance.</p>
+<dd><p><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code> instance. A stream
-body will be sent with <code class="docutils literal notranslate"><span class="pre">Transfer-Encoding:</span> <span class="pre">chunked</span></code>. Note that do not
-use current <code class="docutils literal notranslate"><span class="pre">test_request_builder</span></code> instance anymore after calling
-this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. A stream body will
+be sent with <code class="docutils literal notranslate"><span class="pre">Transfer-Encoding:</span> <span class="pre">chunked</span></code>. Note that current object
+is no longer usable after calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web20test_request_builder5buildEv">
+<span id="_CPPv3N7fitoria3web20test_request_builder5buildEv"></span><span id="_CPPv2N7fitoria3web20test_request_builder5buildEv"></span><span id="fitoria::web::test_request_builder::build"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a0805bc674d725060a08613f1bf778234"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="test_request.html#_CPPv4N7fitoria3web12test_requestE" title="fitoria::web::test_request"><span class="n"><span class="pre">test_request</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web20test_request_builder5buildEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Do not modify the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Do not modify the body and create the <code class="docutils literal notranslate"><span class="pre">test_request</span></code>. If you want to
+remove existing body, call <cite>set_body()</cite> instead. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -600,11 +627,14 @@ this function.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web20test_request_builder10set_headerEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_header()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web20test_request_builder13insert_headerENSt11string_viewENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::insert_header()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web20test_request_builder13insert_headerEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::insert_header()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web20test_request_builder5buildEv"><code class="docutils literal notranslate"><span class="pre">test_request_builder::build()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web20test_request_builder9set_queryENSt6stringENSt6stringE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_query()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web20test_request_builder8set_bodyEv"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt6size_tEEN7fitoria3web20test_request_builder8set_bodyE12test_requestNSt4spanIKNSt4byteE1NEE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web20test_request_builder8set_bodyENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_body()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder8set_bodyE12test_requestRR19AsyncReadableStream"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web20test_request_builder8set_jsonERKN5boost4json5valueE"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_json()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_21async_readable_streamEN7fitoria3web20test_request_builder10set_streamE12test_requestRR19AsyncReadableStream"><code class="docutils literal notranslate"><span class="pre">test_request_builder::set_stream()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web20test_request_builder5buildEv"><code class="docutils literal notranslate"><span class="pre">test_request_builder::build()</span></code></a></li>
 </ul>
 </li>
 </ul>

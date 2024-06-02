@@ -467,13 +467,25 @@ will be kept.</p>
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web16response_builder8set_bodyEv">
+<span id="_CPPv3N7fitoria3web16response_builder8set_bodyEv"></span><span id="_CPPv2N7fitoria3web16response_builder8set_bodyEv"></span><span id="fitoria::web::response_builder::set_body"></span><span class="target" id="classfitoria_1_1web_1_1response__builder_1a5f5a1c9adfe93c808d565bf61d41d391"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web16response_builder8set_bodyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set a null body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Set a null body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. If you do not want to
+modify the existing body, call <code class="docutils literal notranslate"><span class="pre">build()</span></code> instead. Note that current
+object is no longer usable after calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyE8responseNSt4spanIKNSt4byteE1NEE">
 <span id="_CPPv3I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyENSt4spanIKNSt4byteE1NEE"></span><span id="_CPPv2I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyENSt4spanIKNSt4byteE1NEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1response__builder_1a7e27bf5e8d2d933f802647dd5bab47e3"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">byte</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyE8responseNSt4spanIKNSt4byteE1NEE" title="fitoria::web::response_builder::set_body::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bytes</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyE8responseNSt4spanIKNSt4byteE1NEE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.</p>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance. Note that do not
-use current <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance anymore after calling this
-function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. Note that current object is
+no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -482,11 +494,22 @@ function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web16response_builder8set_bodyENSt11string_viewE">
 <span id="_CPPv3N7fitoria3web16response_builder8set_bodyENSt11string_viewE"></span><span id="_CPPv2N7fitoria3web16response_builder8set_bodyENSt11string_viewE"></span><span id="fitoria::web::response_builder::set_body__std::string_view"></span><span class="target" id="classfitoria_1_1web_1_1response__builder_1a2f06a7a34da9fed49529691404ddef13"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sv</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web16response_builder8set_bodyENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.</p>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance. Note that do not
-use current <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance anymore after calling this
-function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. Note that current object is
+no longer usable after calling this function.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyE8responseRR19AsyncReadableStream">
+<span id="_CPPv3I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyERR19AsyncReadableStream"></span><span id="_CPPv2I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyERR19AsyncReadableStream"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">async_readable_stream</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AsyncReadableStream</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1response__builder_1a43c03ea9cffe135b1be40fa23e8c9377"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_body</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyE8responseRR19AsyncReadableStream" title="fitoria::web::response_builder::set_body::AsyncReadableStream"><span class="n"><span class="pre">AsyncReadableStream</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyE8responseRR19AsyncReadableStream" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Set a raw body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. Note that current object is
+no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -495,12 +518,11 @@ function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web16response_builder8set_jsonERKN5boost4json5valueE">
 <span id="_CPPv3N7fitoria3web16response_builder8set_jsonERKN5boost4json5valueE"></span><span id="_CPPv2N7fitoria3web16response_builder8set_jsonERKN5boost4json5valueE"></span><span id="fitoria::web::response_builder::set_json__boost::json::valueCR"></span><span class="target" id="classfitoria_1_1web_1_1response__builder_1a049d0f683c4a55ad97f1e15a7675ad8b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_json</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">boost</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">json</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">value</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">jv</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web16response_builder8set_jsonERKN5boost4json5valueE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.</p>
+<dd><p><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.
+<dt>DESCRIPTION</dt><dd><p>Set a json object as the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">application/json</span></code> will be automatically inserted. Note
-that do not use current <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance anymore after
-calling this function.</p>
+that current object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -510,13 +532,12 @@ calling this function.</p>
 <dt class="sig sig-object cpp">
 <span class="target" id="classfitoria_1_1web_1_1response__builder_1a078723e63fd5f4c053f7758b12510b32"></span><span class="sig-name descname"><span class="pre">template&lt;typename</span> <span class="pre">T&gt;</span> <span class="pre">inline</span>&#160; <span class="pre">requires</span> <span class="pre">(boost::json::has_value_from&lt;</span> <span class="pre">T</span> <span class="pre">&gt;::value)</span> <span class="pre">auto</span> <span class="pre">set_json(const</span> <span class="pre">T</span> <span class="pre">&amp;obj)</span> <span class="pre">-&gt;</span> <span class="pre">response</span></span></dt>
 <dd><p><p>Set an object of type <code class="docutils literal notranslate"><span class="pre">T</span></code> that is converiable to a json object as the
-body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.</p>
+body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
 <dt>DESCRIPTION</dt><dd><p>Set an object of type <code class="docutils literal notranslate"><span class="pre">T</span></code> that is converiable to a json object as the
-the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance. <code class="docutils literal notranslate"><span class="pre">Content-Type:</span>
-<span class="pre">application/json</span></code> will be automatically inserted. Note that do not use
-current <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance anymore after calling this
-function.</p>
+the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. <code class="docutils literal notranslate"><span class="pre">Content-Type:</span>
+<span class="pre">application/json</span></code> will be automatically inserted. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -525,12 +546,11 @@ function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder10set_streamE8responseRR19AsyncReadableStream">
 <span id="_CPPv3I_21async_readable_streamEN7fitoria3web16response_builder10set_streamERR19AsyncReadableStream"></span><span id="_CPPv2I_21async_readable_streamEN7fitoria3web16response_builder10set_streamERR19AsyncReadableStream"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">async_readable_stream</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AsyncReadableStream</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1response__builder_1ae9a3fb193752264ddeaf387d55aabbea"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_stream</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder10set_streamE8responseRR19AsyncReadableStream" title="fitoria::web::response_builder::set_stream::AsyncReadableStream"><span class="n"><span class="pre">AsyncReadableStream</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder10set_streamE8responseRR19AsyncReadableStream" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance.</p>
+<dd><p><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code> instance. A stream body
-will be sent with <code class="docutils literal notranslate"><span class="pre">Transfer-Encoding:</span> <span class="pre">chunked</span></code>. Note that do not use
-current <code class="docutils literal notranslate"><span class="pre">response_builder</span></code> instance anymore after calling this
-function.</p>
+<dt>DESCRIPTION</dt><dd><p>Set a stream body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. A stream body will be
+sent with <code class="docutils literal notranslate"><span class="pre">Transfer-Encoding:</span> <span class="pre">chunked</span></code>. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -539,10 +559,11 @@ function.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web16response_builder5buildEv">
 <span id="_CPPv3N7fitoria3web16response_builder5buildEv"></span><span id="_CPPv2N7fitoria3web16response_builder5buildEv"></span><span id="fitoria::web::response_builder::build"></span><span class="target" id="classfitoria_1_1web_1_1response__builder_1a778aee27cb08a303a90eaa4809b632b8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="response.html#_CPPv4N7fitoria3web8responseE" title="fitoria::web::response"><span class="n"><span class="pre">response</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web16response_builder5buildEv" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
+<dd><p><p>Do not modify the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. Note that current object is no longer usable
-after calling this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Do not modify the body and create the <code class="docutils literal notranslate"><span class="pre">response</span></code>. If you want to
+remove existing body, call <cite>set_body()</cite> instead. Note that current
+object is no longer usable after calling this function.</p>
 </dd>
 </dl>
 </p>
@@ -607,8 +628,10 @@ after calling this function.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web16response_builder10set_headerEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">response_builder::set_header()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web16response_builder13insert_headerENSt11string_viewENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">response_builder::insert_header()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NR7fitoria3web16response_builder13insert_headerEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">response_builder::insert_header()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web16response_builder8set_bodyEv"><code class="docutils literal notranslate"><span class="pre">response_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt6size_tEEN7fitoria3web16response_builder8set_bodyE8responseNSt4spanIKNSt4byteE1NEE"><code class="docutils literal notranslate"><span class="pre">response_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web16response_builder8set_bodyENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">response_builder::set_body()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder8set_bodyE8responseRR19AsyncReadableStream"><code class="docutils literal notranslate"><span class="pre">response_builder::set_body()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web16response_builder8set_jsonERKN5boost4json5valueE"><code class="docutils literal notranslate"><span class="pre">response_builder::set_json()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_21async_readable_streamEN7fitoria3web16response_builder10set_streamE8responseRR19AsyncReadableStream"><code class="docutils literal notranslate"><span class="pre">response_builder::set_stream()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web16response_builder5buildEv"><code class="docutils literal notranslate"><span class="pre">response_builder::build()</span></code></a></li>
