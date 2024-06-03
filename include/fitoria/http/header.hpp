@@ -13,7 +13,7 @@
 
 #include <fitoria/core/optional.hpp>
 
-#include <fitoria/http.hpp>
+#include <fitoria/http/field.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 

@@ -11,7 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/http.hpp>
+#include <fitoria/core/detail/boost.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
