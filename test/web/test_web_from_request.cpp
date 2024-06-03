@@ -390,6 +390,7 @@ TEST_CASE("state_of<T>")
                            }).use_state(std::string("shared state")))
                     .serve(route::get<"/no_state">(
                         [](state_of<std::string> st) -> awaitable<response> {
+                          CHECK_EQ(st, "shared state");
                           co_return response::ok().build();
                         }))
                     .build();
