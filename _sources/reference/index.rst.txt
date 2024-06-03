@@ -20,12 +20,12 @@ Reference
    :caption: fitoria::http
    :maxdepth: 1
 
-   http/verb
    http/field
-   http/version
    http/status
    http/status_class
    http/status_code
+   http/verb
+   http/version
 
 
 .. toctree:: 
@@ -33,13 +33,14 @@ Reference
    :maxdepth: 1
 
    web/http_server
+   web/query_map
+   web/request
+   web/request_builder
+   web/response
+   web/response_builder
    web/route
    web/scope
-   web/request_builder
-   web/request
-   web/response_builder
-   web/response
-   web/websocket
-   web/test_request_builder
    web/test_request
+   web/test_request_builder
    web/test_response
+   web/websocket
