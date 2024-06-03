@@ -58,7 +58,7 @@ public:
       co_return unexpected {
         response::bad_request()
             .set_header(http::field::content_type, mime::text_plain())
-            .set_body("keys or value types are not matched.")
+            .set_body("keys are not matched or value types are invalid.")
       };
     }
   }
@@ -101,7 +101,7 @@ public:
       co_return unexpected {
         response::bad_request()
             .set_header(http::field::content_type, mime::text_plain())
-            .set_body("keys or value types are not matched.")
+            .set_body("keys are not matched or value types are invalid.")
       };
     }
   }
