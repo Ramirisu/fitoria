@@ -151,10 +151,11 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (auto ct = header().get(http::field::content_type);
-        !ct || *ct != mime::application_json()) {
-      co_return unexpected { make_error_code(
-          web::error::unexpected_content_type) };
+    if (auto ct = header().get(http::field::content_type); !ct) {
+      co_return unexpected { make_error_code(error::unexpected_content_type) };
+    } else if (auto mime = mime::mime_view::parse(*ct);
+               !mime || mime->essence() != mime::application_json()) {
+      co_return unexpected { make_error_code(error::unexpected_content_type) };
     }
 
     if (auto str = co_await web::async_read_until_eof<std::string>(body_);
