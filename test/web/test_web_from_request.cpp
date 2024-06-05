@@ -17,8 +17,6 @@ using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.from_request]");
 
-#if defined(FITORIA_HAS_BOOST_PFR)
-
 struct date_t {
   std::string month;
   std::string day;
@@ -26,8 +24,6 @@ struct date_t {
 
   friend bool operator==(const date_t&, const date_t&) = default;
 };
-
-#endif
 
 TEST_CASE("connect_info")
 {
@@ -120,8 +116,6 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
   ioc.run();
 }
 
-#if defined(FITORIA_HAS_BOOST_PFR)
-
 TEST_CASE("path_of<T = aggregate>")
 {
   auto ioc = net::io_context();
@@ -164,8 +158,6 @@ TEST_CASE("path_of<T = aggregate>")
   ioc.run();
 }
 
-#endif
-
 TEST_CASE("query_map")
 {
   auto ioc = net::io_context();
@@ -192,8 +184,6 @@ TEST_CASE("query_map")
 
   ioc.run();
 }
-
-#if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("query_of<T>")
 {
@@ -251,10 +241,6 @@ TEST_CASE("query_of<T>")
 
   ioc.run();
 }
-
-#endif
-
-#if defined(FITORIA_HAS_BOOST_PFR)
 
 TEST_CASE("form_of<T>")
 {
@@ -352,8 +338,6 @@ TEST_CASE("form_of<T>")
 
   ioc.run();
 }
-
-#endif
 
 TEST_CASE("http::header")
 {

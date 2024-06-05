@@ -15,15 +15,11 @@
 
 #include <fitoria/web/from_request.hpp>
 
-#if defined(FITORIA_HAS_BOOST_PFR)
 #include <boost/pfr.hpp>
-#endif
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
-
-#if defined(FITORIA_HAS_BOOST_PFR)
 
 template <typename T>
 class query_of : public T {
@@ -60,13 +56,6 @@ public:
     }
   }
 };
-
-#else
-
-template <typename T>
-class query_of;
-
-#endif
 
 }
 

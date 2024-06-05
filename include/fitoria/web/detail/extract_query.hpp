@@ -16,9 +16,7 @@
 
 #include <fitoria/web/error.hpp>
 
-#if defined(FITORIA_HAS_BOOST_PFR)
 #include <boost/pfr.hpp>
-#endif
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -26,8 +24,6 @@ namespace web::detail {
 
 template <typename Extractor>
 class extract_query;
-
-#if defined(FITORIA_HAS_BOOST_PFR)
 
 template <template <typename...> class Extractor, typename T>
 class extract_query<Extractor<T>> {
@@ -68,8 +64,6 @@ private:
     return true;
   }
 };
-
-#endif
 
 }
 
