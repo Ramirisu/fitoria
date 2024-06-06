@@ -11,19 +11,21 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/bytes.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
+#include <fitoria/core/optional.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
 template <typename T>
-concept async_readable_stream = requires(T t, net::mutable_buffer buffer) {
+concept async_readable_stream = requires(T t) {
   typename std::remove_cvref_t<T>::is_async_readable_stream;
   {
-    t.async_read_some(buffer)
-  } -> std::same_as<awaitable<expected<std::size_t, std::error_code>>>;
+    t.async_read_some()
+  } -> std::same_as<awaitable<optional<expected<bytes, std::error_code>>>>;
 };
 
 }

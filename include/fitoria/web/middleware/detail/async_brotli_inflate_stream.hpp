@@ -93,12 +93,6 @@ private:
 
 template <async_readable_stream NextLayer>
 class async_brotli_inflate_stream {
-  enum state : std::uint32_t {
-    none = 0,
-    need_more_input_buffer = 1,
-    need_more_output_buffer = 2,
-  };
-
 public:
   using is_async_readable_stream = void;
 
@@ -108,55 +102,59 @@ public:
   {
   }
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
-    FITORIA_ASSERT(buffer.size() > 0);
-
-    if (state_ == none) {
-      co_return unexpected { make_error_code(net::error::eof) };
+    auto data = co_await next_.async_read_some();
+    if (!data) {
+      co_return nullopt;
     }
 
-    if (state_ & need_more_input_buffer) {
-      auto size
-          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (size) {
-        buffer_.commit(*size);
-      } else {
-        co_return unexpected { size.error() };
+    if (!*data) {
+      co_return unexpected { data->error() };
+    }
+    if ((*data)->empty()) {
+      co_return bytes();
+    }
+
+    auto readable = dynamic_buffer<bytes>(std::move(**data));
+
+    auto buffer = dynamic_buffer<bytes>();
+
+    for (;;) {
+      auto writable
+          = buffer.prepare(std::max(readable.size(), std::size_t(65536)));
+
+      auto p = web::detail::broti_params();
+      p.next_in
+          = reinterpret_cast<const std::uint8_t*>(readable.cdata().data());
+      p.avail_in = readable.cdata().size();
+      p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
+      p.avail_out = writable.size();
+
+      auto ec = inflater_.write(p);
+      if (ec == web::detail::brotli_error::need_more_input
+          || ec == web::detail::brotli_error::need_more_output) {
+        ec = {};
       }
-    }
-
-    auto p = web::detail::broti_params();
-    p.next_in = reinterpret_cast<const std::uint8_t*>(buffer_.cdata().data());
-    p.avail_in = buffer_.cdata().size();
-    p.next_out = reinterpret_cast<std::uint8_t*>(buffer.data());
-    p.avail_out = buffer.size();
-
-    auto ec = inflater_.write(p);
-
-    if (ec) {
-      if (ec == web::detail::brotli_error::need_more_input) {
-        state_ |= need_more_input_buffer;
-      } else if (ec == web::detail::brotli_error::need_more_output) {
-        state_ |= need_more_output_buffer;
-      } else {
+      if (ec) {
         co_return unexpected { ec };
       }
-    } else {
-      state_ &= ~need_more_input_buffer;
-      state_ &= ~need_more_output_buffer;
+
+      readable.consume(readable.size() - p.avail_in);
+      buffer.commit(writable.size() - p.avail_out);
+
+      if (readable.size() == 0 && p.avail_out > 0) {
+        break;
+      }
     }
 
-    buffer_.consume(buffer_.size() - p.avail_in);
-    co_return buffer.size() - p.avail_out;
+    co_return buffer.release();
   }
 
 private:
   NextLayer next_;
   brotli_decoder inflater_;
-  flat_buffer buffer_;
-  std::uint32_t state_ = need_more_input_buffer;
 };
 
 template <typename NextLayer>

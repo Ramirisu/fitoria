@@ -64,16 +64,14 @@ TEST_CASE("std::string")
   ioc.run();
 }
 
-TEST_CASE("std::vector<std::byte>")
+TEST_CASE("bytes")
 {
   auto ioc = net::io_context();
-  auto server
-      = http_server::builder(ioc)
-            .serve(route::get<"/">([]() -> awaitable<std::vector<std::byte>> {
-              co_return std::vector<std::byte> { std::byte('O'),
-                                                 std::byte('K') };
-            }))
-            .build();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/">([]() -> awaitable<bytes> {
+                      co_return bytes { std::byte('O'), std::byte('K') };
+                    }))
+                    .build();
 
   server.serve_request("/",
                        test_request::get().build(),

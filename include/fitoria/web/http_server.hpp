@@ -552,8 +552,7 @@ private:
         res.status_code().value(),
         http::detail::to_impl_version(res.version()));
     res.header().to_impl(r);
-    if (auto data = co_await async_read_until_eof<std::vector<std::byte>>(
-            res.body().stream());
+    if (auto data = co_await async_read_until_eof<bytes>(res.body().stream());
         data) {
       r.body() = std::move(*data);
     } else if (data.error() != make_error_code(net::error::eof)) {

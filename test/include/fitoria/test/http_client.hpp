@@ -614,8 +614,7 @@ private:
         method_, encoded_target(resource_->path, query_.to_string()), 11);
     header_.to_impl(req);
     req.set(http::field::host, resource_->host);
-    if (auto data = co_await web::async_read_until_eof<std::vector<std::byte>>(
-            body_.stream());
+    if (auto data = co_await web::async_read_until_eof<bytes>(body_.stream());
         data) {
       req.body() = std::move(*data);
     } else if (data.error() != make_error_code(net::error::eof)) {

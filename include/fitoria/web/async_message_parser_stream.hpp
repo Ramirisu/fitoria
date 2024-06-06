@@ -11,12 +11,13 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/dynamic_buffer.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 
 #include <fitoria/http/verb.hpp>
 
-#include <cstddef>
+#include <fitoria/web/async_readable_stream_concept.hpp>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -35,7 +36,6 @@ public:
       : buffer_(std::move(buffer))
       , stream_(std::move(stream))
       , parser_(std::move(parser))
-      , return_0_at_first_call_(parser_->chunked() || parser_->content_length())
   {
   }
 
@@ -49,43 +49,46 @@ public:
   async_message_parser_stream& operator=(async_message_parser_stream&&)
       = default;
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
     using boost::beast::http::async_read;
 
     if (parser_->is_done()) {
-      // must return 0 for the first call to this function for following cases:
-      //   1. chunked encoding with size of 0
-      //   2. content-length is presented and with value of 0
-      if (return_0_at_first_call_) {
-        return_0_at_first_call_ = false;
-        co_return std::size_t(0);
+      co_return nullopt;
+    }
+
+    dynamic_buffer<bytes> buffer;
+    boost::system::error_code ec;
+    for (auto writable = buffer.prepare(65536);;
+         writable = buffer.prepare(65536)) {
+      parser_->get().body().data = writable.data();
+      parser_->get().body().size = writable.size();
+
+      auto size
+          = co_await async_read(stream_, *buffer_, *parser_, use_awaitable);
+      if (!size && size.error() != boost::beast::http::error::need_buffer) {
+        ec = size.error();
+        break;
       }
 
-      co_return unexpected { make_error_code(net::error::eof) };
-    }
-    return_0_at_first_call_ = false;
-
-    parser_->get().body().data = buffer.data();
-    parser_->get().body().size = buffer.size();
-
-    auto bytes_read
-        = co_await async_read(stream_, *buffer_, *parser_, use_awaitable);
-    if (!bytes_read
-        && bytes_read.error() != boost::beast::http::error::need_buffer) {
-      co_return unexpected { bytes_read.error() };
+      const auto remaining = parser_->get().body().size;
+      buffer.commit(writable.size() - remaining);
+      if (remaining > 0) {
+        break;
+      }
     }
 
-    const auto remaining = parser_->get().body().size;
-    co_return buffer.size() - remaining;
+    if (ec) {
+      co_return unexpected { ec };
+    }
+    co_return buffer.release();
   }
 
 private:
   std::shared_ptr<flat_buffer> buffer_;
   Stream stream_;
   std::shared_ptr<Parser> parser_;
-  bool return_0_at_first_call_;
 };
 
 }

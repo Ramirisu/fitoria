@@ -29,26 +29,20 @@ auto async_read_into_stream_file(AsyncReadableStream&& stream,
 {
   std::size_t total = 0;
 
-  auto buffer = std::array<std::byte, 4096>();
-  auto bytes_read = co_await stream.async_read_some(net::buffer(buffer));
-  if (!bytes_read) {
-    co_return unexpected { bytes_read.error() };
-  }
-
-  while (bytes_read) {
-    auto bytes_written
-        = co_await net::async_write(file, net::buffer(buffer), use_awaitable);
-    if (!bytes_written) {
-      co_return unexpected { bytes_written.error() };
+  for (auto data = co_await stream.async_read_some(); data;
+       data = co_await stream.async_read_some()) {
+    auto& d = *data;
+    if (d) {
+      if (auto result
+          = co_await net::async_write(file, net::buffer(*d), use_awaitable);
+          result) {
+        total += *result;
+      } else {
+        co_return unexpected { result.error() };
+      }
+    } else {
+      co_return unexpected { d.error() };
     }
-
-    total += *bytes_read;
-
-    bytes_read = co_await stream.async_read_some(net::buffer(buffer));
-  }
-
-  if (bytes_read.error() != make_error_code(net::error::eof)) {
-    co_return unexpected { bytes_read.error() };
   }
 
   co_return total;

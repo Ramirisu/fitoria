@@ -25,17 +25,16 @@ auto async_read_until_eof(AsyncReadableStream&& stream)
 {
   dynamic_buffer<Container> buffer;
 
-  const std::size_t bufsize = 4096;
-  auto size = co_await stream.async_read_some(buffer.prepare(bufsize));
-  if (!size) {
-    co_return unexpected { size.error() };
-  }
-  while (size) {
-    buffer.commit(*size);
-    size = co_await stream.async_read_some(buffer.prepare(bufsize));
-  }
-  if (!size && size.error() != make_error_code(net::error::eof)) {
-    co_return unexpected { size.error() };
+  for (auto data = co_await stream.async_read_some(); data;
+       data = co_await stream.async_read_some()) {
+    auto& d = *data;
+    if (d) {
+      auto writable = buffer.prepare(d->size());
+      std::memcpy(writable.data(), d->data(), d->size());
+      buffer.commit(d->size());
+    } else {
+      co_return unexpected { d.error() };
+    }
   }
 
   co_return buffer.release();

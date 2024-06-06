@@ -23,8 +23,8 @@ class any_async_readable_stream {
   class base {
   public:
     virtual ~base() = default;
-    virtual auto async_read_some(net::mutable_buffer)
-        -> awaitable<expected<std::size_t, std::error_code>>
+    virtual auto
+    async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
         = 0;
   };
 
@@ -36,10 +36,10 @@ class any_async_readable_stream {
     {
     }
 
-    auto async_read_some(net::mutable_buffer buffer)
-        -> awaitable<expected<std::size_t, std::error_code>> override
+    auto async_read_some()
+        -> awaitable<optional<expected<bytes, std::error_code>>> override
     {
-      return stream_.async_read_some(buffer);
+      return stream_.async_read_some();
     }
 
   private:
@@ -53,7 +53,7 @@ public:
   any_async_readable_stream(AsyncReadableStream&& stream)
     requires async_readable_stream<AsyncReadableStream>
       : stream_(std::make_unique<derived<std::decay_t<AsyncReadableStream>>>(
-          std::forward<AsyncReadableStream>(stream)))
+            std::forward<AsyncReadableStream>(stream)))
   {
   }
 
@@ -66,10 +66,10 @@ public:
 
   any_async_readable_stream& operator=(any_async_readable_stream&&) = default;
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
-    return stream_->async_read_some(buffer);
+    return stream_->async_read_some();
   }
 
 private:

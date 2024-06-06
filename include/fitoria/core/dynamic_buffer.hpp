@@ -41,7 +41,7 @@ public:
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Construct a ``dynamic_buffer` with maximum capacity of
-  /// ``Container::max_size()``
+  /// ``Container::max_size()``.
   ///
   /// @endverbatim
   dynamic_buffer()
@@ -52,11 +52,24 @@ public:
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Construct a ``dynamic_buffer` with maximum capacity of
-  /// ``std::size_t limit``
+  /// ``std::size_t limit``.
   ///
   /// @endverbatim
   dynamic_buffer(std::size_t limit)
       : limit_(limit)
+  {
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Construct a ``dynamic_buffer` with existing container.
+  ///
+  /// @endverbatim
+  dynamic_buffer(Container container)
+      : container_(std::move(container))
+      , roffset_(0)
+      , woffset_(container_.size())
+      , limit_(container_.max_size())
   {
   }
 
@@ -182,10 +195,12 @@ public:
 private:
   void compress()
   {
-    const auto len = size();
-    std::memmove(container_.data(), container_.data() + roffset_, len);
-    woffset_ = len;
-    roffset_ = 0;
+    if (roffset_ > 0) {
+      const auto len = size();
+      std::memmove(container_.data(), container_.data() + roffset_, len);
+      woffset_ = len;
+      roffset_ = 0;
+    }
   }
 
   Container container_;

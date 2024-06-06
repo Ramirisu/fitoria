@@ -15,6 +15,8 @@
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/web/async_readable_stream_concept.hpp>
+
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
@@ -39,10 +41,20 @@ public:
 
   async_readable_file_stream& operator=(async_readable_file_stream&&) = default;
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
-    co_return co_await file_.async_read_some(buffer, use_awaitable);
+    auto buffer = bytes(65536);
+    if (auto result
+        = co_await file_.async_read_some(net::buffer(buffer), use_awaitable);
+        result) {
+      buffer.resize(*result);
+      co_return buffer;
+    } else if (result.error() == net::error::eof) {
+      co_return nullopt;
+    } else {
+      co_return unexpected { result.error() };
+    }
   }
 
 private:

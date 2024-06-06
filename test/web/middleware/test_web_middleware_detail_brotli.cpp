@@ -37,18 +37,19 @@ TEST_CASE("inflate: 1 byte buffer")
     };
 
     auto stream = middleware::detail::async_brotli_inflate_stream(
-        async_readable_vector_stream(std::span(in.begin(), in.size())));
-    auto buffer = std::array<char, 1>();
-    auto out = std::string();
-    auto size = co_await stream.async_read_some(net::buffer(buffer));
-    while (size) {
-      out.append(buffer.data(), *size);
-      size = co_await stream.async_read_some(net::buffer(buffer));
+        async_readable_chunk_stream<1>(std::span(in.begin(), in.size())));
+    auto buffer = dynamic_buffer<std::string>();
+    for (auto data = co_await stream.async_read_some(); data;
+         data = co_await stream.async_read_some()) {
+      auto& d = *data;
+      REQUIRE(d);
+      auto writable = buffer.prepare(d->size());
+      std::memcpy(writable.data(), d->data(), d->size());
+      buffer.commit(d->size());
     }
 
-    CHECK_EQ(size.error(), make_error_code(net::error::eof));
-    CHECK_EQ(
-        out,
+    REQUIRE_EQ(
+        buffer.release(),
         std::string_view(
             "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
   });
@@ -80,15 +81,15 @@ TEST_CASE("inflate: in > out")
 TEST_CASE("inflate: in < out")
 {
   sync_wait([]() -> awaitable<void> {
-    const auto in
-        = std::vector<std::uint8_t> { 0x1b, 0xff, 0x01, 0xf8, 0x25, 0xc2,
-                                      0x82, 0xb1, 0x40, 0x20, 0x17 };
+    const auto in = std::vector<std::uint8_t> { 0x5b, 0xff, 0xff, 0x8f, 0x5f,
+                                                0x22, 0x2c, 0x1e, 0x0b, 0x04,
+                                                0x72, 0xef, 0x1f, 0x00 };
 
-    auto out = co_await async_read_until_eof<std::string>(
-        middleware::detail::async_brotli_inflate_stream(
-            async_readable_vector_stream(std::span(in.begin(), in.size()))));
-
-    CHECK_EQ(out, std::string(512, 'a'));
+    CHECK_EQ(co_await async_read_until_eof<std::string>(
+                 middleware::detail::async_brotli_inflate_stream(
+                     async_readable_vector_stream(
+                         std::span(in.begin(), in.size())))),
+             std::string(1048576, 'a'));
   });
 }
 
@@ -97,10 +98,9 @@ TEST_CASE("inflate: eof stream")
   sync_wait([]() -> awaitable<void> {
     const auto in = std::vector<std::uint8_t> {};
 
-    auto out = co_await async_read_until_eof<std::string>(
-        middleware::detail::async_brotli_inflate_stream(
-            async_readable_vector_stream()));
-    CHECK_EQ(out.error(), make_error_code(net::error::eof));
+    auto stream = middleware::detail::async_brotli_inflate_stream(
+        async_readable_vector_stream());
+    REQUIRE(!(co_await stream.async_read_some()));
   });
 }
 
@@ -127,6 +127,21 @@ TEST_CASE("deflate: valid stream")
         middleware::detail::async_brotli_inflate_stream(
             middleware::detail::async_brotli_deflate_stream(
                 async_readable_vector_stream(
+                    std::span(in.begin(), in.size())))));
+    CHECK_EQ(out, in);
+  });
+}
+
+TEST_CASE("deflate: valid stream, 1 byte per call")
+{
+  sync_wait([]() -> awaitable<void> {
+    const auto in = std::string_view(
+        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+    auto out = co_await async_read_until_eof<std::string>(
+        middleware::detail::async_brotli_inflate_stream(
+            middleware::detail::async_brotli_deflate_stream(
+                async_readable_chunk_stream<1>(
                     std::span(in.begin(), in.size())))));
     CHECK_EQ(out, in);
   });

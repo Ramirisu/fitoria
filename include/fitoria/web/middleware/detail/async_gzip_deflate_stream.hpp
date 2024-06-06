@@ -6,13 +6,16 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_MIDDLEWARE_DETAIL_ASYNC_DEFLATE_STREAM_HPP
-#define FITORIA_WEB_MIDDLEWARE_DETAIL_ASYNC_DEFLATE_STREAM_HPP
+#ifndef FITORIA_WEB_MIDDLEWARE_DETAIL_ASYNC_GZIP_DEFLATE_STREAM_HPP
+#define FITORIA_WEB_MIDDLEWARE_DETAIL_ASYNC_GZIP_DEFLATE_STREAM_HPP
 
 #include <fitoria/core/config.hpp>
 
+#if defined(FITORIA_HAS_ZLIB)
+
 #include <fitoria/core/dynamic_buffer.hpp>
-#include <fitoria/core/net.hpp>
+
+#include <fitoria/web/middleware/detail/gzip_stream.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
@@ -21,12 +24,12 @@ FITORIA_NAMESPACE_BEGIN
 namespace web::middleware::detail {
 
 template <async_readable_stream NextLayer>
-class async_deflate_stream {
+class async_gzip_deflate_stream {
 public:
   using is_async_readable_stream = void;
 
   template <async_readable_stream NextLayer2>
-  async_deflate_stream(NextLayer2&& next)
+  async_gzip_deflate_stream(NextLayer2&& next)
       : next_(std::forward<NextLayer2>(next))
   {
   }
@@ -99,17 +102,18 @@ public:
     co_return buffer.release();
   }
 
-private:
   NextLayer next_;
-  boost::beast::zlib::deflate_stream deflater_;
+  gzip_deflate_stream deflater_;
   bool finish_ = false;
 };
 
 template <typename NextLayer>
-async_deflate_stream(NextLayer&&)
-    -> async_deflate_stream<std::decay_t<NextLayer>>;
+async_gzip_deflate_stream(NextLayer&&)
+    -> async_gzip_deflate_stream<std::decay_t<NextLayer>>;
 }
 
 FITORIA_NAMESPACE_END
+
+#endif
 
 #endif

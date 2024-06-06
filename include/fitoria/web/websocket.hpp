@@ -82,7 +82,7 @@ public:
   ///
   /// @endverbatim
   struct binary_t {
-    std::vector<std::byte> value;
+    bytes value;
   };
 
   /// @verbatim embed:rst:leading-slashes
@@ -172,7 +172,7 @@ public:
 
     auto async_read() -> awaitable<expected<message_type, std::error_code>>
     {
-      auto buffer = dynamic_buffer<std::vector<std::byte>>();
+      auto buffer = dynamic_buffer<bytes>();
       auto result = co_await std::visit(
           [&](auto& stream)
               -> awaitable<expected<std::size_t, boost::system::error_code>> {

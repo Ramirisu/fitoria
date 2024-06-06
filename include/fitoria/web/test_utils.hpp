@@ -63,8 +63,7 @@ auto do_sized_request(Stream& stream, std::string path, test_request& tr)
   auto req = request<vector_body<std::byte>>(
       tr.method(), encoded_target(path, tr.query().to_string()), 11);
   tr.header().to_impl(req);
-  if (auto data = co_await async_read_until_eof<std::vector<std::byte>>(
-          tr.body().stream());
+  if (auto data = co_await async_read_until_eof<bytes>(tr.body().stream());
       data) {
     req.body() = std::move(*data);
   } else if (data.error() != make_error_code(net::error::eof)) {

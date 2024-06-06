@@ -11,43 +11,35 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/bytes.hpp>
 #include <fitoria/core/optional.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
 #include <span>
-#include <vector>
 
 FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
 class async_readable_vector_stream {
-  struct data_t {
-    std::size_t offset = 0;
-    std::vector<std::byte> buffer;
-  };
-
 public:
   using is_async_readable_stream = void;
 
   async_readable_vector_stream() = default;
 
-  async_readable_vector_stream(std::vector<std::byte> data)
+  async_readable_vector_stream(bytes data)
   {
     if (!data.empty()) {
-      data_.emplace(data_t { 0, std::move(data) });
+      data_.emplace(std::move(data));
     }
   }
 
   template <typename T, std::size_t N>
   async_readable_vector_stream(std::span<T, N> s)
   {
-    auto b = std::as_bytes(s);
-    if (!b.empty()) {
-      data_.emplace();
-      data_->offset = 0;
-      data_->buffer = std::vector<std::byte>(b.begin(), b.end());
+    if (!s.empty()) {
+      data_ = bytes(std::as_bytes(s).begin(), std::as_bytes(s).end());
     }
   }
 
@@ -61,26 +53,20 @@ public:
   async_readable_vector_stream& operator=(async_readable_vector_stream&&)
       = default;
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
     if (data_) {
-      const auto size
-          = std::min(buffer.size(), data_->buffer.size() - data_->offset);
-      std::memcpy(buffer.data(), (data_->buffer.data() + data_->offset), size);
-      data_->offset += size;
-      if (data_->offset == data_->buffer.size()) {
-        data_.reset();
-      }
-
-      co_return size;
+      auto data = std::move(*data_);
+      data_.reset();
+      co_return data;
     }
 
-    co_return unexpected { make_error_code(net::error::eof) };
+    co_return nullopt;
   }
 
 private:
-  optional<data_t> data_;
+  optional<bytes> data_;
 };
 }
 

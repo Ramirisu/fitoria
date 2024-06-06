@@ -47,8 +47,9 @@ TEST_CASE("response status only")
         REQUIRE_EQ(res->status_code(), http::status::no_content);
         REQUIRE_EQ(res->header().get(http::field::connection), "close");
         REQUIRE(!res->header().get(http::field::content_length));
-        REQUIRE(!(co_await async_read_until_eof<std::string>(res->body())));
-        REQUIRE(!(co_await res->as_string()));
+        REQUIRE_EQ(co_await async_read_until_eof<std::string>(res->body()),
+                   std::string());
+        REQUIRE_EQ(co_await res->as_string(), std::string());
       },
       net::use_future)
       .get();

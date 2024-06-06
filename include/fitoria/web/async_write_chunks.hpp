@@ -30,20 +30,18 @@ auto async_write_chunks(AsyncWritableStream&& to, AsyncReadableStream&& from)
   using boost::beast::http::make_chunk;
   using boost::beast::http::make_chunk_last;
 
-  auto buffer = std::array<std::byte, 4096>();
-  auto bytes_read = co_await from.async_read_some(net::buffer(buffer));
-  while (bytes_read) {
-    auto bytes_written = co_await async_write(
-        to, make_chunk(net::buffer(buffer.data(), *bytes_read)), use_awaitable);
-    if (!bytes_written) {
-      co_return unexpected { bytes_written.error() };
+  for (auto data = co_await from.async_read_some(); data;
+       data = co_await from.async_read_some()) {
+    auto& d = *data;
+    if (d) {
+      if (auto result = co_await async_write(
+              to, make_chunk(net::buffer(*d)), use_awaitable);
+          !result) {
+        co_return unexpected { result.error() };
+      }
+    } else {
+      co_return unexpected { d.error() };
     }
-
-    bytes_read = co_await from.async_read_some(net::buffer(buffer));
-  }
-
-  if (bytes_read.error() != make_error_code(net::error::eof)) {
-    co_return unexpected { bytes_read.error() };
   }
 
   co_return co_await async_write(to, make_chunk_last(), use_awaitable);

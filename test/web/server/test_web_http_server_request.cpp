@@ -85,11 +85,10 @@ TEST_CASE("generic request")
                                                    "fitoria" }));
 
                   REQUIRE_EQ(body, "happy birthday");
-                  auto buffer = std::array<std::byte, 4096>();
-                  REQUIRE(!(co_await req.body().async_read_some(
-                      net::buffer(buffer))));
-                  REQUIRE(!(
-                      co_await async_read_until_eof<std::string>(req.body())));
+                  REQUIRE(!(co_await req.body().async_read_some()));
+                  REQUIRE_EQ(
+                      co_await async_read_until_eof<std::string>(req.body()),
+                      std::string());
 
                   co_return response::ok()
                       .insert_header(http::field::user_agent,
@@ -180,8 +179,8 @@ TEST_CASE("request with null body")
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
               REQUIRE_EQ(req.header().get(http::field::connection), "close");
               REQUIRE(!req.header().get(http::field::content_length));
-              REQUIRE(
-                  !(co_await async_read_until_eof<std::string>(req.body())));
+              REQUIRE_EQ(co_await async_read_until_eof<std::string>(req.body()),
+                         std::string());
               co_return response::ok().build();
             }))
             .build();

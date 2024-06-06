@@ -417,16 +417,15 @@ TEST_CASE("std::string")
   ioc.run();
 }
 
-TEST_CASE("std::vector<std::byte>")
+TEST_CASE("bytes")
 {
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
-            .serve(route::post<"/">(
-                [](std::vector<std::byte> bytes) -> awaitable<response> {
-                  CHECK_EQ(bytes, str_to_vec<std::byte>("abc"));
-                  co_return response::ok().build();
-                }))
+            .serve(route::post<"/">([](bytes bs) -> awaitable<response> {
+              CHECK_EQ(bs, str_to_vec<std::byte>("abc"));
+              co_return response::ok().build();
+            }))
             .build();
 
   server.serve_request("/",

@@ -17,8 +17,8 @@
 #include <fitoria/core/utility.hpp>
 
 #include <fitoria/web/middleware/detail/async_brotli_inflate_stream.hpp>
-#include <fitoria/web/middleware/detail/async_deflate_stream.hpp>
-#include <fitoria/web/middleware/detail/async_gzip_stream.hpp>
+#include <fitoria/web/middleware/detail/async_gzip_inflate_stream.hpp>
+#include <fitoria/web/middleware/detail/async_inflate_stream.hpp>
 #include <fitoria/web/request.hpp>
 #include <fitoria/web/response.hpp>
 #include <fitoria/web/to_middleware.hpp>

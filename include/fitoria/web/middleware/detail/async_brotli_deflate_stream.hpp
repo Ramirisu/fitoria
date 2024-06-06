@@ -120,12 +120,6 @@ private:
 
 template <async_readable_stream NextLayer>
 class async_brotli_deflate_stream {
-  enum state : std::uint32_t {
-    none = 0,
-    input_is_not_eof = 1,
-    need_more_output_buffer = 2,
-  };
-
 public:
   using is_async_readable_stream = void;
 
@@ -135,58 +129,70 @@ public:
   {
   }
 
-  auto async_read_some(net::mutable_buffer buffer)
-      -> awaitable<expected<std::size_t, std::error_code>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
-    FITORIA_ASSERT(buffer.size() > 0);
-
-    if (state_ == none) {
-      co_return unexpected { make_error_code(net::error::eof) };
-    }
-
-    if (state_ & input_is_not_eof) {
-      auto size
-          = co_await next_.async_read_some(buffer_.prepare(buffer.size()));
-      if (size) {
-        buffer_.commit(*size);
-      } else if (size.error() == make_error_code(net::error::eof)) {
-        state_ &= ~input_is_not_eof;
-      } else {
-        co_return unexpected { size.error() };
+    auto data = co_await next_.async_read_some();
+    if (!data) {
+      if (finish_) {
+        co_return nullopt;
       }
+
+      finish_ = true;
+
+      auto buffer = dynamic_buffer<bytes>();
+      auto writable = buffer.prepare(65536);
+
+      auto p = web::detail::broti_params();
+      p.next_in = nullptr;
+      p.avail_in = 0;
+      p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
+      p.avail_out = writable.size();
+
+      auto ec = deflater_.write(p, brotli_encoder_operation::finish);
+
+      FITORIA_ASSERT(ec != web::detail::brotli_error::need_more_output);
+      if (ec) {
+        co_return unexpected { ec };
+      }
+
+      buffer.commit(writable.size() - p.avail_out);
+      co_return buffer.release();
     }
+
+    auto& readable = *data;
+    if (!readable) {
+      co_return unexpected { readable.error() };
+    }
+    if (readable->empty()) {
+      co_return bytes();
+    }
+
+    auto buffer = dynamic_buffer<bytes>();
+    auto writable
+        = buffer.prepare(std::max(readable->size(), std::size_t(65536)));
 
     auto p = web::detail::broti_params();
-    p.next_in = reinterpret_cast<const std::uint8_t*>(buffer_.cdata().data());
-    p.avail_in = buffer_.cdata().size();
-    p.next_out = reinterpret_cast<std::uint8_t*>(buffer.data());
-    p.avail_out = buffer.size();
+    p.next_in = reinterpret_cast<const std::uint8_t*>(readable->data());
+    p.avail_in = readable->size();
+    p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
+    p.avail_out = writable.size();
 
-    if (state_ & input_is_not_eof) {
-      if (auto ec = deflater_.write(p, brotli_encoder_operation::process); ec) {
-        co_return unexpected { ec };
-      }
-    } else {
-      if (auto ec = deflater_.write(p, brotli_encoder_operation::finish); ec) {
-        co_return unexpected { ec };
-      }
+    auto ec = deflater_.write(p, brotli_encoder_operation::process);
 
-      if (deflater_.is_done()) {
-        state_ &= ~need_more_output_buffer;
-      } else {
-        state_ |= need_more_output_buffer;
-      }
+    FITORIA_ASSERT(ec != web::detail::brotli_error::need_more_output);
+    if (ec) {
+      co_return unexpected { ec };
     }
 
-    buffer_.consume(buffer_.size() - p.avail_in);
-    co_return buffer.size() - p.avail_out;
+    buffer.commit(writable.size() - p.avail_out);
+    co_return buffer.release();
   }
 
 private:
   NextLayer next_;
   brotli_encoder deflater_;
-  flat_buffer buffer_;
-  std::uint32_t state_ = input_is_not_eof;
+  bool finish_ = false;
 };
 
 template <typename NextLayer>

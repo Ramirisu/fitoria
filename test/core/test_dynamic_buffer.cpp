@@ -82,4 +82,11 @@ TEST_CASE("with limit: required size too large")
   CHECK_THROWS_AS(buffer.prepare(129), std::length_error);
 }
 
+TEST_CASE("with existing container")
+{
+  auto buffer = dynamic_buffer<std::string>(std::string("hello world!"));
+  CHECK_EQ(buffer.size(), 12);
+  CHECK_EQ(buffer.release(), "hello world!");
+}
+
 TEST_SUITE_END();

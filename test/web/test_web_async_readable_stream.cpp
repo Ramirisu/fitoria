@@ -30,30 +30,17 @@ TEST_CASE("async_readable_vector_stream: read empty")
 {
   sync_wait([&]() -> awaitable<void> {
     auto stream = async_readable_vector_stream();
-    auto buffer = std::array<std::byte, 4096>();
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
+    CHECK(!(co_await stream.async_read_some()));
+    CHECK(!(co_await stream.async_read_some()));
   });
 }
 
 TEST_CASE("async_readable_vector_stream: read chunk by chunk")
 {
   sync_wait([&]() -> awaitable<void> {
-    auto stream = async_readable_vector_stream(
-        std::vector<std::byte>(9, std::byte(0x40)));
-    auto buffer = std::array<std::byte, 4>();
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))),
-             std::size_t(4));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))),
-             std::size_t(4));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))),
-             std::size_t(1));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
-    CHECK_EQ((co_await stream.async_read_some(net::buffer(buffer))).error(),
-             make_error_code(net::error::eof));
+    auto stream = async_readable_vector_stream(bytes(9, std::byte(0x40)));
+    CHECK_EQ(co_await stream.async_read_some(), bytes(9, std::byte(0x40)));
+    CHECK(!(co_await stream.async_read_some()));
   });
 }
 
