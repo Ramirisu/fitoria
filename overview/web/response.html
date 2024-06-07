@@ -475,16 +475,24 @@ document.write(`
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::string</span></code></p></td>
-<td><p>Convert string into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
+<td><p>Put string into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">text/plain</span></code> will be inserted.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code></p></td>
-<td><p>Convert <code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code> into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
+<td><p>Put <code class="docutils literal notranslate"><span class="pre">std::vector&lt;T&gt;</span></code> into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">application/octet-stream</span></code> will be inserted.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">std::variant&lt;Ts...&gt;</span></code></p></td>
 <td><p>Convert any of <code class="docutils literal notranslate"><span class="pre">Ts...</span></code> into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
-<td><p>Note that <code class="docutils literal notranslate"><span class="pre">Ts...</span></code> must be convertible to <code class="docutils literal notranslate"><span class="pre">response</span></code> as well.</p></td>
+<td><p>Note that <code class="docutils literal notranslate"><span class="pre">Ts...</span></code> must be convertible to <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expected&lt;T,</span> <span class="pre">E&gt;</span></code></p></td>
+<td><p>Convert <code class="docutils literal notranslate"><span class="pre">T</span></code> or <code class="docutils literal notranslate"><span class="pre">E</span></code> into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
+<td><p>Note that <code class="docutils literal notranslate"><span class="pre">T</span></code> and <code class="docutils literal notranslate"><span class="pre">E</span></code> must be convertible to <code class="docutils literal notranslate"><span class="pre">response</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stream_file</span></code></p></td>
+<td><p>Put <code class="docutils literal notranslate"><span class="pre">stream_file</span></code> into <code class="docutils literal notranslate"><span class="pre">response</span></code> body.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">application/octet-stream</span></code> will be inserted and <code class="docutils literal notranslate"><span class="pre">Transfer-Encoding:</span> <span class="pre">Chunked</span></code> will be used.</p></td>
 </tr>
 </tbody>
 </table>
