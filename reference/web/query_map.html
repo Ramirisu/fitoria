@@ -42,8 +42,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/web/query_map';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="class request" href="request.html" />
-    <link rel="prev" title="class http_server" href="http_server.html" />
+    <link rel="next" title="class query_of" href="query_of.html" />
+    <link rel="prev" title="class path_of" href="path_of.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -311,6 +311,7 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::mime</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../mime/mime_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">mime_view</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mime/params_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">params_view</span></code></a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::http</span></p>
 <ul class="nav bd-sidenav">
@@ -324,13 +325,17 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="json_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">json_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="path_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_of</span></code></a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_of</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="state_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_response</span></code></a></li>
@@ -413,6 +418,12 @@ document.write(`
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web9query_map5emptyEv">
+<span id="_CPPv3NK7fitoria3web9query_map5emptyEv"></span><span id="_CPPv2NK7fitoria3web9query_map5emptyEv"></span><span id="fitoria::web::query_map::emptyC"></span><span class="target" id="classfitoria_1_1web_1_1query__map_1aafdf5eafd51b8a5c288c57f9f2c83174"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">empty</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web9query_map5emptyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Check whether the container is empty.</p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web9query_map4sizeEv">
 <span id="_CPPv3NK7fitoria3web9query_map4sizeEv"></span><span id="_CPPv2NK7fitoria3web9query_map4sizeEv"></span><span id="fitoria::web::query_map::sizeC"></span><span class="target" id="classfitoria_1_1web_1_1query__map_1a1999bf0117878b9e4715a2d1741fd521"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web9query_map4sizeEv" title="Link to this definition">#</a><br /></dt>
 <dd><p>Get the number of key/value pairs.</p>
@@ -427,7 +438,7 @@ document.write(`
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web9query_map8containsERKNSt6stringE">
 <span id="_CPPv3NK7fitoria3web9query_map8containsERKNSt6stringE"></span><span id="_CPPv2NK7fitoria3web9query_map8containsERKNSt6stringE"></span><span id="fitoria::web::query_map::contains__ssCRC"></span><span class="target" id="classfitoria_1_1web_1_1query__map_1a2e40c7c765b9e4cefd9d5589a00a220c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">contains</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web9query_map8containsERKNSt6stringE" title="Link to this definition">#</a><br /></dt>
-<dd><p>Checks if the container contains element with specific key.</p>
+<dd><p>Checks whether the container contains element with specific key.</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -536,20 +547,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="http_server.html"
+       href="path_of.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_of</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="request.html"
+       href="query_of.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_of</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -574,6 +585,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web9query_mapE"><code class="docutils literal notranslate"><span class="pre">query_map</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web9query_map9query_mapEv"><code class="docutils literal notranslate"><span class="pre">query_map::query_map()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web9query_map9query_mapENSt16initializer_listI10value_typeEE"><code class="docutils literal notranslate"><span class="pre">query_map::query_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web9query_map5emptyEv"><code class="docutils literal notranslate"><span class="pre">query_map::empty()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web9query_map4sizeEv"><code class="docutils literal notranslate"><span class="pre">query_map::size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web9query_map8max_sizeEv"><code class="docutils literal notranslate"><span class="pre">query_map::max_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria3web9query_map8containsERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">query_map::contains()</span></code></a></li>

@@ -311,6 +311,7 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::mime</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../mime/mime_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">mime_view</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mime/params_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">params_view</span></code></a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::http</span></p>
 <ul class="nav bd-sidenav">
@@ -324,13 +325,17 @@ document.write(`
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../web/http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/json_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">json_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/path_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_of</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/query_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/query_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_of</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/state_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/test_request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/test_request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web/test_response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_response</span></code></a></li>
@@ -416,22 +421,21 @@ contiguous storage.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferEv">
 <span id="_CPPv3N7fitoria14dynamic_buffer14dynamic_bufferEv"></span><span id="_CPPv2N7fitoria14dynamic_buffer14dynamic_bufferEv"></span><span id="fitoria::dynamic_buffer::dynamic_buffer"></span><span class="target" id="classfitoria_1_1dynamic__buffer_1a28f2141962f9aaaf1fd59c9be7ac29c7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dynamic_buffer</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferEv" title="Link to this definition">#</a><br /></dt>
-<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">dynamic_buffer`</span> <span class="pre">with</span> <span class="pre">maximum</span> <span class="pre">capacity</span> <span class="pre">of</span>
-<span class="pre">``Container::max_size()</span></code>.</p>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">dynamic_buffer</span></code> with maximum capacity of
+<code class="docutils literal notranslate"><span class="pre">Container::max_size()</span></code>.</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferENSt6size_tE">
 <span id="_CPPv3N7fitoria14dynamic_buffer14dynamic_bufferENSt6size_tE"></span><span id="_CPPv2N7fitoria14dynamic_buffer14dynamic_bufferENSt6size_tE"></span><span id="fitoria::dynamic_buffer::dynamic_buffer__std::s"></span><span class="target" id="classfitoria_1_1dynamic__buffer_1aa44cecc04bf2a120326ff87f0abdd292"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dynamic_buffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">limit</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferENSt6size_tE" title="Link to this definition">#</a><br /></dt>
-<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">dynamic_buffer`</span> <span class="pre">with</span> <span class="pre">maximum</span> <span class="pre">capacity</span> <span class="pre">of</span>
-<span class="pre">``std::size_t</span> <span class="pre">limit</span></code>.</p>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">dynamic_buffer</span></code> with maximum capacity of
+<code class="docutils literal notranslate"><span class="pre">std::size_t</span> <span class="pre">limit</span></code>.</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferE9Container">
 <span id="_CPPv3N7fitoria14dynamic_buffer14dynamic_bufferE9Container"></span><span id="_CPPv2N7fitoria14dynamic_buffer14dynamic_bufferE9Container"></span><span id="fitoria::dynamic_buffer::dynamic_buffer__Container"></span><span class="target" id="classfitoria_1_1dynamic__buffer_1a067daff3af2710a39ed7eebe477fbb9d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dynamic_buffer</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN7fitoria14dynamic_bufferE" title="fitoria::dynamic_buffer::Container"><span class="n"><span class="pre">Container</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">container</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria14dynamic_buffer14dynamic_bufferE9Container" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Construct a <a href="#id1"><span class="problematic" id="id2">``</span></a>dynamic_buffer` with existing container.</p>
-</p>
+<dd><p>Construct a <code class="docutils literal notranslate"><span class="pre">dynamic_buffer</span></code> with existing container.</p>
 </dd></dl>
 
 <dl class="cpp function">
