@@ -22,7 +22,7 @@ TEST_CASE("parse")
     CHECK_EQ(m->essence(), "text/plain");
     CHECK_EQ(m->type(), "text");
     CHECK_EQ(m->subtype(), "plain");
-    CHECK_EQ(m->suffix(), "");
+    CHECK_EQ(m->suffix(), nullopt);
   }
   {
     auto m = mime_view::parse("text/plain; charset=utf-8");
@@ -30,7 +30,7 @@ TEST_CASE("parse")
     CHECK_EQ(m->essence(), "text/plain");
     CHECK_EQ(m->type(), "text");
     CHECK_EQ(m->subtype(), "plain");
-    CHECK_EQ(m->suffix(), "");
+    CHECK_EQ(m->suffix(), nullopt);
   }
   {
     auto m = mime_view::parse("image/svg+xml");
@@ -66,63 +66,63 @@ TEST_CASE("contants")
     CHECK_EQ(m.essence(), "application/javascript");
     CHECK_EQ(m.type(), "application");
     CHECK_EQ(m.subtype(), "javascript");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = application_json();
     CHECK_EQ(m.essence(), "application/json");
     CHECK_EQ(m.type(), "application");
     CHECK_EQ(m.subtype(), "json");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = application_octet_stream();
     CHECK_EQ(m.essence(), "application/octet-stream");
     CHECK_EQ(m.type(), "application");
     CHECK_EQ(m.subtype(), "octet-stream");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = application_pdf();
     CHECK_EQ(m.essence(), "application/pdf");
     CHECK_EQ(m.type(), "application");
     CHECK_EQ(m.subtype(), "pdf");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = application_www_form_urlencoded();
     CHECK_EQ(m.essence(), "application/x-www-form-urlencoded");
     CHECK_EQ(m.type(), "application");
     CHECK_EQ(m.subtype(), "x-www-form-urlencoded");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = image_bmp();
     CHECK_EQ(m.essence(), "image/bmp");
     CHECK_EQ(m.type(), "image");
     CHECK_EQ(m.subtype(), "bmp");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = image_gif();
     CHECK_EQ(m.essence(), "image/gif");
     CHECK_EQ(m.type(), "image");
     CHECK_EQ(m.subtype(), "gif");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = image_jpeg();
     CHECK_EQ(m.essence(), "image/jpeg");
     CHECK_EQ(m.type(), "image");
     CHECK_EQ(m.subtype(), "jpeg");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = image_png();
     CHECK_EQ(m.essence(), "image/png");
     CHECK_EQ(m.type(), "image");
     CHECK_EQ(m.subtype(), "png");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = image_svg();
@@ -136,28 +136,28 @@ TEST_CASE("contants")
     CHECK_EQ(m.essence(), "text/html");
     CHECK_EQ(m.type(), "text");
     CHECK_EQ(m.subtype(), "html");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = text_javascript();
     CHECK_EQ(m.essence(), "text/javascript");
     CHECK_EQ(m.type(), "text");
     CHECK_EQ(m.subtype(), "javascript");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = text_plain();
     CHECK_EQ(m.essence(), "text/plain");
     CHECK_EQ(m.type(), "text");
     CHECK_EQ(m.subtype(), "plain");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = text_xml();
     CHECK_EQ(m.essence(), "text/xml");
     CHECK_EQ(m.type(), "text");
     CHECK_EQ(m.subtype(), "xml");
-    CHECK_EQ(m.suffix(), "");
+    CHECK_EQ(m.suffix(), nullopt);
   }
 }
 

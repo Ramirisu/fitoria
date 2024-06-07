@@ -12,6 +12,7 @@
 #include <fitoria/core/config.hpp>
 
 #include <fitoria/core/expected.hpp>
+#include <fitoria/core/optional.hpp>
 #include <fitoria/core/strings.hpp>
 #include <fitoria/core/utility.hpp>
 
@@ -106,7 +107,7 @@ public:
   ///     - ``"image/svg+xml"`` -> ``"xml"``
   ///
   /// @endverbatim
-  auto suffix() const noexcept -> std::string_view
+  auto suffix() const noexcept -> optional<std::string_view>
   {
     return suffix_;
   }
@@ -198,7 +199,7 @@ private:
             std::string_view essence,
             std::string_view type,
             std::string_view subtype,
-            std::string_view suffix,
+            optional<std::string_view> suffix,
             params_view params)
       : source_(source)
       , essence_(essence)
@@ -210,9 +211,10 @@ private:
   }
 
   static auto parse_primary(std::string_view str) noexcept
-      -> expected<
-          std::tuple<std::string_view, std::string_view, std::string_view>,
-          std::error_code>
+      -> expected<std::tuple<std::string_view,
+                             std::string_view,
+                             optional<std::string_view>>,
+                  std::error_code>
   {
     // mime-type = type "/" subtype ["+" suffix]*
 
@@ -228,7 +230,7 @@ private:
       return unexpected { make_error_code(std::errc::invalid_argument) };
     }
     if (subtypes.size() <= 1) {
-      return std::tuple { type, subtype, std::string_view() };
+      return std::tuple { type, subtype, nullopt };
     }
 
     auto suffix = subtypes[1];
@@ -273,7 +275,7 @@ private:
   std::string_view essence_;
   std::string_view type_;
   std::string_view subtype_;
-  std::string_view suffix_;
+  optional<std::string_view> suffix_;
   params_view params_;
 };
 
