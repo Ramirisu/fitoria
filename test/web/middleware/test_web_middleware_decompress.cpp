@@ -68,7 +68,7 @@ TEST_CASE("deflate")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding, "deflate")
-            .set_stream(get_stream(test_case.chunked, compressed)),
+            .set_stream_body(get_stream(test_case.chunked, compressed)),
         [](test_response res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
           co_return;
@@ -117,7 +117,7 @@ TEST_CASE("gzip")
         "/",
         test_request::post()
             .set_header(http::field::content_encoding, "gzip")
-            .set_stream(get_stream(test_case.chunked, compressed)),
+            .set_stream_body(get_stream(test_case.chunked, compressed)),
         [](test_response res) -> awaitable<void> {
           CHECK_EQ(res.status_code(), http::status::ok);
           co_return;
@@ -159,7 +159,7 @@ TEST_CASE("decompress")
         test_request::post()
             .set_header(http::field::content_encoding,
                         "deflate, identity, gzip")
-            .set_stream(get_stream(
+            .set_stream_body(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
                     0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a,
@@ -180,7 +180,7 @@ TEST_CASE("decompress")
         test_request::post()
             .set_header(http::field::content_encoding,
                         "gzip, identity, deflate")
-            .set_stream(get_stream(
+            .set_stream_body(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
                     0x93, 0xef, 0xe6, 0x60, 0x00, 0x03, 0x2e, 0x6f, 0x1f, 0x2f,
@@ -204,7 +204,7 @@ TEST_CASE("decompress")
         test_request::post()
             .set_header(http::field::content_encoding,
                         "deflate, identity, brotli")
-            .set_stream(get_stream(
+            .set_stream_body(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
                     0x8b, 0x1f, 0x80, 0x4b, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b,
@@ -223,7 +223,7 @@ TEST_CASE("decompress")
         test_request::post()
             .set_header(http::field::content_encoding,
                         "brotli, identity, deflate")
-            .set_stream(get_stream(
+            .set_stream_body(get_stream(
                 test_case.chunked,
                 std::vector<std::uint8_t> {
                     0xeb, 0x96, 0x6b, 0x48, 0x4c, 0x4a, 0x4e, 0x49, 0x4d, 0x4b,

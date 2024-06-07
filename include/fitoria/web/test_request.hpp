@@ -480,7 +480,7 @@ public:
   ///
   /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) -> test_request
+  auto set_stream_body(AsyncReadableStream&& stream) -> test_request
   {
     body_ = any_body(any_body::chunked(),
                      std::forward<AsyncReadableStream>(stream));

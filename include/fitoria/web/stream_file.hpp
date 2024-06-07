@@ -55,7 +55,7 @@ public:
   {
     return response::ok()
         .set_header(http::field::content_type, mime::application_octet_stream())
-        .set_stream(async_readable_file_stream(self.release()));
+        .set_stream_body(async_readable_file_stream(self.release()));
   }
 };
 

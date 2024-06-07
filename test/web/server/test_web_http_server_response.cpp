@@ -108,7 +108,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
             .serve(route::get<"/">([text]() -> awaitable<response> {
               co_return response::ok()
                   .set_header(http::field::content_type, mime::text_plain())
-                  .set_stream(async_readable_chunk_stream<5>(text));
+                  .set_stream_body(async_readable_chunk_stream<5>(text));
             }))
             .build();
   REQUIRE(server.bind(server_ip, port));

@@ -809,7 +809,7 @@ public:
   template <std::size_t N>
   auto set_body(std::span<const std::byte, N> bytes) -> response
   {
-    body_ = any_body(any_body::sized { bytes.size() },
+    body_ = any_body(any_body::sized { nullopt },
                      async_readable_vector_stream(bytes));
     return build();
   }
@@ -892,7 +892,7 @@ public:
   ///
   /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) -> response
+  auto set_stream_body(AsyncReadableStream&& stream) -> response
   {
     body_ = any_body(any_body::chunked(),
                      std::forward<AsyncReadableStream>(stream));

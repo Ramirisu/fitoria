@@ -276,7 +276,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .set_header(http::field::content_type, mime::text_plain())
-                  .set_stream(async_readable_chunk_stream<5>(text))
+                  .set_stream_body(async_readable_chunk_stream<5>(text))
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
         REQUIRE_EQ(co_await res->as_string(), "");

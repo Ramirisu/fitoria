@@ -11,6 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/optional.hpp>
+
 #include <fitoria/web/any_async_readable_stream.hpp>
 #include <fitoria/web/async_readable_vector_stream.hpp>
 
@@ -25,7 +27,7 @@ public:
   struct null { };
 
   struct sized {
-    std::size_t size;
+    optional<std::size_t> size;
   };
 
   struct chunked { };

@@ -325,6 +325,21 @@ public:
     return std::move(*this);
   }
 
+  template <web::async_readable_stream AsyncReadableStream>
+  auto set_body(AsyncReadableStream&& stream) & -> http_client&
+  {
+    body_ = web::any_body(web::any_body::sized { nullopt },
+                          std::forward<AsyncReadableStream>(stream));
+    return *this;
+  }
+
+  template <web::async_readable_stream AsyncReadableStream>
+  auto set_body(AsyncReadableStream&& stream) && -> http_client&&
+  {
+    setbody(std::forward<AsyncReadableStream>(stream));
+    return std::move(*this);
+  }
+
   auto set_plaintext(std::string_view sv) & -> http_client&
   {
     set_header(http::field::content_type, mime::text_plain());
@@ -367,7 +382,7 @@ public:
   }
 
   template <web::async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) & -> http_client&
+  auto set_stream_body(AsyncReadableStream&& stream) & -> http_client&
   {
     body_ = web::any_body(web::any_body::chunked(),
                           std::forward<AsyncReadableStream>(stream));
@@ -375,9 +390,9 @@ public:
   }
 
   template <web::async_readable_stream AsyncReadableStream>
-  auto set_stream(AsyncReadableStream&& stream) && -> http_client&&
+  auto set_stream_body(AsyncReadableStream&& stream) && -> http_client&&
   {
-    set_stream(std::forward<AsyncReadableStream>(stream));
+    set_stream_body(std::forward<AsyncReadableStream>(stream));
     return std::move(*this);
   }
 
