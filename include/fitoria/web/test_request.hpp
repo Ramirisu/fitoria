@@ -428,7 +428,7 @@ public:
   template <async_readable_stream AsyncReadableStream>
   auto set_body(AsyncReadableStream&& stream) -> test_request
   {
-    body_ = any_body(any_body::chunked(),
+    body_ = any_body(any_body::sized { nullopt },
                      std::forward<AsyncReadableStream>(stream));
     return build();
   }
