@@ -17,6 +17,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides connection information for current session.
+///
+/// @endverbatim
 class connect_info {
 public:
   connect_info() = default;
@@ -42,11 +47,21 @@ public:
   {
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get local IP address.
+  ///
+  /// @endverbatim
   auto local() const -> const std::string&
   {
     return local_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get remote IP address.
+  ///
+  /// @endverbatim
   auto remote() const -> const std::string&
   {
     return remote_;

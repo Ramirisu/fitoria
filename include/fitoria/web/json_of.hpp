@@ -78,7 +78,7 @@ public:
 
 /// @verbatim embed:rst:leading-slashes
 ///
-/// Extractor for deserializing json into type ``T``.
+/// Extractor for parsing json into type ``T``.
 ///
 /// @endverbatim
 template <typename T>

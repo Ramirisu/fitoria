@@ -20,6 +20,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Defines the concept for an async readable stream.
+///
+/// @endverbatim
 template <typename T>
 concept async_readable_stream = requires(T t) {
   typename std::remove_cvref_t<T>::is_async_readable_stream;

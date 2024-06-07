@@ -22,6 +22,11 @@ namespace web {
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides a stream file object that supports asynchronous read.
+///
+/// @endverbatim
 class stream_file {
   net::stream_file file_;
 
@@ -30,12 +35,16 @@ public:
       : file_(std::move(file))
   {
   }
-
   auto release() -> net::stream_file
   {
     return std::move(file_);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Open file with read-only permission asynchronously.
+  ///
+  /// @endverbatim
   static auto async_open_readonly(const std::string& path)
       -> awaitable<expected<stream_file, std::error_code>>
   {

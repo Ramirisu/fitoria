@@ -20,6 +20,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides access to the path parameters.
+///
+/// @endverbatim
 class path_info {
 public:
   using map_type = unordered_string_map<std::string>;
@@ -139,41 +144,81 @@ public:
 
   path_info& operator=(path_info&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get match pattern, i.e. ``/api/v1/users/{user}``.
+  ///
+  /// @endverbatim
   auto match_pattern() const noexcept -> const std::string&
   {
     return match_pattern_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get match path, i.e. ``/api/v1/users/fitoria``.
+  ///
+  /// @endverbatim
   auto match_path() const noexcept -> const std::string&
   {
     return match_path_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get names of the parameters.
+  ///
+  /// @endverbatim
   auto keys() const -> keys_type
   {
     return keys_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Check whether the container is empty.
+  ///
+  /// @endverbatim
   auto empty() const noexcept -> bool
   {
     return map_.empty();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the number of key/value pairs.
+  ///
+  /// @endverbatim
   auto size() const noexcept -> size_type
   {
     return map_.size();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the maximum possible number of key/value pairs.
+  ///
+  /// @endverbatim
   auto max_size() const noexcept -> size_type
   {
     return map_.max_size();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Checks whether the container contains element with specific key.
+  ///
+  /// @endverbatim
   auto contains(const std::string& name) const noexcept -> bool
   {
     return map_.contains(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   template <typename Key>
     requires(!std::integral<Key>)
   auto get(Key&& key) const noexcept -> optional<const mapped_type&>
@@ -185,6 +230,11 @@ public:
     return nullopt;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific index.
+  ///
+  /// @endverbatim
   auto get(std::size_t index) const noexcept -> optional<const mapped_type&>
   {
     if (index < size()) {
@@ -194,21 +244,41 @@ public:
     return nullopt;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific key.
+  ///
+  /// @endverbatim
   auto at(const std::string& name) const -> const mapped_type&
   {
     return map_.at(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get value with specific index.
+  ///
+  /// @endverbatim
   auto at(std::size_t index) const -> const mapped_type&
   {
     return map_.at(keys_.at(index));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get iterator to the specific key.
+  ///
+  /// @endverbatim
   auto find(const std::string& name) const -> map_type::const_iterator
   {
     return map_.find(name);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get iterator to the specific index.
+  ///
+  /// @endverbatim
   auto find(std::size_t index) const -> map_type::const_iterator
   {
     if (index < size()) {
@@ -218,31 +288,61 @@ public:
     return map_.end();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto begin() noexcept -> iterator
   {
     return { *this, keys_.cbegin() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto begin() const noexcept -> const_iterator
   {
     return { *this, keys_.cbegin() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning.
+  ///
+  /// @endverbatim
   auto cbegin() const noexcept -> const_iterator
   {
     return { *this, keys_.cbegin() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto end() noexcept -> iterator
   {
     return { *this, keys_.cend() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto end() const noexcept -> const_iterator
   {
     return { *this, keys_.cend() };
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end.
+  ///
+  /// @endverbatim
   auto cend() const noexcept -> const_iterator
   {
     return { *this, keys_.cend() };

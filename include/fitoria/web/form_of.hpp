@@ -23,6 +23,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+#if !defined(FITORIA_DOC)
+
 template <typename T>
 class form_of : public T {
 public:
@@ -92,6 +94,18 @@ public:
     }
   }
 };
+
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for parsing form data into type ``T``.
+///
+/// @endverbatim
+template <typename T>
+class form_of;
+
+#endif
 
 }
 

@@ -33,8 +33,12 @@ Reference
    :caption: fitoria::web
    :maxdepth: 1
 
+   web/async_readable_stream
+   web/connect_info
+   web/form_of
    web/http_server
    web/json_of
+   web/path_info
    web/path_of
    web/query_map
    web/query_of
@@ -45,6 +49,7 @@ Reference
    web/route
    web/scope
    web/state_of
+   web/stream_file
    web/test_request
    web/test_request_builder
    web/test_response
