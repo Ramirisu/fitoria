@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>class state_of &#8212; fitoria</title>
+    <title>class stream_file &#8212; fitoria</title>
   
   
   
@@ -39,11 +39,11 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/web/state_of';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/web/stream_file';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="class stream_file" href="stream_file.html" />
-    <link rel="prev" title="function scope" href="scope.html" />
+    <link rel="next" title="class test_request" href="test_request.html" />
+    <link rel="prev" title="class state_of" href="state_of.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -339,8 +339,8 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="stream_file.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">stream_file</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="state_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">stream_file</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request_builder</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="test_response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_response</span></code></a></li>
@@ -402,12 +402,21 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="class-state-of">
-<h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code><a class="headerlink" href="#class-state-of" title="Link to this heading">#</a></h1>
+  <section id="class-stream-file">
+<h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">stream_file</span></code><a class="headerlink" href="#class-stream-file" title="Link to this heading">#</a></h1>
 <dl class="cpp class">
-<dt class="sig sig-object cpp" id="_CPPv4I0EN7fitoria3web8state_ofE">
-<span id="_CPPv3I0EN7fitoria3web8state_ofE"></span><span id="_CPPv2I0EN7fitoria3web8state_ofE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classfitoria_1_1web_1_1state__of"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">state_of</span></span></span><a class="headerlink" href="#_CPPv4I0EN7fitoria3web8state_ofE" title="Link to this definition">#</a><br /></dt>
-<dd><p>Extractor for extracting state <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p>
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web11stream_fileE">
+<span id="_CPPv3N7fitoria3web11stream_fileE"></span><span id="_CPPv2N7fitoria3web11stream_fileE"></span><span id="fitoria::web::stream_file"></span><span class="target" id="classfitoria_1_1web_1_1stream__file"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stream_file</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria3web11stream_fileE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Provides a stream file object that supports asynchronous read.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria3web11stream_file19async_open_readonlyERKNSt6stringE">
+<span id="_CPPv3N7fitoria3web11stream_file19async_open_readonlyERKNSt6stringE"></span><span id="_CPPv2N7fitoria3web11stream_file19async_open_readonlyERKNSt6stringE"></span><span id="fitoria::web::stream_file::async_open_readonly__ssCR"></span><span class="target" id="classfitoria_1_1web_1_1stream__file_1a35c1d2684bd235b16178f2e9a19fc1b1"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">async_open_readonly</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">awaitable</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N7fitoria3web11stream_fileE" title="fitoria::web::stream_file"><span class="n"><span class="pre">stream_file</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">error_code</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N7fitoria3web11stream_file19async_open_readonlyERKNSt6stringE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Open file with read-only permission asynchronously.</p>
+</dd></dl>
+
+</div>
 </dd></dl>
 
 </section>
@@ -423,20 +432,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="scope.html"
+       href="state_of.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="stream_file.html"
+       href="test_request.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">stream_file</span></code></p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -458,14 +467,17 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN7fitoria3web8state_ofE"><code class="docutils literal notranslate"><span class="pre">state_of</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web11stream_fileE"><code class="docutils literal notranslate"><span class="pre">stream_file</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria3web11stream_file19async_open_readonlyERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">stream_file::async_open_readonly()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../_sources/reference/web/state_of.rst.txt">
+    <a href="../../_sources/reference/web/stream_file.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
