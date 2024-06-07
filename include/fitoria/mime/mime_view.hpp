@@ -118,7 +118,7 @@ public:
   /// DESCRIPTION
   ///     Get **suffix** part of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``""``
+  ///     - ``"text/plain; charset=utf-8"`` -> ``nullopt``
   ///     - ``"image/svg+xml"`` -> ``"xml"``
   ///
   /// @endverbatim
