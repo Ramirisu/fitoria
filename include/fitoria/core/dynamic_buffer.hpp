@@ -40,7 +40,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Construct a ``dynamic_buffer` with maximum capacity of
+  /// Construct a ``dynamic_buffer`` with maximum capacity of
   /// ``Container::max_size()``.
   ///
   /// @endverbatim
@@ -51,7 +51,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Construct a ``dynamic_buffer` with maximum capacity of
+  /// Construct a ``dynamic_buffer`` with maximum capacity of
   /// ``std::size_t limit``.
   ///
   /// @endverbatim
@@ -62,7 +62,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Construct a ``dynamic_buffer` with existing container.
+  /// Construct a ``dynamic_buffer`` with existing container.
   ///
   /// @endverbatim
   dynamic_buffer(Container container)

@@ -21,6 +21,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+#if !defined(FITORIA_DOC)
+
 template <typename T>
 class json_of : public T {
 public:
@@ -71,6 +73,18 @@ public:
     }
   }
 };
+
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for deserializing json into type ``T``.
+///
+/// @endverbatim
+template <typename T>
+class json_of;
+
+#endif
 
 }
 

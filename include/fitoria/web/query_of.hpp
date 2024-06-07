@@ -21,6 +21,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+#if !defined(FITORIA_DOC)
+
 template <typename T>
 class query_of : public T {
 public:
@@ -56,6 +58,18 @@ public:
     }
   }
 };
+
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for query string parameters.
+///
+/// @endverbatim
+template <typename T>
+class query_of;
+
+#endif
 
 }
 

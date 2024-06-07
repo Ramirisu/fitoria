@@ -14,6 +14,7 @@ Reference
    :maxdepth: 1
 
    mime/mime_view
+   mime/params_view
 
 
 .. toctree:: 
@@ -33,13 +34,17 @@ Reference
    :maxdepth: 1
 
    web/http_server
+   web/json_of
+   web/path_of
    web/query_map
+   web/query_of
    web/request
    web/request_builder
    web/response
    web/response_builder
    web/route
    web/scope
+   web/state_of
    web/test_request
    web/test_request_builder
    web/test_response

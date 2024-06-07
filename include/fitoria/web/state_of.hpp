@@ -20,6 +20,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+#if !defined(FITORIA_DOC)
+
 template <typename T>
 class state_of : public T {
 public:
@@ -44,6 +46,18 @@ public:
                                .set_body("unable to find state.") };
   }
 };
+
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for extracting state ``T``.
+///
+/// @endverbatim
+template <typename T>
+class state_of;
+
+#endif
 
 }
 

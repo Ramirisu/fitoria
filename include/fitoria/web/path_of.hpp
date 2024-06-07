@@ -24,6 +24,8 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace web {
 
+#if !defined(FITORIA_DOC)
+
 template <typename T>
 class path_of : public T {
 public:
@@ -131,6 +133,18 @@ private:
     }
   }
 };
+
+#else
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// Extractor for path parameters.
+///
+/// @endverbatim
+template <typename T>
+class path_of;
+
+#endif
 
 }
 

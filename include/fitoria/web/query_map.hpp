@@ -65,6 +65,11 @@ public:
 
   query_map& operator=(query_map&&) = default;
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Check whether the container is empty.
+  ///
+  /// @endverbatim
   auto empty() const noexcept -> bool
   {
     return map_.empty();
@@ -92,7 +97,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Checks if the container contains element with specific key.
+  /// Checks whether the container contains element with specific key.
   ///
   /// @endverbatim
   auto contains(const std::string& name) const noexcept -> bool
