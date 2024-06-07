@@ -31,7 +31,7 @@ expected<T, std::error_code> as_json(std::string_view text)
     return jv;
   } else {
     if (auto res = boost::json::try_value_to<T>(jv); res) {
-      return res.value();
+      return std::move(*res);
     } else {
       return unexpected { res.error() };
     }

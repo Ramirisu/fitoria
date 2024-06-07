@@ -266,7 +266,7 @@ public:
              && std::is_copy_constructible_v<E>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), other.value());
+      std::construct_at(std::addressof(this->val_), *other);
     } else {
       std::construct_at(std::addressof(this->err_), other.error());
     }
@@ -287,7 +287,7 @@ public:
              && std::is_move_constructible_v<E>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), std::move(other.value()));
+      std::construct_at(std::addressof(this->val_), std::move(*other));
     } else {
       std::construct_at(std::addressof(this->err_), std::move(other.error()));
     }
@@ -308,7 +308,7 @@ public:
              && !is_expected_like_constructible_v<U, G>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), other.value());
+      std::construct_at(std::addressof(this->val_), *other);
     } else {
       std::construct_at(std::addressof(this->err_), other.error());
     }
@@ -322,7 +322,7 @@ public:
              && !is_expected_like_constructible_v<U, G>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), std::move(other.value()));
+      std::construct_at(std::addressof(this->val_), std::move(*other));
     } else {
       std::construct_at(std::addressof(this->err_), std::move(other.error()));
     }
@@ -438,14 +438,14 @@ public:
   {
     if (has_value()) {
       if (other) {
-        this->val_ = other.value();
+        this->val_ = *other;
       } else {
         reinit_expected(this->err_, this->val_, other.error());
         this->has_ = false;
       }
     } else {
       if (other) {
-        reinit_expected(this->val_, this->err_, other.value());
+        reinit_expected(this->val_, this->err_, *other);
         this->has_ = true;
       } else {
         this->err_ = other.error();
@@ -474,14 +474,14 @@ public:
   {
     if (has_value()) {
       if (other) {
-        this->val_ = std::move(other.value());
+        this->val_ = std::move(*other);
       } else {
         reinit_expected(this->err_, this->val_, std::move(other.error()));
         this->has_ = false;
       }
     } else {
       if (other) {
-        reinit_expected(this->val_, this->err_, std::move(other.value()));
+        reinit_expected(this->val_, this->err_, std::move(*other));
         this->has_ = true;
       } else {
         this->err_ = std::move(other.error());
@@ -664,7 +664,7 @@ public:
     requires(std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>)
   {
     if (has_value()) {
-      return value();
+      return **this;
     } else {
       return static_cast<T>(std::forward<U>(default_value));
     }
@@ -675,7 +675,7 @@ public:
     requires(std::is_move_constructible_v<T> && std::is_convertible_v<U, T>)
   {
     if (has_value()) {
-      return std::move(value());
+      return std::move(**this);
     } else {
       return static_cast<T>(std::forward<U>(default_value));
     }
@@ -711,7 +711,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, error());
     }
@@ -725,7 +725,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, error());
     }
@@ -739,7 +739,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::move(value())));
+      return U(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -753,7 +753,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::move(value())));
+      return U(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -767,7 +767,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), error()));
     }
@@ -781,7 +781,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), error()));
     }
@@ -795,7 +795,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T>);
     if (has_value()) {
-      return G(std::in_place, std::move(value()));
+      return G(std::in_place, std::move(**this));
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -809,7 +809,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T>);
     if (has_value()) {
-      return G(std::in_place, std::move(value()));
+      return G(std::in_place, std::move(**this));
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -821,7 +821,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, error());
     }
@@ -833,7 +833,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, const T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, error());
     }
@@ -845,8 +845,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
     if (has_value()) {
-      return expected<U, E>(
-          std::invoke(std::forward<F>(f), std::move(value())));
+      return expected<U, E>(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -858,8 +857,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, const T>>;
     if (has_value()) {
-      return expected<U, E>(
-          std::invoke(std::forward<F>(f), std::move(value())));
+      return expected<U, E>(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -871,7 +869,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E&>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(unexpect, std::invoke(std::forward<F>(f), error()));
     }
@@ -883,7 +881,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, const E&>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(unexpect, std::invoke(std::forward<F>(f), error()));
     }
@@ -895,7 +893,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, std::move(value()));
+      return expected<T, G>(std::in_place, std::move(**this));
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
@@ -908,7 +906,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, const E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, std::move(value()));
+      return expected<T, G>(std::in_place, std::move(**this));
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
@@ -960,7 +958,7 @@ public:
     if (has_value()) {
       if (other.has_value()) {
         using std::swap;
-        swap(value(), other.value());
+        swap(**this, *other);
       } else {
         if constexpr (std::is_nothrow_move_constructible_v<T>
                       && std::is_nothrow_move_constructible_v<E>) {
@@ -1016,7 +1014,7 @@ public:
       return false;
     }
     if (lhs.has_value()) {
-      return lhs.value() == rhs.value();
+      return *lhs == *rhs;
     }
 
     return lhs.error() == rhs.error();
@@ -1688,7 +1686,7 @@ public:
              && !is_expected_like_constructible_v<U, G>)
   {
     if (other) {
-      this->valptr_ = std::addressof(other.value());
+      this->valptr_ = std::addressof(*other);
     } else {
       std::construct_at(std::addressof(this->err_), other.error());
     }
@@ -1702,7 +1700,7 @@ public:
              && !is_expected_like_constructible_v<U, G>)
   {
     if (other) {
-      this->valptr_ = std::addressof(other.value());
+      this->valptr_ = std::addressof(*other);
     } else {
       std::construct_at(std::addressof(this->err_), other.error());
     }
@@ -1939,7 +1937,7 @@ public:
     requires(std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>)
   {
     if (has_value()) {
-      return value();
+      return **this;
     } else {
       return static_cast<T>(std::forward<U>(default_value));
     }
@@ -1975,7 +1973,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, error());
     }
@@ -1989,7 +1987,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, error());
     }
@@ -2003,7 +2001,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -2017,7 +2015,7 @@ public:
     static_assert(is_specialization_of_v<U, fitoria::expected>);
     static_assert(std::is_same_v<typename U::error_type, E>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U(unexpect, std::move(error()));
     }
@@ -2030,7 +2028,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), error()));
     }
@@ -2043,7 +2041,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), error()));
     }
@@ -2056,7 +2054,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -2069,7 +2067,7 @@ public:
     static_assert(is_specialization_of_v<G, fitoria::expected>);
     static_assert(std::is_same_v<typename G::value_type, T&>);
     if (has_value()) {
-      return G(std::in_place, value());
+      return G(std::in_place, **this);
     } else {
       return G(std::invoke(std::forward<F>(f), std::move(error())));
     }
@@ -2081,7 +2079,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, error());
     }
@@ -2093,7 +2091,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, error());
     }
@@ -2105,7 +2103,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -2117,7 +2115,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return expected<U, E>(std::invoke(std::forward<F>(f), value()));
+      return expected<U, E>(std::invoke(std::forward<F>(f), **this));
     } else {
       return expected<U, E>(unexpect, std::move(error()));
     }
@@ -2128,7 +2126,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E&>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(unexpect, std::invoke(std::forward<F>(f), error()));
     }
@@ -2139,7 +2137,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, const E&>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(unexpect, std::invoke(std::forward<F>(f), error()));
     }
@@ -2150,7 +2148,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
@@ -2162,7 +2160,7 @@ public:
   {
     using G = std::remove_cv_t<std::invoke_result_t<F, const E>>;
     if (has_value()) {
-      return expected<T, G>(std::in_place, value());
+      return expected<T, G>(std::in_place, **this);
     } else {
       return expected<T, G>(
           unexpect, std::invoke(std::forward<F>(f), std::move(error())));
@@ -2218,7 +2216,7 @@ public:
       return false;
     }
     if (lhs.has_value()) {
-      return lhs.value() == rhs.value();
+      return *lhs == *rhs;
     }
 
     return lhs.error() == rhs.error();
@@ -2262,7 +2260,7 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::expected<T, E>,
   {
     if (exp) {
       return FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>,
-                                               CharT>::format(exp.value(), ctx);
+                                               CharT>::format(*exp, ctx);
     } else {
       return FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{{unexpected}}");
     }

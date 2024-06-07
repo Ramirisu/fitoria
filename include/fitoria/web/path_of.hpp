@@ -112,7 +112,7 @@ private:
 
     return std::apply(
         [](auto&... ts) -> path_of<std::tuple<Ts...>> {
-          return path_of<std::tuple<Ts...>> { std::move(ts.value())... };
+          return path_of<std::tuple<Ts...>> { std::move(*ts)... };
         },
         args);
   }

@@ -10,14 +10,9 @@ Use ``request::path()`` to access the path parameters.
 
    auto get_user(const request& req) -> awaitable<response>
    {
-     auto user = req.path().get("user");
-     if (!user) {
-       co_return response::bad_request().build();
-     }
-   
      co_return response::ok()
          .set_header(http::field::content_type, mime::text_plain())
-         .set_body(fmt::format("user: {}", user.value()));
+         .set_body(fmt::format("user: {}", *req.path().get("user")));
    }
    
    int main()

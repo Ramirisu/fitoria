@@ -447,8 +447,7 @@ private:
       auto res = web::response();
       if (auto url = boost::urls::parse_origin_form(parser->get().target());
           url) {
-        if (auto route
-            = router_.try_find(parser->get().method(), url.value().path());
+        if (auto route = router_.try_find(parser->get().method(), url->path());
             route) {
           auto req = web::request(
               connect_info(get_lowest_layer(stream).socket()),

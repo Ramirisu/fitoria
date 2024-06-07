@@ -28,7 +28,7 @@ inline expected<query_map, std::error_code> as_form(std::string_view text)
     return unexpected { res.error() };
   }
 
-  auto params = static_cast<boost::urls::params_view>(res.value());
+  auto params = static_cast<boost::urls::params_view>(*res);
 
   query_map map;
   for (auto kv : params) {

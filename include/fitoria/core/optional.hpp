@@ -87,7 +87,7 @@ public:
              && std::is_copy_constructible_v<T>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), other.value());
+      std::construct_at(std::addressof(this->val_), *other);
       this->has_ = true;
     }
   }
@@ -102,7 +102,7 @@ public:
              && std::is_move_constructible_v<T>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), std::move(other.value()));
+      std::construct_at(std::addressof(this->val_), std::move(*other));
       this->has_ = true;
     }
   }
@@ -118,7 +118,7 @@ public:
              && !is_optional_like_constructible_v<U>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), other.value());
+      std::construct_at(std::addressof(this->val_), *other);
       this->has_ = true;
     }
   }
@@ -130,7 +130,7 @@ public:
              && !is_optional_like_constructible_v<U>)
   {
     if (other) {
-      std::construct_at(std::addressof(this->val_), std::move(other.value()));
+      std::construct_at(std::addressof(this->val_), std::move(*other));
       this->has_ = true;
     }
   }
@@ -194,14 +194,14 @@ public:
   {
     if (has_value()) {
       if (other.has_value()) {
-        this->val_ = other.value();
+        this->val_ = *other;
       } else {
         std::destroy_at(std::addressof(this->val_));
         this->has_ = false;
       }
     } else {
       if (other.has_value()) {
-        std::construct_at(std::addressof(this->val_), other.value());
+        std::construct_at(std::addressof(this->val_), *other);
         this->has_ = true;
       }
     }
@@ -221,14 +221,14 @@ public:
   {
     if (has_value()) {
       if (other.has_value()) {
-        this->val_ = std::move(other.value());
+        this->val_ = std::move(*other);
       } else {
         std::destroy_at(std::addressof(this->val_));
         this->has_ = false;
       }
     } else {
       if (other.has_value()) {
-        std::construct_at(std::addressof(this->val_), std::move(other.value()));
+        std::construct_at(std::addressof(this->val_), std::move(*other));
         this->has_ = true;
       }
     }
@@ -266,14 +266,14 @@ public:
   {
     if (has_value()) {
       if (other) {
-        this->val_ = other.value();
+        this->val_ = *other;
       } else {
         std::destroy_at(std::addressof(this->val_));
         this->has_ = false;
       }
     } else {
       if (other) {
-        std::construct_at(std::addressof(this->val_), other.value());
+        std::construct_at(std::addressof(this->val_), *other);
         this->has_ = true;
       }
     }
@@ -288,14 +288,14 @@ public:
   {
     if (has_value()) {
       if (other) {
-        this->val_ = std::move(other.value());
+        this->val_ = std::move(*other);
       } else {
         std::destroy_at(std::addressof(this->val_));
         this->has_ = false;
       }
     } else {
       if (other) {
-        std::construct_at(std::addressof(this->val_), std::move(other.value()));
+        std::construct_at(std::addressof(this->val_), std::move(*other));
         this->has_ = true;
       }
     }
@@ -441,7 +441,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F, T&>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U();
     }
@@ -453,7 +453,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F, const T&>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U();
     }
@@ -465,7 +465,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F, T>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::move(value())));
+      return U(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return U();
     }
@@ -477,7 +477,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F, const T>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), std::move(value())));
+      return U(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return U();
     }
@@ -488,7 +488,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T&>>;
     if (has_value()) {
-      return optional<U>(std::invoke(std::forward<F>(f), value()));
+      return optional<U>(std::invoke(std::forward<F>(f), **this));
     } else {
       return optional<U>();
     }
@@ -499,7 +499,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, const T&>>;
     if (has_value()) {
-      return optional<U>(std::invoke(std::forward<F>(f), value()));
+      return optional<U>(std::invoke(std::forward<F>(f), **this));
     } else {
       return optional<U>();
     }
@@ -510,7 +510,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, T>>;
     if (has_value()) {
-      return optional<U>(std::invoke(std::forward<F>(f), std::move(value())));
+      return optional<U>(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return optional<U>();
     }
@@ -521,7 +521,7 @@ public:
   {
     using U = std::remove_cv_t<std::invoke_result_t<F, const T>>;
     if (has_value()) {
-      return optional<U>(std::invoke(std::forward<F>(f), std::move(value())));
+      return optional<U>(std::invoke(std::forward<F>(f), std::move(**this)));
     } else {
       return optional<U>();
     }
@@ -534,7 +534,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F>>;
     static_assert(std::is_same_v<U, optional>);
     if (has_value()) {
-      return U(value());
+      return U(**this);
     } else {
       return U(std::forward<F>(f)());
     }
@@ -547,7 +547,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F>>;
     static_assert(std::is_same_v<U, optional>);
     if (has_value()) {
-      return U(std::move(value()));
+      return U(std::move(**this));
     } else {
       return U(std::forward<F>(f)());
     }
@@ -561,9 +561,9 @@ public:
     if (has_value()) {
       if (other.has_value()) {
         using std::swap;
-        swap(this->val_, other.value());
+        swap(this->val_, *other);
       } else {
-        std::construct_at(std::addressof(other.val_), std::move(value()));
+        std::construct_at(std::addressof(other.val_), std::move(**this));
         std::destroy_at(std::addressof(this->val_));
         this->has_ = false;
         other.has_ = true;
@@ -736,7 +736,7 @@ public:
     requires std::is_convertible_v<U, T>
   {
     if (other) {
-      this->valptr_ = std::addressof(other.value());
+      this->valptr_ = std::addressof(*other);
     }
   }
 
@@ -772,7 +772,7 @@ public:
     static_assert(std::is_lvalue_reference_v<U>);
 
     if (other) {
-      this->valptr_ = std::addressof(other.value());
+      this->valptr_ = std::addressof(*other);
     }
 
     return *this;
@@ -825,7 +825,7 @@ public:
     requires(std::is_copy_constructible_v<T>)
   {
     if (has_value()) {
-      return value();
+      return **this;
     } else {
       return static_cast<T>(std::forward<U>(default_value));
     }
@@ -837,7 +837,7 @@ public:
     using U = std::invoke_result_t<F, std::add_lvalue_reference_t<T>>;
     static_assert(is_specialization_of_v<U, optional>);
     if (has_value()) {
-      return U(std::invoke(std::forward<F>(f), value()));
+      return U(std::invoke(std::forward<F>(f), **this));
     } else {
       return U();
     }
@@ -849,7 +849,7 @@ public:
     using U = std::remove_cv_t<
         std::invoke_result_t<F, std::add_lvalue_reference_t<T>>>;
     if (has_value()) {
-      return optional<U>(std::invoke(std::forward<F>(f), value()));
+      return optional<U>(std::invoke(std::forward<F>(f), **this));
     } else {
       return optional<U>();
     }
@@ -862,7 +862,7 @@ public:
     using U = std::remove_cvref_t<std::invoke_result_t<F>>;
     static_assert(std::is_same_v<U, optional>);
     if (has_value()) {
-      return U(value());
+      return U(**this);
     } else {
       return U(std::forward<F>(f)());
     }
@@ -894,7 +894,7 @@ constexpr bool operator==(const optional<T1>& lhs, const optional<T2>& rhs)
     return true;
   }
 
-  return lhs.value() == rhs.value();
+  return *lhs == *rhs;
 }
 
 template <typename T1, typename T2>
@@ -909,7 +909,7 @@ constexpr bool operator!=(const optional<T1>& lhs, const optional<T2>& rhs)
     return false;
   }
 
-  return lhs.value() != rhs.value();
+  return *lhs != *rhs;
 }
 
 template <typename T1, typename T2>
@@ -923,7 +923,7 @@ constexpr bool operator<(const optional<T1>& lhs, const optional<T2>& rhs)
     return true;
   }
 
-  return lhs.value() < rhs.value();
+  return *lhs < *rhs;
 }
 
 template <typename T1, typename T2>
@@ -937,7 +937,7 @@ constexpr bool operator<=(const optional<T1>& lhs, const optional<T2>& rhs)
     return false;
   }
 
-  return lhs.value() <= rhs.value();
+  return *lhs <= *rhs;
 }
 
 template <typename T1, typename T2>
@@ -951,7 +951,7 @@ constexpr bool operator>(const optional<T1>& lhs, const optional<T2>& rhs)
     return true;
   }
 
-  return lhs.value() > rhs.value();
+  return *lhs > *rhs;
 }
 
 template <typename T1, typename T2>
@@ -965,7 +965,7 @@ constexpr bool operator>=(const optional<T1>& lhs, const optional<T2>& rhs)
     return false;
   }
 
-  return lhs.value() >= rhs.value();
+  return *lhs >= *rhs;
 }
 
 template <typename T1, typename T2>
@@ -1014,7 +1014,7 @@ template <typename T, std::three_way_comparable_with<T> U>
 constexpr std::compare_three_way_result_t<T, U>
 operator<=>(const optional<T>& lhs, const optional<U>& rhs)
 {
-  return lhs.value() <=> rhs.value();
+  return *lhs <=> *rhs;
 }
 
 template <typename T>
@@ -1034,56 +1034,56 @@ template <typename T, typename U>
 constexpr bool operator==(const optional<T>& opt, const U& val)
   requires(!std::is_void_v<T> && !std::is_same_v<U, nullopt_t>)
 {
-  return opt && opt.value() == val;
+  return opt && *opt == val;
 }
 
 template <typename T, typename U>
 constexpr bool operator==(const T& val, const optional<U>& opt)
   requires(!std::is_same_v<T, nullopt_t> && !std::is_void_v<U>)
 {
-  return opt && val == opt.value();
+  return opt && val == *opt;
 }
 
 template <typename T, typename U>
 constexpr bool operator!=(const optional<T>& opt, const U& val)
   requires(!std::is_void_v<T> && !std::is_same_v<U, nullopt_t>)
 {
-  return !opt || opt.value() != val;
+  return !opt || *opt != val;
 }
 
 template <typename T, typename U>
 constexpr bool operator!=(const T& val, const optional<U>& opt)
   requires(!std::is_same_v<T, nullopt_t> && !std::is_void_v<U>)
 {
-  return !opt || val != opt.value();
+  return !opt || val != *opt;
 }
 
 template <typename T, typename U>
 constexpr bool operator<(const optional<T>& opt, const U& val)
   requires(!std::is_void_v<T> && !std::is_same_v<U, nullopt_t>)
 {
-  return !opt || opt.value() < val;
+  return !opt || *opt < val;
 }
 
 template <typename T, typename U>
 constexpr bool operator<(const T& val, const optional<U>& opt)
   requires(!std::is_same_v<T, nullopt_t> && !std::is_void_v<U>)
 {
-  return opt && val < opt.value();
+  return opt && val < *opt;
 }
 
 template <typename T, typename U>
 constexpr bool operator<=(const optional<T>& opt, const U& val)
   requires(!std::is_void_v<T> && !std::is_same_v<U, nullopt_t>)
 {
-  return !opt || opt.value() <= val;
+  return !opt || *opt <= val;
 }
 
 template <typename T, typename U>
 constexpr bool operator<=(const T& val, const optional<U>& opt)
   requires(!std::is_same_v<T, nullopt_t> && !std::is_void_v<U>)
 {
-  return opt && val <= opt.value();
+  return opt && val <= *opt;
 }
 
 template <typename T, typename U>
@@ -1153,7 +1153,7 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>
   {
     if (opt) {
       return FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>,
-                                               CharT>::format(opt.value(), ctx);
+                                               CharT>::format(*opt, ctx);
     } else {
       return FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{{nullopt}}");
     }
