@@ -32,6 +32,21 @@ namespace mime {
 /// @endverbatim
 class mime_view {
 public:
+  mime_view(std::string_view source,
+            std::string_view essence,
+            std::string_view type,
+            std::string_view subtype,
+            optional<std::string_view> suffix,
+            params_view params)
+      : source_(source)
+      , essence_(essence)
+      , type_(type)
+      , subtype_(subtype)
+      , suffix_(suffix)
+      , params_(std::move(params))
+  {
+  }
+
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Get complete string of the mime.
@@ -184,32 +199,17 @@ public:
                      std::move(*params));
   }
 
-  friend bool operator==(const mime_view& lhs, const mime_view& rhs) noexcept
+  friend bool operator==(mime_view lhs, mime_view rhs) noexcept
   {
     return iequals(lhs.source_, rhs.source_);
   }
 
-  friend bool operator==(const mime_view& lhs, std::string_view rhs) noexcept
+  friend bool operator==(mime_view lhs, std::string_view rhs) noexcept
   {
     return iequals(lhs.source_, rhs);
   }
 
 private:
-  mime_view(std::string_view source,
-            std::string_view essence,
-            std::string_view type,
-            std::string_view subtype,
-            optional<std::string_view> suffix,
-            params_view params)
-      : source_(source)
-      , essence_(essence)
-      , type_(type)
-      , subtype_(subtype)
-      , suffix_(suffix)
-      , params_(std::move(params))
-  {
-  }
-
   static auto parse_primary(std::string_view str) noexcept
       -> expected<std::tuple<std::string_view,
                              std::string_view,
@@ -284,10 +284,12 @@ private:
 /// ``"application/javascript"``
 ///
 /// @endverbatim
-inline auto application_javascript() noexcept -> const mime_view&
+inline auto application_javascript() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("application/javascript");
-  return m;
+  const auto source = std::string_view("application/javascript");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -295,10 +297,12 @@ inline auto application_javascript() noexcept -> const mime_view&
 /// ``"application/json"``
 ///
 /// @endverbatim
-inline auto application_json() noexcept -> const mime_view&
+inline auto application_json() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("application/json");
-  return m;
+  const auto source = std::string_view("application/json");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -306,10 +310,12 @@ inline auto application_json() noexcept -> const mime_view&
 /// ``"application/octet-stream"``
 ///
 /// @endverbatim
-inline auto application_octet_stream() noexcept -> const mime_view&
+inline auto application_octet_stream() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("application/octet-stream");
-  return m;
+  const auto source = std::string_view("application/octet-stream");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -317,10 +323,12 @@ inline auto application_octet_stream() noexcept -> const mime_view&
 /// ``"application/pdf"``
 ///
 /// @endverbatim
-inline auto application_pdf() noexcept -> const mime_view&
+inline auto application_pdf() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("application/pdf");
-  return m;
+  const auto source = std::string_view("application/pdf");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -328,10 +336,12 @@ inline auto application_pdf() noexcept -> const mime_view&
 /// ``"application/x-www-form-urlencoded"``
 ///
 /// @endverbatim
-inline auto application_www_form_urlencoded() noexcept -> const mime_view&
+inline auto application_www_form_urlencoded() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("application/x-www-form-urlencoded");
-  return m;
+  const auto source = std::string_view("application/x-www-form-urlencoded");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -339,10 +349,10 @@ inline auto application_www_form_urlencoded() noexcept -> const mime_view&
 /// ``"image/bmp"``
 ///
 /// @endverbatim
-inline auto image_bmp() noexcept -> const mime_view&
+inline auto image_bmp() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("image/bmp");
-  return m;
+  const auto source = std::string_view("image/bmp");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -350,10 +360,10 @@ inline auto image_bmp() noexcept -> const mime_view&
 /// ``"image/gif"``
 ///
 /// @endverbatim
-inline auto image_gif() noexcept -> const mime_view&
+inline auto image_gif() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("image/gif");
-  return m;
+  const auto source = std::string_view("image/gif");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -361,10 +371,10 @@ inline auto image_gif() noexcept -> const mime_view&
 /// ``"image/jpeg"``
 ///
 /// @endverbatim
-inline auto image_jpeg() noexcept -> const mime_view&
+inline auto image_jpeg() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("image/jpeg");
-  return m;
+  const auto source = std::string_view("image/jpeg");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -372,10 +382,10 @@ inline auto image_jpeg() noexcept -> const mime_view&
 /// ``"image/png"``
 ///
 /// @endverbatim
-inline auto image_png() noexcept -> const mime_view&
+inline auto image_png() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("image/png");
-  return m;
+  const auto source = std::string_view("image/png");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -383,10 +393,13 @@ inline auto image_png() noexcept -> const mime_view&
 /// ``"image/svg+xml"``
 ///
 /// @endverbatim
-inline auto image_svg() noexcept -> const mime_view&
+inline auto image_svg() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("image/svg+xml");
-  return m;
+  const auto source = std::string_view("image/svg+xml");
+  return {
+    source, source, source.substr(0, 5), source.substr(6, 3), source.substr(10),
+    {}
+  };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -394,10 +407,10 @@ inline auto image_svg() noexcept -> const mime_view&
 /// ``"text/html"``
 ///
 /// @endverbatim
-inline auto text_html() noexcept -> const mime_view&
+inline auto text_html() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("text/html");
-  return m;
+  const auto source = std::string_view("text/html");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -405,10 +418,10 @@ inline auto text_html() noexcept -> const mime_view&
 /// ``"text/javascript"``
 ///
 /// @endverbatim
-inline auto text_javascript() noexcept -> const mime_view&
+inline auto text_javascript() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("text/javascript");
-  return m;
+  const auto source = std::string_view("text/javascript");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -416,10 +429,10 @@ inline auto text_javascript() noexcept -> const mime_view&
 /// ``"text/plain"``
 ///
 /// @endverbatim
-inline auto text_plain() noexcept -> const mime_view&
+inline auto text_plain() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("text/plain");
-  return m;
+  const auto source = std::string_view("text/plain");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -427,10 +440,10 @@ inline auto text_plain() noexcept -> const mime_view&
 /// ``"text/xml"``
 ///
 /// @endverbatim
-inline auto text_xml() noexcept -> const mime_view&
+inline auto text_xml() noexcept -> mime_view
 {
-  static auto m = *mime_view::parse("text/xml");
-  return m;
+  const auto source = std::string_view("text/xml");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
 }
