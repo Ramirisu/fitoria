@@ -31,41 +31,43 @@ namespace to_response_ns {
       return tag_invoke(*this, std::forward<T>(t));
     }
 
-    template <typename T>
-      requires decay_to<T, response>
-    auto operator()(T&& t) const -> response
+    template <decay_to<response> Self>
+    auto operator()(Self self) const -> response
     {
-      return std::forward<T>(t);
+      return self;
     }
 
-    template <typename T>
-      requires decay_to<T, std::string>
-    auto operator()(T&& t) const -> response
+    template <decay_to<std::string> String>
+    auto operator()(String str) const -> response
     {
       return response::ok()
           .set_header(http::field::content_type, mime::text_plain())
-          .set_body(std::forward<T>(t));
+          .set_body(str);
     }
 
     template <typename T>
-      requires is_specialization_of_v<T, std::vector>
-    auto operator()(T&& t) const -> response
+    auto operator()(std::vector<T> vec) const -> response
     {
       return response::ok()
           .set_header(http::field::content_type,
                       mime::application_octet_stream())
-          .set_body(std::as_bytes(std::span(t.begin(), t.end())));
+          .set_body(std::as_bytes(std::span(vec.begin(), vec.end())));
     }
 
-    template <typename T>
-      requires is_specialization_of_v<T, std::variant>
-    auto operator()(T&& t) const -> response
+    template <typename... Ts>
+    auto operator()(std::variant<Ts...> var) const -> response
     {
       return std::visit(
           [this]<typename Arg>(Arg&& arg) -> response {
             return (*this)(std::forward<Arg>(arg));
           },
-          std::forward<T>(t));
+          std::move(var));
+    }
+
+    template <typename T, typename E>
+    auto operator()(expected<T, E> exp) const -> response
+    {
+      return exp ? (*this)(std::move(*exp)) : (*this)(std::move(exp.error()));
     }
   };
 }

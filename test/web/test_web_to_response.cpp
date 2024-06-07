@@ -18,7 +18,7 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-TEST_SUITE_BEGIN("[fitoria.web.to_http_response]");
+TEST_SUITE_BEGIN("[fitoria.web.to_response]");
 
 TEST_CASE("response")
 {
@@ -138,6 +138,57 @@ TEST_CASE("std::variant")
                          CHECK_EQ(res.header().get(http::field::content_type),
                                   mime::application_octet_stream());
                          CHECK_EQ(co_await res.as_string(), "OK");
+                       });
+
+  ioc.run();
+}
+
+namespace {
+
+class my_error {
+  std::string msg_;
+
+public:
+  my_error(std::string msg)
+      : msg_(std::move(msg))
+  {
+  }
+
+  auto message() const noexcept -> const std::string&
+  {
+    return msg_;
+  }
+
+  template <decay_to<my_error> Self>
+  friend auto tag_invoke(fitoria::web::to_response_t, Self&& self) -> response
+  {
+    return response::not_found()
+        .set_header(http::field::content_type, mime::text_plain())
+        .set_body(self.message());
+  }
+};
+
+}
+
+TEST_CASE("expected<T, E>")
+{
+  auto ioc = net::io_context();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/">(
+                        []() -> awaitable<expected<std::string, my_error>> {
+                          co_return fitoria::unexpected { my_error(
+                              "You will never get anything!") };
+                        }))
+                    .build();
+
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status_code(), http::status::not_found);
+                         CHECK_EQ(res.header().get(http::field::content_type),
+                                  mime::text_plain());
+                         CHECK_EQ(co_await res.as_string(),
+                                  "You will never get anything!");
                        });
 
   ioc.run();
