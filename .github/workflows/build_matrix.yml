@@ -92,7 +92,7 @@ jobs:
         shell: bash
         env:
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-          VCPKG_MANIFEST_FEATURES: ${{ startsWith(matrix.os_cxx.os, 'ubuntu') && 'tls;zlib;brotli;liburing;test' || 'tls;zlib;brotli;test' }}
+          VCPKG_MANIFEST_FEATURES: ${{ startsWith(matrix.os_cxx.os, 'ubuntu') && 'tls;zlib;brotli;liburing;example;test' || 'tls;zlib;brotli;example;test' }}
         run: |
           cmake \
             -B build \

@@ -26,6 +26,10 @@
       "description": "enable iouring support",
       "dependencies": ["liburing"]
     },
+    "example": {
+      "description": "enable building example support",
+      "dependencies": ["boost-uuid"]
+    },
     "test": {
       "description": "enable building test support",
       "dependencies": ["doctest"]

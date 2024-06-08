@@ -28,13 +28,14 @@ int main()
             .build();
 
   const auto path = std::filesystem::temp_directory_path() / "fitoria";
-  const auto tls_path = std::filesystem::temp_directory_path() / "fitoria.tls";
   std::filesystem::remove(path); // make sure no file exists
-  std::filesystem::remove(tls_path); // make sure no file exists
 
   server.bind_local(path.string());
 
 #if defined(FITORIA_HAS_OPENSSL)
+  const auto tls_path = std::filesystem::temp_directory_path() / "fitoria.tls";
+  std::filesystem::remove(tls_path); // make sure no file exists
+
   auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
   server.bind_local(path.string(), ssl_ctx);
 #endif
