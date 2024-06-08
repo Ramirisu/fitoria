@@ -221,8 +221,8 @@ public:
           stream_);
     }
 
-    auto
-    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
+    auto async_close(close_code code)
+        -> awaitable<expected<void, std::error_code>>
     {
       co_return co_await std::visit(
           [&](auto& stream)
@@ -340,8 +340,8 @@ public:
     /// Send a websocket close control frame asynchronously.
     ///
     /// @endverbatim
-    auto
-    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
+    auto async_close(close_code code)
+        -> awaitable<expected<void, std::error_code>>
     {
       return ws_.impl_->async_close(code);
     }
@@ -435,7 +435,7 @@ private:
       impl_->set_option(ws::stream_base::decorator(
           [&res, body = std::move(body)](ws::response_type& r) {
             for (auto& field : res.header()) {
-              r.set(field.name(), field.value());
+              r.set(field.name_string(), field.value());
             }
             r.body() = std::move(*body);
           }));

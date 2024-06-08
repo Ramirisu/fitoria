@@ -165,7 +165,7 @@ public:
   void to_impl(impl_type& impl) const
   {
     for (auto& element : impl_) {
-      impl.insert(element.name(), element.value());
+      impl.insert(element.name_string(), element.value());
     }
   }
 
