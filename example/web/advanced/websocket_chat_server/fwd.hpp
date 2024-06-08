@@ -6,9 +6,11 @@
 //
 #pragma once
 
-#include <fitoria/web.hpp>
+#include <string>
 
 namespace chat {
+
+using room_id = std::string;
 
 class session;
 class chat_room;

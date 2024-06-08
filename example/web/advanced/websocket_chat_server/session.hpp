@@ -6,9 +6,9 @@
 //
 #pragma once
 
-#include <fitoria/web.hpp>
-
 #include "fwd.hpp"
+
+#include <fitoria/web.hpp>
 
 namespace chat {
 
@@ -16,7 +16,10 @@ class session : public std::enable_shared_from_this<session> {
   using context = fitoria::web::websocket::context;
 
 public:
-  session(const std::string& user_id, context& ctx, chat_room& room);
+  session(const std::string& room_id,
+          const std::string& user_id,
+          context& ctx,
+          chat_room& room);
 
   ~session();
 
@@ -24,17 +27,19 @@ public:
 
   auto async_read() -> fitoria::awaitable<void>;
 
-  auto
-  async_write(std::shared_ptr<std::string> message) -> fitoria::awaitable<void>;
+  auto async_write(std::shared_ptr<std::string> message)
+      -> fitoria::awaitable<void>;
 
-  static auto make_session(const std::string& user_id,
+  static auto make_session(const std::string& room_id,
+                           const std::string& user_id,
                            context& ctx,
                            chat_room& room) -> std::shared_ptr<session>;
 
 private:
   auto async_write_impl() -> fitoria::awaitable<void>;
 
-  const std::string& user_id_;
+  std::string room_id_;
+  std::string user_id_;
   context& ctx_;
   chat_room& room_;
   boost::asio::experimental::concurrent_channel<

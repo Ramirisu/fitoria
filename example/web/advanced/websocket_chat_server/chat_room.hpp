@@ -8,21 +8,25 @@
 
 #include "fwd.hpp"
 
+#include <fitoria/web.hpp>
+
 #include <shared_mutex>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace chat {
 
 class chat_room {
   std::shared_mutex mutex_;
-  std::unordered_set<session*> sessions_;
+  std::unordered_map<room_id, std::unordered_set<session*>> rooms_;
 
 public:
-  void join(session* session);
+  void join(room_id room_id, session* session);
 
-  void leave(session* session);
+  void leave(room_id room_id, session* session);
 
-  auto broadcast(std::string message) -> fitoria::awaitable<void>;
+  auto broadcast(room_id room_id,
+                 std::string message) -> fitoria::awaitable<void>;
 };
 
 }
