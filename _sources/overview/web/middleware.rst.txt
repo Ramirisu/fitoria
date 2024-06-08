@@ -11,52 +11,44 @@ fitoria provides middlewares which allow users to modify ``reqeust`` and ``respo
 .. code-block:: cpp
 
    template <typename Request, typename Response, typename Next>
-   class my_log_middleware {
-     friend class my_log;
+   class trace_id_middleware {
+     friend class trace_id;
    
    public:
      awaitable<response> operator()(request& req) const
      {
-       std::cout << fmt::format("{} {} HTTP/{}",
-                                std::string(to_string(req.method())),
-                                req.path().match_path(),
-                                req.version())
-                 << std::endl;
+       auto id
+           = req.header().get("X-Trace-Id").transform([](auto id) -> std::string {
+               return std::string(id);
+             });
    
        response res = co_await next_(req);
    
-       std::cout << fmt::format(
-           "HTTP/{} {} {}",
-           res.version(),
-           to_underlying(res.status_code().value()),
-           std::string(obsolete_reason(res.status_code().value())))
-                 << std::endl;
+       if (!res.header().contains("X-Trace-Id")) {
+         boost::uuids::random_generator gen;
+         co_return res.builder()
+             .set_header("X-Trace-Id", id.value_or(to_string(gen())))
+             .build();
+       }
    
        co_return res;
      }
    
    private:
      template <typename Next2>
-     my_log_middleware(Next2 next, log::level lv)
+     trace_id_middleware(Next2 next)
          : next_(std::forward<Next2>(next))
-         , lv_(lv)
      {
      }
    
      Next next_;
-     log::level lv_;
    };
    
-   class my_log {
+   class trace_id {
    public:
-     my_log(log::level lv)
-         : lv_(lv)
-     {
-     }
-   
      template <typename Request,
                typename Response,
-               decay_to<my_log> Self,
+               decay_to<trace_id> Self,
                typename Next>
      friend auto
      tag_invoke(to_middleware_t<Request, Response>, Self&& self, Next&& next)
@@ -70,12 +62,11 @@ fitoria provides middlewares which allow users to modify ``reqeust`` and ``respo
      template <typename Request, typename Response, typename Next>
      auto to_middleware_impl(Next&& next) const
      {
-       return my_log_middleware<Request, Response, std::decay_t<Next>>(
-           std::forward<Next>(next), lv_);
+       return trace_id_middleware<Request, Response, std::decay_t<Next>>(
+           std::forward<Next>(next));
      }
-   
-     log::level lv_;
    };
+
 
 fitoria also provides built-in middlewares for convenience.
 
@@ -85,7 +76,7 @@ fitoria also provides built-in middlewares for convenience.
 
 .. note:: 
 
-  ``gzip`` and ``brotli`` must be installed for enabling their functionality in ``middleware::decompress``.
+  ``gzip`` and ``brotli`` must be installed in order to make them functional in ``middleware::decompress``.
 
 
 Middlewares can be mounted by ``scope::use(Middleware&&)`` and ``route::use(Middleware&&)``.
@@ -96,12 +87,12 @@ Middlewares can be mounted by ``scope::use(Middleware&&)`` and ``route::use(Midd
    {
      auto ioc = net::io_context();
      auto server = http_server::builder(ioc)
-                       .serve(scope<"/api/v1">()
+                       .serve(scope()
                                   .use(middleware::logger())
                                   .use(middleware::exception_handler())
                                   .use(middleware::decompress())
-                                  .use(my_log(log::level::info))
-                                  .serve(route::get<"/users/{user}">(get_user)))
+                                  .use(trace_id())
+                                  .serve(route::post<"/">(echo)))
                        .build();
      server.bind("127.0.0.1", 8080);
    
