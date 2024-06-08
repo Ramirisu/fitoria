@@ -147,6 +147,13 @@ public:
       timeout_.keep_alive_pings = enabled;
     }
 
+    auto get_executor() -> executor_type
+    {
+      return std::visit(
+          [](auto& stream) -> executor_type { return stream.get_executor(); },
+          stream_);
+    }
+
     template <typename Body>
     auto async_accept(boost::beast::http::request<Body>& req)
         -> awaitable<expected<void, std::error_code>>
@@ -280,6 +287,16 @@ public:
     friend class websocket;
 
   public:
+    /// @verbatim embed:rst:leading-slashes
+    ///
+    /// Get associated executor.
+    ///
+    /// @endverbatim
+    auto get_executor() -> executor_type
+    {
+      return ws_.impl_->get_executor();
+    }
+
     /// @verbatim embed:rst:leading-slashes
     ///
     /// Send a websocket ping control frame asynchronously.
