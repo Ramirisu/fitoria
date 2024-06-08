@@ -4,7 +4,7 @@ Query String Parameter
 
 Use ``request::query()`` to access the query string parameters. 
 
-`Query String Parameters Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/query_string.cpp>`_
+`Query String Parameters Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/query_string.cpp>`_
 
 .. code-block:: cpp
 

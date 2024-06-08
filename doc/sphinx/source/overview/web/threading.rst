@@ -4,7 +4,7 @@ Threading
 
 ``net::io_context::run()`` can be called by multiple threads simutaneously to enable threading. In the following example we create a ``net::static_thread_pool`` to run the ``net::io_context``. 
 
-`Thread Pool Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/thread_pool.cpp>`_
+`Thread Pool Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/thread_pool.cpp>`_
 
 .. code-block:: cpp
 

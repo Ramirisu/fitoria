@@ -10,7 +10,7 @@ function(fitoria_add_example)
   add_executable(${target_name} ${PARSED_ARGS_SRCS})
   fitoria_target_compile_option(${target_name})
   target_include_directories(${target_name}
-    PRIVATE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
+                             PRIVATE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
 endfunction()
 
 add_subdirectory(encoding)
