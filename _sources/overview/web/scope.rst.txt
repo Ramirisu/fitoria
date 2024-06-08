@@ -4,7 +4,7 @@ Scope
 
 Use ``scope`` to group one or more ``route`` s. 
 
-`Scope Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/scope.cpp>`_
+`Scope Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/scope.cpp>`_
 
 .. code-block:: cpp
 

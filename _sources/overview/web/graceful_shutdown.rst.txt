@@ -4,7 +4,7 @@ Graceful Shutdown
 
 Use ``net::signal_set`` to handle signals and shutdown the server gracefully. 
 
-`Graceful Shutdown Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/graceful_shutdown.cpp>`_
+`Graceful Shutdown Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/graceful_shutdown.cpp>`_
 
 .. code-block:: cpp
 

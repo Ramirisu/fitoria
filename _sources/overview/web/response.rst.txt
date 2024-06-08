@@ -4,7 +4,7 @@ Response
 
 Response converters help users to automatically convert returned type into ``response``. 
 
-`Response Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/response.cpp>`_
+`Response Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/response.cpp>`_
 
 .. code-block:: cpp
 

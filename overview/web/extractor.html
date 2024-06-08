@@ -402,7 +402,7 @@ document.write(`
 <section id="path">
 <h2>Path<a class="headerlink" href="#path" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">path_of&lt;T&gt;</span></code> to extract path parameters into <code class="docutils literal notranslate"><span class="pre">std::tuple&lt;Ts...&gt;</span></code> or plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>.</p>
-<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/path_of.cpp">Path Extractor Example</a></p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/extractor/path_of.cpp">Path Extractor Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">get_order_tuple</span><span class="p">(</span><span class="n">path_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
 <span class="w">    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">awaitable</span><span class="o">&lt;</span><span class="n">response</span><span class="o">&gt;</span>
 <span class="p">{</span>
@@ -446,7 +446,7 @@ document.write(`
 <section id="query">
 <h2>Query<a class="headerlink" href="#query" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">query_of&lt;T&gt;</span></code> to extract query string parameters into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>.</p>
-<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/query_of.cpp">Query Extractor Example</a></p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/extractor/query_of.cpp">Query Extractor Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">order_t</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">user</span><span class="p">;</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">order_id</span><span class="p">;</span>
@@ -465,7 +465,7 @@ document.write(`
 <section id="form">
 <h2>Form<a class="headerlink" href="#form" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">form_of&lt;T&gt;</span></code> to extract urlencoded form from body into plain <code class="docutils literal notranslate"><span class="pre">struct</span></code>.</p>
-<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/form_of.cpp">Form Extractor Example</a></p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/extractor/form_of.cpp">Form Extractor Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">api</span><span class="o">::</span><span class="nn">v1</span><span class="o">::</span><span class="nn">login</span><span class="w"> </span><span class="p">{</span>
 
 <span class="k">struct</span><span class="w"> </span><span class="nc">user_t</span><span class="w"> </span><span class="p">{</span>
@@ -488,7 +488,7 @@ document.write(`
 <section id="state">
 <h2>State<a class="headerlink" href="#state" title="Link to this heading">#</a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">state_of&lt;T&gt;</span></code> to extract shared states. Note that unlike <code class="docutils literal notranslate"><span class="pre">request::state&lt;T&gt;()</span></code> which returns <code class="docutils literal notranslate"><span class="pre">optional&lt;T&amp;&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">state_of</span></code> extractor <em>copy the value</em>.</p>
-<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/extractor/state_of.cpp">State Extractor Example</a></p>
+<p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/extractor/state_of.cpp">State Extractor Example</a></p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">counter_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">get_index</span><span class="p">(</span><span class="n">state_of</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">counter_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">counter</span><span class="p">)</span>

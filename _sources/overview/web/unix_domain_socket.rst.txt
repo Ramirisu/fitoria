@@ -4,7 +4,7 @@ Unix Domain Socket
 
 In addition to TCP connections, fitoria also supports connections with Unix domain socket (AF_UNIX). Users can call the ``http_server::bind_local(...)`` to bind specific file path. 
 
-`Unix Domain Socket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/unix_domain_socket.cpp>`_
+`Unix Domain Socket Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/unix_domain_socket.cpp>`_
 
 .. code-block:: cpp
    

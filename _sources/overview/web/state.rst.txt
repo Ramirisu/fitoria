@@ -4,7 +4,7 @@ State
 
 fitoria provides a way to share data between multiple ``route`` s under the same ``scope`` by configuring the data via ``scope::use_state(State&&)``. 
 
-`State Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/state.cpp>`_
+`State Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/state.cpp>`_
 
 .. code-block:: cpp
 

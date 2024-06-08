@@ -4,7 +4,7 @@ Static File
 
 Use ``web::stream_file`` to serve static files. 
 
-`Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/file.cpp>`_
+`Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/file.cpp>`_
 
 .. note::
    
