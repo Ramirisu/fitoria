@@ -13,6 +13,8 @@
 
 #include <fitoria/core/net.hpp>
 
+#include <iterator>
+
 FITORIA_NAMESPACE_BEGIN
 
 /// @verbatim embed:rst:leading-slashes
@@ -34,6 +36,8 @@ FITORIA_NAMESPACE_BEGIN
 /// @endverbatim
 template <typename Container>
 class dynamic_buffer {
+  static_assert(std::contiguous_iterator<typename Container::iterator>);
+
 public:
   using const_buffers_type = net::const_buffer;
   using mutable_buffers_type = net::mutable_buffer;
