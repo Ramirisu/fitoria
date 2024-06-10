@@ -34,8 +34,8 @@ public:
   {
     auto parser = path_parser<true>();
     if (!parser.parse(pattern)) {
-      // the path should already be parsed at compile-time...
-      // TODO: throw?
+      // this should never trigger since the pattern is already parsed at
+      // compile-time.
       std::terminate();
     }
     tokens_ = parser.get();
