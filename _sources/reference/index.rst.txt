@@ -24,9 +24,9 @@ Reference
    http/field
    http/status
    http/status_class
-   http/status_code
    http/verb
    http/version
+   http/status_code
 
 
 .. toctree:: 
@@ -34,6 +34,7 @@ Reference
    :maxdepth: 1
 
    web/async_readable_stream
+   web/scope
    web/connect_info
    web/form_of
    web/http_server
@@ -47,7 +48,6 @@ Reference
    web/response
    web/response_builder
    web/route
-   web/scope
    web/state_of
    web/stream_file
    web/test_request
