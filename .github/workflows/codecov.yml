@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os_cxx.os }}
-    timeout-minutes: 90
+    timeout-minutes: 120
     strategy:
       matrix:
         os_cxx:
@@ -81,10 +81,10 @@ jobs:
           lcov --gcov-tool=gcov-13 --extract ./.coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./.coverage/coverage.info
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.2.0
+        uses: codecov/codecov-action@v4
         with:
-          file: ./.coverage/coverage.info
-          directory: ./.coverage
+          working-directory: ${{ github.workspace }}/.coverage
+          file: ./coverage.info
           disable_search: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
