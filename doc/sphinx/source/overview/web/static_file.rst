@@ -19,14 +19,16 @@ Use ``web::stream_file`` to serve static files.
    auto get_static_file(const path_info& pi)
        -> awaitable<std::variant<stream_file, response>>
    {
-     auto path = pi.at("file_path");
-     if (auto file = co_await stream_file::async_open_readonly(path); file) {
+     if (auto file = stream_file::open_readonly(co_await net::this_coro::executor,
+                                                pi.at("file_path"));
+         file) {
        co_return std::move(*file);
      }
    
      co_return response::not_found()
          .set_header(http::field::content_type, mime::text_plain())
-         .set_body(fmt::format("requsted file was not found: \"{}\"", path));
+         .set_body(fmt::format("requsted file was not found: \"{}\"",
+                               pi.at("file_path")));
    }
    
    int main()

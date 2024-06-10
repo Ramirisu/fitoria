@@ -42,21 +42,21 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Open file with read-only permission asynchronously.
+  /// Open file with read-only permission.
   ///
   /// @endverbatim
-  static auto async_open_readonly(const std::string& path)
-      -> awaitable<expected<stream_file, std::error_code>>
+  static auto open_readonly(const executor_type& ex, const std::string& path)
+      -> expected<stream_file, std::error_code>
   {
-    auto file = net::stream_file(co_await net::this_coro::executor);
+    auto file = net::stream_file(ex);
 
     boost::system::error_code ec;
     file.open(path, net::file_base::read_only, ec); // NOLINT
     if (ec) {
-      co_return unexpected { ec };
+      return unexpected { ec };
     }
 
-    co_return stream_file(std::move(file));
+    return stream_file(std::move(file));
   }
 
   template <decay_to<stream_file> Self>

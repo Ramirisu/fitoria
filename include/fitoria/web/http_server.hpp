@@ -53,7 +53,7 @@ class http_server {
   using exception_handler_t = std::function<void(std::exception_ptr)>;
 #endif
 
-  http_server(executor_type ex,
+  http_server(const executor_type& ex,
               router_type router,
               optional<int> max_listen_connections,
               optional<duration_type> tls_handshake_timeout,
@@ -619,7 +619,7 @@ private:
 
 class http_server::builder {
 public:
-  explicit builder(executor_type ex)
+  explicit builder(const executor_type& ex)
       : ex_(std::move(ex))
   {
   }

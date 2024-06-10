@@ -26,7 +26,8 @@ TEST_SUITE_BEGIN("[fitoria.web.stream_file]");
 TEST_CASE("stream_file")
 {
   sync_wait([]() -> awaitable<void> {
-    CHECK(!(co_await stream_file::async_open_readonly("abcdefghi")));
+    CHECK(!stream_file::open_readonly(co_await net::this_coro::executor,
+                                      "abcdefghi"));
   });
 }
 

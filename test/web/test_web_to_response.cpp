@@ -207,7 +207,8 @@ TEST_CASE("stream_file")
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
                     .serve(route::get<"/">([]() -> awaitable<stream_file> {
-                      auto file = co_await stream_file::async_open_readonly(
+                      auto file = stream_file::open_readonly(
+                          co_await net::this_coro::executor,
                           "test_web_to_http_response.stream_file.txt");
                       co_return std::move(*file);
                     }))
