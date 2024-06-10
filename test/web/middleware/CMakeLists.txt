@@ -1,5 +1,7 @@
 fitoria_add_test(NAME test_web_middleware_decompress SRCS
                  test_web_middleware_decompress.cpp)
+fitoria_add_test(NAME test_web_middleware_detail_brotli_error SRCS
+                 test_web_middleware_detail_brotli_error.cpp)
 fitoria_add_test(NAME test_web_middleware_detail_brotli SRCS
                  test_web_middleware_detail_brotli.cpp)
 fitoria_add_test(NAME test_web_middleware_detail_deflate SRCS

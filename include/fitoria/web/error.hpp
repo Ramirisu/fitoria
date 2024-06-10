@@ -43,9 +43,7 @@ public:
     case error::unexpected_content_type:
       return R"(unexpected "Content-Type".)";
     case error::extractor_field_name_not_found:
-      // clang-format off
       return "unable to extract key/value into struct, field not found";
-      // clang-format on
     default:
       break;
     }
