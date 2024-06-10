@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/expected.hpp>
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/strings.hpp>
 #include <fitoria/core/utility.hpp>
@@ -19,7 +18,6 @@
 #include <fitoria/mime/params_view.hpp>
 
 #include <string_view>
-#include <system_error>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -164,8 +162,7 @@ public:
   /// Parses a string into ``mime_view``.
   ///
   /// @endverbatim
-  static auto
-  parse(std::string_view str) -> expected<mime_view, std::error_code>
+  static auto parse(std::string_view str) -> optional<mime_view>
   {
     // https://datatracker.ietf.org/doc/html/rfc2045#section-5.1
     // https://datatracker.ietf.org/doc/html/rfc6838
@@ -173,7 +170,7 @@ public:
     auto tokens = split_of(str, ";");
     auto primary = parse_primary(tokens[0]);
     if (!primary) {
-      return unexpected { primary.error() };
+      return nullopt;
     }
     auto essence = tokens[0];
     tokens.erase(tokens.begin());
@@ -188,7 +185,7 @@ public:
 
     auto params = parse_params(tokens);
     if (!params) {
-      return unexpected { params.error() };
+      return nullopt;
     }
 
     return mime_view(str,
@@ -211,23 +208,22 @@ public:
 
 private:
   static auto parse_primary(std::string_view str) noexcept
-      -> expected<std::tuple<std::string_view,
+      -> optional<std::tuple<std::string_view,
                              std::string_view,
-                             optional<std::string_view>>,
-                  std::error_code>
+                             optional<std::string_view>>>
   {
     // mime-type = type "/" subtype ["+" suffix]*
 
     auto types = split_of(str, "/");
     auto type = types[0];
     if (types.size() != 2 || !is_valid_name(type)) {
-      return unexpected { make_error_code(std::errc::invalid_argument) };
+      return nullopt;
     }
 
     auto subtypes = split_of(types[1], "+");
     auto subtype = subtypes[0];
     if (subtypes.size() > 2 || !is_valid_name(subtype)) {
-      return unexpected { make_error_code(std::errc::invalid_argument) };
+      return nullopt;
     }
     if (subtypes.size() <= 1) {
       return std::tuple { type, subtype, nullopt };
@@ -235,14 +231,14 @@ private:
 
     auto suffix = subtypes[1];
     if (!is_valid_name(suffix)) {
-      return unexpected { make_error_code(std::errc::invalid_argument) };
+      return nullopt;
     }
 
     return std::tuple { type, subtype, suffix };
   }
 
   static auto parse_params(std::vector<std::string_view> strs) noexcept
-      -> expected<params_view, std::error_code>
+      -> optional<params_view>
   {
     auto params = params_view();
     for (auto& str : strs) {
@@ -251,7 +247,7 @@ private:
       } else if (tokens.size() == 2) {
         params[tokens[0]] = tokens[1];
       } else {
-        return unexpected { make_error_code(std::errc::invalid_argument) };
+        return nullopt;
       }
     }
 

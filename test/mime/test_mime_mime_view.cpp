@@ -40,6 +40,19 @@ TEST_CASE("parse")
     CHECK_EQ(m->subtype(), "svg");
     CHECK_EQ(m->suffix(), "xml");
   }
+  {
+    CHECK(!mime_view::parse("text/"));
+    CHECK(!mime_view::parse("/plain"));
+    CHECK(!mime_view::parse("text/plain+"));
+    CHECK(!mime_view::parse("image/svg/xml"));
+    CHECK(!mime_view::parse("image+svg+xml"));
+    CHECK(!mime_view::parse("-text/plain"));
+    CHECK(!mime_view::parse("text/-plain"));
+    CHECK(!mime_view::parse("text\\plain"));
+    CHECK(!mime_view::parse("i@mage/svg+xml"));
+    CHECK(!mime_view::parse("image/s@vg+xml"));
+    CHECK(!mime_view::parse("image/svg+x@ml"));
+  }
 }
 
 TEST_CASE("params")
