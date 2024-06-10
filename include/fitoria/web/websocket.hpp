@@ -11,7 +11,6 @@
 
 #include <fitoria/core/config.hpp>
 
-#include <fitoria/core/buffer.hpp>
 #include <fitoria/core/net.hpp>
 #include <fitoria/core/optional.hpp>
 
@@ -228,8 +227,8 @@ public:
           stream_);
     }
 
-    auto async_close(close_code code)
-        -> awaitable<expected<void, std::error_code>>
+    auto
+    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
     {
       co_return co_await std::visit(
           [&](auto& stream)
@@ -326,7 +325,7 @@ public:
     auto async_write_text(std::span<T, N> buffer)
         -> awaitable<expected<void, std::error_code>>
     {
-      return ws_.impl_->async_write_text(as_const_buffer(buffer));
+      return ws_.impl_->async_write_text(net::buffer(buffer));
     }
 
     /// @verbatim embed:rst:leading-slashes
@@ -349,7 +348,7 @@ public:
     auto async_write_binary(std::span<T, N> buffer)
         -> awaitable<expected<void, std::error_code>>
     {
-      return ws_.impl_->async_write_binary(as_const_buffer(buffer));
+      return ws_.impl_->async_write_binary(net::buffer(buffer));
     }
 
     /// @verbatim embed:rst:leading-slashes
@@ -357,8 +356,8 @@ public:
     /// Send a websocket close control frame asynchronously.
     ///
     /// @endverbatim
-    auto async_close(close_code code)
-        -> awaitable<expected<void, std::error_code>>
+    auto
+    async_close(close_code code) -> awaitable<expected<void, std::error_code>>
     {
       return ws_.impl_->async_close(code);
     }

@@ -75,12 +75,10 @@ auto client_handler(Stream& stream) -> awaitable<void>
     const auto out = fmt::format("sequence number: {}", seq);
     if (seq % 4 == 0) {
       stream.binary(true);
-      REQUIRE(co_await stream.async_write(
-          net::const_buffer(out.data(), out.size()), use_awaitable));
+      REQUIRE(co_await stream.async_write(net::buffer(out), use_awaitable));
     } else {
       stream.text(true);
-      REQUIRE(co_await stream.async_write(
-          net::const_buffer(out.data(), out.size()), use_awaitable));
+      REQUIRE(co_await stream.async_write(net::buffer(out), use_awaitable));
     }
 
     dynamic_buffer<std::string> buffer;

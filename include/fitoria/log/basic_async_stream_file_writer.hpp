@@ -35,8 +35,8 @@ public:
   {
     auto output = this->fmter_.format(rec);
 
-    [[maybe_unused]] auto bytes_written = co_await net::async_write(
-        file_, net::const_buffer(output.data(), output.size()), use_awaitable);
+    [[maybe_unused]] auto bytes_written
+        = co_await net::async_write(file_, net::buffer(output), use_awaitable);
   }
 };
 
