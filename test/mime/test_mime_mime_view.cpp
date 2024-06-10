@@ -76,6 +76,13 @@ TEST_CASE("contants")
     CHECK_EQ(m.suffix(), nullopt);
   }
   {
+    auto m = application_msgpack();
+    CHECK_EQ(m.essence(), "application/msgpack");
+    CHECK_EQ(m.type(), "application");
+    CHECK_EQ(m.subtype(), "msgpack");
+    CHECK_EQ(m.suffix(), nullopt);
+  }
+  {
     auto m = application_octet_stream();
     CHECK_EQ(m.essence(), "application/octet-stream");
     CHECK_EQ(m.type(), "application");
@@ -130,6 +137,27 @@ TEST_CASE("contants")
     CHECK_EQ(m.type(), "image");
     CHECK_EQ(m.subtype(), "svg");
     CHECK_EQ(m.suffix(), "xml");
+  }
+  {
+    auto m = multipart_form_data();
+    CHECK_EQ(m.essence(), "multipart/form-data");
+    CHECK_EQ(m.type(), "multipart");
+    CHECK_EQ(m.subtype(), "form-data");
+    CHECK_EQ(m.suffix(), nullopt);
+  }
+  {
+    auto m = text_css();
+    CHECK_EQ(m.essence(), "text/css");
+    CHECK_EQ(m.type(), "text");
+    CHECK_EQ(m.subtype(), "css");
+    CHECK_EQ(m.suffix(), nullopt);
+  }
+  {
+    auto m = text_csv();
+    CHECK_EQ(m.essence(), "text/csv");
+    CHECK_EQ(m.type(), "text");
+    CHECK_EQ(m.subtype(), "csv");
+    CHECK_EQ(m.suffix(), nullopt);
   }
   {
     auto m = text_html();

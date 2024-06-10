@@ -307,6 +307,19 @@ inline auto application_json() noexcept -> mime_view
 
 /// @verbatim embed:rst:leading-slashes
 ///
+/// ``"application/msgpack"``
+///
+/// @endverbatim
+inline auto application_msgpack() noexcept -> mime_view
+{
+  const auto source = std::string_view("application/msgpack");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
 /// ``"application/octet-stream"``
 ///
 /// @endverbatim
@@ -400,6 +413,41 @@ inline auto image_svg() noexcept -> mime_view
     source, source, source.substr(0, 5), source.substr(6, 3), source.substr(10),
     {}
   };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"multipart/form-data"``
+///
+/// @endverbatim
+inline auto multipart_form_data() noexcept -> mime_view
+{
+  const auto source = std::string_view("multipart/form-data");
+  return {
+    source, source, source.substr(0, 9), source.substr(10), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"text/css"``
+///
+/// @endverbatim
+inline auto text_css() noexcept -> mime_view
+{
+  const auto source = std::string_view("text/css");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"text/csv"``
+///
+/// @endverbatim
+inline auto text_csv() noexcept -> mime_view
+{
+  const auto source = std::string_view("text/csv");
+  return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
