@@ -165,8 +165,9 @@ public:
   static auto parse(std::string_view str) -> optional<mime_view>
   {
     // https://datatracker.ietf.org/doc/html/rfc2045#section-5.1
-    // https://datatracker.ietf.org/doc/html/rfc6838
+    // https://datatracker.ietf.org/doc/html/rfc6838#section-4.2
     // mime-type = type "/" subtype ["+" suffix]* [";" parameter];
+
     auto tokens = split_of(str, ";");
     auto primary = parse_primary(tokens[0]);
     if (!primary) {
@@ -212,6 +213,7 @@ private:
                              std::string_view,
                              optional<std::string_view>>>
   {
+    // https://datatracker.ietf.org/doc/html/rfc6838#section-4.2
     // mime-type = type "/" subtype ["+" suffix]*
 
     auto types = split_of(str, "/");
@@ -240,11 +242,12 @@ private:
   static auto parse_params(std::vector<std::string_view> strs) noexcept
       -> optional<params_view>
   {
+    // https://datatracker.ietf.org/doc/html/rfc2045#section-5.1
+
     auto params = params_view();
     for (auto& str : strs) {
-      if (auto tokens = split_of(str, "="); tokens.size() == 1) {
-        params[tokens[0]] = std::string_view();
-      } else if (tokens.size() == 2) {
+      if (auto tokens = split_of(str, "="); tokens.size() == 2
+          && is_valid_name(tokens[0]) && is_valid_name(tokens[1])) {
         params[tokens[0]] = tokens[1];
       } else {
         return nullopt;

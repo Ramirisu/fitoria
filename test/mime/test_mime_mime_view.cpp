@@ -23,6 +23,7 @@ TEST_CASE("parse")
     CHECK_EQ(m->type(), "text");
     CHECK_EQ(m->subtype(), "plain");
     CHECK_EQ(m->suffix(), nullopt);
+    CHECK_EQ(m->params(), params_view {});
   }
   {
     auto m = mime_view::parse("text/plain; charset=utf-8");
@@ -31,6 +32,17 @@ TEST_CASE("parse")
     CHECK_EQ(m->type(), "text");
     CHECK_EQ(m->subtype(), "plain");
     CHECK_EQ(m->suffix(), nullopt);
+    CHECK_EQ(m->params(), params_view { { "charset", "utf-8" } });
+  }
+  {
+    auto m = mime_view::parse("text/plain; charset=utf-8; author=fitoria");
+    CHECK_EQ(m->source(), "text/plain; charset=utf-8; author=fitoria");
+    CHECK_EQ(m->essence(), "text/plain");
+    CHECK_EQ(m->type(), "text");
+    CHECK_EQ(m->subtype(), "plain");
+    CHECK_EQ(m->suffix(), nullopt);
+    CHECK_EQ(m->params(),
+             params_view { { "charset", "utf-8" }, { "author", "fitoria" } });
   }
   {
     auto m = mime_view::parse("image/svg+xml");
@@ -52,23 +64,12 @@ TEST_CASE("parse")
     CHECK(!mime_view::parse("i@mage/svg+xml"));
     CHECK(!mime_view::parse("image/s@vg+xml"));
     CHECK(!mime_view::parse("image/svg+x@ml"));
-  }
-}
-
-TEST_CASE("params")
-{
-  {
-    auto m = mime_view::parse("text/plain");
-    CHECK_EQ(m->params(), params_view {});
-  }
-  {
-    auto m = mime_view::parse("text/plain; charset=utf-8");
-    CHECK_EQ(m->params(), params_view { { "charset", "utf-8" } });
-  }
-  {
-    auto m = mime_view::parse("text/plain; charset=utf-8; author=fitoria");
-    CHECK_EQ(m->params(),
-             params_view { { "charset", "utf-8" }, { "author", "fitoria" } });
+    CHECK(!mime_view::parse("text/plain; charset"));
+    CHECK(!mime_view::parse("text/plain; charset="));
+    CHECK(!mime_view::parse("text/plain; charset=utf-8=utf-16"));
+    CHECK(!mime_view::parse("text/plain; ="));
+    CHECK(!mime_view::parse("text/plain; =utf-8"));
+    CHECK(!mime_view::parse("text/plain; charset=utf:8"));
   }
 }
 
