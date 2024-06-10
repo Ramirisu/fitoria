@@ -55,7 +55,7 @@ public:
         } else {
           co_return response::bad_request()
               .set_header(http::field::content_type, mime::text_plain())
-              .set_body("unsupported \"Content-Encoding\".");
+              .set_body(R"(unsupported "Content-Encoding".)");
         }
         *str = remove_last_encoding(*str);
       }

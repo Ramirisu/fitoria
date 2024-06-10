@@ -21,7 +21,7 @@ TEST_CASE("error")
   CHECK_EQ(make_error_code(error::route_not_exists).message(),
            "the route being searched doesn't exist");
   CHECK_EQ(make_error_code(error::unexpected_content_type).message(),
-           "unexpected \"Content-Type\".");
+           R"(unexpected "Content-Type".)");
   CHECK_EQ(make_error_code(error::extractor_field_name_not_found).message(),
            "unable to extract key/value into struct, field not found");
 }

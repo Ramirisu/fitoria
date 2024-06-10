@@ -41,7 +41,7 @@ public:
     case error::route_not_exists:
       return "the route being searched doesn't exist";
     case error::unexpected_content_type:
-      return "unexpected \"Content-Type\".";
+      return R"(unexpected "Content-Type".)";
     case error::extractor_field_name_not_found:
       // clang-format off
       return "unable to extract key/value into struct, field not found";

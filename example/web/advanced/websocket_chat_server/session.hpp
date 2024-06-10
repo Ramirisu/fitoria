@@ -16,8 +16,8 @@ class session : public std::enable_shared_from_this<session> {
   using context = fitoria::web::websocket::context;
 
 public:
-  session(const std::string& room_id,
-          const std::string& user_id,
+  session(std::string room_id,
+          std::string user_id,
           context& ctx,
           chat_room& room);
 
@@ -27,8 +27,8 @@ public:
 
   auto async_read() -> fitoria::awaitable<void>;
 
-  auto async_write(std::shared_ptr<std::string> message)
-      -> fitoria::awaitable<void>;
+  auto
+  async_write(std::shared_ptr<std::string> message) -> fitoria::awaitable<void>;
 
   static auto make_session(const std::string& room_id,
                            const std::string& user_id,

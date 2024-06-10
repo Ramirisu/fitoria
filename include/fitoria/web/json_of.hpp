@@ -36,25 +36,16 @@ public:
   friend auto tag_invoke(from_request_t<json_of<T>>, request& req)
       -> awaitable<expected<json_of<T>, response>>
   {
-    if (auto ct = req.header().get(http::field::content_type); !ct) {
-      co_return unexpected { response::bad_request()
-                                 .set_header(http::field::content_type,
-                                             mime::text_plain())
-                                 .set_body("\"Content-Type\" is expected.") };
-    } else {
-      if (auto mime = mime::mime_view::parse(*ct); !mime) {
-        co_return unexpected {
-          response::bad_request()
-              .set_header(http::field::content_type, mime::text_plain())
-              .set_body("invalid MIME format for \"Content-Type\".")
-        };
-      } else if (mime->essence() != mime::application_json()) {
-        co_return unexpected {
-          response::bad_request()
-              .set_header(http::field::content_type, mime::text_plain())
-              .set_body("\"Content-Type\" is not matched.")
-        };
-      }
+    if (auto mime = req.header()
+                        .get(http::field::content_type)
+                        .and_then(mime::mime_view::parse);
+        !mime || mime->essence() != mime::application_json()) {
+      co_return unexpected {
+        response::bad_request()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body(fmt::format(R"("Content-Type: {}" is expected.)",
+                                  mime::application_json().source()))
+      };
     }
 
     auto body = co_await from_request<std::string>(req);

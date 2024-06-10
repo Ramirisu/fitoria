@@ -44,8 +44,7 @@ int main()
                        == http::status::internal_server_error);
         FITORIA_ASSERT(
             (co_await res.as_string())
-            == "unexpected Content-Type received, expected \"Content-Type: "
-               "application/x-www-form-urlencoded\"");
+            == R"("Content-Type: application/x-www-form-urlencoded" is expected.)");
         co_return;
       });
   server.serve_request(

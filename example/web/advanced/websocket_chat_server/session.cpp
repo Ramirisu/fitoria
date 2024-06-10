@@ -14,12 +14,12 @@ using namespace fitoria::web;
 
 namespace chat {
 
-session::session(const std::string& room_id,
-                 const std::string& user_id,
+session::session(std::string room_id,
+                 std::string user_id,
                  session::context& ctx,
                  chat_room& room)
-    : room_id_(room_id)
-    , user_id_(user_id)
+    : room_id_(std::move(room_id))
+    , user_id_(std::move(user_id))
     , ctx_(ctx)
     , room_(room)
     , channel_(ctx_.get_executor())
