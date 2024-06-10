@@ -15,8 +15,8 @@
 
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/web/detail/brotli_error.hpp>
-#include <fitoria/web/detail/brotli_params.hpp>
+#include <fitoria/web/middleware/detail/brotli_error.hpp>
+#include <fitoria/web/middleware/detail/brotli_params.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
@@ -39,9 +39,8 @@ public:
       : handle_(BrotliEncoderCreateInstance(nullptr, nullptr, nullptr))
   {
     if (handle_ == nullptr) {
-      FITORIA_THROW_OR(
-          std::system_error(make_error_code(web::detail::brotli_error::init)),
-          std::terminate());
+      FITORIA_THROW_OR(std::system_error(make_error_code(brotli_error::init)),
+                       std::terminate());
     }
   }
 
@@ -70,7 +69,7 @@ public:
     return *this;
   }
 
-  auto write(web::detail::broti_params& p,
+  auto write(broti_params& p,
              brotli_encoder_operation op) noexcept -> std::error_code
   {
     return from_native_error(BrotliEncoderCompressStream(handle_,
@@ -94,7 +93,7 @@ private:
       return {};
     }
 
-    return make_error_code(web::detail::brotli_error::error);
+    return make_error_code(brotli_error::error);
   }
 
   auto to_native(brotli_encoder_operation op) -> BrotliEncoderOperation
@@ -143,15 +142,11 @@ public:
       auto buffer = dynamic_buffer<bytes>();
       auto writable = buffer.prepare(65536);
 
-      auto p = web::detail::broti_params();
-      p.next_in = nullptr;
-      p.avail_in = 0;
-      p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
-      p.avail_out = writable.size();
+      auto p = broti_params(nullptr, 0, writable.data(), writable.size());
 
       auto ec = deflater_.write(p, brotli_encoder_operation::finish);
 
-      FITORIA_ASSERT(ec != web::detail::brotli_error::need_more_output);
+      FITORIA_ASSERT(ec != brotli_error::need_more_output);
       if (ec) {
         co_return unexpected { ec };
       }
@@ -172,15 +167,12 @@ public:
     auto writable
         = buffer.prepare(std::max(readable->size(), std::size_t(65536)));
 
-    auto p = web::detail::broti_params();
-    p.next_in = reinterpret_cast<const std::uint8_t*>(readable->data());
-    p.avail_in = readable->size();
-    p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
-    p.avail_out = writable.size();
+    auto p = broti_params(
+        readable->data(), readable->size(), writable.data(), writable.size());
 
     auto ec = deflater_.write(p, brotli_encoder_operation::process);
 
-    FITORIA_ASSERT(ec != web::detail::brotli_error::need_more_output);
+    FITORIA_ASSERT(ec != brotli_error::need_more_output);
     if (ec) {
       co_return unexpected { ec };
     }

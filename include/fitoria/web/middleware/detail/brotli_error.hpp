@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_WEB_DETAIL_BROTLI_ERROR_HPP
-#define FITORIA_WEB_DETAIL_BROTLI_ERROR_HPP
+#ifndef FITORIA_WEB_MIDDLEWARE_DETAIL_BROTLI_ERROR_HPP
+#define FITORIA_WEB_MIDDLEWARE_DETAIL_BROTLI_ERROR_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -15,7 +15,7 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-namespace web::detail {
+namespace web::middleware::detail {
 
 enum class brotli_error {
   error = 1,
@@ -66,7 +66,8 @@ inline std::error_code make_error_code(brotli_error e)
 FITORIA_NAMESPACE_END
 
 template <>
-struct std::is_error_code_enum<FITORIA_NAMESPACE::web::detail::brotli_error>
-    : std::true_type { };
+struct std::is_error_code_enum<
+    FITORIA_NAMESPACE::web::middleware::detail::brotli_error> : std::true_type {
+};
 
 #endif

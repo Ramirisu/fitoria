@@ -113,7 +113,8 @@ TEST_CASE("inflate: invalid stream")
     auto out = co_await async_read_until_eof<std::string>(
         middleware::detail::async_brotli_inflate_stream(
             async_readable_vector_stream(std::span(in.begin(), in.size()))));
-    CHECK_EQ(out.error(), make_error_code(detail::brotli_error::error));
+    CHECK_EQ(out.error(),
+             make_error_code(middleware::detail::brotli_error::error));
   });
 }
 

@@ -15,8 +15,8 @@
 
 #include <fitoria/core/net.hpp>
 
-#include <fitoria/web/detail/brotli_error.hpp>
-#include <fitoria/web/detail/brotli_params.hpp>
+#include <fitoria/web/middleware/detail/brotli_error.hpp>
+#include <fitoria/web/middleware/detail/brotli_params.hpp>
 
 #include <fitoria/web/async_readable_stream_concept.hpp>
 
@@ -32,9 +32,8 @@ public:
       : handle_(BrotliDecoderCreateInstance(nullptr, nullptr, nullptr))
   {
     if (handle_ == nullptr) {
-      FITORIA_THROW_OR(
-          std::system_error(make_error_code(web::detail::brotli_error::init)),
-          std::terminate());
+      FITORIA_THROW_OR(std::system_error(make_error_code(brotli_error::init)),
+                       std::terminate());
     }
   }
 
@@ -63,7 +62,7 @@ public:
     return *this;
   }
 
-  auto write(web::detail::broti_params& p) -> std::error_code
+  auto write(broti_params& p) -> std::error_code
   {
     return from_native_error(BrotliDecoderDecompressStream(
         handle_, &p.avail_in, &p.next_in, &p.avail_out, &p.next_out, nullptr));
@@ -74,18 +73,18 @@ private:
   {
     switch (result) {
     case BROTLI_DECODER_RESULT_ERROR:
-      return make_error_code(web::detail::brotli_error::error);
+      return make_error_code(brotli_error::error);
     case BROTLI_DECODER_RESULT_SUCCESS:
       return {};
     case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
-      return make_error_code(web::detail::brotli_error::need_more_input);
+      return make_error_code(brotli_error::need_more_input);
     case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
-      return make_error_code(web::detail::brotli_error::need_more_output);
+      return make_error_code(brotli_error::need_more_output);
     default:
       break;
     }
 
-    return make_error_code(web::detail::brotli_error::unknown);
+    return make_error_code(brotli_error::unknown);
   }
 
   BrotliDecoderState* handle_ = nullptr;
@@ -125,16 +124,14 @@ public:
       auto writable
           = buffer.prepare(std::max(readable.size(), std::size_t(65536)));
 
-      auto p = web::detail::broti_params();
-      p.next_in
-          = reinterpret_cast<const std::uint8_t*>(readable.cdata().data());
-      p.avail_in = readable.cdata().size();
-      p.next_out = reinterpret_cast<std::uint8_t*>(writable.data());
-      p.avail_out = writable.size();
+      auto p = broti_params(readable.cdata().data(),
+                            readable.cdata().size(),
+                            writable.data(),
+                            writable.size());
 
       auto ec = inflater_.write(p);
-      if (ec == web::detail::brotli_error::need_more_input
-          || ec == web::detail::brotli_error::need_more_output) {
+      if (ec == brotli_error::need_more_input
+          || ec == brotli_error::need_more_output) {
         ec = {};
       }
       if (ec) {
