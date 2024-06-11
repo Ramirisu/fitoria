@@ -1,6 +1,6 @@
 ********************************************************************************
-``class stream_file``
+``class named_file``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::web::stream_file
+.. doxygenclass:: fitoria::web::named_file
    :members:
