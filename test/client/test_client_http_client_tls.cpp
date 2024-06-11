@@ -11,6 +11,8 @@
 #include <fitoria/test/http_client.hpp>
 #include <fitoria/test/http_server_utils.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::test;
 
@@ -58,7 +60,7 @@ TEST_CASE("handshake_timeout")
         acceptor.open(net::ip::tcp::v4());
         acceptor.set_option(net::socket_base::reuse_address(true));
         acceptor.bind(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port));
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port));
         acceptor.listen();
         auto socket = co_await acceptor.async_accept(use_awaitable);
         REQUIRE(socket);
@@ -71,9 +73,11 @@ TEST_CASE("handshake_timeout")
       },
       net::detached);
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(

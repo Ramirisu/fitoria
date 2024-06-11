@@ -13,6 +13,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -28,11 +30,13 @@ TEST_CASE("response status only")
                       co_return response::no_content().build();
                     }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -69,11 +73,13 @@ TEST_CASE("response with plain text")
                   .set_body(text);
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -111,11 +117,13 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .set_stream_body(async_readable_chunk_stream<5>(text));
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -146,11 +154,13 @@ TEST_CASE("response with default HTTP/1.1")
                       co_return response::ok().build();
                     }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -180,11 +190,13 @@ TEST_CASE("response with HTTP/1.0")
               co_return response::ok().set_version(http::version::v1_0).build();
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(

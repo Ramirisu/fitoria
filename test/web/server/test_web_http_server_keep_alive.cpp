@@ -12,6 +12,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -31,11 +33,13 @@ TEST_CASE("request with keep-alive")
                       .set_body(body);
                 }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -44,7 +48,7 @@ TEST_CASE("request with keep-alive")
         auto stream
             = basic_stream<net::ip::tcp>(co_await net::this_coro::executor);
         REQUIRE(co_await stream.async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
 
         // write multiple requests at once for pipeline simulation

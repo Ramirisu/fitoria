@@ -14,6 +14,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -37,8 +39,8 @@ TEST_CASE("generic request")
                     const query_map& query,
                     std::string body) -> awaitable<response> {
                   auto test_connection = [=](auto& conn) {
-                    REQUIRE_EQ(conn.local(), server_ip);
-                    REQUIRE_EQ(conn.remote(), server_ip);
+                    REQUIRE_EQ(conn.local(), localhost);
+                    REQUIRE_EQ(conn.remote(), localhost);
                   };
                   test_connection(req.connection());
                   test_connection(connection);
@@ -97,11 +99,13 @@ TEST_CASE("generic request")
                       .build();
                 }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -147,11 +151,13 @@ TEST_CASE("request to route accepting wildcard")
                   co_return response::ok().build();
                 }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -184,11 +190,13 @@ TEST_CASE("request with null body")
               co_return response::ok().build();
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -220,11 +228,13 @@ TEST_CASE("request with empty body")
               co_return response::ok().build();
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -260,11 +270,13 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
               co_return response::ok().build();
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(

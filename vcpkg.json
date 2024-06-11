@@ -32,7 +32,7 @@
     },
     "test": {
       "description": "enable building test support",
-      "dependencies": ["doctest"]
+      "dependencies": ["doctest", "boost-scope"]
     }
   }
 }

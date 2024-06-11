@@ -20,8 +20,7 @@ FITORIA_NAMESPACE_BEGIN
 namespace test {
 
 inline const auto server_start_wait_time = std::chrono::milliseconds(100);
-inline const char* server_ip = "127.0.0.1";
-inline const char* localhost = "localhost";
+inline const char* localhost = "127.0.0.1";
 inline std::uint16_t generate_port()
 {
   static std::uint16_t port = 43210;
@@ -44,28 +43,6 @@ void sync_wait(Awaitable&& awaitable)
   ioc.run();
   fut.get();
 }
-
-template <typename F>
-  requires std::is_invocable_v<F>
-class [[maybe_unused]] scope_exit {
-public:
-  template <typename F2>
-  scope_exit(F2&& f)
-      : f_(std::forward<F2>(f))
-  {
-  }
-
-  ~scope_exit()
-  {
-    f_();
-  }
-
-private:
-  F f_;
-};
-
-template <typename F>
-scope_exit(F&&) -> scope_exit<F>;
 
 }
 

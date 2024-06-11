@@ -14,6 +14,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -25,11 +27,11 @@ TEST_CASE("socket reuse address")
   const auto port = generate_port();
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc).build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 #if defined(FITORIA_TARGET_WINDOWS)
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 #else
-  REQUIRE(!server.bind(server_ip, port));
+  REQUIRE(!server.bind(localhost, port));
 #endif
 }
 
@@ -57,11 +59,13 @@ TEST_CASE("invalid target")
                           co_return response::ok().build();
                         }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   const auto test_cases = std::vector {
@@ -100,11 +104,13 @@ TEST_CASE("expect: 100-continue")
                           co_return response::ok().build();
                         }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(

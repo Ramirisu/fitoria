@@ -12,6 +12,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -40,11 +42,13 @@ TEST_CASE("unhandled exception from handler")
                       co_return response::ok().build();
                     }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(

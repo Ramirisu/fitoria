@@ -88,18 +88,20 @@ Compiler (C++20)
 
 Dependencies
 
-|    Library     | Minimum Version |          |
-| :------------: | :-------------: | :------: |
-| `boost::asio`  |    `1.84.0`     | required |
-| `boost::beast` |    `1.84.0`     | required |
-| `boost::json`  |    `1.84.0`     | required |
-|  `boost::url`  |    `1.84.0`     | required |
-|  `boost::pfr`  |    `1.84.0`     | required |
-|     `fmt`      |    `10.0.0`     | required |
-|     `zlib`     |                 | optional |
-|    `brotli`    |                 | optional |
-|   `OpenSSL`    |                 | optional |
-|   `doctest`    |                 | optional |
+|    Library     | Minimum Version |          | Note                                       |
+| :------------: | :-------------: | :------: | :----------------------------------------- |
+| `boost::asio`  |    `1.85.0`     | required |                                            |
+| `boost::beast` |    `1.85.0`     | required |                                            |
+| `boost::json`  |    `1.85.0`     | required |                                            |
+|  `boost::url`  |    `1.85.0`     | required |                                            |
+|  `boost::pfr`  |    `1.85.0`     | required |                                            |
+|     `fmt`      |    `10.0.0`     | required |                                            |
+|     `zlib`     |                 | optional |                                            |
+|    `brotli`    |                 | optional |                                            |
+|   `openssl`    |                 | optional |                                            |
+|   `doctest`    |                 | optional | required when `FITORIA_BUILD_TESTS=ON`.    |
+| `boost::scope` |    `1.85.0`     | optional | required when `FITORIA_BUILD_TESTS=ON`.    |
+| `boost::uuid`  |    `1.85.0`     | optional | required when `FITORIA_BUILD_EXAMPLES=ON`. |
 
 CMake
 

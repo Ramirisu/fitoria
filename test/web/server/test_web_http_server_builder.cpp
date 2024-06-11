@@ -12,6 +12,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -43,18 +45,20 @@ TEST_CASE("builder")
                       co_return response::ok().build();
                     }))
                     .build();
-  REQUIRE(server.bind(server_ip, port));
-
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
-  std::this_thread::sleep_for(server_start_wait_time);
+  REQUIRE(server.bind(localhost, port));
 
   REQUIRE_EQ(server.max_listen_connections(), 2048);
   REQUIRE_EQ(server.tls_handshake_timeout(), std::chrono::seconds(5));
   REQUIRE_EQ(server.request_timeout(), std::chrono::seconds(10));
   REQUIRE_EQ(server.request_header_limit(), nullopt);
   REQUIRE_EQ(server.request_body_limit(), nullopt);
+
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
+  std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
       ioc,

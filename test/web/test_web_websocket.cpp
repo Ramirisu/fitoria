@@ -14,6 +14,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -100,11 +102,13 @@ TEST_CASE("websocket")
               co_return ws.set_handler(server_handler);
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -113,7 +117,7 @@ TEST_CASE("websocket")
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
         REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
         REQUIRE(
             co_await stream.async_handshake("localhost", "/", use_awaitable));
@@ -137,11 +141,13 @@ TEST_CASE("secure websocket")
             }))
             .build();
   auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context_base::tls_server);
-  server.bind(server_ip, port, ssl_ctx);
+  server.bind(localhost, port, ssl_ctx);
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -152,7 +158,7 @@ TEST_CASE("secure websocket")
         auto stream = websocket_stream<shared_ssl_stream<net::ip::tcp>>(
             co_await net::this_coro::executor, ssl_ctx);
         REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
         REQUIRE(co_await stream.next_layer().async_handshake(
             net::ssl::stream_base::client, use_awaitable));
@@ -180,11 +186,13 @@ TEST_CASE("async_close")
                   });
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -193,7 +201,7 @@ TEST_CASE("async_close")
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
         REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
         REQUIRE(
             co_await stream.async_handshake("localhost", "/", use_awaitable));
@@ -224,11 +232,13 @@ TEST_CASE("idle_timeout and no keep alive pings")
                   });
             }))
             .build();
-  REQUIRE(server.bind(server_ip, port));
+  REQUIRE(server.bind(localhost, port));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -237,7 +247,7 @@ TEST_CASE("idle_timeout and no keep alive pings")
         auto stream = boost::beast::websocket::stream<boost::beast::tcp_stream>(
             co_await net::this_coro::executor);
         REQUIRE(co_await boost::beast::get_lowest_layer(stream).async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
         REQUIRE(
             co_await stream.async_handshake("localhost", "/", use_awaitable));

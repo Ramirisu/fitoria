@@ -13,6 +13,8 @@
 
 #include <fitoria/web.hpp>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -42,11 +44,14 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                 }))
             .build();
   auto ssl_ctx = cert::get_server_ssl_ctx(server_ssl_ver);
-  server.bind(server_ip, port, ssl_ctx);
+  server.bind(localhost, port, ssl_ctx);
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
+  ;
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -106,11 +111,14 @@ TEST_CASE("tls_handshake_timeout")
                     .build();
   auto ssl_ctx
       = cert::get_server_ssl_ctx(net::ssl::context::method::tls_server);
-  server.bind(server_ip, port, ssl_ctx);
+  server.bind(localhost, port, ssl_ctx);
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
+  ;
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -121,7 +129,7 @@ TEST_CASE("tls_handshake_timeout")
         auto stream = ssl_stream<net::ip::tcp>(
             co_await net::this_coro::executor, ssl_ctx);
         REQUIRE(co_await get_lowest_layer(stream).async_connect(
-            net::ip::tcp::endpoint(net::ip::make_address(server_ip), port),
+            net::ip::tcp::endpoint(net::ip::make_address(localhost), port),
             use_awaitable));
 
         auto timer = net::steady_timer(co_await net::this_coro::executor);

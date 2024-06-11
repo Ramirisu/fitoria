@@ -16,6 +16,8 @@
 
 #include <filesystem>
 
+#include <boost/scope/scope_exit.hpp>
+
 using namespace fitoria;
 using namespace fitoria::web;
 using namespace fitoria::test;
@@ -41,9 +43,11 @@ TEST_CASE("bind_local")
   std::filesystem::remove("test_web_http_local_socket.txt");
   REQUIRE(server.bind_local("test_web_http_local_socket.txt"));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
@@ -97,9 +101,11 @@ TEST_CASE("bind_local TLS")
   auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
   REQUIRE(server.bind_local("test_web_http_local_socket.txt", ssl_ctx));
 
-  net::thread_pool tp(1);
-  net::post(tp, [&]() { ioc.run(); });
-  scope_exit guard([&]() { ioc.stop(); });
+  auto worker = std::thread([&]() { ioc.run(); });
+  auto guard = boost::scope::make_scope_exit([&]() {
+    ioc.stop();
+    worker.join();
+  });
   std::this_thread::sleep_for(server_start_wait_time);
 
   net::co_spawn(
