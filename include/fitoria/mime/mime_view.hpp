@@ -197,6 +197,28 @@ public:
                      std::move(*params));
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the mime from the file extension.
+  ///
+  /// @endverbatim
+  static auto
+  from_extension(std::string_view ext) noexcept -> optional<mime_view>;
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the mime from the file path.
+  ///
+  /// @endverbatim
+  static auto from_path(std::string_view path) noexcept -> optional<mime_view>
+  {
+    if (auto pos = path.rfind('.'); pos != std::string_view::npos) {
+      return from_extension(path.substr(pos + 1));
+    }
+
+    return nullopt;
+  }
+
   friend bool operator==(mime_view lhs, mime_view rhs) noexcept
   {
     return iequals(lhs.source_, rhs.source_);
@@ -345,12 +367,51 @@ inline auto application_pdf() noexcept -> mime_view
 
 /// @verbatim embed:rst:leading-slashes
 ///
+/// ``"application/x-shockwave-flash"``
+///
+/// @endverbatim
+inline auto application_shockwave_flash() noexcept -> mime_view
+{
+  const auto source = std::string_view("application/x-shockwave-flash");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"application/text"``
+///
+/// @endverbatim
+inline auto application_text() noexcept -> mime_view
+{
+  const auto source = std::string_view("application/text");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
 /// ``"application/x-www-form-urlencoded"``
 ///
 /// @endverbatim
 inline auto application_www_form_urlencoded() noexcept -> mime_view
 {
   const auto source = std::string_view("application/x-www-form-urlencoded");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"application/xml"``
+///
+/// @endverbatim
+inline auto application_xml() noexcept -> mime_view
+{
+  const auto source = std::string_view("application/xml");
   return {
     source, source, source.substr(0, 11), source.substr(12), nullopt, {}
   };
@@ -412,6 +473,17 @@ inline auto image_svg() noexcept -> mime_view
     source, source, source.substr(0, 5), source.substr(6, 3), source.substr(10),
     {}
   };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"image/tiff"``
+///
+/// @endverbatim
+inline auto image_tiff() noexcept -> mime_view
+{
+  const auto source = std::string_view("image/tiff");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
 }
 
 /// @verbatim embed:rst:leading-slashes
@@ -493,6 +565,65 @@ inline auto text_xml() noexcept -> mime_view
   return { source, source, source.substr(0, 4), source.substr(5), nullopt, {} };
 }
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// ``"video/x-flv"``
+///
+/// @endverbatim
+inline auto video_flv() noexcept -> mime_view
+{
+  const auto source = std::string_view("video/x-flv");
+  return { source, source, source.substr(0, 5), source.substr(6), nullopt, {} };
+}
+
+inline auto
+mime_view::from_extension(std::string_view ext) noexcept -> optional<mime_view>
+{
+  if (iequals(ext, "js")) {
+    return application_javascript();
+  }
+  if (iequals(ext, "json")) {
+    return application_json();
+  }
+  if (iequals(ext, "swf")) {
+    return application_shockwave_flash();
+  }
+  if (iequals(ext, "xml")) {
+    return application_xml();
+  }
+  if (iequals(ext, "bmp")) {
+    return image_bmp();
+  }
+  if (iequals(ext, "gif")) {
+    return image_gif();
+  }
+  if (iequals(ext, "jpe") || iequals(ext, "jpeg") || iequals(ext, "jpg")) {
+    return image_jpeg();
+  }
+  if (iequals(ext, "png")) {
+    return image_png();
+  }
+  if (iequals(ext, "svg") || iequals(ext, "svgz")) {
+    return image_svg();
+  }
+  if (iequals(ext, "tif") || iequals(ext, "tiff")) {
+    return image_tiff();
+  }
+  if (iequals(ext, "css")) {
+    return text_css();
+  }
+  if (iequals(ext, "htm") || iequals(ext, "html") || iequals(ext, "php")) {
+    return text_html();
+  }
+  if (iequals(ext, "txt")) {
+    return text_plain();
+  }
+  if (iequals(ext, "flv")) {
+    return video_flv();
+  }
+
+  return nullopt;
+}
 }
 
 FITORIA_NAMESPACE_END
