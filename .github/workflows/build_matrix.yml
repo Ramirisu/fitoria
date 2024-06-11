@@ -22,6 +22,9 @@ jobs:
         disable_openssl: [ON, OFF]
         disable_zlib: [OFF]
         disable_brotli: [OFF]
+        exclude:
+          - os_cxx: { os: windows-2022, cxx: cl }
+            build_type: Release
         include:
           - os_cxx: { os: ubuntu-24.04, cxx: g++-13 }
             std: 20
