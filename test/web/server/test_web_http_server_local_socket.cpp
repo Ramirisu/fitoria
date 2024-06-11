@@ -14,8 +14,6 @@
 
 #include <fitoria/web.hpp>
 
-#include <filesystem>
-
 #include <boost/scope/scope_exit.hpp>
 
 using namespace fitoria;
@@ -26,6 +24,8 @@ TEST_SUITE_BEGIN("[fitoria.web.http_server.bind_local]");
 
 TEST_CASE("bind_local")
 {
+  const auto file_path = get_random_temp_file_path();
+
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
@@ -40,8 +40,7 @@ TEST_CASE("bind_local")
                       .set_body("Hello World!");
                 }))
             .build();
-  std::filesystem::remove("test_web_http_local_socket.txt");
-  REQUIRE(server.bind_local("test_web_http_local_socket.txt"));
+  REQUIRE(server.bind_local(file_path));
 
   auto worker = std::thread([&]() { ioc.run(); });
   auto guard = boost::scope::make_scope_exit([&]() {
@@ -57,10 +56,8 @@ TEST_CASE("bind_local")
 
         auto stream = basic_stream<net::local::stream_protocol>(
             co_await net::this_coro::executor);
-        REQUIRE(
-            co_await stream.async_connect(net::local::stream_protocol::endpoint(
-                                              "test_web_http_local_socket.txt"),
-                                          use_awaitable));
+        REQUIRE(co_await stream.async_connect(
+            net::local::stream_protocol::endpoint(file_path), use_awaitable));
         stream.expires_after(std::chrono::seconds(5));
         auto req = http::request<http::string_body>(http::verb::post, "/", 11);
         req.keep_alive(false);
@@ -83,6 +80,8 @@ TEST_CASE("bind_local")
 
 TEST_CASE("bind_local TLS")
 {
+  const auto file_path = get_random_temp_file_path();
+
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
@@ -97,9 +96,8 @@ TEST_CASE("bind_local TLS")
                       .set_body("Hello World!");
                 }))
             .build();
-  std::filesystem::remove("test_web_http_local_socket.txt");
   auto ssl_ctx = cert::get_server_ssl_ctx(net::ssl::context::tls_server);
-  REQUIRE(server.bind_local("test_web_http_local_socket.txt", ssl_ctx));
+  REQUIRE(server.bind_local(file_path, ssl_ctx));
 
   auto worker = std::thread([&]() { ioc.run(); });
   auto guard = boost::scope::make_scope_exit([&]() {
@@ -117,9 +115,7 @@ TEST_CASE("bind_local TLS")
         auto stream = ssl_stream<net::local::stream_protocol>(
             co_await net::this_coro::executor, ssl_ctx);
         REQUIRE(co_await get_lowest_layer(stream).async_connect(
-            net::local::stream_protocol::endpoint(
-                "test_web_http_local_socket.txt"),
-            use_awaitable));
+            net::local::stream_protocol::endpoint(file_path), use_awaitable));
         REQUIRE(co_await stream.async_handshake(net::ssl::stream_base::client,
                                                 use_awaitable));
         get_lowest_layer(stream).expires_after(std::chrono::seconds(5));

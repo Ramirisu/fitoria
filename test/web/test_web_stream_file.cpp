@@ -12,8 +12,11 @@
 #endif
 
 #include <fitoria/test/http_server_utils.hpp>
+#include <fitoria/test/utility.hpp>
 
 #include <fitoria/web/stream_file.hpp>
+
+#include <fstream>
 
 using namespace fitoria;
 using namespace fitoria::web;
@@ -26,8 +29,16 @@ TEST_SUITE_BEGIN("[fitoria.web.stream_file]");
 TEST_CASE("stream_file")
 {
   sync_wait([]() -> awaitable<void> {
+    const auto file_path = get_random_temp_file_path();
     CHECK(!stream_file::open_readonly(co_await net::this_coro::executor,
-                                      "abcdefghi"));
+                                      file_path));
+
+    {
+      auto ofs = std::ofstream(file_path);
+      ofs << file_path;
+    }
+    CHECK(stream_file::open_readonly(co_await net::this_coro::executor,
+                                     file_path));
   });
 }
 

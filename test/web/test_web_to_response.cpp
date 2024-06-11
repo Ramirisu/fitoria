@@ -11,12 +11,15 @@
 #define BOOST_ASIO_HAS_IO_URING
 #endif
 
+#include <fitoria/test/utility.hpp>
+
 #include <fitoria/web.hpp>
 
 #include <fstream>
 
 using namespace fitoria;
 using namespace fitoria::web;
+using namespace fitoria::test;
 
 TEST_SUITE_BEGIN("[fitoria.web.to_response]");
 
@@ -198,21 +201,21 @@ TEST_CASE("expected<T, E>")
 
 TEST_CASE("stream_file")
 {
+  const auto file_path = get_random_temp_file_path();
   const auto data = std::string(1048576, 'a');
   {
-    std::ofstream("test_web_to_http_response.stream_file.txt", std::ios::binary)
-        << data;
+    std::ofstream(file_path, std::ios::binary) << data;
   }
 
   auto ioc = net::io_context();
-  auto server = http_server::builder(ioc)
-                    .serve(route::get<"/">([]() -> awaitable<stream_file> {
-                      auto file = stream_file::open_readonly(
-                          co_await net::this_coro::executor,
-                          "test_web_to_http_response.stream_file.txt");
-                      co_return std::move(*file);
-                    }))
-                    .build();
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::get<"/">([&file_path]() -> awaitable<stream_file> {
+              auto file = stream_file::open_readonly(
+                  co_await net::this_coro::executor, file_path);
+              co_return std::move(*file);
+            }))
+            .build();
 
   server.serve_request("/",
                        test_request::get().build(),

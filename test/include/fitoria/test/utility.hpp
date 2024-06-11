@@ -11,11 +11,12 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
+
 #include <algorithm>
-#include <cstddef>
+#include <filesystem>
 #include <functional>
 #include <set>
-#include <span>
 #include <string_view>
 #include <vector>
 
@@ -59,6 +60,17 @@ std::vector<T> str_to_vec(std::string_view str)
 
   return vec;
 }
+
+inline std::string get_random_temp_file_path()
+{
+  auto tmp_dir = std::filesystem::temp_directory_path();
+  auto file_name = fmt::format(
+      "fitoria.test.{}.tmp",
+      std::chrono::steady_clock::now().time_since_epoch().count());
+
+  return (tmp_dir / file_name).string();
+}
+
 }
 
 FITORIA_NAMESPACE_END
