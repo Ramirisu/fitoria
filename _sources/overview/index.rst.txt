@@ -9,7 +9,7 @@ Overview
    integration
 
 .. toctree:: 
-   :caption: Server
+   :caption: Web.Server
 
    web/getting_started
    web/tls
@@ -20,7 +20,7 @@ Overview
 
 
 .. toctree:: 
-   :caption: Handlers
+   :caption: Web.Handlers
 
    web/method
    web/route
