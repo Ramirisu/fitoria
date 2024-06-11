@@ -16,10 +16,10 @@ using namespace fitoria;
 using namespace fitoria::web;
 
 auto get_static_file(const path_info& pi)
-    -> awaitable<std::variant<stream_file, response>>
+    -> awaitable<std::variant<named_file, response>>
 {
-  if (auto file = stream_file::open_readonly(co_await net::this_coro::executor,
-                                             pi.at("file_path"));
+  if (auto file = named_file::open_readonly(co_await net::this_coro::executor,
+                                            pi.at("file_path"));
       file) {
     co_return std::move(*file);
   }

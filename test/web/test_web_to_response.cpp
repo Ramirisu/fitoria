@@ -199,7 +199,7 @@ TEST_CASE("expected<T, E>")
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-TEST_CASE("stream_file")
+TEST_CASE("named_file")
 {
   const auto file_path = get_random_temp_file_path();
   const auto data = std::string(1048576, 'a');
@@ -210,8 +210,8 @@ TEST_CASE("stream_file")
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
-            .serve(route::get<"/">([&file_path]() -> awaitable<stream_file> {
-              auto file = stream_file::open_readonly(
+            .serve(route::get<"/">([&file_path]() -> awaitable<named_file> {
+              auto file = named_file::open_readonly(
                   co_await net::this_coro::executor, file_path);
               co_return std::move(*file);
             }))

@@ -28,6 +28,7 @@
 #include <fitoria/web/middleware/decompress.hpp>
 #include <fitoria/web/middleware/exception_handler.hpp>
 #include <fitoria/web/middleware/logger.hpp>
+#include <fitoria/web/named_file.hpp>
 #include <fitoria/web/path_info.hpp>
 #include <fitoria/web/path_of.hpp>
 #include <fitoria/web/query_map.hpp>
@@ -39,11 +40,9 @@
 #include <fitoria/web/scope.hpp>
 #include <fitoria/web/state_of.hpp>
 #include <fitoria/web/state_storage.hpp>
-#include <fitoria/web/stream_file.hpp>
 #include <fitoria/web/test_request.hpp>
 #include <fitoria/web/test_response.hpp>
 #include <fitoria/web/to_middleware.hpp>
 #include <fitoria/web/websocket.hpp>
-
 
 #endif
