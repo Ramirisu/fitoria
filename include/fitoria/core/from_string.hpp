@@ -50,8 +50,14 @@ struct from_string_t {
 
   friend auto tag_invoke(from_string_t<R>,
                          std::string_view s) -> expected<R, std::error_code>
-    requires(!std::same_as<R, bool>
-             && (std::is_integral_v<R> || std::is_floating_point_v<R>))
+    requires(!std::same_as<R, bool> && std::is_integral_v<R>)
+  {
+    return detail::from_string_impl<R>(s);
+  }
+
+  friend auto tag_invoke(from_string_t<R>,
+                         std::string_view s) -> expected<R, std::error_code>
+    requires(!std::same_as<R, bool> && std::is_floating_point_v<R>)
   {
     return detail::from_string_impl<R>(s);
   }
