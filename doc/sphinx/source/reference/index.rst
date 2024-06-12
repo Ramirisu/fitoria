@@ -26,6 +26,7 @@ Reference
    http/status_class
    http/verb
    http/version
+   http/header_map
    http/status_code
 
 

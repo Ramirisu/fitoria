@@ -264,7 +264,7 @@ public:
   ///
   /// DESCRIPTION
   ///    Set HTTP headers. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing headers with the same name will be
+  ///    insertion. Note that any existing headers with the same name will be
   ///    removed before the insertion.
   ///
   /// @endverbatim
@@ -310,8 +310,8 @@ public:
   ///
   /// DESCRIPTION
   ///    Insert HTTP headers. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing headers with the same name
-  ///    will be kept.
+  ///    insertion. Note that any existing headers with the same name will be
+  ///    kept.
   ///
   /// @endverbatim
   auto insert_header(std::string_view name,
