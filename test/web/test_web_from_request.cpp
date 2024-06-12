@@ -339,14 +339,14 @@ TEST_CASE("form_of<T>")
   ioc.run();
 }
 
-TEST_CASE("http::header")
+TEST_CASE("http::header_map")
 {
   auto ioc = net::io_context();
   auto server
       = http_server::builder(ioc)
             .serve(route::get<"/">(
-                [](const http::header& header) -> awaitable<response> {
-                  CHECK_EQ(header.get(http::field::connection), "close");
+                [](const http::header_map& headers) -> awaitable<response> {
+                  CHECK_EQ(headers.get(http::field::connection), "close");
                   co_return response::ok().build();
                 }))
             .build();
@@ -526,7 +526,7 @@ TEST_CASE("json_of<T>")
                        test_request::post().set_json(user),
                        [=](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
                                   user);
@@ -538,7 +538,7 @@ TEST_CASE("json_of<T>")
                            .set_body(boost::json::serialize(json)),
                        [=](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
                                   user);
@@ -547,7 +547,7 @@ TEST_CASE("json_of<T>")
                        test_request::post().set_json(json),
                        [&json](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
                                   *boost::json::try_value_to<user_t>(json));

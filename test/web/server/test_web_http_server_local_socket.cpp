@@ -30,9 +30,9 @@ TEST_CASE("bind_local")
   auto server
       = http_server::builder(ioc)
             .serve(
-                route::post<"/">([=](const http::header& header,
+                route::post<"/">([=](const http::header_map& headers,
                                      std::string body) -> awaitable<response> {
-                  REQUIRE_EQ(header.get(http::field::content_type),
+                  REQUIRE_EQ(headers.get(http::field::content_type),
                              mime::text_plain());
                   REQUIRE_EQ(body, "Hello World!");
                   co_return response::ok()
@@ -86,9 +86,9 @@ TEST_CASE("bind_local TLS")
   auto server
       = http_server::builder(ioc)
             .serve(
-                route::post<"/">([=](const http::header& header,
+                route::post<"/">([=](const http::header_map& headers,
                                      std::string body) -> awaitable<response> {
-                  REQUIRE_EQ(header.get(http::field::content_type),
+                  REQUIRE_EQ(headers.get(http::field::content_type),
                              mime::text_plain());
                   REQUIRE_EQ(body, "Hello World!");
                   co_return response::ok()

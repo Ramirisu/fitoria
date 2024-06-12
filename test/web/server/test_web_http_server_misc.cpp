@@ -84,7 +84,7 @@ TEST_CASE("invalid target")
                          .set_plaintext("text")
                          .async_send();
           REQUIRE_EQ(res->status_code(), http::status::not_found);
-          REQUIRE_EQ(res->header().get(http::field::content_type),
+          REQUIRE_EQ(res->headers().get(http::field::content_type),
                      mime::text_plain());
           REQUIRE_EQ(co_await res->as_string(), "request path is not found");
         },

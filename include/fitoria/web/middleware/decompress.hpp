@@ -34,7 +34,7 @@ class decompress_middleware {
 public:
   auto operator()(Request req) const -> Response
   {
-    if (auto str = req.header().get(http::field::content_encoding); str) {
+    if (auto str = req.headers().get(http::field::content_encoding); str) {
       auto encs = split_of(*str, ",");
       std::reverse(encs.begin(), encs.end());
 
@@ -63,7 +63,7 @@ public:
       auto builder = req.builder();
 
       if (str->empty()) {
-        builder.header().erase(http::field::content_encoding);
+        builder.headers().erase(http::field::content_encoding);
       } else {
         builder.set_header(http::field::content_encoding, *str);
       }

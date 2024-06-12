@@ -6,8 +6,8 @@
 //
 #pragma once
 
-#ifndef FITORIA_HTTP_HEADER_HPP
-#define FITORIA_HTTP_HEADER_HPP
+#ifndef FITORIA_HTTP_HEADER_MAP_HPP
+#define FITORIA_HTTP_HEADER_MAP_HPP
 
 #include <fitoria/core/config.hpp>
 
@@ -19,11 +19,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http {
 
-class header {
+class header_map {
 private:
   using impl_type = boost::beast::http::fields;
 
-  header(impl_type impl)
+  header_map(impl_type impl)
       : impl_(std::move(impl))
   {
   }
@@ -34,15 +34,15 @@ public:
   using iterator = typename impl_type::iterator;
   using const_iterator = typename impl_type::const_iterator;
 
-  header() = default;
+  header_map() = default;
 
-  header(const header&) = default;
+  header_map(const header_map&) = default;
 
-  header(header&&) = default;
+  header_map(header_map&&) = default;
 
-  header& operator=(const header&) = default;
+  header_map& operator=(const header_map&) = default;
 
-  header& operator=(header&&) = default;
+  header_map& operator=(header_map&&) = default;
 
   auto empty() const noexcept -> bool
   {
@@ -157,7 +157,7 @@ public:
     return impl_.cend();
   }
 
-  static auto from_impl(impl_type impl) -> header
+  static auto from_impl(impl_type impl) -> header_map
   {
     return { std::move(impl) };
   }

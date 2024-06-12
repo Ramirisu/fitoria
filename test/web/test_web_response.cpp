@@ -38,10 +38,10 @@ TEST_CASE("insert_header")
                  .insert_header(http::field::content_type, mime::text_plain())
                  .insert_header("content-encoding", "deflate")
                  .build();
-  CHECK_EQ(res.header().get(http::field::content_type), mime::text_plain());
-  CHECK_EQ(res.header().get("Content-Type"), mime::text_plain());
-  CHECK_EQ(res.header().get(http::field::content_encoding), "deflate");
-  CHECK_EQ(res.header().get("Content-Encoding"), "deflate");
+  CHECK_EQ(res.headers().get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(res.headers().get("Content-Type"), mime::text_plain());
+  CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
+  CHECK_EQ(res.headers().get("Content-Encoding"), "deflate");
 }
 
 TEST_CASE("set_header")
@@ -50,10 +50,10 @@ TEST_CASE("set_header")
                  .set_header(http::field::content_type, mime::text_plain())
                  .set_header("content-encoding", "deflate")
                  .build();
-  CHECK_EQ(res.header().get(http::field::content_type), mime::text_plain());
-  CHECK_EQ(res.header().get("Content-Type"), mime::text_plain());
-  CHECK_EQ(res.header().get(http::field::content_encoding), "deflate");
-  CHECK_EQ(res.header().get("Content-Encoding"), "deflate");
+  CHECK_EQ(res.headers().get(http::field::content_type), mime::text_plain());
+  CHECK_EQ(res.headers().get("Content-Type"), mime::text_plain());
+  CHECK_EQ(res.headers().get(http::field::content_encoding), "deflate");
+  CHECK_EQ(res.headers().get("Content-Encoding"), "deflate");
 }
 
 struct user_t {

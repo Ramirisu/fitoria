@@ -38,7 +38,7 @@ public:
   friend auto tag_invoke(from_request_t<form_of<T>>, request& req)
       -> awaitable<expected<form_of<T>, response>>
   {
-    if (auto mime = req.header()
+    if (auto mime = req.headers()
                         .get(http::field::content_type)
                         .and_then(mime::mime_view::parse);
         !mime || mime->essence() != mime::application_www_form_urlencoded()) {

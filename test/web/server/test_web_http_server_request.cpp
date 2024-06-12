@@ -35,7 +35,7 @@ TEST_CASE("generic request")
                     const connect_info& connection,
                     const path_info& path,
                     const http::version& ver,
-                    const http::header& header,
+                    const http::header_map& headers,
                     const query_map& query,
                     std::string body) -> awaitable<response> {
                   auto test_connection = [=](auto& conn) {
@@ -71,17 +71,17 @@ TEST_CASE("generic request")
                   test_query(static_cast<const request&>(req).query());
                   test_query(query);
 
-                  auto test_header = [](auto& header) {
-                    REQUIRE_EQ(header.get(http::field::content_type),
+                  auto test_header = [](auto& headers) {
+                    REQUIRE_EQ(headers.get(http::field::content_type),
                                mime::text_plain());
                   };
 
-                  test_header(req.header());
-                  test_header(static_cast<const request&>(req).header());
-                  test_header(header);
+                  test_header(req.headers());
+                  test_header(static_cast<const request&>(req).headers());
+                  test_header(headers);
 
                   REQUIRE(range_in_set(
-                      req.header().equal_range(http::field::user_agent),
+                      req.headers().equal_range(http::field::user_agent),
                       [](auto&& p) { return p->value(); },
                       std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                                    "fitoria" }));
@@ -127,7 +127,7 @@ TEST_CASE("generic request")
                        .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
         REQUIRE(range_in_set(
-            res->header().equal_range(http::field::user_agent),
+            res->headers().equal_range(http::field::user_agent),
             [](auto&& p) { return p->value(); },
             std::set<std::string_view> { BOOST_BEAST_VERSION_STRING,
                                          "fitoria" }));
@@ -183,8 +183,8 @@ TEST_CASE("request with null body")
   auto server
       = http_server::builder(ioc)
             .serve(route::get<"/">([](request& req) -> awaitable<response> {
-              REQUIRE_EQ(req.header().get(http::field::connection), "close");
-              REQUIRE(!req.header().get(http::field::content_length));
+              REQUIRE_EQ(req.headers().get(http::field::connection), "close");
+              REQUIRE(!req.headers().get(http::field::content_length));
               REQUIRE_EQ(co_await async_read_until_eof<std::string>(req.body()),
                          std::string());
               co_return response::ok().build();
@@ -222,8 +222,8 @@ TEST_CASE("request with empty body")
       = http_server::builder(ioc)
             .serve(route::post<"/">([](const request& req,
                                        std::string str) -> awaitable<response> {
-              REQUIRE_EQ(req.header().get(http::field::connection), "close");
-              REQUIRE_EQ(req.header().get(http::field::content_length), "0");
+              REQUIRE_EQ(req.headers().get(http::field::connection), "close");
+              REQUIRE_EQ(req.headers().get(http::field::content_length), "0");
               REQUIRE_EQ(str, "");
               co_return response::ok().build();
             }))
@@ -263,9 +263,9 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
       = http_server::builder(ioc)
             .serve(route::post<"/">([text](const request& req, std::string data)
                                         -> awaitable<response> {
-              REQUIRE_EQ(req.header().get(http::field::content_type),
+              REQUIRE_EQ(req.headers().get(http::field::content_type),
                          mime::text_plain());
-              REQUIRE(!req.header().get(http::field::content_length));
+              REQUIRE(!req.headers().get(http::field::content_length));
               REQUIRE_EQ(data, text);
               co_return response::ok().build();
             }))

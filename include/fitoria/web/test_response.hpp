@@ -33,11 +33,11 @@ class test_response {
 public:
   test_response(http::status_code status_code,
                 http::version version,
-                http::header header,
+                http::header_map headers,
                 any_async_readable_stream body)
       : status_code_(status_code)
       , version_(version)
-      , header_(std::move(header))
+      , headers_(std::move(headers))
       , body_(std::move(body))
   {
   }
@@ -72,12 +72,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get HTTP header.
+  /// Get HTTP headers.
   ///
   /// @endverbatim
-  auto header() const noexcept -> const http::header&
+  auto headers() const noexcept -> const http::header_map&
   {
-    return header_;
+    return headers_;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -151,7 +151,7 @@ public:
   template <typename T = boost::json::value>
   auto as_json() -> awaitable<expected<T, std::error_code>>
   {
-    if (auto mime = header()
+    if (auto mime = headers()
                         .get(http::field::content_type)
                         .and_then(mime::mime_view::parse);
         !mime || mime->essence() != mime::application_json()) {
@@ -169,7 +169,7 @@ public:
 private:
   http::status_code status_code_ = http::status::ok;
   http::version version_;
-  http::header header_;
+  http::header_map headers_;
   web::any_async_readable_stream body_;
 };
 

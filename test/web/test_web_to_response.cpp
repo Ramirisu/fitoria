@@ -39,7 +39,7 @@ TEST_CASE("response")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::text_plain());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -59,7 +59,7 @@ TEST_CASE("std::string")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::text_plain());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -80,7 +80,7 @@ TEST_CASE("bytes")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_octet_stream());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -102,7 +102,7 @@ TEST_CASE("std::vector<std::uint8_t>")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_octet_stream());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -130,7 +130,7 @@ TEST_CASE("std::variant")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::text_plain());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -138,7 +138,7 @@ TEST_CASE("std::variant")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::ok);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_octet_stream());
                          CHECK_EQ(co_await res.as_string(), "OK");
                        });
@@ -188,7 +188,7 @@ TEST_CASE("expected<T, E>")
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status_code(), http::status::not_found);
-                         CHECK_EQ(res.header().get(http::field::content_type),
+                         CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::text_plain());
                          CHECK_EQ(co_await res.as_string(),
                                   "You will never get anything!");

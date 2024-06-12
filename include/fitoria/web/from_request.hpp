@@ -75,9 +75,9 @@ namespace from_request_ns {
 
     friend auto tag_invoke(from_request_t<R>,
                            request& req) -> awaitable<expected<R, response>>
-      requires(std::same_as<R, const http::header&>)
+      requires(std::same_as<R, const http::header_map&>)
     {
-      co_return req.header();
+      co_return req.headers();
     }
 
     friend auto tag_invoke(from_request_t<R>,

@@ -49,8 +49,8 @@ TEST_CASE("response status only")
                   .set_header(http::field::connection, "close")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::no_content);
-        REQUIRE_EQ(res->header().get(http::field::connection), "close");
-        REQUIRE(!res->header().get(http::field::content_length));
+        REQUIRE_EQ(res->headers().get(http::field::connection), "close");
+        REQUIRE(!res->headers().get(http::field::content_length));
         REQUIRE_EQ(co_await async_read_until_eof<std::string>(res->body()),
                    std::string());
         REQUIRE_EQ(co_await res->as_string(), std::string());
@@ -92,10 +92,10 @@ TEST_CASE("response with plain text")
                   .set_header(http::field::connection, "close")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
-        REQUIRE_EQ(res->header().get(http::field::connection), "close");
-        REQUIRE_EQ(res->header().get(http::field::content_type),
+        REQUIRE_EQ(res->headers().get(http::field::connection), "close");
+        REQUIRE_EQ(res->headers().get(http::field::content_type),
                    mime::text_plain());
-        REQUIRE_EQ(res->header().get(http::field::content_length),
+        REQUIRE_EQ(res->headers().get(http::field::content_length),
                    std::to_string(text.size()));
         REQUIRE_EQ(co_await res->as_string(), text);
       },
@@ -136,9 +136,9 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .set_header(http::field::connection, "close")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
-        REQUIRE_EQ(res->header().get(http::field::content_type),
+        REQUIRE_EQ(res->headers().get(http::field::content_type),
                    mime::text_plain());
-        REQUIRE(!res->header().get(http::field::content_length));
+        REQUIRE(!res->headers().get(http::field::content_length));
         REQUIRE_EQ(co_await res->as_string(), text);
       },
       net::use_future)
@@ -173,7 +173,7 @@ TEST_CASE("response with default HTTP/1.1")
                   .set_header(http::field::connection, "close")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
-        REQUIRE_EQ(res->header().get(http::field::connection), "close");
+        REQUIRE_EQ(res->headers().get(http::field::connection), "close");
         REQUIRE_EQ(res->version(), http::version::v1_1);
       },
       net::use_future)
@@ -209,7 +209,7 @@ TEST_CASE("response with HTTP/1.0")
                   .set_header(http::field::connection, "close")
                   .async_send();
         REQUIRE_EQ(res->status_code(), http::status::ok);
-        REQUIRE(!res->header().get(http::field::connection));
+        REQUIRE(!res->headers().get(http::field::connection));
         REQUIRE_EQ(res->version(), http::version::v1_0);
       },
       net::use_future)

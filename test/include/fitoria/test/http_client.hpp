@@ -54,11 +54,11 @@ public:
   public:
     http_response(http::status_code status_code,
                   http::version version,
-                  http::header header,
+                  http::header_map headers,
                   web::any_async_readable_stream body)
         : status_code_(status_code)
         , version_(version)
-        , header_(std::move(header))
+        , headers_(std::move(headers))
         , body_(std::move(body))
     {
     }
@@ -81,9 +81,9 @@ public:
       return version_;
     }
 
-    auto header() const noexcept -> const http::header&
+    auto headers() const noexcept -> const http::header_map&
     {
-      return header_;
+      return headers_;
     }
 
     auto body() noexcept -> web::any_async_readable_stream&
@@ -126,7 +126,7 @@ public:
     template <typename T = boost::json::value>
     auto as_json() -> awaitable<expected<T, std::error_code>>
     {
-      if (auto mime = header()
+      if (auto mime = headers()
                           .get(http::field::content_type)
                           .and_then(mime::mime_view::parse);
           !mime || mime->essence() != mime::application_json()) {
@@ -145,7 +145,7 @@ public:
   private:
     http::status_code status_code_ = http::status::ok;
     http::version version_ = http::version::v1_1;
-    http::header header_;
+    http::header_map headers_;
     web::any_async_readable_stream body_;
   };
 
@@ -235,19 +235,19 @@ public:
     return std::move(*this);
   }
 
-  auto header() noexcept -> http::header&
+  auto headers() noexcept -> http::header_map&
   {
-    return header_;
+    return headers_;
   }
 
-  auto header() const noexcept -> const http::header&
+  auto headers() const noexcept -> const http::header_map&
   {
-    return header_;
+    return headers_;
   }
 
   auto set_header(http::field name, std::string_view value) & -> http_client&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return *this;
   }
 
@@ -260,7 +260,7 @@ public:
   auto set_header(std::string_view name,
                   std::string_view value) & -> http_client&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return *this;
   }
 
@@ -273,7 +273,7 @@ public:
 
   auto insert_header(http::field name, std::string_view value) & -> http_client&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return *this;
   }
 
@@ -286,7 +286,7 @@ public:
 
   auto insert_header(std::string name, std::string_view value) & -> http_client&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return *this;
   }
 
@@ -606,7 +606,7 @@ private:
     co_return http_response(
         parser->get().result(),
         http::detail::from_impl_version(parser->get().version()),
-        http::header::from_impl(parser->get()),
+        http::header_map::from_impl(parser->get()),
         [&]() -> web::any_async_readable_stream {
           if (parser->get().has_content_length() || parser->get().chunked()) {
             return web::async_message_parser_stream(
@@ -626,7 +626,7 @@ private:
 
     auto req = request<vector_body<std::byte>>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    header_.to_impl(req);
+    headers_.to_impl(req);
     req.set(http::field::host, resource_->host);
     if (auto data = co_await web::async_read_until_eof<bytes>(body_.stream());
         data) {
@@ -643,7 +643,7 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = header_.get(http::field::expect);
+    if (auto field = headers_.get(http::field::expect);
         field && iequals(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
@@ -669,7 +669,7 @@ private:
 
     auto req = request<empty_body>(
         method_, encoded_target(resource_->path, query_.to_string()), 11);
-    header_.to_impl(req);
+    headers_.to_impl(req);
     req.set(http::field::host, resource_->host);
     req.chunked(true);
 
@@ -680,7 +680,7 @@ private:
       co_return unexpected { bytes_written.error() };
     }
 
-    if (auto field = header_.get(http::field::expect);
+    if (auto field = headers_.get(http::field::expect);
         field && iequals(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
@@ -714,7 +714,7 @@ private:
       co_return http_response(
           res.result(),
           http::detail::from_impl_version(res.version()),
-          http::header::from_impl(res),
+          http::header_map::from_impl(res),
           web::async_readable_vector_stream(std::move(res.body())));
     }
 
@@ -733,7 +733,7 @@ private:
   expected<resource, std::error_code> resource_;
   query_map query_;
   http::verb method_ = http::verb::unknown;
-  http::header header_;
+  http::header_map headers_;
   web::any_body body_;
   optional<duration_type> handshake_timeout_ = std::chrono::seconds(3);
   optional<duration_type> transfer_timeout_ = std::chrono::seconds(5);

@@ -127,10 +127,10 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get the maximum size in bytes for reading client request header.
+  /// Get the maximum size in bytes for reading client request headers.
   ///
   /// DESCRIPTION
-  ///     Get the maximum size in bytes for reading client request header.
+  ///     Get the maximum size in bytes for reading client request headers.
   ///     ``nullopt`` indicates no size check will be performed.
   ///
   /// @endverbatim
@@ -412,7 +412,7 @@ private:
           auto res
               = web::response::bad_request()
                     .set_header(http::field::content_type, mime::text_plain())
-                    .set_body("request header size exceeds limit");
+                    .set_body("request headers size exceeds limit");
           co_return co_await do_response(stream, res, false);
         } else {
           co_return unexpected { bytes_read.error() };
@@ -456,7 +456,7 @@ private:
                         route->matcher().match(url->path()).value()),
               parser->get().method(),
               http::detail::from_impl_version(parser->get().version()),
-              http::header::from_impl(parser->get()),
+              http::header_map::from_impl(parser->get()),
               query_map::from(url->params()),
               [&]() -> any_async_readable_stream {
                 if (parser->get().has_content_length()
@@ -526,7 +526,7 @@ private:
 
     auto r = response<empty_body>(res.status_code().value(),
                                   http::detail::to_impl_version(res.version()));
-    res.header().to_impl(r);
+    res.headers().to_impl(r);
     r.keep_alive(keep_alive);
     r.prepare_payload();
 
@@ -550,7 +550,7 @@ private:
     auto r = response<vector_body<std::byte>>(
         res.status_code().value(),
         http::detail::to_impl_version(res.version()));
-    res.header().to_impl(r);
+    res.headers().to_impl(r);
     if (auto data = co_await async_read_until_eof<bytes>(res.body().stream());
         data) {
       r.body() = std::move(*data);
@@ -573,7 +573,7 @@ private:
 
     auto r = response<empty_body>(res.status_code().value(),
                                   http::detail::to_impl_version(res.version()));
-    res.header().to_impl(r);
+    res.headers().to_impl(r);
     r.keep_alive(keep_alive);
     r.chunked(true);
 
@@ -694,11 +694,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set the maximum size in bytes for reading client request header.
+  /// Set the maximum size in bytes for reading client request headers.
   ///
   /// DESCRIPTION
-  ///     Set the maximum size in bytes for reading client request header. Pass
-  ///     ``nullopt`` to disable header size check. Default limit is 8KB.
+  ///     Set the maximum size in bytes for reading client request headers. Pass
+  ///     ``nullopt`` to disable headers size check. Default limit is 8KB.
   ///
   /// @endverbatim
   auto

@@ -45,7 +45,7 @@ auto handle_expect_100_continue(Stream& stream)
     co_return test_response(
         res.result(),
         http::detail::from_impl_version(res.version()),
-        http::header::from_impl(res),
+        http::header_map::from_impl(res),
         async_readable_vector_stream(std::move(res.body())));
   }
 
@@ -62,7 +62,7 @@ auto do_sized_request(Stream& stream, std::string path, test_request& tr)
 
   auto req = request<vector_body<std::byte>>(
       tr.method(), encoded_target(path, tr.query().to_string()), 11);
-  tr.header().to_impl(req);
+  tr.headers().to_impl(req);
   if (auto data = co_await async_read_until_eof<bytes>(tr.body().stream());
       data) {
     req.body() = std::move(*data);
@@ -78,7 +78,7 @@ auto do_sized_request(Stream& stream, std::string path, test_request& tr)
     co_return unexpected { bytes_written.error() };
   }
 
-  if (auto field = tr.header().get(http::field::expect);
+  if (auto field = tr.headers().get(http::field::expect);
       field && iequals(*field, "100-continue")) {
     if (auto res = co_await handle_expect_100_continue(stream); !res || *res) {
       co_return res;
@@ -103,7 +103,7 @@ auto do_chunked_request(Stream& stream, std::string path, test_request& tr)
 
   auto req = request<empty_body>(
       tr.method(), encoded_target(path, tr.query().to_string()), 11);
-  tr.header().to_impl(req);
+  tr.headers().to_impl(req);
   req.chunked(true);
 
   auto serializer = request_serializer<empty_body>(req);
@@ -113,7 +113,7 @@ auto do_chunked_request(Stream& stream, std::string path, test_request& tr)
     co_return unexpected { bytes_written.error() };
   }
 
-  if (auto field = tr.header().get(http::field::expect);
+  if (auto field = tr.headers().get(http::field::expect);
       field && iequals(*field, "100-continue")) {
     if (auto res = co_await handle_expect_100_continue(stream); !res || *res) {
       co_return res;
@@ -163,7 +163,7 @@ auto do_http_request(Stream stream, std::string path, test_request& req)
   co_return test_response(
       parser->get().result(),
       http::detail::from_impl_version(parser->get().version()),
-      http::header::from_impl(parser->get()),
+      http::header_map::from_impl(parser->get()),
       [&]() -> any_async_readable_stream {
         if (parser->get().has_content_length() || parser->get().chunked()) {
           return async_message_parser_stream(buffer, std::move(stream), parser);

@@ -7,17 +7,17 @@
 
 #include <fitoria/test/test.hpp>
 
-#include <fitoria/http/header.hpp>
+#include <fitoria/http/header_map.hpp>
 #include <fitoria/mime.hpp>
 
 using namespace fitoria;
 using namespace fitoria::http;
 
-TEST_SUITE_BEGIN("[fitoria.http.header]");
+TEST_SUITE_BEGIN("[fitoria.http.header_map]");
 
 TEST_CASE("basic")
 {
-  header h;
+  header_map h;
   const auto& ch = h;
 
   h.set(http::field::content_type, mime::text_plain());
@@ -76,7 +76,7 @@ TEST_CASE("basic")
 
 TEST_CASE("insert")
 {
-  header h;
+  header_map h;
   const auto& ch = h;
 
   h.insert(http::field::content_type, mime::text_plain());

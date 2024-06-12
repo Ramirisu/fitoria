@@ -22,13 +22,13 @@ public:
   awaitable<response> operator()(request& req) const
   {
     auto id
-        = req.header().get("X-Trace-Id").transform([](auto id) -> std::string {
+        = req.headers().get("X-Trace-Id").transform([](auto id) -> std::string {
             return std::string(id);
           });
 
     response res = co_await next_(req);
 
-    if (!res.header().contains("X-Trace-Id")) {
+    if (!res.headers().contains("X-Trace-Id")) {
       boost::uuids::random_generator gen;
       co_return res.builder()
           .set_header("X-Trace-Id", id.value_or(to_string(gen())))

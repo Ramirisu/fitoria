@@ -40,18 +40,18 @@ class test_request {
 
   http::verb method_ = http::verb::unknown;
   http::version version_ = http::version::v1_1;
-  http::header header_;
+  http::header_map headers_;
   query_map query_;
   any_body body_;
 
   test_request(http::verb method,
                http::version version,
-               http::header header,
+               http::header_map headers,
                query_map query,
                any_body body)
       : method_(method)
       , version_(version)
-      , header_(std::move(header))
+      , headers_(std::move(headers))
       , query_(std::move(query))
       , body_(std::move(body))
   {
@@ -90,12 +90,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get HTTP header.
+  /// Get HTTP headers.
   ///
   /// @endverbatim
-  auto header() const noexcept -> const http::header&
+  auto headers() const noexcept -> const http::header_map&
   {
-    return header_;
+    return headers_;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -193,18 +193,18 @@ class test_request_builder {
 
   http::verb method_ = http::verb::unknown;
   http::version version_ = http::version::v1_1;
-  http::header header_;
+  http::header_map headers_;
   query_map query_;
   any_body body_;
 
   test_request_builder(http::verb method,
                        http::version version,
-                       http::header fields,
+                       http::header_map fields,
                        query_map query,
                        any_body body)
       : method_(method)
       , version_(version)
-      , header_(std::move(fields))
+      , headers_(std::move(fields))
       , query_(std::move(query))
       , body_(std::move(body))
   {
@@ -260,94 +260,94 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set HTTP header.
+  /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP header. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing header with the same name will be
+  ///    Set HTTP headers. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing headers with the same name will be
   ///    removed before the insertion.
   ///
   /// @endverbatim
   auto set_header(std::string_view name,
                   std::string_view value) & -> test_request_builder&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return *this;
   }
   auto set_header(std::string_view name,
                   std::string_view value) && -> test_request_builder&&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return std::move(*this);
   }
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set HTTP header.
+  /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP header. Note that any existing header with the same name will
-  ///    be removed before the insertion.
+  ///    Set HTTP headers. Note that any existing headers with the same name
+  ///    will be removed before the insertion.
   ///
   /// @endverbatim
   auto set_header(http::field name,
                   std::string_view value) & -> test_request_builder&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return *this;
   }
 
   auto set_header(http::field name,
                   std::string_view value) && -> test_request_builder&&
   {
-    header_.set(name, value);
+    headers_.set(name, value);
     return std::move(*this);
   }
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Insert HTTP header.
+  /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP header. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing header with the same name
+  ///    Insert HTTP headers. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing headers with the same name
   ///    will be kept.
   ///
   /// @endverbatim
   auto insert_header(std::string_view name,
                      std::string_view value) & -> test_request_builder&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return *this;
   }
 
   auto insert_header(std::string_view name,
                      std::string_view value) && -> test_request_builder&&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return std::move(*this);
   }
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Insert HTTP header.
+  /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP header. Note that any existing header with the same name
+  ///    Insert HTTP headers. Note that any existing headers with the same name
   ///    will be kept.
   ///
   /// @endverbatim
   auto insert_header(http::field name,
                      std::string_view value) & -> test_request_builder&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return *this;
   }
 
   auto insert_header(http::field name,
                      std::string_view value) && -> test_request_builder&&
   {
-    header_.insert(name, value);
+    headers_.insert(name, value);
     return std::move(*this);
   }
 
@@ -499,16 +499,18 @@ public:
   /// @endverbatim
   auto build() -> test_request
   {
-    return {
-      method_, version_, std::move(header_), std::move(query_), std::move(body_)
-    };
+    return { method_,
+             version_,
+             std::move(headers_),
+             std::move(query_),
+             std::move(body_) };
   }
 };
 
 inline auto test_request::builder() -> test_request_builder
 {
   return {
-    method_, version_, std::move(header_), std::move(query_), std::move(body_)
+    method_, version_, std::move(headers_), std::move(query_), std::move(body_)
   };
 }
 

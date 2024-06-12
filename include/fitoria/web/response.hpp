@@ -40,18 +40,18 @@ class response {
   struct impl_type {
     http::status_code status_code = http::status::ok;
     http::version version = http::version::v1_1;
-    http::header header;
+    http::header_map headers;
     any_body body;
 
     impl_type() = default;
 
     impl_type(http::status_code status_code,
               http::version version,
-              http::header header,
+              http::header_map headers,
               any_body body)
         : status_code(status_code)
         , version(version)
-        , header(std::move(header))
+        , headers(std::move(headers))
         , body(std::move(body))
     {
     }
@@ -61,10 +61,10 @@ class response {
 
   response(http::status_code status_code,
            http::version version,
-           http::header header,
+           http::header_map headers,
            any_body body)
       : impl_(std::make_shared<impl_type>(
-            status_code, version, std::move(header), std::move(body)))
+            status_code, version, std::move(headers), std::move(body)))
   {
   }
 
@@ -104,12 +104,12 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get HTTP header.
+  /// Get HTTP headers.
   ///
   /// @endverbatim
-  auto header() const noexcept -> const http::header&
+  auto headers() const noexcept -> const http::header_map&
   {
-    return impl_->header;
+    return impl_->headers;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -618,12 +618,12 @@ class response_builder {
 
   http::status_code status_code_ = http::status::ok;
   http::version version_ = http::version::v1_1;
-  http::header header_;
+  http::header_map header_;
   any_body body_;
 
   response_builder(http::status_code status_code,
                    http::version version,
-                   http::header fields,
+                   http::header_map fields,
                    any_body body)
       : status_code_(status_code)
       , version_(version)
@@ -689,11 +689,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set HTTP header.
+  /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP header. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing header with the same name will be
+  ///    Set HTTP headers. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing headers with the same name will be
   ///    removed before the insertion.
   ///
   /// @endverbatim
@@ -713,11 +713,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Set HTTP header.
+  /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP header. Note that any existing header with the same name will
-  ///    be removed before the insertion.
+  ///    Set HTTP headers. Note that any existing headers with the same name
+  ///    will be removed before the insertion.
   ///
   /// @endverbatim
   auto set_header(http::field name,
@@ -736,11 +736,11 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Insert HTTP header.
+  /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP header. The input ``name`` will be canonicalized before
-  ///    inserting it. Note that any existing header with the same name
+  ///    Insert HTTP headers. The input ``name`` will be canonicalized before
+  ///    inserting it. Note that any existing headers with the same name
   ///    will be kept.
   ///
   /// @endverbatim
@@ -760,10 +760,10 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Insert HTTP header.
+  /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP header. Note that any existing header with the same name
+  ///    Insert HTTP headers. Note that any existing headers with the same name
   ///    will be kept.
   ///
   /// @endverbatim
@@ -919,7 +919,7 @@ inline auto response::builder() -> response_builder
 {
   return { impl_->status_code,
            impl_->version,
-           std::move(impl_->header),
+           std::move(impl_->headers),
            std::move(impl_->body) };
 }
 

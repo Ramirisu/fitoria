@@ -79,7 +79,7 @@ int main()
           .set_body("username=fitoria&password=123456"),
       []([[maybe_unused]] test_response res) -> awaitable<void> {
         FITORIA_ASSERT(res.status_code() == http::status::ok);
-        FITORIA_ASSERT(res.header().get(http::field::content_type)
+        FITORIA_ASSERT(res.headers().get(http::field::content_type)
                        == mime::text_plain());
         FITORIA_ASSERT((co_await res.as_string())
                        == "fitoria, login succeeded");
