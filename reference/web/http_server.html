@@ -320,6 +320,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../http/status_class.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status_class</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/verb.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">verb</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/version.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">version</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../http/header_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header_map</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/status_code.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
@@ -443,9 +444,9 @@ is returned.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK7fitoria3web11http_server20request_header_limitEv">
 <span id="_CPPv3NK7fitoria3web11http_server20request_header_limitEv"></span><span id="_CPPv2NK7fitoria3web11http_server20request_header_limitEv"></span><span id="fitoria::web::http_server::request_header_limitC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a12cc72e60b6dbdbcf8952a5755a81e78"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">request_header_limit</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint32_t</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server20request_header_limitEv" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Get the maximum size in bytes for reading client request header.</p>
+<dd><p><p>Get the maximum size in bytes for reading client request headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Get the maximum size in bytes for reading client request header.
+<dt>DESCRIPTION</dt><dd><p>Get the maximum size in bytes for reading client request headers.
 <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> indicates no size check will be performed.</p>
 </dd>
 </dl>
@@ -548,10 +549,10 @@ using fake connections.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web11http_server7builder24set_request_header_limitE8optionalINSt8uint32_tEE">
 <span id="_CPPv3NR7fitoria3web11http_server7builder24set_request_header_limitE8optionalINSt8uint32_tEE"></span><span id="_CPPv2NR7fitoria3web11http_server7builder24set_request_header_limitE8optionalINSt8uint32_tEE"></span><span id="fitoria::web::http_server::builder::set_request_header_limit__optional:std::uint32_t:R"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a644718e6b60c33c6d09487b1abe78098"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_request_header_limit</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint32_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">limit</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder24set_request_header_limitE8optionalINSt8uint32_tEE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set the maximum size in bytes for reading client request header.</p>
+<dd><p><p>Set the maximum size in bytes for reading client request headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set the maximum size in bytes for reading client request header. Pass
-<code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable header size check. Default limit is 8KB.</p>
+<dt>DESCRIPTION</dt><dd><p>Set the maximum size in bytes for reading client request headers. Pass
+<code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable headers size check. Default limit is 8KB.</p>
 </dd>
 </dl>
 </p>

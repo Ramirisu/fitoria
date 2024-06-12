@@ -29,8 +29,6 @@ Detailed class and function reference.
    reference/index
 
 
-.. _license:
-
 License
 -------
 

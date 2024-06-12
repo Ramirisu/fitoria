@@ -320,6 +320,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../http/status_class.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status_class</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/verb.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">verb</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/version.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">version</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../http/header_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header_map</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../http/status_code.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
@@ -425,10 +426,10 @@ document.write(`
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web20test_request_builder10set_headerENSt11string_viewENSt11string_viewE">
 <span id="_CPPv3NR7fitoria3web20test_request_builder10set_headerENSt11string_viewENSt11string_viewE"></span><span id="_CPPv2NR7fitoria3web20test_request_builder10set_headerENSt11string_viewENSt11string_viewE"></span><span id="fitoria::web::test_request_builder::set_header__std::string_view.std::string_viewR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a35833a896d9227929313181cdbd5dc4e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_header</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web20test_request_builderE" title="fitoria::web::test_request_builder"><span class="n"><span class="pre">test_request_builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web20test_request_builder10set_headerENSt11string_viewENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set HTTP header.</p>
+<dd><p><p>Set HTTP headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set HTTP header. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
-inserting it. Note that any existing header with the same name will be
+<dt>DESCRIPTION</dt><dd><p>Set HTTP headers. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
+insertion. Note that any existing headers with the same name will be
 removed before the insertion.</p>
 </dd>
 </dl>
@@ -438,10 +439,10 @@ removed before the insertion.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web20test_request_builder10set_headerEN4http5fieldENSt11string_viewE">
 <span id="_CPPv3NR7fitoria3web20test_request_builder10set_headerEN4http5fieldENSt11string_viewE"></span><span id="_CPPv2NR7fitoria3web20test_request_builder10set_headerEN4http5fieldENSt11string_viewE"></span><span id="fitoria::web::test_request_builder::set_header__http::field.std::string_viewR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a8a5685b2f8f427cde7e17b2f74b91e2a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_header</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../http/field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web20test_request_builderE" title="fitoria::web::test_request_builder"><span class="n"><span class="pre">test_request_builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web20test_request_builder10set_headerEN4http5fieldENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Set HTTP header.</p>
+<dd><p><p>Set HTTP headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Set HTTP header. Note that any existing header with the same name will
-be removed before the insertion.</p>
+<dt>DESCRIPTION</dt><dd><p>Set HTTP headers. Note that any existing headers with the same name
+will be removed before the insertion.</p>
 </dd>
 </dl>
 </p>
@@ -450,11 +451,11 @@ be removed before the insertion.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web20test_request_builder13insert_headerENSt11string_viewENSt11string_viewE">
 <span id="_CPPv3NR7fitoria3web20test_request_builder13insert_headerENSt11string_viewENSt11string_viewE"></span><span id="_CPPv2NR7fitoria3web20test_request_builder13insert_headerENSt11string_viewENSt11string_viewE"></span><span id="fitoria::web::test_request_builder::insert_header__std::string_view.std::string_viewR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1a0681b913227ecf1941be510de7190a19"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert_header</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web20test_request_builderE" title="fitoria::web::test_request_builder"><span class="n"><span class="pre">test_request_builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web20test_request_builder13insert_headerENSt11string_viewENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Insert HTTP header.</p>
+<dd><p><p>Insert HTTP headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Insert HTTP header. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
-inserting it. Note that any existing header with the same name
-will be kept.</p>
+<dt>DESCRIPTION</dt><dd><p>Insert HTTP headers. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
+insertion. Note that any existing headers with the same name will be
+kept.</p>
 </dd>
 </dl>
 </p>
@@ -463,9 +464,9 @@ will be kept.</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NR7fitoria3web20test_request_builder13insert_headerEN4http5fieldENSt11string_viewE">
 <span id="_CPPv3NR7fitoria3web20test_request_builder13insert_headerEN4http5fieldENSt11string_viewE"></span><span id="_CPPv2NR7fitoria3web20test_request_builder13insert_headerEN4http5fieldENSt11string_viewE"></span><span id="fitoria::web::test_request_builder::insert_header__http::field.std::string_viewR"></span><span class="target" id="classfitoria_1_1web_1_1test__request__builder_1af93f1146545fd8b58334cde4a0006411"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert_header</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="../http/field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web20test_request_builderE" title="fitoria::web::test_request_builder"><span class="n"><span class="pre">test_request_builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web20test_request_builder13insert_headerEN4http5fieldENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
-<dd><p><p>Insert HTTP header.</p>
+<dd><p><p>Insert HTTP headers.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Insert HTTP header. Note that any existing header with the same name
+<dt>DESCRIPTION</dt><dd><p>Insert HTTP headers. Note that any existing headers with the same name
 will be kept.</p>
 </dd>
 </dl>

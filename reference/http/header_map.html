@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>class header_map &#8212; fitoria</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=c1155663" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/http/header_map';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="class status_code" href="status_code.html" />
+    <link rel="prev" title="enum class version" href="version.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fitoria</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../overview/index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Ramirisu/fitoria" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../overview/index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Ramirisu/fitoria" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../core/dynamic_buffer.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">dynamic_buffer</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::mime</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../mime/mime_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">mime_view</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mime/params_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">params_view</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::http</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="field.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">field</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="status.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="status_class.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status_class</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="verb.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">verb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="version.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">version</span></code></a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="status_code.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../web/async_readable_stream.html"><code class="docutils literal notranslate"><span class="pre">concept</span> <span class="pre">async_readable_stream</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/connect_info.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">connect_info</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/form_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">form_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/json_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">json_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/named_file.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">named_file</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/path_info.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_info</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/path_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/query_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/query_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/state_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/test_request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/test_request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/test_response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_response</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../web/websocket.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">websocket</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><code...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="class-header-map">
+<h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header_map</span></code><a class="headerlink" href="#class-header-map" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_mapE">
+<span id="_CPPv3N7fitoria4http10header_mapE"></span><span id="_CPPv2N7fitoria4http10header_mapE"></span><span id="fitoria::http::header_map"></span><span class="target" id="classfitoria_1_1http_1_1header__map"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">header_map</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_mapE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Provides access to the HTTP headers.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map10header_mapEv">
+<span id="_CPPv3N7fitoria4http10header_map10header_mapEv"></span><span id="_CPPv2N7fitoria4http10header_map10header_mapEv"></span><span id="fitoria::http::header_map::header_map"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a83cd3ec412837e84a1c51777ad18a3db"></span><span class="sig-name descname"><span class="n"><span class="pre">header_map</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map10header_mapEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct an empty header map.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map5emptyEv">
+<span id="_CPPv3NK7fitoria4http10header_map5emptyEv"></span><span id="_CPPv2NK7fitoria4http10header_map5emptyEv"></span><span id="fitoria::http::header_map::emptyC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1ad25b36d46d8c47005187a8e397c36282"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">empty</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map5emptyEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Check whether the container is empty.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map4sizeEv">
+<span id="_CPPv3NK7fitoria4http10header_map4sizeEv"></span><span id="_CPPv2NK7fitoria4http10header_map4sizeEv"></span><span id="fitoria::http::header_map::sizeC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1ac5729ec0e6b97e480942b7be4db7525f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map4sizeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get the number of key/value pairs.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map8containsENSt11string_viewE">
+<span id="_CPPv3NK7fitoria4http10header_map8containsENSt11string_viewE"></span><span id="_CPPv2NK7fitoria4http10header_map8containsENSt11string_viewE"></span><span id="fitoria::http::header_map::contains__std::string_viewC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1aab98bbd50b609937818fb83df6e56572"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">contains</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map8containsENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Checks whether the container contains element with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Checks whether the container contains element with specific key. The
+input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before searching.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map8containsEN4http5fieldE">
+<span id="_CPPv3NK7fitoria4http10header_map8containsEN4http5fieldE"></span><span id="_CPPv2NK7fitoria4http10header_map8containsEN4http5fieldE"></span><span id="fitoria::http::header_map::contains__http::fieldC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a53f8b61242f9159887bb68c4317b1fb6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">contains</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map8containsEN4http5fieldE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Checks whether the container contains element with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Checks whether the container contains element with specific key.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map5clearEv">
+<span id="_CPPv3N7fitoria4http10header_map5clearEv"></span><span id="_CPPv2N7fitoria4http10header_map5clearEv"></span><span id="fitoria::http::header_map::clear"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a383d1434734c2d64c1b725b550ed2c84"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clear</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map5clearEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Clear the contents.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map3setENSt11string_viewENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http10header_map3setENSt11string_viewENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http10header_map3setENSt11string_viewENSt11string_viewE"></span><span id="fitoria::http::header_map::set__std::string_view.std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a929bf54b4bc7dfeeeb5eb757c0a115be"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map3setENSt11string_viewENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set HTTP headers.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Set HTTP headers. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
+insertion. Note that any existing headers with the same name will be
+removed before the insertion.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map3setEN4http5fieldENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http10header_map3setEN4http5fieldENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http10header_map3setEN4http5fieldENSt11string_viewE"></span><span id="fitoria::http::header_map::set__http::field.std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a078ca1f8cbe5eba626c970a3dd806bc2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map3setEN4http5fieldENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Set HTTP headers.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Set HTTP headers. Note that any existing headers with the same name
+will be removed before the insertion.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map6insertENSt11string_viewENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http10header_map6insertENSt11string_viewENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http10header_map6insertENSt11string_viewENSt11string_viewE"></span><span id="fitoria::http::header_map::insert__std::string_view.std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a6f7ab5a4c3eb168eb2faa20cff036679"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map6insertENSt11string_viewENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Insert HTTP headers.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Insert HTTP headers. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized before
+insertion. Note that any existing headers with the same name will be
+kept.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map6insertEN4http5fieldENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http10header_map6insertEN4http5fieldENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http10header_map6insertEN4http5fieldENSt11string_viewE"></span><span id="fitoria::http::header_map::insert__http::field.std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a2ca256418e2907b6678c5c68957eaee5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map6insertEN4http5fieldENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Insert HTTP headers.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Insert HTTP headers. Note that any existing headers with the same name
+will be kept.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map3getENSt11string_viewE">
+<span id="_CPPv3NK7fitoria4http10header_map3getENSt11string_viewE"></span><span id="_CPPv2NK7fitoria4http10header_map3getENSt11string_viewE"></span><span id="fitoria::http::header_map::get__std::string_viewC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a77eb71d40141453c5da0e75bd3b40703"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">mapped_type</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map3getENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get header with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Get header with specific key. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will be canonicalized
+before searching. Note that if there are multiple headers with the same
+name, only the first one will be returned. Consider using
+<code class="docutils literal notranslate"><span class="pre">equal_range</span></code> instead for iterating all the headers with the same
+name.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map3getEN4http5fieldE">
+<span id="_CPPv3NK7fitoria4http10header_map3getEN4http5fieldE"></span><span id="_CPPv2NK7fitoria4http10header_map3getEN4http5fieldE"></span><span id="fitoria::http::header_map::get__http::fieldC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a7b1b99f54e055aab43a9b1b94fcf7670"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">mapped_type</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map3getEN4http5fieldE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get header with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Get header with specific key. Note that if there are multiple headers
+with the same name, only the first one will be returned. Consider using
+<code class="docutils literal notranslate"><span class="pre">equal_range</span></code> instead for iterating all the headers with the same
+name.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map11equal_rangeENSt11string_viewE">
+<span id="_CPPv3NK7fitoria4http10header_map11equal_rangeENSt11string_viewE"></span><span id="_CPPv2NK7fitoria4http10header_map11equal_rangeENSt11string_viewE"></span><span id="fitoria::http::header_map::equal_range__std::string_viewC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a4337778df37e8b1d87f5700eb41053ac"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">equal_range</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">pair</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">iterator</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map11equal_rangeENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get range of elements matching a specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Get range of elements matching a specific key. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will
+be canonicalized before searching.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map11equal_rangeEN4http5fieldE">
+<span id="_CPPv3NK7fitoria4http10header_map11equal_rangeEN4http5fieldE"></span><span id="_CPPv2NK7fitoria4http10header_map11equal_rangeEN4http5fieldE"></span><span id="fitoria::http::header_map::equal_range__http::fieldC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1ad9f93b070b03c7d588301c5b29318cde"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">equal_range</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">pair</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">iterator</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map11equal_rangeEN4http5fieldE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Get range of elements matching a specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Get range of elements matching a specific key.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map5eraseENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http10header_map5eraseENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http10header_map5eraseENSt11string_viewE"></span><span id="fitoria::http::header_map::erase__std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a0d64869b83c47ab221b71c839d4a1a6c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">erase</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map5eraseENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Remove element with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Remove element with specific key. The input <code class="docutils literal notranslate"><span class="pre">name</span></code> will
+be canonicalized before searching.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map5eraseEN4http5fieldE">
+<span id="_CPPv3N7fitoria4http10header_map5eraseEN4http5fieldE"></span><span id="_CPPv2N7fitoria4http10header_map5eraseEN4http5fieldE"></span><span id="fitoria::http::header_map::erase__http::field"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a964b320cbf60a85b20f28f34a6a4945e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">erase</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">http</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="field.html#_CPPv4N7fitoria4http5fieldE" title="fitoria::http::field"><span class="n"><span class="pre">field</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map5eraseEN4http5fieldE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Remove element with specific key.</p>
+<dl class="simple">
+<dt>DESCRIPTION</dt><dd><p>Remove element with specific key.</p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map5beginEv">
+<span id="_CPPv3N7fitoria4http10header_map5beginEv"></span><span id="_CPPv2N7fitoria4http10header_map5beginEv"></span><span id="fitoria::http::header_map::begin"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a85b7e8a187f7f74c517fcba4eb7f71f8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map5beginEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the beginning.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map5beginEv">
+<span id="_CPPv3NK7fitoria4http10header_map5beginEv"></span><span id="_CPPv2NK7fitoria4http10header_map5beginEv"></span><span id="fitoria::http::header_map::beginC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1ab8f20657435221ab678cdee6f199e661"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map5beginEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the beginning.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map6cbeginEv">
+<span id="_CPPv3NK7fitoria4http10header_map6cbeginEv"></span><span id="_CPPv2NK7fitoria4http10header_map6cbeginEv"></span><span id="fitoria::http::header_map::cbeginC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a93e6c350d448f799cd31644ae193e77e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map6cbeginEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the beginning.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http10header_map3endEv">
+<span id="_CPPv3N7fitoria4http10header_map3endEv"></span><span id="_CPPv2N7fitoria4http10header_map3endEv"></span><span id="fitoria::http::header_map::end"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a71b81bbc4b880e3191ffef2a411d5344"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http10header_map3endEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the end.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map3endEv">
+<span id="_CPPv3NK7fitoria4http10header_map3endEv"></span><span id="_CPPv2NK7fitoria4http10header_map3endEv"></span><span id="fitoria::http::header_map::endC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1ac161884e1e25a70c755cdf5f7e86548f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map3endEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the end.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7fitoria4http10header_map4cendEv">
+<span id="_CPPv3NK7fitoria4http10header_map4cendEv"></span><span id="_CPPv2NK7fitoria4http10header_map4cendEv"></span><span id="fitoria::http::header_map::cendC"></span><span class="target" id="classfitoria_1_1http_1_1header__map_1a253bcb6b77aa09bb3695eb155cf672b6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><a class="headerlink" href="#_CPPv4NK7fitoria4http10header_map4cendEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get an iterator to the end.</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="version.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">version</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="status_code.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_mapE"><code class="docutils literal notranslate"><span class="pre">header_map</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map10header_mapEv"><code class="docutils literal notranslate"><span class="pre">header_map::header_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map5emptyEv"><code class="docutils literal notranslate"><span class="pre">header_map::empty()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map4sizeEv"><code class="docutils literal notranslate"><span class="pre">header_map::size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map8containsENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::contains()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map8containsEN4http5fieldE"><code class="docutils literal notranslate"><span class="pre">header_map::contains()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map5clearEv"><code class="docutils literal notranslate"><span class="pre">header_map::clear()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map3setENSt11string_viewENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::set()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map3setEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::set()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map6insertENSt11string_viewENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::insert()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map6insertEN4http5fieldENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::insert()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map3getENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map3getEN4http5fieldE"><code class="docutils literal notranslate"><span class="pre">header_map::get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map11equal_rangeENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::equal_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map11equal_rangeEN4http5fieldE"><code class="docutils literal notranslate"><span class="pre">header_map::equal_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map5eraseENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">header_map::erase()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map5eraseEN4http5fieldE"><code class="docutils literal notranslate"><span class="pre">header_map::erase()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map5beginEv"><code class="docutils literal notranslate"><span class="pre">header_map::begin()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map5beginEv"><code class="docutils literal notranslate"><span class="pre">header_map::begin()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map6cbeginEv"><code class="docutils literal notranslate"><span class="pre">header_map::cbegin()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http10header_map3endEv"><code class="docutils literal notranslate"><span class="pre">header_map::end()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map3endEv"><code class="docutils literal notranslate"><span class="pre">header_map::end()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK7fitoria4http10header_map4cendEv"><code class="docutils literal notranslate"><span class="pre">header_map::cend()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/reference/http/header_map.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Ramirisu.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
