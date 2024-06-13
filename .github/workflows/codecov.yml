@@ -85,4 +85,4 @@ jobs:
         run: |
           curl -Os https://cli.codecov.io/latest/linux/codecov
           sudo chmod +x codecov
-          ./codecov --verbose upload-process --fail-on-error --token ${{ secrets.CODECOV_TOKEN }} -s coverage
+          ./codecov --verbose upload-process --fail-on-error --token ${{ secrets.CODECOV_TOKEN }} --file coverage/coverage.info --plugin noop
