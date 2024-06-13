@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <random>
 #include <set>
 #include <string_view>
 #include <vector>
@@ -72,6 +73,19 @@ inline std::string get_temp_file_path(std::string_view ext = "tmp")
   return (tmp_dir / file_name).string();
 }
 
+inline auto get_random_string(std::uint64_t size) -> std::string
+{
+  auto r = std::random_device();
+  auto eng = std::default_random_engine(r());
+  auto gen = std::uniform_int_distribution<int>(0, 127);
+  auto f = [&]() { return static_cast<std::uint8_t>(gen(eng)); };
+
+  std::string s;
+  s.resize(size);
+  std::generate_n(s.data(), size, f);
+
+  return s;
+}
 }
 
 FITORIA_NAMESPACE_END

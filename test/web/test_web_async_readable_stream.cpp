@@ -47,10 +47,10 @@ TEST_CASE("async_readable_vector_stream: read chunk by chunk")
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-TEST_CASE("async_readable_file_stream")
+TEST_CASE("async_readable_file_stream: read complete file")
 {
   const auto file_path = get_temp_file_path();
-  const auto data = std::string(1048576, 'a');
+  const auto data = get_random_string(1048576);
   {
     std::ofstream(file_path, std::ios::binary) << data;
   }
@@ -62,6 +62,47 @@ TEST_CASE("async_readable_file_stream")
                              file_path,
                              net::file_base::read_only))),
         data);
+  });
+}
+
+TEST_CASE(
+    "async_readable_file_stream: read file starting from offset until end")
+{
+  const auto file_path = get_temp_file_path();
+  const auto data = get_random_string(1048576);
+  {
+    std::ofstream(file_path, std::ios::binary) << data;
+  }
+
+  sync_wait([&]() -> awaitable<void> {
+    CHECK_EQ(
+        co_await async_read_until_eof<std::string>(async_readable_file_stream(
+            net::stream_file(co_await net::this_coro::executor,
+                             file_path,
+                             net::file_base::read_only),
+            123456,
+            nullopt)),
+        std::string_view(data).substr(123456));
+  });
+}
+
+TEST_CASE("async_readable_file_stream: read file starting from offset and size")
+{
+  const auto file_path = get_temp_file_path();
+  const auto data = get_random_string(1048576);
+  {
+    std::ofstream(file_path, std::ios::binary) << data;
+  }
+
+  sync_wait([&]() -> awaitable<void> {
+    CHECK_EQ(
+        co_await async_read_until_eof<std::string>(async_readable_file_stream(
+            net::stream_file(co_await net::this_coro::executor,
+                             file_path,
+                             net::file_base::read_only),
+            123456,
+            234567)),
+        std::string_view(data).substr(123456, 234567));
   });
 }
 
