@@ -76,15 +76,13 @@ jobs:
         shell: bash
         run: |
           sudo apt install lcov
-          mkdir .coverage
-          lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./.coverage/coverage.info
-          lcov --gcov-tool=gcov-13 --extract ./.coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./.coverage/coverage.info
+          mkdir coverage
+          lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./coverage/coverage.info
+          lcov --gcov-tool=gcov-13 --extract ./coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./coverage/coverage.info
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          working-directory: ${{ github.workspace }}/.coverage
-          file: ./coverage.info
-          disable_search: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage report to codecov
+        shell: bash
+        run: |
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          sudo chmod +x codecov
+          ./codecov --verbose upload-process --fail-on-error --token ${{ secrets.CODECOV_TOKEN }} -s coverage

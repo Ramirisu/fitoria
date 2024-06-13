@@ -15,7 +15,7 @@ cmake --build build -j2
 cd build && ctest && cd ..
 
 mkdir .coverage
-lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./.coverage/coverage.info
-lcov --gcov-tool=gcov-13 --extract ./.coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./.coverage/coverage.info
+lcov --gcov-tool=gcov-13 --capture --directory $(pwd)'/build' --output-file ./coverage/coverage.info
+lcov --gcov-tool=gcov-13 --extract ./coverage/coverage.info $(pwd)'/include/fitoria/*' --output-file ./coverage/coverage.info
 
-genhtml -o ./.coverage/html --legend --title "fitoria" --prefix=./ ./.coverage/coverage.info
+genhtml -o ./coverage/html --legend --title "fitoria" --prefix=./ ./coverage/coverage.info
