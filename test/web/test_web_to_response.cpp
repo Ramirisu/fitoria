@@ -201,7 +201,7 @@ TEST_CASE("expected<T, E>")
 
 TEST_CASE("named_file")
 {
-  const auto file_path = get_random_temp_file_path();
+  const auto file_path = get_temp_file_path();
   const auto data = std::string(1048576, 'a');
   {
     std::ofstream(file_path, std::ios::binary) << data;

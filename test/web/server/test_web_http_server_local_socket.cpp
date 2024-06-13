@@ -24,7 +24,7 @@ TEST_SUITE_BEGIN("[fitoria.web.http_server.bind_local]");
 
 TEST_CASE("bind_local")
 {
-  const auto file_path = get_random_temp_file_path();
+  const auto file_path = get_temp_file_path();
 
   auto ioc = net::io_context();
   auto server
@@ -80,7 +80,7 @@ TEST_CASE("bind_local")
 
 TEST_CASE("bind_local TLS")
 {
-  const auto file_path = get_random_temp_file_path();
+  const auto file_path = get_temp_file_path();
 
   auto ioc = net::io_context();
   auto server

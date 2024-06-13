@@ -31,7 +31,7 @@ namespace {
 auto create_and_open_tmp_file(std::string_view ext)
     -> awaitable<expected<named_file, std::error_code>>
 {
-  const auto file_path = get_random_temp_file_path(ext);
+  const auto file_path = get_temp_file_path(ext);
   {
     auto ofs = std::ofstream(file_path);
     ofs << file_path;
@@ -75,7 +75,7 @@ TEST_CASE("open_readonly")
 {
   sync_wait([]() -> awaitable<void> {
     {
-      const auto file_path = get_random_temp_file_path();
+      const auto file_path = get_temp_file_path();
       CHECK(!named_file::open_readonly(co_await net::this_coro::executor,
                                        file_path));
     }

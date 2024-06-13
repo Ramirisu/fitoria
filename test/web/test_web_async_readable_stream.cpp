@@ -12,6 +12,7 @@
 #endif
 
 #include <fitoria/test/http_server_utils.hpp>
+#include <fitoria/test/utility.hpp>
 
 #include <fitoria/web/async_read_until_eof.hpp>
 #include <fitoria/web/async_readable_file_stream.hpp>
@@ -48,17 +49,17 @@ TEST_CASE("async_readable_vector_stream: read chunk by chunk")
 
 TEST_CASE("async_readable_file_stream")
 {
+  const auto file_path = get_temp_file_path();
   const auto data = std::string(1048576, 'a');
   {
-    std::ofstream("test_web_async_readable_file_stream.txt", std::ios::binary)
-        << data;
+    std::ofstream(file_path, std::ios::binary) << data;
   }
 
   sync_wait([&]() -> awaitable<void> {
     CHECK_EQ(
         co_await async_read_until_eof<std::string>(async_readable_file_stream(
             net::stream_file(co_await net::this_coro::executor,
-                             "test_web_async_readable_file_stream.txt",
+                             file_path,
                              net::file_base::read_only))),
         data);
   });

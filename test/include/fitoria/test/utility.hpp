@@ -61,7 +61,7 @@ std::vector<T> str_to_vec(std::string_view str)
   return vec;
 }
 
-inline std::string get_random_temp_file_path(std::string_view ext = "tmp")
+inline std::string get_temp_file_path(std::string_view ext = "tmp")
 {
   auto tmp_dir = std::filesystem::temp_directory_path();
   auto file_name
