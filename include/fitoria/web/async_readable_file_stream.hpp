@@ -52,8 +52,8 @@ public:
 
   async_readable_file_stream& operator=(async_readable_file_stream&&) = default;
 
-  auto async_read_some()
-      -> awaitable<optional<expected<bytes, std::error_code>>>
+  auto
+  async_read_some() -> awaitable<optional<expected<bytes, std::error_code>>>
   {
     if (remaining_ == 0) {
       co_return nullopt;
@@ -72,7 +72,7 @@ public:
       offset_ = 0;
     }
 
-    auto buffer = bytes(std::min(remaining_, 65536ULL));
+    auto buffer = bytes(std::min<std::uint64_t>(remaining_, 65536));
     if (auto result
         = co_await file_.async_read_some(net::buffer(buffer), use_awaitable);
         result) {
