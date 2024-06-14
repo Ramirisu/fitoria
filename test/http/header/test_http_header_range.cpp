@@ -71,6 +71,8 @@ TEST_CASE("parse")
     CHECK(!range::parse("bytes=0-99, 200", 1000));
     CHECK(!range::parse("bytes=0;-99", 1000));
     CHECK(!range::parse("bytes=0-;99", 1000));
+    CHECK(!range::parse("bytes=-", 1000));
+    CHECK(!range::parse("bytes=-100, 200-299", 1000));
   }
 }
 
