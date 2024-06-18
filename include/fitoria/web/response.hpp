@@ -164,14 +164,12 @@ public:
   /// @endverbatim
   static auto processing() -> response_builder;
 
-#if BOOST_BEAST_VERSION >= 353
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Construct a ``response_builder`` with specific HTTP status code.
   ///
   /// @endverbatim
   static auto early_hints() -> response_builder;
-#endif
 
   /// @verbatim embed:rst:leading-slashes
   ///
@@ -459,14 +457,12 @@ public:
   /// @endverbatim
   static auto failed_dependency() -> response_builder;
 
-#if BOOST_BEAST_VERSION >= 353
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Construct a ``response_builder`` with specific HTTP status code.
   ///
   /// @endverbatim
   static auto too_early() -> response_builder;
-#endif
 
   /// @verbatim embed:rst:leading-slashes
   ///
@@ -496,30 +492,12 @@ public:
   /// @endverbatim
   static auto request_header_fields_too_large() -> response_builder;
 
-#if BOOST_BEAST_VERSION < 353
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Construct a ``response_builder`` with specific HTTP status code.
-  ///
-  /// @endverbatim
-  static auto connection_closed_without_response() -> response_builder;
-#endif
-
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Construct a ``response_builder`` with specific HTTP status code.
   ///
   /// @endverbatim
   static auto unavailable_for_legal_reasons() -> response_builder;
-
-#if BOOST_BEAST_VERSION < 353
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Construct a ``response_builder`` with specific HTTP status code.
-  ///
-  /// @endverbatim
-  static auto client_closed_request() -> response_builder;
-#endif
 
   /// @verbatim embed:rst:leading-slashes
   ///
@@ -597,15 +575,6 @@ public:
   ///
   /// @endverbatim
   static auto network_authentication_required() -> response_builder;
-
-#if BOOST_BEAST_VERSION < 353
-  /// @verbatim embed:rst:leading-slashes
-  ///
-  /// Construct a ``response_builder`` with specific HTTP status code.
-  ///
-  /// @endverbatim
-  static auto network_connect_timeout_error() -> response_builder;
-#endif
 };
 
 /// @verbatim embed:rst:leading-slashes
@@ -938,12 +907,10 @@ inline auto response::processing() -> response_builder
   return response_builder(http::status::processing);
 }
 
-#if BOOST_BEAST_VERSION >= 353
 inline auto response::early_hints() -> response_builder
 {
   return response_builder(http::status::early_hints);
 }
-#endif
 
 inline auto response::ok() -> response_builder
 {
@@ -1145,12 +1112,10 @@ inline auto response::failed_dependency() -> response_builder
   return response_builder(http::status::failed_dependency);
 }
 
-#if BOOST_BEAST_VERSION >= 353
 inline auto response::too_early() -> response_builder
 {
   return response_builder(http::status::too_early);
 }
-#endif
 
 inline auto response::upgrade_required() -> response_builder
 {
@@ -1172,24 +1137,10 @@ inline auto response::request_header_fields_too_large() -> response_builder
   return response_builder(http::status::request_header_fields_too_large);
 }
 
-#if BOOST_BEAST_VERSION < 353
-inline auto response::connection_closed_without_response() -> response_builder
-{
-  return response_builder(http::status::connection_closed_without_response);
-}
-#endif
-
 inline auto response::unavailable_for_legal_reasons() -> response_builder
 {
   return response_builder(http::status::unavailable_for_legal_reasons);
 }
-
-#if BOOST_BEAST_VERSION < 353
-inline auto response::client_closed_request() -> response_builder
-{
-  return response_builder(http::status::client_closed_request);
-}
-#endif
 
 inline auto response::internal_server_error() -> response_builder
 {
@@ -1245,13 +1196,6 @@ inline auto response::network_authentication_required() -> response_builder
 {
   return response_builder(http::status::network_authentication_required);
 }
-
-#if BOOST_BEAST_VERSION < 353
-inline auto response::network_connect_timeout_error() -> response_builder
-{
-  return response_builder(http::status::network_connect_timeout_error);
-}
-#endif
 
 }
 

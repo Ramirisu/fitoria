@@ -28,6 +28,8 @@ public:
 
   struct sized {
     optional<std::size_t> size;
+
+    friend bool operator==(const sized&, const sized&) = default;
   };
 
   struct chunked { };

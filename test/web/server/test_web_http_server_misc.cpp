@@ -35,6 +35,17 @@ TEST_CASE("socket reuse address")
 #endif
 }
 
+TEST_CASE("invalid address")
+{
+  auto ioc = net::io_context();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/">([]() -> awaitable<response> {
+                      co_return response::ok().build();
+                    }))
+                    .build();
+  CHECK(!server.bind("123.456.789.012", 8080));
+}
+
 TEST_CASE("duplicate route")
 {
   auto ioc = net::io_context();
