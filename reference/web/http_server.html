@@ -422,8 +422,8 @@ document.write(`
 <span id="_CPPv3NK7fitoria3web11http_server21tls_handshake_timeoutEv"></span><span id="_CPPv2NK7fitoria3web11http_server21tls_handshake_timeoutEv"></span><span id="fitoria::web::http_server::tls_handshake_timeoutC"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1a0bcf171fb388a9010661122ef003ce19"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tls_handshake_timeout</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK7fitoria3web11http_server21tls_handshake_timeoutEv" title="Link to this definition">#</a><br /></dt>
 <dd><p><p>Get the timeout for TLS handshake.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Get the timeout for TLS handshake. If no timeout is set, <code class="docutils literal notranslate"><span class="pre">nullopt</span></code>
-is returned.</p>
+<dt>DESCRIPTION</dt><dd><p>Get the timeout for TLS handshake. If no timeout is set, <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> is
+returned.</p>
 </dd>
 </dl>
 </p>
@@ -529,7 +529,7 @@ using fake connections.</p>
 <span id="_CPPv3NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE"></span><span id="_CPPv2NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE"></span><span id="fitoria::web::http_server::builder::set_tls_handshake_timeout__optional:duration_type:R"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1ae0635552b8281ca0d20a907b5769a988"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_tls_handshake_timeout</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">timeout</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder25set_tls_handshake_timeoutE8optionalI13duration_typeE" title="Link to this definition">#</a><br /></dt>
 <dd><p><p>Set the timeout for TLS handshake.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable timeout.</p>
+<dt>DESCRIPTION</dt><dd><p>Set the timeout for TLS handshake. Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable timeout.</p>
 </dd>
 </dl>
 </p>
@@ -540,7 +540,8 @@ using fake connections.</p>
 <span id="_CPPv3NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE"></span><span id="_CPPv2NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE"></span><span id="fitoria::web::http_server::builder::set_request_timeout__optional:duration_type:R"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1abdd3461aa1ae0921b66a65b6ebbb1b5f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_request_timeout</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">duration_type</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">timeout</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_server7builderE" title="fitoria::web::http_server::builder"><span class="n"><span class="pre">builder</span></span></a><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4NR7fitoria3web11http_server7builder19set_request_timeoutE8optionalI13duration_typeE" title="Link to this definition">#</a><br /></dt>
 <dd><p><p>Set the timeout for serving client request.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable timeout.</p>
+<dt>DESCRIPTION</dt><dd><p>Set the timeout for serving client request. Pass <code class="docutils literal notranslate"><span class="pre">nullopt</span></code> to disable
+timeout.</p>
 </dd>
 </dl>
 </p>
@@ -576,8 +577,8 @@ using fake connections.</p>
 <dd><p><p>Set the exception handler to handle any exception thrown from the server.</p>
 <dl class="simple">
 <dt>DESCRIPTION</dt><dd><p>Set the exception handler to handle any exception thrown from the
-server. If is not set by user, the <code class="docutils literal notranslate"><span class="pre">default_exception_handler</span></code> will
-be used.</p>
+server. If is not set by user, the <code class="docutils literal notranslate"><span class="pre">default_exception_handler</span></code> will be
+used.</p>
 </dd>
 </dl>
 </p>
@@ -612,8 +613,8 @@ duplicate routes are allowed.</p>
 <span id="_CPPv3N7fitoria3web11http_server7builder5buildEv"></span><span id="_CPPv2N7fitoria3web11http_server7builder5buildEv"></span><span id="fitoria::web::http_server::builder::build"></span><span class="target" id="classfitoria_1_1web_1_1http__server_1_1builder_1a50e2b9272bb84b0e0b37c8cbf8df868c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria3web11http_serverE" title="fitoria::web::http_server"><span class="n"><span class="pre">http_server</span></span></a><a class="headerlink" href="#_CPPv4N7fitoria3web11http_server7builder5buildEv" title="Link to this definition">#</a><br /></dt>
 <dd><p><p>Create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>.</p>
 <dl class="simple">
-<dt>DESCRIPTION</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>. Note that current object is no longer
-usable after calling this function.</p>
+<dt>DESCRIPTION</dt><dd><p>Create the <code class="docutils literal notranslate"><span class="pre">http_server</span></code>. Note that current object is no longer usable
+after calling this function.</p>
 </dd>
 </dl>
 </p>
