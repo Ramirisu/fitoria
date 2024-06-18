@@ -52,11 +52,11 @@ class http_client {
 public:
   class http_response {
   public:
-    http_response(http::status_code status_code,
+    http_response(http::status_code status,
                   http::version version,
                   http::header_map headers,
                   web::any_async_readable_stream body)
-        : status_code_(status_code)
+        : status_(status)
         , version_(version)
         , headers_(std::move(headers))
         , body_(std::move(body))
@@ -71,9 +71,9 @@ public:
 
     http_response& operator=(http_response&&) = default;
 
-    auto status_code() const noexcept -> const http::status_code&
+    auto status() const noexcept -> const http::status_code&
     {
-      return status_code_;
+      return status_;
     }
 
     auto version() const noexcept -> const http::version&
@@ -143,7 +143,7 @@ public:
     }
 
   private:
-    http::status_code status_code_ = http::status::ok;
+    http::status_code status_ = http::status::ok;
     http::version version_ = http::version::v1_1;
     http::header_map headers_;
     web::any_async_readable_stream body_;

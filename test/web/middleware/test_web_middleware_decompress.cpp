@@ -70,7 +70,7 @@ TEST_CASE("deflate")
             .set_header(http::field::content_encoding, "deflate")
             .set_stream_body(get_stream(test_case.chunked, compressed)),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
   }
@@ -119,7 +119,7 @@ TEST_CASE("gzip")
             .set_header(http::field::content_encoding, "gzip")
             .set_stream_body(get_stream(test_case.chunked, compressed)),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
   }
@@ -172,7 +172,7 @@ TEST_CASE("decompress")
                     0x0e, 0x09, 0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00, 0xf2,
                     0x92, 0x53, 0x55, 0x40, 0x00, 0x00, 0x00 })),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
     server.serve_request(
@@ -193,7 +193,7 @@ TEST_CASE("decompress")
                     0xd1, 0xc3, 0xc4, 0x60, 0xf4, 0xeb, 0x87, 0xa2, 0x1d, 0xd0,
                     0x20, 0x00 })),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
 #endif
@@ -215,7 +215,7 @@ TEST_CASE("decompress")
                     0xf6, 0xf1, 0xf5, 0xf3, 0x0f, 0x08, 0x0c, 0x0a, 0x0e, 0x09,
                     0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x02, 0x00, 0x03 })),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
     server.serve_request(
@@ -234,7 +234,7 @@ TEST_CASE("decompress")
                     0xf6, 0xf1, 0xf5, 0xf3, 0x0f, 0x08, 0x0c, 0x0a, 0x0e, 0x09,
                     0x0d, 0x0b, 0x8f, 0x88, 0x8c, 0x62, 0x06, 0x00 })),
         [](test_response res) -> awaitable<void> {
-          CHECK_EQ(res.status_code(), http::status::ok);
+          CHECK_EQ(res.status(), http::status::ok);
           co_return;
         });
 #endif

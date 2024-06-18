@@ -55,7 +55,7 @@ TEST_CASE("compile with io_context")
                   .set_header(http::field::connection, "close")
                   .set_plaintext("")
                   .async_send();
-        CHECK_EQ(res->status_code(), http::status::ok);
+        CHECK_EQ(res->status(), http::status::ok);
       },
       net::use_future)
       .get();

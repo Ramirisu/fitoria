@@ -24,17 +24,17 @@ TEST_CASE("header_limit")
                     }))
                     .build();
 
-  server.serve_request(
-      "/",
-      test_request::get().build(),
-      [](test_response res) -> awaitable<void> {
-        REQUIRE_EQ(res.status_code(), http::status::bad_request);
-        REQUIRE_EQ(res.headers().get(http::field::content_type),
-                   mime::text_plain());
-        REQUIRE_EQ(co_await res.as_string(),
-                   "request headers size exceeds limit");
-        co_return;
-      });
+  server.serve_request("/",
+                       test_request::get().build(),
+                       [](test_response res) -> awaitable<void> {
+                         REQUIRE_EQ(res.status(), http::status::bad_request);
+                         REQUIRE_EQ(
+                             res.headers().get(http::field::content_type),
+                             mime::text_plain());
+                         REQUIRE_EQ(co_await res.as_string(),
+                                    "request headers size exceeds limit");
+                         co_return;
+                       });
 
   ioc.run();
 }

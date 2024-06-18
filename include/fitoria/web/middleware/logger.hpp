@@ -41,7 +41,7 @@ public:
               req.connection().remote(),
               std::string(to_string(req.method())),
               req.path().match_path(),
-              res.status_code(),
+              res.status(),
               req.headers().get(http::field::user_agent).value_or(""),
               std::chrono::floor<std::chrono::microseconds>(clock_t::now()
                                                             - start_time));

@@ -31,11 +31,11 @@ namespace web {
 /// @endverbatim
 class test_response {
 public:
-  test_response(http::status_code status_code,
+  test_response(http::status_code status,
                 http::version version,
                 http::header_map headers,
                 any_async_readable_stream body)
-      : status_code_(status_code)
+      : status_(status)
       , version_(version)
       , headers_(std::move(headers))
       , body_(std::move(body))
@@ -55,9 +55,9 @@ public:
   /// Get HTTP status code.
   ///
   /// @endverbatim
-  auto status_code() const noexcept -> const http::status_code&
+  auto status() const noexcept -> const http::status_code&
   {
-    return status_code_;
+    return status_;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -167,7 +167,7 @@ public:
   }
 
 private:
-  http::status_code status_code_ = http::status::ok;
+  http::status_code status_ = http::status::ok;
   http::version version_;
   http::header_map headers_;
   web::any_async_readable_stream body_;

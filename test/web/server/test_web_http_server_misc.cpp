@@ -94,7 +94,7 @@ TEST_CASE("invalid target")
                          .set_header(http::field::connection, "close")
                          .set_plaintext("text")
                          .async_send();
-          REQUIRE_EQ(res->status_code(), http::status::not_found);
+          REQUIRE_EQ(res->status(), http::status::not_found);
           REQUIRE_EQ(res->headers().get(http::field::content_type),
                      mime::text_plain());
           REQUIRE_EQ(co_await res->as_string(), "request path is not found");
@@ -135,7 +135,7 @@ TEST_CASE("expect: 100-continue")
                        .set_header(http::field::connection, "close")
                        .set_plaintext("text")
                        .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)

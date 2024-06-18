@@ -38,18 +38,18 @@ class response {
   friend class response_builder;
 
   struct impl_type {
-    http::status_code status_code = http::status::ok;
+    http::status_code status = http::status::ok;
     http::version version = http::version::v1_1;
     http::header_map headers;
     any_body body;
 
     impl_type() = default;
 
-    impl_type(http::status_code status_code,
+    impl_type(http::status_code status,
               http::version version,
               http::header_map headers,
               any_body body)
-        : status_code(status_code)
+        : status(status)
         , version(version)
         , headers(std::move(headers))
         , body(std::move(body))
@@ -59,12 +59,12 @@ class response {
 
   std::shared_ptr<impl_type> impl_;
 
-  response(http::status_code status_code,
+  response(http::status_code status,
            http::version version,
            http::header_map headers,
            any_body body)
       : impl_(std::make_shared<impl_type>(
-            status_code, version, std::move(headers), std::move(body)))
+            status, version, std::move(headers), std::move(body)))
   {
   }
 
@@ -87,9 +87,9 @@ public:
   /// Get HTTP status code.
   ///
   /// @endverbatim
-  auto status_code() const noexcept -> const http::status_code&
+  auto status() const noexcept -> const http::status_code&
   {
-    return impl_->status_code;
+    return impl_->status;
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -585,16 +585,16 @@ public:
 class response_builder {
   friend class response;
 
-  http::status_code status_code_ = http::status::ok;
+  http::status_code status_ = http::status::ok;
   http::version version_ = http::version::v1_1;
   http::header_map header_;
   any_body body_;
 
-  response_builder(http::status_code status_code,
+  response_builder(http::status_code status,
                    http::version version,
                    http::header_map fields,
                    any_body body)
-      : status_code_(status_code)
+      : status_(status)
       , version_(version)
       , header_(std::move(fields))
       , body_(std::move(body))
@@ -608,7 +608,7 @@ public:
   ///
   /// @endverbatim
   explicit response_builder(http::status status)
-      : status_code_(status)
+      : status_(status)
   {
   }
 
@@ -625,17 +625,15 @@ public:
   /// Set HTTP status code.
   ///
   /// @endverbatim
-  auto
-  set_status_code(http::status_code status_code) & noexcept -> response_builder&
+  auto set_status(http::status_code status) & noexcept -> response_builder&
   {
-    status_code_ = status_code;
+    status_ = status;
     return *this;
   }
 
-  auto set_status_code(http::status_code status_code) && noexcept
-      -> response_builder&&
+  auto set_status(http::status_code status) && noexcept -> response_builder&&
   {
-    status_code_ = status_code;
+    status_ = status;
     return std::move(*this);
   }
 
@@ -880,13 +878,13 @@ public:
   /// @endverbatim
   auto build() -> response
   {
-    return { status_code_, version_, std::move(header_), std::move(body_) };
+    return { status_, version_, std::move(header_), std::move(body_) };
   }
 };
 
 inline auto response::builder() -> response_builder
 {
-  return { impl_->status_code,
+  return { impl_->status,
            impl_->version,
            std::move(impl_->headers),
            std::move(impl_->body) };

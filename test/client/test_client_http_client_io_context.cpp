@@ -24,7 +24,7 @@ TEST_CASE("compile with io_context")
                    .set_url("http://httpbun.com/post")
                    .set_body("echo")
                    .async_send();
-    CHECK_EQ(res->status_code().value(), http::status::ok);
+    CHECK_EQ(res->status().value(), http::status::ok);
     CHECK_EQ((co_await res->as_json())->at("data"), "echo");
   });
 }

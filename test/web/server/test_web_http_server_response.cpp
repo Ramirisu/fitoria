@@ -48,7 +48,7 @@ TEST_CASE("response status only")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::no_content);
+        REQUIRE_EQ(res->status(), http::status::no_content);
         REQUIRE_EQ(res->headers().get(http::field::connection), "close");
         REQUIRE(!res->headers().get(http::field::content_length));
         REQUIRE_EQ(co_await async_read_until_eof<std::string>(res->body()),
@@ -91,7 +91,7 @@ TEST_CASE("response with plain text")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(res->headers().get(http::field::connection), "close");
         REQUIRE_EQ(res->headers().get(http::field::content_type),
                    mime::text_plain());
@@ -135,7 +135,7 @@ TEST_CASE("response with with stream (chunked transfer-encoding)")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(res->headers().get(http::field::content_type),
                    mime::text_plain());
         REQUIRE(!res->headers().get(http::field::content_length));
@@ -172,7 +172,7 @@ TEST_CASE("response with default HTTP/1.1")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(res->headers().get(http::field::connection), "close");
         REQUIRE_EQ(res->version(), http::version::v1_1);
       },
@@ -208,7 +208,7 @@ TEST_CASE("response with HTTP/1.0")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE(!res->headers().get(http::field::connection));
         REQUIRE_EQ(res->version(), http::version::v1_0);
       },

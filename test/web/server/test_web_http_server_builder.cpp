@@ -69,7 +69,7 @@ TEST_CASE("builder")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)

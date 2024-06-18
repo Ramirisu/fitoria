@@ -125,7 +125,7 @@ TEST_CASE("generic request")
                        .insert_header(http::field::user_agent, "fitoria")
                        .set_plaintext(text)
                        .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE(range_in_set(
             res->headers().equal_range(http::field::user_agent),
             [](auto&& p) { return p->value(); },
@@ -169,7 +169,7 @@ TEST_CASE("request to route accepting wildcard")
                            boost::urls::scheme::http, port, "/api/v1/any/path"))
                        .set_header(http::field::connection, "close")
                        .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)
@@ -208,7 +208,7 @@ TEST_CASE("request with null body")
                   .set_url(to_local_url(boost::urls::scheme::http, port, "/"))
                   .set_header(http::field::connection, "close")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -247,7 +247,7 @@ TEST_CASE("request with empty body")
                   .set_header(http::field::connection, "close")
                   .set_plaintext("")
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
       },
       net::use_future)
       .get();
@@ -290,7 +290,7 @@ TEST_CASE("request with stream (chunked transfer-encoding)")
                   .set_header(http::field::content_type, mime::text_plain())
                   .set_stream_body(async_readable_chunk_stream<5>(text))
                   .async_send();
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
         REQUIRE_EQ(co_await res->as_string(), "");
       },
       net::use_future)

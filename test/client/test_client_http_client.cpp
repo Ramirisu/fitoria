@@ -80,7 +80,7 @@ TEST_CASE("async_send")
                    .set_method(http::verb::get)
                    .set_url("http://httpbun.com/get")
                    .async_send();
-    CHECK_EQ(res->status_code().value(), http::status::ok);
+    CHECK_EQ(res->status().value(), http::status::ok);
     CHECK(!(co_await res->as_string())->empty());
   });
 
@@ -100,7 +100,7 @@ TEST_CASE("request with body")
                    .set_url("http://httpbun.com/post")
                    .set_body("echo")
                    .async_send();
-    CHECK_EQ(res->status_code().value(), http::status::ok);
+    CHECK_EQ(res->status().value(), http::status::ok);
     CHECK_EQ((co_await res->as_json())->at("data"), "echo");
   });
 }

@@ -41,7 +41,7 @@ TEST_CASE("connect_info")
   server.serve_request("/",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -62,7 +62,7 @@ TEST_CASE("path_info")
   server.serve_request("/fitoria",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -97,19 +97,19 @@ TEST_CASE("path_of<T = std::tuple<Ts...>>")
   server.serve_request("/1994/June/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/2147483648/June/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/06/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
 
@@ -138,19 +138,19 @@ TEST_CASE("path_of<T = aggregate>")
   server.serve_request("/1994/06/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/2147483648/June/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/06/15",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(),
+                         CHECK_EQ(res.status(),
                                   http::status::internal_server_error);
                          co_return;
                        });
@@ -178,7 +178,7 @@ TEST_CASE("query_map")
                            .set_query("day", "15")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -205,7 +205,7 @@ TEST_CASE("query_of<T>")
                            .set_query("day", "15")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/",
@@ -215,7 +215,7 @@ TEST_CASE("query_of<T>")
                            .set_query("day", "15")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
 
@@ -226,7 +226,7 @@ TEST_CASE("query_of<T>")
                            .set_query("day", "15")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/",
@@ -235,7 +235,7 @@ TEST_CASE("query_of<T>")
                            .set_query("day", "15")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
 
@@ -261,7 +261,7 @@ TEST_CASE("form_of<T>")
                                        mime::application_www_form_urlencoded())
                            .set_body("year=1994&month=06&day=15"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
   server.serve_request(
@@ -271,14 +271,14 @@ TEST_CASE("form_of<T>")
                       "application/x-www-form-urlencoded; charset=utf-8")
           .set_body("year=1994&month=06&day=15"),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::ok);
+        CHECK_EQ(res.status(), http::status::ok);
         co_return;
       });
   server.serve_request(
       "/",
       test_request::get().set_body("year=1994&month=06&day=15"),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
   server.serve_request(
@@ -287,7 +287,7 @@ TEST_CASE("form_of<T>")
           .set_header(http::field::content_type, mime::text_plain())
           .set_body("year=1994&month=06&day=15"),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
   server.serve_request(
@@ -296,7 +296,7 @@ TEST_CASE("form_of<T>")
           .set_header(http::field::content_type, "application=form")
           .set_body("year=1994&month=06&day=15"),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
   server.serve_request("/",
@@ -305,7 +305,7 @@ TEST_CASE("form_of<T>")
                                        mime::application_www_form_urlencoded())
                            .set_body("&&year=1994&&&"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/",
@@ -314,7 +314,7 @@ TEST_CASE("form_of<T>")
                                        mime::application_www_form_urlencoded())
                            .set_body("month=06&day=15"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/",
@@ -323,7 +323,7 @@ TEST_CASE("form_of<T>")
                                        mime::application_www_form_urlencoded())
                            .set_body("year=2147483648&month=06&day=15"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/",
@@ -332,7 +332,7 @@ TEST_CASE("form_of<T>")
                                        mime::application_www_form_urlencoded())
                            .set_body("y=1994&month=06&day=15"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
 
@@ -356,7 +356,7 @@ TEST_CASE("http::header_map")
                            .insert_header(http::field::connection, "close")
                            .build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -382,13 +382,13 @@ TEST_CASE("state_of<T>")
   server.serve_request("/",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
   server.serve_request("/no_state",
                        test_request::get().build(),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(),
+                         CHECK_EQ(res.status(),
                                   http::status::internal_server_error);
                          co_return;
                        });
@@ -410,7 +410,7 @@ TEST_CASE("std::string")
   server.serve_request("/",
                        test_request::post().set_body("abc"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -431,7 +431,7 @@ TEST_CASE("bytes")
   server.serve_request("/",
                        test_request::post().set_body("abc"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -453,7 +453,7 @@ TEST_CASE("std::vector<std::uint8_t>")
   server.serve_request("/",
                        test_request::post().set_body("abc"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          co_return;
                        });
 
@@ -525,7 +525,7 @@ TEST_CASE("json_of<T>")
   server.serve_request("/",
                        test_request::post().set_json(user),
                        [=](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
@@ -537,7 +537,7 @@ TEST_CASE("json_of<T>")
                                        "application/json; charset=utf-8")
                            .set_body(boost::json::serialize(json)),
                        [=](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
@@ -546,7 +546,7 @@ TEST_CASE("json_of<T>")
   server.serve_request("/",
                        test_request::post().set_json(json),
                        [&json](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::ok);
+                         CHECK_EQ(res.status(), http::status::ok);
                          CHECK_EQ(res.headers().get(http::field::content_type),
                                   mime::application_json());
                          CHECK_EQ(co_await res.template as_json<user_t>(),
@@ -556,7 +556,7 @@ TEST_CASE("json_of<T>")
       "/",
       test_request::post().set_body(boost::json::serialize(json)),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
   server.serve_request(
@@ -565,7 +565,7 @@ TEST_CASE("json_of<T>")
           .set_header(http::field::content_type, "application=json")
           .set_body(boost::json::serialize(json)),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
   server.serve_request(
@@ -574,7 +574,7 @@ TEST_CASE("json_of<T>")
           .set_header(http::field::content_type, mime::text_plain())
           .set_body(boost::json::serialize(json)),
       [](test_response res) -> awaitable<void> {
-        CHECK_EQ(res.status_code(), http::status::bad_request);
+        CHECK_EQ(res.status(), http::status::bad_request);
         co_return;
       });
 
@@ -582,13 +582,13 @@ TEST_CASE("json_of<T>")
   server.serve_request("/",
                        test_request::post().set_json(incorrect),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
   server.serve_request("/",
                        test_request::post().set_json("name:"),
                        [](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status_code(), http::status::bad_request);
+                         CHECK_EQ(res.status(), http::status::bad_request);
                          co_return;
                        });
 

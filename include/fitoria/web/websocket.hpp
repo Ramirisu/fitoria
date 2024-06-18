@@ -474,7 +474,7 @@ private:
     auto builder = response::switching_protocols();
 
     auto make_bad_request = [&, this](std::error_code ec) {
-      builder.set_status_code(http::status::bad_request);
+      builder.set_status(http::status::bad_request);
       impl_->set_response(builder.set_body(ec.message()));
     };
 
@@ -519,7 +519,7 @@ private:
       make_bad_request(make_error_code(ws::error::no_sec_version));
       return;
     } else if (*ver != "13") {
-      builder.set_status_code(http::status::upgrade_required);
+      builder.set_status(http::status::upgrade_required);
       builder.set_header(http::field::sec_websocket_version, "13");
       impl_->set_response(builder.set_body(
           make_error_code(ws::error::bad_sec_version).message()));

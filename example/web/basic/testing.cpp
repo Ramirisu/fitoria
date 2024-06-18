@@ -40,8 +40,7 @@ int main()
           .set_header(http::field::content_type, mime::text_plain())
           .set_body("username=fitoria&password=123456"),
       []([[maybe_unused]] test_response res) -> awaitable<void> {
-        FITORIA_ASSERT(res.status_code()
-                       == http::status::internal_server_error);
+        FITORIA_ASSERT(res.status() == http::status::internal_server_error);
         FITORIA_ASSERT(
             (co_await res.as_string())
             == R"("Content-Type: application/x-www-form-urlencoded" is expected.)");
@@ -54,7 +53,7 @@ int main()
                       mime::application_www_form_urlencoded())
           .set_body("username=unknown&password=123456"),
       []([[maybe_unused]] test_response res) -> awaitable<void> {
-        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT(res.status() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect username or password");
         co_return;
@@ -66,7 +65,7 @@ int main()
                       mime::application_www_form_urlencoded())
           .set_body("username=fitoria&password=123"),
       []([[maybe_unused]] test_response res) -> awaitable<void> {
-        FITORIA_ASSERT(res.status_code() == http::status::unauthorized);
+        FITORIA_ASSERT(res.status() == http::status::unauthorized);
         FITORIA_ASSERT((co_await res.as_string())
                        == "incorrect username or password");
         co_return;
@@ -78,7 +77,7 @@ int main()
                       mime::application_www_form_urlencoded())
           .set_body("username=fitoria&password=123456"),
       []([[maybe_unused]] test_response res) -> awaitable<void> {
-        FITORIA_ASSERT(res.status_code() == http::status::ok);
+        FITORIA_ASSERT(res.status() == http::status::ok);
         FITORIA_ASSERT(res.headers().get(http::field::content_type)
                        == mime::text_plain());
         FITORIA_ASSERT((co_await res.as_string())

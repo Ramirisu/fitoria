@@ -524,7 +524,7 @@ private:
     using boost::beast::http::empty_body;
     using boost::beast::http::response;
 
-    auto r = response<empty_body>(res.status_code().value(),
+    auto r = response<empty_body>(res.status().value(),
                                   http::detail::to_impl_version(res.version()));
     res.headers().to_impl(r);
     r.keep_alive(keep_alive);
@@ -532,8 +532,8 @@ private:
 
     // boost.beast incorrectly handle some cases
     // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
-    if (res.status_code().category() == http::status_class::informational
-        || res.status_code().value() == http::status::no_content) {
+    if (res.status().category() == http::status_class::informational
+        || res.status().value() == http::status::no_content) {
       r.content_length(boost::none);
     }
 
@@ -548,8 +548,7 @@ private:
     using boost::beast::http::vector_body;
 
     auto r = response<vector_body<std::byte>>(
-        res.status_code().value(),
-        http::detail::to_impl_version(res.version()));
+        res.status().value(), http::detail::to_impl_version(res.version()));
     res.headers().to_impl(r);
     if (auto data = co_await async_read_until_eof<bytes>(res.body().stream());
         data) {
@@ -571,7 +570,7 @@ private:
     using boost::beast::http::response;
     using boost::beast::http::response_serializer;
 
-    auto r = response<empty_body>(res.status_code().value(),
+    auto r = response<empty_body>(res.status().value(),
                                   http::detail::to_impl_version(res.version()));
     res.headers().to_impl(r);
     r.keep_alive(keep_alive);

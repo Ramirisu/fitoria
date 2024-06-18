@@ -35,7 +35,7 @@ TEST_CASE("async_send")
                    .set_method(http::verb::get)
                    .set_url("https://httpbun.com/get")
                    .async_send(ssl_ctx);
-    REQUIRE_EQ(res->status_code().value(), http::status::ok);
+    REQUIRE_EQ(res->status().value(), http::status::ok);
     REQUIRE(!(co_await res->as_string())->empty());
   });
 

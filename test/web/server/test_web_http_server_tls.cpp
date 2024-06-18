@@ -65,7 +65,7 @@ void test_with_tls(net::ssl::context::method server_ssl_ver,
                       boost::urls::scheme::https, port, "/api/repos/fitoria"))
                   .set_plaintext("hello world")
                   .async_send(ssl_ctx);
-        REQUIRE_EQ(res->status_code(), http::status::ok);
+        REQUIRE_EQ(res->status(), http::status::ok);
       },
       net::use_future)
       .get();
