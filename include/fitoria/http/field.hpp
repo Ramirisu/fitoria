@@ -28,8 +28,8 @@ using boost::beast::http::field;
 /// Defines HTTP field constants.
 ///
 /// DESCRIPTION
-///     Defines HTTP field constants, which are aliases of
-///     ``boost::beast::http::field``
+///   Defines HTTP field constants, which are aliases of
+///   ``boost::beast::http::field``
 ///
 /// .. seealso::
 ///

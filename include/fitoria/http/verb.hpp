@@ -28,8 +28,8 @@ using boost::beast::http::verb;
 /// Defines HTTP method constants.
 ///
 /// DESCRIPTION
-///     Defines HTTP method constants, which are aliases of
-///     ``boost::beast::http::verb``
+///   Defines HTTP method constants, which are aliases of
+///   ``boost::beast::http::verb``
 ///
 /// .. seealso::
 ///

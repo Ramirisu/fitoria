@@ -79,8 +79,8 @@ public:
   /// Checks whether the container contains element with specific key.
   ///
   /// DESCRIPTION
-  ///    Checks whether the container contains element with specific key. The
-  ///    input ``name`` will be canonicalized before searching.
+  ///   Checks whether the container contains element with specific key. The
+  ///   input ``name`` will be canonicalized before searching.
   ///
   /// @endverbatim
   auto contains(std::string_view name) const -> bool
@@ -93,7 +93,7 @@ public:
   /// Checks whether the container contains element with specific key.
   ///
   /// DESCRIPTION
-  ///    Checks whether the container contains element with specific key.
+  ///   Checks whether the container contains element with specific key.
   ///
   /// @endverbatim
   auto contains(http::field name) const -> bool
@@ -116,9 +116,9 @@ public:
   /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP headers. The input ``name`` will be canonicalized before
-  ///    insertion. Note that any existing headers with the same name will be
-  ///    removed before the insertion.
+  ///   Set HTTP headers. The input ``name`` will be canonicalized before
+  ///   insertion. Note that any existing headers with the same name will be
+  ///   removed before the insertion.
   ///
   /// @endverbatim
   void set(std::string_view name, std::string_view value)
@@ -131,8 +131,8 @@ public:
   /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP headers. Note that any existing headers with the same name
-  ///    will be removed before the insertion.
+  ///   Set HTTP headers. Note that any existing headers with the same name
+  ///   will be removed before the insertion.
   ///
   /// @endverbatim
   void set(http::field name, std::string_view value)
@@ -145,9 +145,9 @@ public:
   /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP headers. The input ``name`` will be canonicalized before
-  ///    insertion. Note that any existing headers with the same name will be
-  ///    kept.
+  ///   Insert HTTP headers. The input ``name`` will be canonicalized before
+  ///   insertion. Note that any existing headers with the same name will be
+  ///   kept.
   ///
   /// @endverbatim
   void insert(std::string_view name, std::string_view value)
@@ -160,8 +160,8 @@ public:
   /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP headers. Note that any existing headers with the same name
-  ///    will be kept.
+  ///   Insert HTTP headers. Note that any existing headers with the same name
+  ///   will be kept.
   ///
   /// @endverbatim
   void insert(http::field name, std::string_view value)
@@ -174,11 +174,11 @@ public:
   /// Get header with specific key.
   ///
   /// DESCRIPTION
-  ///    Get header with specific key. The input ``name`` will be canonicalized
-  ///    before searching. Note that if there are multiple headers with the same
-  ///    name, only the first one will be returned. Consider using
-  ///    ``equal_range`` instead for iterating all the headers with the same
-  ///    name.
+  ///   Get header with specific key. The input ``name`` will be canonicalized
+  ///   before searching. Note that if there are multiple headers with the same
+  ///   name, only the first one will be returned. Consider using
+  ///   ``equal_range`` instead for iterating all the headers with the same
+  ///   name.
   ///
   /// @endverbatim
   auto get(std::string_view name) const noexcept -> optional<mapped_type>
@@ -195,10 +195,10 @@ public:
   /// Get header with specific key.
   ///
   /// DESCRIPTION
-  ///    Get header with specific key. Note that if there are multiple headers
-  ///    with the same name, only the first one will be returned. Consider using
-  ///    ``equal_range`` instead for iterating all the headers with the same
-  ///    name.
+  ///   Get header with specific key. Note that if there are multiple headers
+  ///   with the same name, only the first one will be returned. Consider using
+  ///   ``equal_range`` instead for iterating all the headers with the same
+  ///   name.
   ///
   /// @endverbatim
   auto get(http::field name) const noexcept -> optional<mapped_type>
@@ -215,8 +215,8 @@ public:
   /// Get range of elements matching a specific key.
   ///
   /// DESCRIPTION
-  ///    Get range of elements matching a specific key. The input ``name`` will
-  ///    be canonicalized before searching.
+  ///   Get range of elements matching a specific key. The input ``name`` will
+  ///   be canonicalized before searching.
   ///
   /// @endverbatim
   auto equal_range(std::string_view name) const -> std::pair<iterator, iterator>
@@ -229,7 +229,7 @@ public:
   /// Get range of elements matching a specific key.
   ///
   /// DESCRIPTION
-  ///    Get range of elements matching a specific key.
+  ///   Get range of elements matching a specific key.
   ///
   /// @endverbatim
   auto equal_range(http::field name) const -> std::pair<iterator, iterator>
@@ -242,8 +242,8 @@ public:
   /// Remove element with specific key.
   ///
   /// DESCRIPTION
-  ///    Remove element with specific key. The input ``name`` will
-  ///    be canonicalized before searching.
+  ///   Remove element with specific key. The input ``name`` will be
+  ///   canonicalized before searching.
   ///
   /// @endverbatim
   auto erase(std::string_view name) -> size_type
@@ -256,7 +256,7 @@ public:
   /// Remove element with specific key.
   ///
   /// DESCRIPTION
-  ///    Remove element with specific key.
+  ///   Remove element with specific key.
   ///
   /// @endverbatim
   auto erase(http::field name) -> size_type

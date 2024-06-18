@@ -102,8 +102,8 @@ public:
   /// Get the timeout for TLS handshake.
   ///
   /// DESCRIPTION
-  ///     Get the timeout for TLS handshake. If no timeout is set, ``nullopt``
-  ///     is returned.
+  ///   Get the timeout for TLS handshake. If no timeout is set, ``nullopt`` is
+  ///   returned.
   ///
   /// @endverbatim
   auto tls_handshake_timeout() const noexcept -> optional<duration_type>
@@ -116,8 +116,8 @@ public:
   /// Get the timeout for serving client request.
   ///
   /// DESCRIPTION
-  ///     Get the timeout for serving client request. If no timeout is set,
-  ///     ``nullopt`` is returned.
+  ///   Get the timeout for serving client request. If no timeout is set,
+  ///   ``nullopt`` is returned.
   ///
   /// @endverbatim
   auto request_timeout() const noexcept -> optional<duration_type>
@@ -130,8 +130,8 @@ public:
   /// Get the maximum size in bytes for reading client request headers.
   ///
   /// DESCRIPTION
-  ///     Get the maximum size in bytes for reading client request headers.
-  ///     ``nullopt`` indicates no size check will be performed.
+  ///   Get the maximum size in bytes for reading client request headers.
+  ///   ``nullopt`` indicates no size check will be performed.
   ///
   /// @endverbatim
   auto request_header_limit() const noexcept -> optional<std::uint32_t>
@@ -144,8 +144,8 @@ public:
   /// Get the maximum size in bytes for reading client request body.
   ///
   /// DESCRIPTION
-  ///     Get the maximum size in bytes for reading client request body.
-  ///     ``nullopt`` indicates no size check will be performed.
+  ///   Get the maximum size in bytes for reading client request body.
+  ///   ``nullopt`` indicates no size check will be performed.
   ///
   /// @endverbatim
   auto request_body_limit() const noexcept -> optional<std::uint64_t>
@@ -214,9 +214,9 @@ public:
   /// connections.
   ///
   /// DESCRIPTION
-  ///     Binds address and create an acceptor for local (Unix domain socket)
-  ///     connections. Make sure that no file is at the ``file_path``, or system
-  ///     call ``bind`` may return error.
+  ///   Binds address and create an acceptor for local (Unix domain socket)
+  ///   connections. Make sure that no file is at the ``file_path``, or system
+  ///   call ``bind`` may return error.
   ///
   /// @endverbatim
   auto bind_local(std::string_view file_path) const
@@ -246,9 +246,9 @@ public:
   /// connections.
   ///
   /// DESCRIPTION
-  ///     Binds address and create an acceptor for local (Unix domain socket)
-  ///     TLS connections. Make sure that no file is at the ``file_path``, or
-  ///     system call ``bind`` may return error.
+  ///   Binds address and create an acceptor for local (Unix domain socket)
+  ///   TLS connections. Make sure that no file is at the ``file_path``, or
+  ///   system call ``bind`` may return error.
   ///
   /// @endverbatim
   auto bind_local(std::string_view file_path, net::ssl::context& ssl_ctx) const
@@ -653,7 +653,7 @@ public:
   /// Set the timeout for TLS handshake.
   ///
   /// DESCRIPTION
-  ///     Pass ``nullopt`` to disable timeout.
+  ///   Set the timeout for TLS handshake. Pass ``nullopt`` to disable timeout.
   ///
   /// @endverbatim
   auto set_tls_handshake_timeout(optional<duration_type> timeout) & noexcept
@@ -675,7 +675,8 @@ public:
   /// Set the timeout for serving client request.
   ///
   /// DESCRIPTION
-  ///     Pass ``nullopt`` to disable timeout.
+  ///   Set the timeout for serving client request. Pass ``nullopt`` to disable
+  ///   timeout.
   ///
   /// @endverbatim
   auto
@@ -697,8 +698,8 @@ public:
   /// Set the maximum size in bytes for reading client request headers.
   ///
   /// DESCRIPTION
-  ///     Set the maximum size in bytes for reading client request headers. Pass
-  ///     ``nullopt`` to disable headers size check. Default limit is 8KB.
+  ///   Set the maximum size in bytes for reading client request headers. Pass
+  ///   ``nullopt`` to disable headers size check. Default limit is 8KB.
   ///
   /// @endverbatim
   auto
@@ -720,8 +721,8 @@ public:
   /// Set the maximum size in bytes for reading client request body.
   ///
   /// DESCRIPTION
-  ///     Set the maximum size in bytes for reading client request body. Pass
-  ///     ``nullopt`` to disable body size check. Default limit is 1MB.
+  ///   Set the maximum size in bytes for reading client request body. Pass
+  ///   ``nullopt`` to disable body size check. Default limit is 1MB.
   ///
   /// @endverbatim
   auto
@@ -745,9 +746,9 @@ public:
   /// Set the exception handler to handle any exception thrown from the server.
   ///
   /// DESCRIPTION
-  ///     Set the exception handler to handle any exception thrown from the
-  ///     server. If is not set by user, the ``default_exception_handler`` will
-  ///     be used.
+  ///   Set the exception handler to handle any exception thrown from the
+  ///   server. If is not set by user, the ``default_exception_handler`` will be
+  ///   used.
   ///
   /// @endverbatim
   template <typename F>
@@ -772,8 +773,8 @@ public:
   /// Add a ``route`` to the server.
   ///
   /// DESCRIPTION
-  ///     Add a ``route`` to the server. Note that no duplicate ``route`` s are
-  ///     allowed.
+  ///   Add a ``route`` to the server. Note that no duplicate ``route`` s are
+  ///   allowed.
   ///
   /// @endverbatim
   template <basic_fixed_string RoutePath,
@@ -806,8 +807,8 @@ public:
   /// Add all ``route`` s from a ``scope`` to the server.
   ///
   /// DESCRIPTION
-  ///     Add all ``route`` s from a ``scope`` to the server. Note that no
-  ///     duplicate routes are allowed.
+  ///   Add all ``route`` s from a ``scope`` to the server. Note that no
+  ///   duplicate routes are allowed.
   ///
   /// @endverbatim
   template <basic_fixed_string Path, typename... Services, typename... Routes>
@@ -836,8 +837,8 @@ public:
   /// Create the ``http_server``.
   ///
   /// DESCRIPTION
-  ///     Create the ``http_server``. Note that current object is no longer
-  ///     usable after calling this function.
+  ///   Create the ``http_server``. Note that current object is no longer usable
+  ///   after calling this function.
   ///
   /// @endverbatim
   auto build() -> http_server

@@ -28,8 +28,8 @@ using boost::beast::http::status_class;
 /// Defines HTTP status category constants.
 ///
 /// DESCRIPTION
-///     Defines HTTP status category constants, which are aliases of
-///     ``boost::beast::http::status_class``.
+///   Defines HTTP status category constants, which are aliases of
+///   ``boost::beast::http::status_class``.
 ///
 /// .. seealso::
 ///

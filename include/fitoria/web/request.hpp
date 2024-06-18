@@ -175,8 +175,8 @@ public:
   /// Create the builder for furthur modification.
   ///
   /// DESCRIPTION
-  ///     Create the builder for furthur modification. Note that current object
-  ///     is no longer usable after calling this function.
+  ///   Create the builder for furthur modification. Note that current object
+  ///   is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto builder() -> request_builder;
@@ -241,9 +241,9 @@ public:
   /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP headers. The input ``name`` will be canonicalized before
-  ///    insertion. Note that any existing headers with the same name will be
-  ///    removed before the insertion.
+  ///   Set HTTP headers. The input ``name`` will be canonicalized before
+  ///   insertion. Note that any existing headers with the same name will be
+  ///   removed before the insertion.
   ///
   /// @endverbatim
   auto set_header(std::string_view name,
@@ -265,8 +265,8 @@ public:
   /// Set HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Set HTTP headers. Note that any existing headers with the same name
-  ///    will be removed before the insertion.
+  ///   Set HTTP headers. Note that any existing headers with the same name
+  ///   will be removed before the insertion.
   ///
   /// @endverbatim
   auto set_header(http::field name,
@@ -288,9 +288,9 @@ public:
   /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP headers. The input ``name`` will be canonicalized before
-  ///    insertion. Note that any existing headers with the same name will be
-  ///    kept.
+  ///   Insert HTTP headers. The input ``name`` will be canonicalized before
+  ///   insertion. Note that any existing headers with the same name will be
+  ///   kept.
   ///
   /// @endverbatim
   auto insert_header(std::string_view name,
@@ -312,8 +312,8 @@ public:
   /// Insert HTTP headers.
   ///
   /// DESCRIPTION
-  ///    Insert HTTP headers. Note that any existing headers with the same name
-  ///    will be kept.
+  ///   Insert HTTP headers. Note that any existing headers with the same name
+  ///   will be kept.
   ///
   /// @endverbatim
   auto insert_header(http::field name,
@@ -372,9 +372,9 @@ public:
   /// Set a null body and create the ``response``.
   ///
   /// DESCRIPTION
-  ///    Set a null body and create the ``response``. If you do not want to
-  ///    modify the existing body, call ``build()`` instead. Note that current
-  ///    object is no longer usable after calling this function.
+  ///   Set a null body and create the ``response``. If you do not want to
+  ///   modify the existing body, call ``build()`` instead. Note that current
+  ///   object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_body() -> request
@@ -388,8 +388,8 @@ public:
   /// Set a raw body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``request``. Note that current object is
-  ///    no longer usable after calling this function.
+  ///   Set a raw body and create the ``request``. Note that current object is
+  ///   no longer usable after calling this function.
   ///
   /// @endverbatim
   template <std::size_t N>
@@ -404,8 +404,8 @@ public:
   /// Set a raw body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``request``. Note that current object is
-  ///    no longer usable after calling this function.
+  ///   Set a raw body and create the ``request``. Note that current object is
+  ///   no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_body(std::string_view sv) -> request
@@ -419,8 +419,8 @@ public:
   /// Set a raw body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a raw body and create the ``request``. Note that current object is
-  ///    no longer usable after calling this function.
+  ///   Set a raw body and create the ``request``. Note that current object is
+  ///   no longer usable after calling this function.
   ///
   /// @endverbatim
   template <async_readable_stream AsyncReadableStream>
@@ -435,9 +435,9 @@ public:
   /// Set a json object as the body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set a json object as the body and create the ``request``.
-  ///    ``Content-Type: application/json`` will be automatically inserted. Note
-  ///    that current object is no longer usable after calling this function.
+  ///   Set a json object as the body and create the ``request``.
+  ///   ``Content-Type: application/json`` will be automatically inserted. Note
+  ///   that current object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto set_json(const boost::json::value& jv) -> request
@@ -454,10 +454,10 @@ public:
   /// body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///    Set an object of type ``T`` that is converiable to a json object as the
-  ///    the body and create the ``request``. ``Content-Type: application/json``
-  ///    will be automatically inserted. Note that current object is no longer
-  ///    usable after calling this function.
+  ///   Set an object of type ``T`` that is converiable to a json object as the
+  ///   the body and create the ``request``. ``Content-Type: application/json``
+  ///   will be automatically inserted. Note that current object is no longer
+  ///   usable after calling this function.
   ///
   /// @endverbatim
   template <typename T>
@@ -472,9 +472,9 @@ public:
   /// Do not modify the body and create the ``request``.
   ///
   /// DESCRIPTION
-  ///     Do not modify the body and create the ``request``. If you want to
-  ///     remove existing body, call `set_body()` instead. Note that current
-  ///     object is no longer usable after calling this function.
+  ///   Do not modify the body and create the ``request``. If you want to
+  ///   remove existing body, call `set_body()` instead. Note that current
+  ///   object is no longer usable after calling this function.
   ///
   /// @endverbatim
   auto build() -> request

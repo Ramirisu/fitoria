@@ -28,8 +28,8 @@ using boost::beast::http::status;
 /// Defines HTTP status code constants.
 ///
 /// DESCRIPTION
-///     Defines HTTP status code constants, which are aliases of
-///     ``boost::beast::http::status``
+///   Defines HTTP status code constants, which are aliases of
+///   ``boost::beast::http::status``
 ///
 /// .. seealso::
 ///

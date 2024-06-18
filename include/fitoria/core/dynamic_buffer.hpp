@@ -23,15 +23,15 @@ FITORIA_NAMESPACE_BEGIN
 /// ``net::DynamicBuffer`` concept.
 ///
 /// DESCRIPTION
-///     An adapter that turns ``Container`` into a type that satisfies
-///     ``net::DynamicBuffer`` concept. Note that ``Container`` must use
-///     contiguous storage.
+///   An adapter that turns ``Container`` into a type that satisfies
+///   ``net::DynamicBuffer`` concept. Note that ``Container`` must use
+///   contiguous storage.
 ///
-///     .. code-block::
+///   .. code-block::
 ///
-///                      readable    writable
-///        |-----------|-----------|-----------|-----------|-----------|
-///        0        roffset     woffset     c.size()  c.capacity()    limit
+///                    readable    writable
+///      |-----------|-----------|-----------|-----------|-----------|
+///      0        roffset     woffset     c.size()  c.capacity()    limit
 ///
 /// @endverbatim
 template <typename Container>
@@ -185,8 +185,8 @@ public:
   /// Release the underlying ``Container`` instance.
   ///
   /// DESCRIPTION
-  ///     Release the underlying ``Container`` instance, which only contains
-  ///     readable bytes
+  ///   Release the underlying ``Container`` instance, which only contains
+  ///   readable bytes.
   ///
   /// @endverbatim
   auto release() -> Container

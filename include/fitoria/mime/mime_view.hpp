@@ -50,10 +50,10 @@ public:
   /// Get complete string of the mime.
   ///
   /// DESCRIPTION
-  ///     Get complete string of the mime.
+  ///   Get complete string of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
-  ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
+  ///   - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
   /// @endverbatim
   auto source() const noexcept -> std::string_view
@@ -66,10 +66,10 @@ public:
   /// Get **essense** part of the mime.
   ///
   /// DESCRIPTION
-  ///     Get **essense** part of the mime.
+  ///   Get **essense** part of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain"``
-  ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``"text/plain"``
+  ///   - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
   /// @endverbatim
   auto essence() const noexcept -> std::string_view
@@ -82,10 +82,10 @@ public:
   /// Get **type** part of the mime.
   ///
   /// DESCRIPTION
-  ///     Get **type** part of the mime.
+  ///   Get **type** part of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``"text"``
-  ///     - ``"image/svg+xml"`` -> ``"image"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``"text"``
+  ///   - ``"image/svg+xml"`` -> ``"image"``
   ///
   /// @endverbatim
   auto type() const noexcept -> std::string_view
@@ -98,10 +98,10 @@ public:
   /// Get **subtype** part of the mime.
   ///
   /// DESCRIPTION
-  ///     Get **subtype** part of the mime.
+  ///   Get **subtype** part of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``"plain"``
-  ///     - ``"image/svg+xml"`` -> ``"svg"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``"plain"``
+  ///   - ``"image/svg+xml"`` -> ``"svg"``
   ///
   /// @endverbatim
   auto subtype() const noexcept -> std::string_view
@@ -114,10 +114,10 @@ public:
   /// Get **suffix** part of the mime.
   ///
   /// DESCRIPTION
-  ///     Get **suffix** part of the mime.
+  ///   Get **suffix** part of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``nullopt``
-  ///     - ``"image/svg+xml"`` -> ``"xml"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``nullopt``
+  ///   - ``"image/svg+xml"`` -> ``"xml"``
   ///
   /// @endverbatim
   auto suffix() const noexcept -> optional<std::string_view>
@@ -130,10 +130,10 @@ public:
   /// Get parameters of the mime.
   ///
   /// DESCRIPTION
-  ///     Get parameters of the mime.
+  ///   Get parameters of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``{ { "charset", "utf-8" } }``
-  ///     - ``"image/svg+xml"`` -> ``{}``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``{ { "charset", "utf-8" } }``
+  ///   - ``"image/svg+xml"`` -> ``{}``
   ///
   /// @endverbatim
   auto params() const noexcept -> const params_view&
@@ -146,10 +146,10 @@ public:
   /// Get complete string of the mime.
   ///
   /// DESCRIPTION
-  ///     Get complete string of the mime.
+  ///   Get complete string of the mime.
   ///
-  ///     - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
-  ///     - ``"image/svg+xml"`` -> ``"image/svg+xml"``
+  ///   - ``"text/plain; charset=utf-8"`` -> ``"text/plain; charset=utf-8"``
+  ///   - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
   /// @endverbatim
   operator std::string_view() const noexcept

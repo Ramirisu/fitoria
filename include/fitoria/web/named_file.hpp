@@ -76,8 +76,8 @@ public:
   /// Open file with read-only permission.
   ///
   /// DESCRIPTION
-  ///     Open file with read-only permission. ``Content-Type`` header will be
-  ///     obtained from the file extension.
+  ///   Open file with read-only permission. ``Content-Type`` header will be
+  ///   obtained from the file extension.
   ///
   /// @endverbatim
   static auto open_readonly(const executor_type& ex, const std::string& path)
