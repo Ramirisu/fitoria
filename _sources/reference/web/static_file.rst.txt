@@ -1,6 +1,6 @@
 ********************************************************************************
-``class named_file``
+``class static_file``
 ********************************************************************************
 
-.. doxygenclass:: fitoria::web::named_file
+.. doxygenclass:: fitoria::web::static_file
    :members:
