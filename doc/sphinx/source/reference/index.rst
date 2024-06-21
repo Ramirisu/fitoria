@@ -40,7 +40,6 @@ Reference
    web/form_of
    web/http_server
    web/json_of
-   web/named_file
    web/path_info
    web/path_of
    web/query_map
@@ -51,6 +50,7 @@ Reference
    web/response_builder
    web/route
    web/state_of
+   web/static_file
    web/test_request
    web/test_request_builder
    web/test_response

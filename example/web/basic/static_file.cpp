@@ -15,26 +15,25 @@
 using namespace fitoria;
 using namespace fitoria::web;
 
-auto get_static_file(const path_info& pi)
-    -> awaitable<std::variant<named_file, response>>
+auto serve_file(path_of<std::tuple<std::string>> path, const request& req)
+    -> awaitable<expected<static_file, response>>
 {
-  if (auto file = named_file::open_readonly(co_await net::this_coro::executor,
-                                            pi.at("file_path"));
-      file) {
-    co_return std::move(*file);
-  }
+  auto [file_path] = path;
 
-  co_return response::not_found()
-      .set_header(http::field::content_type, mime::text_plain())
-      .set_body(fmt::format("requsted file was not found: \"{}\"",
-                            pi.at("file_path")));
+  co_return static_file::open(co_await net::this_coro::executor, file_path, req)
+      .transform_error([&file_path](auto) -> response {
+        return response::not_found()
+            .set_header(http::field::content_type, mime::text_plain())
+            .set_body(
+                fmt::format("requsted file was not found: \"{}\"", file_path));
+      });
 }
 
 int main()
 {
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
-                    .serve(route::get<"/static/#file_path">(get_static_file))
+                    .serve(route::get<"/#file_path">(serve_file))
                     .build();
   server.bind("127.0.0.1", 8080);
 

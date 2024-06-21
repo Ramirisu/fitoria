@@ -325,6 +325,10 @@ public:
 template <typename NextLayer>
 using websocket_stream = boost::beast::websocket::stream<NextLayer>;
 
+#if defined(BOOST_ASIO_HAS_FILE)
+using stream_file = boost::asio::basic_stream_file<executor_type>;
+#endif
+
 using boost::beast::flat_buffer;
 using boost::beast::get_lowest_layer;
 

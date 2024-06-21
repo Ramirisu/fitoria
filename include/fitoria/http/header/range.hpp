@@ -25,16 +25,16 @@ namespace http::header {
 
 class range {
 public:
-  struct offset_t {
-    std::uint64_t start;
+  struct subrange_t {
+    std::uint64_t offset;
     std::uint64_t length;
 
-    friend bool operator==(const offset_t&, const offset_t&) = default;
+    friend bool operator==(const subrange_t&, const subrange_t&) = default;
   };
 
-  range(std::string unit, std::vector<offset_t> ranges)
+  range(std::string unit, std::vector<subrange_t> subranges)
       : unit_(std::move(unit))
-      , ranges_(std::move(ranges))
+      , subranges_(std::move(subranges))
   {
   }
 
@@ -45,47 +45,47 @@ public:
 
   auto size() const noexcept -> std::size_t
   {
-    return ranges_.size();
+    return subranges_.size();
   }
 
-  auto at(std::size_t index) const noexcept -> const offset_t&
+  auto at(std::size_t index) const noexcept -> const subrange_t&
   {
-    return ranges_.at(index);
+    return subranges_.at(index);
   }
 
-  auto operator[](std::size_t index) const noexcept -> const offset_t&
+  auto operator[](std::size_t index) const noexcept -> const subrange_t&
   {
-    return ranges_[index];
+    return subranges_[index];
   }
 
   auto begin()
   {
-    return ranges_.begin();
+    return subranges_.begin();
   }
 
   auto begin() const
   {
-    return ranges_.begin();
+    return subranges_.begin();
   }
 
   auto cbegin() const
   {
-    return ranges_.cbegin();
+    return subranges_.cbegin();
   }
 
   auto end()
   {
-    return ranges_.end();
+    return subranges_.end();
   }
 
   auto end() const
   {
-    return ranges_.end();
+    return subranges_.end();
   }
 
   auto cend() const
   {
-    return ranges_.cend();
+    return subranges_.cend();
   }
 
   static auto parse(std::string_view input,
@@ -104,8 +104,8 @@ public:
                      { { total_length - *suffix, *suffix } });
       }
     } else {
-      if (auto ranges = parse_ranges(unit[1], total_length); ranges) {
-        return range(std::string(unit[0]), std::move(*ranges));
+      if (auto subranges = parse_subranges(unit[1], total_length); subranges) {
+        return range(std::string(unit[0]), std::move(*subranges));
       }
     }
 
@@ -113,24 +113,24 @@ public:
   }
 
 private:
-  static auto parse_ranges(std::string_view input,
-                           std::uint64_t total_length) noexcept
-      -> optional<std::vector<offset_t>>
+  static auto parse_subranges(std::string_view input,
+                              std::uint64_t total_length) noexcept
+      -> optional<std::vector<subrange_t>>
   {
     // <range-start>-<range-end>, <range-start>-<range-end>, ...
 
-    auto ranges = std::vector<offset_t>();
+    auto subranges = std::vector<subrange_t>();
     auto tokens = split_of(input, ",");
     for (auto& token : tokens) {
-      if (auto offset = split_of(token, "-"); offset.size() == 2) {
-        auto start = from_string<std::uint64_t>(offset[0]);
-        if (offset[1].empty() && start) {
-          ranges.push_back(offset_t { *start, total_length - *start });
+      if (auto subrange = split_of(token, "-"); subrange.size() == 2) {
+        auto start = from_string<std::uint64_t>(subrange[0]);
+        if (subrange[1].empty() && start) {
+          subranges.push_back(subrange_t { *start, total_length - *start });
           continue;
         }
-        auto end = from_string<std::uint64_t>(offset[1]);
+        auto end = from_string<std::uint64_t>(subrange[1]);
         if (start && end && *start <= *end) {
-          ranges.push_back(offset_t { *start, *end - *start + 1 });
+          subranges.push_back(subrange_t { *start, *end - *start + 1 });
           continue;
         }
       }
@@ -138,11 +138,11 @@ private:
       return nullopt;
     }
 
-    return ranges;
+    return subranges;
   }
 
   std::string unit_;
-  std::vector<offset_t> ranges_;
+  std::vector<subrange_t> subranges_;
 };
 
 }
