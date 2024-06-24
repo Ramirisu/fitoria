@@ -14,8 +14,8 @@
 #include <fitoria/core/detail/from_string_impl.hpp>
 
 #include <fitoria/core/expected.hpp>
+#include <fitoria/core/strings.hpp>
 #include <fitoria/core/tag_invoke.hpp>
-#include <fitoria/core/utility.hpp>
 
 #include <string_view>
 

@@ -11,11 +11,20 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <algorithm>
 #include <cctype>
 #include <string_view>
 #include <vector>
 
 FITORIA_NAMESPACE_BEGIN
+
+inline bool iequals(std::string_view lhs, std::string_view rhs)
+{
+  return std::equal(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](auto l, auto r) {
+        return std::tolower(l) == std::tolower(r);
+      });
+}
 
 inline auto ltrim(std::string_view s) noexcept -> std::string_view
 {
@@ -40,16 +49,16 @@ inline auto trim(std::string_view s) noexcept -> std::string_view
   return ltrim(rtrim(s));
 }
 
-inline auto split_of(std::string_view sv,
-                     std::string_view delim) -> std::vector<std::string_view>
+inline auto split_of(std::string_view sv, std::string_view delimiters)
+    -> std::vector<std::string_view>
 {
   auto tokens = std::vector<std::string_view>();
 
-  auto pos = sv.find_first_of(delim);
+  auto pos = sv.find_first_of(delimiters);
   while (pos != std::string_view::npos) {
     tokens.push_back(trim(sv.substr(0, pos)));
     sv.remove_prefix(pos + 1);
-    pos = sv.find_first_of(delim);
+    pos = sv.find_first_of(delimiters);
   }
 
   tokens.push_back(trim(sv));
