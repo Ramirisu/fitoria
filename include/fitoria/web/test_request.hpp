@@ -277,7 +277,7 @@ public:
   auto set_header(std::string_view name,
                   std::string_view value) && -> test_request_builder&&
   {
-    headers_.set(name, value);
+    set_header(name, value);
     return std::move(*this);
   }
 
@@ -300,7 +300,7 @@ public:
   auto set_header(http::field name,
                   std::string_view value) && -> test_request_builder&&
   {
-    headers_.set(name, value);
+    set_header(name, value);
     return std::move(*this);
   }
 
@@ -324,7 +324,7 @@ public:
   auto insert_header(std::string_view name,
                      std::string_view value) && -> test_request_builder&&
   {
-    headers_.insert(name, value);
+    insert_header(name, value);
     return std::move(*this);
   }
 
@@ -347,7 +347,7 @@ public:
   auto insert_header(http::field name,
                      std::string_view value) && -> test_request_builder&&
   {
-    headers_.insert(name, value);
+    insert_header(name, value);
     return std::move(*this);
   }
 

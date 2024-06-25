@@ -20,6 +20,8 @@ TEST_CASE("default construction")
   CHECK(p.empty());
   CHECK_EQ(p.size(), 0);
   CHECK(!p.contains("charset"));
+  CHECK_EQ(p.get("charset"), nullopt);
+  CHECK_EQ(p.erase("charset"), nullopt);
 }
 
 TEST_CASE("contruction by init")
@@ -31,10 +33,36 @@ TEST_CASE("contruction by init")
   CHECK_EQ(p.get("charset"), "utf-8");
   CHECK_EQ(p.at("charset"), "utf-8");
   CHECK_EQ(p["charset"], "utf-8");
+  CHECK_EQ(p.get("any"), nullopt);
+  CHECK_EQ(p.erase("any"), nullopt);
 
   const auto& cp = p;
   CHECK_EQ(cp.get("charset"), "utf-8");
   CHECK_EQ(cp.at("charset"), "utf-8");
+}
+
+TEST_CASE("copy/move")
+{
+  {
+    auto s = params_view({ { "charset", "utf-8" } });
+    params_view d(s);
+    CHECK_EQ(d, params_view({ { "charset", "utf-8" } }));
+  }
+  {
+    auto s = params_view({ { "charset", "utf-8" } });
+    auto d = s;
+    CHECK_EQ(d, params_view({ { "charset", "utf-8" } }));
+  }
+  {
+    auto s = params_view({ { "charset", "utf-8" } });
+    params_view d(std::move(s));
+    CHECK_EQ(d, params_view({ { "charset", "utf-8" } }));
+  }
+  {
+    auto s = params_view({ { "charset", "utf-8" } });
+    auto d = std::move(s);
+    CHECK_EQ(d, params_view({ { "charset", "utf-8" } }));
+  }
 }
 
 TEST_CASE("set")

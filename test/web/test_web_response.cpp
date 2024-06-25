@@ -48,6 +48,30 @@ TEST_CASE("builder with rvalue")
   test_builder(response_builder(http::status::ok));
 }
 
+TEST_CASE("copy/move")
+{
+  {
+    auto s = response::internal_server_error().build();
+    response d(s);
+    CHECK_EQ(d.status(), http::status::internal_server_error);
+  }
+  {
+    auto s = response::internal_server_error().build();
+    auto d = s;
+    CHECK_EQ(d.status(), http::status::internal_server_error);
+  }
+  {
+    auto s = response::internal_server_error().build();
+    response d(std::move(s));
+    CHECK_EQ(d.status(), http::status::internal_server_error);
+  }
+  {
+    auto s = response::internal_server_error().build();
+    auto d = std::move(s);
+    CHECK_EQ(d.status(), http::status::internal_server_error);
+  }
+}
+
 TEST_CASE("status")
 {
   CHECK_EQ(response::ok().build().status(), //

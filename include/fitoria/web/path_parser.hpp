@@ -74,24 +74,18 @@ private:
     while (it_ != last_) {
       if (kind_ == path_token_kind::static_) {
         if (*it_ == '{') {
-          auto value = std::string(token_first_, it_);
-          if (value.empty() || !try_push_without_duplicate(kind_, value)) {
-            return false;
-          }
-          kind_ = path_token_kind::param;
           if (prev_ == it_ || *prev_ != '/') {
             return false;
           }
+          tokens_.push_back({ kind_, std::string(token_first_, it_) });
+          kind_ = path_token_kind::param;
           advance_it();
           token_first_ = it_;
         } else if (is_wildcard(*it_)) {
           if (!Wildcard) {
             return false;
           }
-          auto value = std::string(token_first_, it_);
-          if (value.empty() || !try_push_without_duplicate(kind_, value)) {
-            return false;
-          }
+          tokens_.push_back({ kind_, std::string(token_first_, it_) });
           kind_ = path_token_kind::wildcard;
           advance_it();
           token_first_ = it_;
@@ -117,7 +111,7 @@ private:
         } else if (*it_ == '/' || is_wildcard(*it_) || !on_pchar()) {
           return false;
         }
-      } else { // kind_ == path_token_kind::wildcard
+      } else if (kind_ == path_token_kind::wildcard) {
         if (!on_pchar()) {
           return false;
         }
@@ -125,12 +119,12 @@ private:
     }
 
     if (kind_ == path_token_kind::static_) {
-      if (auto value = std::string(token_first_, it_); !value.empty()) {
-        try_push_without_duplicate(kind_, value);
+      if (token_first_ != last_) {
+        tokens_.push_back({ kind_, std::string(token_first_, it_) });
       }
     } else if (kind_ == path_token_kind::param) {
       return false;
-    } else { // kind_ == path_token_kind::wildcard
+    } else if (kind_ == path_token_kind::wildcard) {
       if (auto value = std::string(token_first_, it_);
           value.empty() || !try_push_without_duplicate(kind_, value)) {
         return false;
@@ -144,8 +138,7 @@ private:
                                             std::string value)
   {
     for (auto& token : tokens_) {
-      if (kind != path_token_kind::static_
-          && token.kind != path_token_kind::static_ && value == token.value) {
+      if (value == token.value) {
         return false;
       }
     }
