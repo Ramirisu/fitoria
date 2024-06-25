@@ -147,7 +147,7 @@ public:
 
     if (auto header = req.headers().get(http::field::range); header) {
       if (auto range = http::header::range::parse(*header, file.size()); range
-          && iequals(range->unit(), "bytes")
+          && cmp_eq_ci(range->unit(), "bytes")
           && (*range)[0].offset + (*range)[0].length <= file.size()) {
         return static_file(std::move(file),
                            mime::mime_view::from_path(path).value_or(

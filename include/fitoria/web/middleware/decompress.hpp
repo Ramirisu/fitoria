@@ -41,17 +41,17 @@ public:
       auto body = std::move(req.body());
 
       for (auto& enc : encs) {
-        if (iequals(enc, "deflate")) {
+        if (cmp_eq_ci(enc, "deflate")) {
           body = detail::async_inflate_stream(std::move(body));
 #if defined(FITORIA_HAS_ZLIB)
-        } else if (iequals(enc, "gzip")) {
+        } else if (cmp_eq_ci(enc, "gzip")) {
           body = detail::async_gzip_inflate_stream(std::move(body));
 #endif
 #if defined(FITORIA_HAS_BROTLI)
-        } else if (iequals(enc, "brotli")) {
+        } else if (cmp_eq_ci(enc, "brotli")) {
           body = detail::async_brotli_inflate_stream(std::move(body));
 #endif
-        } else if (iequals(enc, "identity")) {
+        } else if (cmp_eq_ci(enc, "identity")) {
         } else {
           co_return response::bad_request()
               .set_header(http::field::content_type, mime::text_plain())

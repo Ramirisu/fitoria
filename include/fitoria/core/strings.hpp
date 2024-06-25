@@ -18,11 +18,20 @@
 
 FITORIA_NAMESPACE_BEGIN
 
-inline bool iequals(std::string_view lhs, std::string_view rhs)
+inline auto cmp_eq_ci(std::string_view lhs, std::string_view rhs) -> bool
 {
   return std::equal(
       lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](auto l, auto r) {
         return std::tolower(l) == std::tolower(r);
+      });
+}
+
+inline auto cmp_tw_ci(std::string_view lhs,
+                      std::string_view rhs) -> std::strong_ordering
+{
+  return std::lexicographical_compare_three_way(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](auto l, auto r) {
+        return std::tolower(l) <=> std::tolower(r);
       });
 }
 

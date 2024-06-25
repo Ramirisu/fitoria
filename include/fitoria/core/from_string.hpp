@@ -66,12 +66,12 @@ struct from_string_t {
                          std::string_view s) -> expected<R, std::error_code>
     requires std::same_as<R, bool>
   {
-    if (iequals(s, "1") || iequals(s, "t") || iequals(s, "true")
-        || iequals(s, "y") || iequals(s, "yes")) {
+    if (cmp_eq_ci(s, "1") || cmp_eq_ci(s, "t") || cmp_eq_ci(s, "true")
+        || cmp_eq_ci(s, "y") || cmp_eq_ci(s, "yes")) {
       return true;
     }
-    if (iequals(s, "0") || iequals(s, "f") || iequals(s, "false")
-        || iequals(s, "n") || iequals(s, "no")) {
+    if (cmp_eq_ci(s, "0") || cmp_eq_ci(s, "f") || cmp_eq_ci(s, "false")
+        || cmp_eq_ci(s, "n") || cmp_eq_ci(s, "no")) {
       return false;
     }
 

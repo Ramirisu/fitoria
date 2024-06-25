@@ -433,7 +433,8 @@ private:
             = websocket(stream);
       } else {
         if (auto it = parser->get().find(http::field::expect);
-            it != parser->get().end() && iequals(it->value(), "100-continue")) {
+            it != parser->get().end()
+            && cmp_eq_ci(it->value(), "100-continue")) {
           if (auto bytes_written = co_await async_write(
                   stream,
                   response<empty_body>(http::status::continue_, 11),

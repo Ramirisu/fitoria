@@ -221,12 +221,12 @@ public:
 
   friend bool operator==(mime_view lhs, mime_view rhs) noexcept
   {
-    return iequals(lhs.source_, rhs.source_);
+    return cmp_eq_ci(lhs.source_, rhs.source_);
   }
 
   friend bool operator==(mime_view lhs, std::string_view rhs) noexcept
   {
-    return iequals(lhs.source_, rhs);
+    return cmp_eq_ci(lhs.source_, rhs);
   }
 
 private:
@@ -579,46 +579,48 @@ inline auto video_flv() noexcept -> mime_view
 inline auto
 mime_view::from_extension(std::string_view ext) noexcept -> optional<mime_view>
 {
-  if (iequals(ext, "js")) {
+  if (cmp_eq_ci(ext, "js")) {
     return application_javascript();
   }
-  if (iequals(ext, "json")) {
+  if (cmp_eq_ci(ext, "json")) {
     return application_json();
   }
-  if (iequals(ext, "swf")) {
+  if (cmp_eq_ci(ext, "swf")) {
     return application_shockwave_flash();
   }
-  if (iequals(ext, "xml")) {
+  if (cmp_eq_ci(ext, "xml")) {
     return application_xml();
   }
-  if (iequals(ext, "bmp")) {
+  if (cmp_eq_ci(ext, "bmp")) {
     return image_bmp();
   }
-  if (iequals(ext, "gif")) {
+  if (cmp_eq_ci(ext, "gif")) {
     return image_gif();
   }
-  if (iequals(ext, "jpe") || iequals(ext, "jpeg") || iequals(ext, "jpg")) {
+  if (cmp_eq_ci(ext, "jpe") || cmp_eq_ci(ext, "jpeg")
+      || cmp_eq_ci(ext, "jpg")) {
     return image_jpeg();
   }
-  if (iequals(ext, "png")) {
+  if (cmp_eq_ci(ext, "png")) {
     return image_png();
   }
-  if (iequals(ext, "svg") || iequals(ext, "svgz")) {
+  if (cmp_eq_ci(ext, "svg") || cmp_eq_ci(ext, "svgz")) {
     return image_svg();
   }
-  if (iequals(ext, "tif") || iequals(ext, "tiff")) {
+  if (cmp_eq_ci(ext, "tif") || cmp_eq_ci(ext, "tiff")) {
     return image_tiff();
   }
-  if (iequals(ext, "css")) {
+  if (cmp_eq_ci(ext, "css")) {
     return text_css();
   }
-  if (iequals(ext, "htm") || iequals(ext, "html") || iequals(ext, "php")) {
+  if (cmp_eq_ci(ext, "htm") || cmp_eq_ci(ext, "html")
+      || cmp_eq_ci(ext, "php")) {
     return text_html();
   }
-  if (iequals(ext, "txt")) {
+  if (cmp_eq_ci(ext, "txt")) {
     return text_plain();
   }
-  if (iequals(ext, "flv")) {
+  if (cmp_eq_ci(ext, "flv")) {
     return video_flv();
   }
 

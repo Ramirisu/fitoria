@@ -644,7 +644,7 @@ private:
     }
 
     if (auto field = headers_.get(http::field::expect);
-        field && iequals(*field, "100-continue")) {
+        field && cmp_eq_ci(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;
@@ -681,7 +681,7 @@ private:
     }
 
     if (auto field = headers_.get(http::field::expect);
-        field && iequals(*field, "100-continue")) {
+        field && cmp_eq_ci(*field, "100-continue")) {
       if (auto res = co_await handle_expect_100_continue(stream);
           !res || *res) {
         co_return res;

@@ -13,12 +13,42 @@ using namespace fitoria;
 
 TEST_SUITE_BEGIN("[fitoria.core.strings]");
 
-TEST_CASE("iequals")
+TEST_CASE("cmp_eq_ci")
 {
-  CHECK(iequals("0123456789abcdefghijklmnopqrstuvwxyz",
-                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-  CHECK(!iequals("0123456789a", "0123456789"));
-  CHECK(!iequals("0123456789a", "0123456789B"));
+  CHECK(cmp_eq_ci("0123456789abcdefghijklmnopqrstuvwxyz",
+                  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+  CHECK(!cmp_eq_ci("0123456789a", "0123456789"));
+  CHECK(!cmp_eq_ci("0123456789a", "0123456789B"));
+}
+
+TEST_CASE("cmp_tw_ci")
+{
+  CHECK_EQ(cmp_tw_ci("", ""), std::strong_ordering::equal);
+  CHECK_EQ(cmp_tw_ci("", "abc"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("", "ABC"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abc", ""), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("ABC", ""), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abc", "abc"), std::strong_ordering::equal);
+  CHECK_EQ(cmp_tw_ci("abc", "ABC"), std::strong_ordering::equal);
+  CHECK_EQ(cmp_tw_ci("ABC", "abc"), std::strong_ordering::equal);
+  CHECK_EQ(cmp_tw_ci("ab", "abc"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("ab", "ABC"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("AB", "abc"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abc", "ab"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abc", "AB"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("ABC", "ab"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abcyz", "abxyz"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abcyz", "ABXYZ"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("ABCYZ", "abxyz"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abxyz", "abcyz"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("ABXYZ", "abcyz"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abxyz", "ABCYZ"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abc", "abxyz"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abc", "ABXYZ"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("ABC", "abxyz"), std::strong_ordering::less);
+  CHECK_EQ(cmp_tw_ci("abx", "abcyz"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("abx", "ABCYZ"), std::strong_ordering::greater);
+  CHECK_EQ(cmp_tw_ci("ABX", "abcyz"), std::strong_ordering::greater);
 }
 
 TEST_CASE("ltrim")
