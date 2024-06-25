@@ -306,6 +306,20 @@ TEST_CASE("compare")
 
   CHECK_EQ(mime_view::parse("text/plain"), "TEXT/PLAIN");
   CHECK_EQ(mime_view::parse("image/svg+xml"), "IMAGE/SVG+XML");
+
+  {
+    auto m = mime_view::parse("image/svg+xml; charset=utf-8");
+    CHECK_EQ(m->essence(), "IMAGE/SVG+XML");
+    CHECK_EQ(m->type(), "IMAGE");
+    CHECK_EQ(m->subtype(), "SVG");
+    CHECK_EQ(m->suffix(), "XML");
+    CHECK_EQ(m->params(), params_view { { "CHARSET", "UTF-8" } });
+  }
+}
+
+TEST_CASE("format")
+{
+  CHECK_EQ(fmt::format("{}", mime::application_json()), "application/json");
 }
 
 TEST_SUITE_END();

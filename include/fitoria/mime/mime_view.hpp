@@ -11,10 +11,12 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/format.hpp>
 #include <fitoria/core/optional.hpp>
 #include <fitoria/core/strings.hpp>
 #include <fitoria/core/utility.hpp>
 
+#include <fitoria/mime/name_view.hpp>
 #include <fitoria/mime/params_view.hpp>
 
 #include <string_view>
@@ -30,11 +32,11 @@ namespace mime {
 /// @endverbatim
 class mime_view {
 public:
-  mime_view(std::string_view source,
-            std::string_view essence,
-            std::string_view type,
-            std::string_view subtype,
-            optional<std::string_view> suffix,
+  mime_view(name_view source,
+            name_view essence,
+            name_view type,
+            name_view subtype,
+            optional<name_view> suffix,
             params_view params)
       : source_(source)
       , essence_(essence)
@@ -56,7 +58,7 @@ public:
   ///   - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
   /// @endverbatim
-  auto source() const noexcept -> std::string_view
+  auto source() const noexcept -> name_view
   {
     return source_;
   }
@@ -72,7 +74,7 @@ public:
   ///   - ``"image/svg+xml"`` -> ``"image/svg+xml"``
   ///
   /// @endverbatim
-  auto essence() const noexcept -> std::string_view
+  auto essence() const noexcept -> name_view
   {
     return essence_;
   }
@@ -88,7 +90,7 @@ public:
   ///   - ``"image/svg+xml"`` -> ``"image"``
   ///
   /// @endverbatim
-  auto type() const noexcept -> std::string_view
+  auto type() const noexcept -> name_view
   {
     return type_;
   }
@@ -104,7 +106,7 @@ public:
   ///   - ``"image/svg+xml"`` -> ``"svg"``
   ///
   /// @endverbatim
-  auto subtype() const noexcept -> std::string_view
+  auto subtype() const noexcept -> name_view
   {
     return subtype_;
   }
@@ -120,7 +122,7 @@ public:
   ///   - ``"image/svg+xml"`` -> ``"xml"``
   ///
   /// @endverbatim
-  auto suffix() const noexcept -> optional<std::string_view>
+  auto suffix() const noexcept -> optional<name_view>
   {
     return suffix_;
   }
@@ -154,7 +156,7 @@ public:
   /// @endverbatim
   operator std::string_view() const noexcept
   {
-    return source();
+    return static_cast<std::string_view>(source_);
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -219,14 +221,65 @@ public:
     return nullopt;
   }
 
-  friend bool operator==(mime_view lhs, mime_view rhs) noexcept
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Compare ``mime_view`` s for equality.
+  ///
+  /// DESCRIPTION
+  ///   Compare ``mime_view`` s for equality. It's considered equivalent if
+  ///   and only if the ``source`` of ``mime_view`` s are case-insensitively
+  ///   equivalent.
+  ///
+  /// @endverbatim
+  friend auto operator==(const mime_view& lhs, const mime_view& rhs) -> bool
   {
-    return cmp_eq_ci(lhs.source_, rhs.source_);
+    return lhs.source_ == rhs.source_;
   }
 
-  friend bool operator==(mime_view lhs, std::string_view rhs) noexcept
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Compare ``mime_view`` 's equivalence against a string.
+  ///
+  /// DESCRIPTION
+  ///   Compare ``mime_view`` 's equivalence against a string. It's considered
+  ///   equivalent if and only if the ``source`` of the ``mime_view`` are
+  ///   case-insensitively equivalent to the string.
+  ///
+  /// @endverbatim
+  friend auto operator==(const mime_view& lhs,
+                         const std::string_view& rhs) -> bool
   {
-    return cmp_eq_ci(lhs.source_, rhs);
+    return lhs.source_ == rhs;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Three-way compare ``mime_view`` s lexicographically.
+  ///
+  /// DESCRIPTION
+  ///   Three-way compare ``mime_view`` s lexicographically. The comparison is
+  ///   performed case-insensitively.
+  ///
+  /// @endverbatim
+  friend auto operator<=>(const mime_view& lhs,
+                          const mime_view& rhs) -> std::strong_ordering
+  {
+    return lhs.source_ <=> rhs.source_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Three-way compare ``mime_view`` lexicographically against a string.
+  ///
+  /// DESCRIPTION
+  ///   Three-way compare ``mime_view`` lexicographically against a string. The
+  ///   comparison is performed case-insensitively.
+  ///
+  /// @endverbatim
+  friend auto operator<=>(const mime_view& lhs,
+                          const std::string_view& rhs) -> std::strong_ordering
+  {
+    return lhs.source_ <=> rhs;
   }
 
 private:
@@ -292,11 +345,11 @@ private:
     });
   }
 
-  std::string_view source_;
-  std::string_view essence_;
-  std::string_view type_;
-  std::string_view subtype_;
-  optional<std::string_view> suffix_;
+  name_view source_;
+  name_view essence_;
+  name_view type_;
+  name_view subtype_;
+  optional<name_view> suffix_;
   params_view params_;
 };
 
@@ -629,5 +682,17 @@ mime_view::from_extension(std::string_view ext) noexcept -> optional<mime_view>
 }
 
 FITORIA_NAMESPACE_END
+
+template <>
+struct fmt::formatter<FITORIA_NAMESPACE::mime::mime_view, char>
+    : fmt::formatter<std::string_view, char> {
+  template <typename FormatContext>
+  auto format(const FITORIA_NAMESPACE::mime::mime_view& v,
+              FormatContext& ctx) const
+  {
+    return fmt::formatter<std::string_view, char>::format(
+        static_cast<std::string_view>(v), ctx);
+  }
+};
 
 #endif

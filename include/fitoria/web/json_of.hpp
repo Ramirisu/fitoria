@@ -44,7 +44,7 @@ public:
         response::bad_request()
             .set_header(http::field::content_type, mime::text_plain())
             .set_body(fmt::format(R"("Content-Type: {}" is expected.)",
-                                  mime::application_json().source()))
+                                  mime::application_json()))
       };
     }
 

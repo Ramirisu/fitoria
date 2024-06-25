@@ -13,7 +13,9 @@
 
 #include <fitoria/core/optional.hpp>
 
-#include <unordered_map>
+#include <fitoria/mime/name_view.hpp>
+
+#include <map>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -25,7 +27,7 @@ namespace mime {
 ///
 /// @endverbatim
 class params_view {
-  using impl_type = std::unordered_map<std::string_view, std::string_view>;
+  using impl_type = std::map<name_view, name_view>;
 
 public:
   using key_type = typename impl_type::key_type;
@@ -100,7 +102,7 @@ public:
   /// Checks whether the container contains element with specific key.
   ///
   /// @endverbatim
-  auto contains(std::string_view name) const noexcept -> bool
+  auto contains(name_view name) const noexcept -> bool
   {
     return impl_.contains(name);
   }
@@ -120,7 +122,7 @@ public:
   /// Insert new element or update value of existing element with specific key.
   ///
   /// @endverbatim
-  void set(std::string_view name, std::string_view value)
+  void set(name_view name, name_view value)
   {
     impl_[name] = value;
   }
@@ -130,7 +132,7 @@ public:
   /// Get value with specific key.
   ///
   /// @endverbatim
-  auto get(std::string_view name) noexcept -> optional<mapped_type>
+  auto get(name_view name) noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
       return { it->second };
@@ -144,7 +146,7 @@ public:
   /// Get value with specific key.
   ///
   /// @endverbatim
-  auto get(std::string_view name) const noexcept -> optional<mapped_type>
+  auto get(name_view name) const noexcept -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
       return { it->second };
@@ -158,7 +160,7 @@ public:
   /// Remove element with specific key.
   ///
   /// @endverbatim
-  auto erase(std::string_view name) -> optional<mapped_type>
+  auto erase(name_view name) -> optional<mapped_type>
   {
     if (auto it = impl_.find(name); it != impl_.end()) {
       auto value = it->second;
@@ -174,7 +176,7 @@ public:
   /// Get value with specific key.
   ///
   /// @endverbatim
-  auto at(std::string_view name) -> mapped_type&
+  auto at(name_view name) -> mapped_type&
   {
     return impl_.at(name);
   }
@@ -184,7 +186,7 @@ public:
   /// Get value with specific key.
   ///
   /// @endverbatim
-  auto at(std::string_view name) const -> const mapped_type&
+  auto at(name_view name) const -> const mapped_type&
   {
     return impl_.at(name);
   }
@@ -194,7 +196,7 @@ public:
   /// Get or insert specific element.
   ///
   /// @endverbatim
-  auto operator[](std::string_view name) -> mapped_type&
+  auto operator[](name_view name) -> mapped_type&
   {
     return impl_[name];
   }

@@ -14,6 +14,7 @@ Reference
    :maxdepth: 1
 
    mime/mime_view
+   mime/name_view
    mime/params_view
 
 

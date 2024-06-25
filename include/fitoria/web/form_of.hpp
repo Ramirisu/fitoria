@@ -45,9 +45,8 @@ public:
       co_return unexpected {
         response::bad_request()
             .set_header(http::field::content_type, mime::text_plain())
-            .set_body(
-                fmt::format(R"("Content-Type: {}" is expected.)",
-                            mime::application_www_form_urlencoded().source()))
+            .set_body(fmt::format(R"("Content-Type: {}" is expected.)",
+                                  mime::application_www_form_urlencoded()))
       };
     }
 
