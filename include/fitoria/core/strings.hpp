@@ -29,10 +29,38 @@ inline auto cmp_eq_ci(std::string_view lhs, std::string_view rhs) -> bool
 inline auto cmp_tw_ci(std::string_view lhs,
                       std::string_view rhs) -> std::strong_ordering
 {
+  // lexicographical_compare_three_way is available since clang 17
+#if defined(FITORIA_TARGET_MACOS)
+  auto lfirst = lhs.begin();
+  const auto llast = lhs.end();
+  auto rfirst = rhs.begin();
+  const auto rlast = rhs.end();
+
+  for (; lfirst != llast || rfirst != rlast;) {
+    if (lfirst == llast) {
+      return rfirst == rlast ? std::strong_ordering::equal
+                             : std::strong_ordering::less;
+    }
+    if (rfirst == rlast) {
+      return std::strong_ordering::greater;
+    }
+
+    if (auto result = std::tolower(*lfirst) <=> std::tolower(*rfirst);
+        result != std::strong_ordering::equal) {
+      return result;
+    }
+
+    ++lfirst;
+    ++rfirst;
+  }
+
+  return std::strong_ordering::equal;
+#else
   return std::lexicographical_compare_three_way(
       lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](auto l, auto r) {
         return std::tolower(l) <=> std::tolower(r);
       });
+#endif
 }
 
 inline auto ltrim(std::string_view s) noexcept -> std::string_view
