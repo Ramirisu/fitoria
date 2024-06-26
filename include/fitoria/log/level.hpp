@@ -89,7 +89,7 @@ inline level to_level(std::string_view sv)
 FITORIA_NAMESPACE_END
 
 template <typename CharT>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
+struct fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
   template <class ParseContext>
   constexpr auto parse(ParseContext& ctx)
   {
@@ -98,9 +98,9 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::log::level, CharT> {
       return it;
     }
     if (*it != '}') {
-      FITORIA_THROW_OR(FITORIA_NAMESPACE::fmt::format_error(
-                           "invalid format args for fitoria::log::level"),
-                       std::terminate());
+      FITORIA_THROW_OR(
+          fmt::format_error("invalid format args for fitoria::log::level"),
+          std::terminate());
     }
 
     return it;

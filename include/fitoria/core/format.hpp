@@ -15,10 +15,4 @@
 #include <fmt/color.h>
 #include <fmt/format.h>
 
-FITORIA_NAMESPACE_BEGIN
-
-namespace fmt = fmt;
-
-FITORIA_NAMESPACE_END
-
 #endif

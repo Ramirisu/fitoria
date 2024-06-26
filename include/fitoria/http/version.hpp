@@ -135,8 +135,7 @@ namespace detail {
 FITORIA_NAMESPACE_END
 
 template <typename CharT>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::version,
-                                         CharT> {
+struct fmt::formatter<FITORIA_NAMESPACE::http::version, CharT> {
   template <class ParseContext>
   constexpr auto parse(ParseContext& ctx)
   {
@@ -145,9 +144,9 @@ struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::version,
       return it;
     }
     if (*it != '}') {
-      FITORIA_THROW_OR(FITORIA_NAMESPACE::fmt::format_error(
-                           "invalid format args for fitoria::http::version"),
-                       std::terminate());
+      FITORIA_THROW_OR(
+          fmt::format_error("invalid format args for fitoria::http::version"),
+          std::terminate());
     }
 
     return it;

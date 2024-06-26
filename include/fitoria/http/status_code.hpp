@@ -80,14 +80,13 @@ FITORIA_NAMESPACE_END
 #include <fitoria/core/format.hpp>
 
 template <>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::http::status_code>
-    : FITORIA_NAMESPACE::fmt::formatter<
-          std::underlying_type_t<FITORIA_NAMESPACE::http::status>> {
+struct fmt::formatter<FITORIA_NAMESPACE::http::status_code>
+    : fmt::formatter<std::underlying_type_t<FITORIA_NAMESPACE::http::status>> {
   template <typename FormatContext>
   auto format(FITORIA_NAMESPACE::http::status_code status_code,
               FormatContext& ctx) const
   {
-    return FITORIA_NAMESPACE::fmt::formatter<
+    return fmt::formatter<
         std::underlying_type_t<FITORIA_NAMESPACE::http::status>>::
         format(FITORIA_NAMESPACE::to_underlying(status_code.value()), ctx);
   }

@@ -1146,16 +1146,15 @@ constexpr void swap(optional<T>& lhs,
 FITORIA_NAMESPACE_END
 
 template <typename T, typename CharT>
-struct FITORIA_NAMESPACE::fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>
-    : FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>, CharT> {
+struct fmt::formatter<FITORIA_NAMESPACE::optional<T>, CharT>
+    : fmt::formatter<std::remove_cvref_t<T>, CharT> {
   template <typename FormatContext>
   auto format(FITORIA_NAMESPACE::optional<T> opt, FormatContext& ctx) const
   {
     if (opt) {
-      return FITORIA_NAMESPACE::fmt::formatter<std::remove_cvref_t<T>,
-                                               CharT>::format(*opt, ctx);
+      return fmt::formatter<std::remove_cvref_t<T>, CharT>::format(*opt, ctx);
     } else {
-      return FITORIA_NAMESPACE::fmt::format_to(ctx.out(), "{{nullopt}}");
+      return fmt::format_to(ctx.out(), "{{nullopt}}");
     }
   }
 };
