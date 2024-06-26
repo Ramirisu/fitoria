@@ -11,6 +11,7 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/core/chrono.hpp>
 #include <fitoria/core/expected.hpp>
 #include <fitoria/core/net.hpp>
 
@@ -19,6 +20,8 @@
 #include <fitoria/web/async_readable_file_stream.hpp>
 #include <fitoria/web/request.hpp>
 #include <fitoria/web/to_response.hpp>
+
+#include <filesystem>
 
 FITORIA_NAMESPACE_BEGIN
 
@@ -109,18 +112,21 @@ public:
   static auto open(const executor_type& ex, const std::string& path)
       -> expected<static_file, std::error_code>
   {
-    auto file = stream_file(ex);
-
-    boost::system::error_code ec;
-    file.open(path, net::file_base::read_only, ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
+    auto file = open_file(ex, path);
+    if (!file) {
+      return unexpected { file.error() };
     }
 
-    return static_file(std::move(file),
+    auto lmd = get_last_modified_time(path);
+    if (!lmd) {
+      return unexpected { lmd.error() };
+    }
+
+    return static_file(std::move(*file),
                        mime::mime_view::from_path(path).value_or(
                            mime::application_octet_stream()),
-                       full_range_only_t {});
+                       full_range_only_t {},
+                       *lmd);
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -137,34 +143,39 @@ public:
                    const std::string& path,
                    const request& req) -> expected<static_file, std::error_code>
   {
-    auto file = stream_file(ex);
+    auto file = open_file(ex, path);
+    if (!file) {
+      return unexpected { file.error() };
+    }
 
-    boost::system::error_code ec;
-    file.open(path, net::file_base::read_only, ec); // NOLINT
-    if (ec) {
-      return unexpected { ec };
+    auto lmd = get_last_modified_time(path);
+    if (!lmd) {
+      return unexpected { lmd.error() };
     }
 
     if (auto header = req.headers().get(http::field::range); header) {
-      if (auto range = http::header::range::parse(*header, file.size()); range
+      if (auto range = http::header::range::parse(*header, file->size()); range
           && cmp_eq_ci(range->unit(), "bytes")
-          && (*range)[0].offset + (*range)[0].length <= file.size()) {
-        return static_file(std::move(file),
+          && (*range)[0].offset + (*range)[0].length <= file->size()) {
+        return static_file(std::move(*file),
                            mime::mime_view::from_path(path).value_or(
                                mime::application_octet_stream()),
-                           (*range)[0]);
+                           (*range)[0],
+                           *lmd);
       }
 
-      return static_file(std::move(file),
+      return static_file(std::move(*file),
                          mime::mime_view::from_path(path).value_or(
                              mime::application_octet_stream()),
-                         range_not_satisfiable_t {});
+                         range_not_satisfiable_t {},
+                         *lmd);
     }
 
-    return static_file(std::move(file),
+    return static_file(std::move(*file),
                        mime::mime_view::from_path(path).value_or(
                            mime::application_octet_stream()),
-                       full_range_t {});
+                       full_range_t {},
+                       *lmd);
   }
 
   template <decay_to<static_file> Self>
@@ -175,11 +186,15 @@ public:
             [&](full_range_only_t) {
               return response::ok()
                   .set_header(http::field::content_type, self.content_type())
+                  .set_header(http::field::last_modified,
+                              self.last_modified_time())
                   .set_stream_body(async_readable_file_stream(self.release()));
             },
             [&](full_range_t) {
               return response::ok()
                   .set_header(http::field::content_type, self.content_type())
+                  .set_header(http::field::last_modified,
+                              self.last_modified_time())
                   .set_header(http::field::accept_ranges, "bytes")
                   .set_stream_body(async_readable_file_stream(self.release()));
             },
@@ -192,6 +207,8 @@ public:
             },
             [&](http::header::range::subrange_t range) {
               return response::partial_content()
+                  .set_header(http::field::last_modified,
+                              self.last_modified_time())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::accept_ranges, "bytes")
                   .set_header(http::field::content_range,
@@ -207,16 +224,53 @@ public:
   }
 
 private:
-  static_file(stream_file file, mime::mime_view content_type, range_t range)
+  static_file(
+      stream_file file,
+      mime::mime_view content_type,
+      range_t range,
+      std::chrono::time_point<std::chrono::file_clock> last_modified_time)
       : file_(std::move(file))
       , content_type_(std::move(content_type))
       , range_(range)
+      , last_modified_time_(last_modified_time)
   {
+  }
+
+  static auto open_file(const executor_type& ex, const std::string& path)
+      -> expected<stream_file, std::error_code>
+  {
+    auto file = stream_file(ex);
+
+    boost::system::error_code ec;
+    file.open(path, net::file_base::read_only, ec); // NOLINT
+    if (ec) {
+      return unexpected { ec };
+    }
+
+    return file;
+  }
+
+  static auto get_last_modified_time(const std::string& path)
+      -> expected<std::chrono::time_point<std::chrono::file_clock>,
+                  std::error_code>
+  {
+    std::error_code ec;
+    if (auto time = std::filesystem::last_write_time(path, ec); !ec) {
+      return time;
+    }
+
+    return unexpected { ec };
+  }
+
+  auto last_modified_time() const -> std::string
+  {
+    return http::header::last_modified(chrono::to_utc(last_modified_time_));
   }
 
   stream_file file_;
   mime::mime_view content_type_ = mime::application_octet_stream();
   range_t range_;
+  std::chrono::time_point<std::chrono::file_clock> last_modified_time_;
 };
 
 #endif

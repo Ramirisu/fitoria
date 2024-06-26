@@ -73,6 +73,8 @@ TEST_CASE("open w/o range header support")
   {
     std::ofstream(file_path, std::ios::binary) << data;
   }
+  const auto last_modified_time = http::header::last_modified(
+      chrono::to_utc(std::filesystem::last_write_time(file_path)));
 
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
@@ -91,8 +93,10 @@ TEST_CASE("open w/o range header support")
 
   server.serve_request("/",
                        test_request::get().build(),
-                       [&data](test_response res) -> awaitable<void> {
+                       [&](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status(), http::status::ok);
+                         CHECK_EQ(res.headers().get(http::field::last_modified),
+                                  last_modified_time);
                          CHECK(!res.headers().get(http::field::accept_ranges));
                          CHECK(!res.headers().get(http::field::content_range));
                          CHECK_EQ(co_await res.as_string(), data);
@@ -102,8 +106,10 @@ TEST_CASE("open w/o range header support")
       test_request::get()
           .set_header(http::field::range, "bytes=100000-299999, 300000-399999")
           .build(),
-      [&data](test_response res) -> awaitable<void> {
+      [&](test_response res) -> awaitable<void> {
         CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified),
+                 last_modified_time);
         CHECK(!res.headers().get(http::field::accept_ranges));
         CHECK(!res.headers().get(http::field::content_range));
         CHECK_EQ(co_await res.as_string(), data);
@@ -119,6 +125,8 @@ TEST_CASE("open with range header support")
   {
     std::ofstream(file_path, std::ios::binary) << data;
   }
+  const auto last_modified_time = http::header::last_modified(
+      chrono::to_utc(std::filesystem::last_write_time(file_path)));
 
   auto ioc = net::io_context();
   auto server
@@ -138,8 +146,10 @@ TEST_CASE("open with range header support")
 
   server.serve_request("/",
                        test_request::get().build(),
-                       [&data](test_response res) -> awaitable<void> {
+                       [&](test_response res) -> awaitable<void> {
                          CHECK_EQ(res.status(), http::status::ok);
+                         CHECK_EQ(res.headers().get(http::field::last_modified),
+                                  last_modified_time);
                          CHECK_EQ(res.headers().get(http::field::accept_ranges),
                                   "bytes");
                          CHECK(!res.headers().get(http::field::content_range));
@@ -151,8 +161,10 @@ TEST_CASE("open with range header support")
       test_request::get()
           .set_header(http::field::range, "bytes=100000-299999, 300000-399999")
           .build(),
-      [&data](test_response res) -> awaitable<void> {
+      [&](test_response res) -> awaitable<void> {
         CHECK_EQ(res.status(), http::status::partial_content);
+        CHECK_EQ(res.headers().get(http::field::last_modified),
+                 last_modified_time);
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes 100000-299999/200000");
@@ -165,8 +177,10 @@ TEST_CASE("open with range header support")
       test_request::get()
           .set_header(http::field::range, "bytes=900000-")
           .build(),
-      [&data](test_response res) -> awaitable<void> {
+      [&](test_response res) -> awaitable<void> {
         CHECK_EQ(res.status(), http::status::partial_content);
+        CHECK_EQ(res.headers().get(http::field::last_modified),
+                 last_modified_time);
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes 900000-1048575/148576");
@@ -181,6 +195,7 @@ TEST_CASE("open with range header support")
           .build(),
       [](test_response res) -> awaitable<void> {
         CHECK_EQ(res.status(), http::status::range_not_satisfiable);
+        CHECK(!res.headers().get(http::field::last_modified));
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes */1048576");
@@ -193,6 +208,7 @@ TEST_CASE("open with range header support")
           .build(),
       [](test_response res) -> awaitable<void> {
         CHECK_EQ(res.status(), http::status::range_not_satisfiable);
+        CHECK(!res.headers().get(http::field::last_modified));
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes */1048576");
