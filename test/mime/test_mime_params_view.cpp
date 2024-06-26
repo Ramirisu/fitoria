@@ -39,6 +39,7 @@ TEST_CASE("contruction by init")
   const auto& cp = p;
   CHECK_EQ(cp.get("charset"), "utf-8");
   CHECK_EQ(cp.at("charset"), "utf-8");
+  CHECK_EQ(cp.get("any"), nullopt);
 }
 
 TEST_CASE("copy/move")
