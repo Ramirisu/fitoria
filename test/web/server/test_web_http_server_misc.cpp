@@ -7,6 +7,10 @@
 
 #include <fitoria/test/test.hpp>
 
+#if defined(FITORIA_HAS_LIBURING)
+#define BOOST_ASIO_HAS_IO_URING
+#endif
+
 #include <fitoria/test/async_readable_chunk_stream.hpp>
 #include <fitoria/test/http_client.hpp>
 #include <fitoria/test/http_server_utils.hpp>
@@ -142,6 +146,8 @@ TEST_CASE("expect: 100-continue")
       .get();
 }
 
+#if defined(BOOST_ASIO_HAS_FILE)
+
 TEST_CASE("test_response::as_vector() & test_response::as_file()")
 {
   const auto data = std::string_view("Hello World!");
@@ -182,5 +188,7 @@ TEST_CASE("test_response::as_vector() & test_response::as_file()")
 
   ioc.run();
 }
+
+#endif
 
 TEST_SUITE_END();
