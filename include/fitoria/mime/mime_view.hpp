@@ -446,6 +446,19 @@ inline auto application_text() noexcept -> mime_view
 
 /// @verbatim embed:rst:leading-slashes
 ///
+/// ``"application/wasm"``
+///
+/// @endverbatim
+inline auto application_wasm() noexcept -> mime_view
+{
+  const auto source = std::string_view("application/wasm");
+  return {
+    source, source, source.substr(0, 11), source.substr(12), nullopt, {}
+  };
+}
+
+/// @verbatim embed:rst:leading-slashes
+///
 /// ``"application/x-www-form-urlencoded"``
 ///
 /// @endverbatim
@@ -640,6 +653,9 @@ mime_view::from_extension(std::string_view ext) noexcept -> optional<mime_view>
   }
   if (cmp_eq_ci(ext, "swf")) {
     return application_shockwave_flash();
+  }
+  if (cmp_eq_ci(ext, "wasm")) {
+    return application_wasm();
   }
   if (cmp_eq_ci(ext, "xml")) {
     return application_xml();

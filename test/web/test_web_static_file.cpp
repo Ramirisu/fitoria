@@ -26,11 +26,10 @@ TEST_SUITE_BEGIN("[fitoria.web.static_file]");
 
 #if defined(BOOST_ASIO_HAS_FILE)
 
-TEST_CASE("content_type")
+TEST_CASE("content_type & content_disposition")
 {
-  auto create_and_open_tmp_file = [](std::string_view ext)
+  auto create_and_open_tmp_file = [](const std::string& file_path)
       -> awaitable<expected<static_file, std::error_code>> {
-    const auto file_path = get_temp_file_path(ext);
     {
       auto ofs = std::ofstream(file_path);
       ofs << file_path;
@@ -40,28 +39,55 @@ TEST_CASE("content_type")
 
   sync_wait([&]() -> awaitable<void> {
     {
-      auto file = co_await create_and_open_tmp_file("js");
+      const auto file_path = get_temp_file_path("js");
+      auto file = co_await create_and_open_tmp_file(file_path);
+      CHECK(file->file().is_open());
       CHECK_EQ(file->content_type(), mime::application_javascript());
+      CHECK_EQ(file->content_disposition(), "inline");
       file->set_content_type(mime::application_text());
       CHECK_EQ(file->content_type(), mime::application_text());
+
+      const auto& cfile = file;
+      CHECK(cfile->file().is_open());
     }
     {
-      auto file = co_await create_and_open_tmp_file("png");
+      const auto file_path = get_temp_file_path("png");
+      auto file = co_await create_and_open_tmp_file(file_path);
+      CHECK(file->file().is_open());
       CHECK_EQ(file->content_type(), mime::image_png());
+      CHECK_EQ(file->content_disposition(), "inline");
       file->set_content_type(mime::application_text());
       CHECK_EQ(file->content_type(), mime::application_text());
+
+      const auto& cfile = file;
+      CHECK(cfile->file().is_open());
     }
     {
-      auto file = co_await create_and_open_tmp_file("txt");
+      const auto file_path = get_temp_file_path("txt");
+      auto file = co_await create_and_open_tmp_file(file_path);
+      CHECK(file->file().is_open());
       CHECK_EQ(file->content_type(), mime::text_plain());
+      CHECK_EQ(file->content_disposition(), "inline");
       file->set_content_type(mime::application_text());
       CHECK_EQ(file->content_type(), mime::application_text());
+
+      const auto& cfile = file;
+      CHECK(cfile->file().is_open());
     }
     {
-      auto file = co_await create_and_open_tmp_file("tmp");
+      const auto file_path = get_temp_file_path("tmp");
+      auto file = co_await create_and_open_tmp_file(file_path);
+      CHECK(file->file().is_open());
       CHECK_EQ(file->content_type(), mime::application_octet_stream());
+      CHECK_EQ(
+          file->content_disposition(),
+          fmt::format(R"(attachment; filename="{}")",
+                      std::filesystem::path(file_path).filename().string()));
       file->set_content_type(mime::application_text());
       CHECK_EQ(file->content_type(), mime::application_text());
+
+      const auto& cfile = file;
+      CHECK(cfile->file().is_open());
     }
   });
 }
@@ -75,6 +101,9 @@ TEST_CASE("open w/o range header support")
   }
   const auto last_modified_time = http::header::last_modified(
       chrono::to_utc(std::filesystem::last_write_time(file_path)));
+  const auto content_disposition
+      = fmt::format(R"(attachment; filename="{}")",
+                    std::filesystem::path(file_path).filename().string());
 
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
@@ -91,16 +120,21 @@ TEST_CASE("open w/o range header support")
                         }))
                     .build();
 
-  server.serve_request("/",
-                       test_request::get().build(),
-                       [&](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status(), http::status::ok);
-                         CHECK_EQ(res.headers().get(http::field::last_modified),
-                                  last_modified_time);
-                         CHECK(!res.headers().get(http::field::accept_ranges));
-                         CHECK(!res.headers().get(http::field::content_range));
-                         CHECK_EQ(co_await res.as_string(), data);
-                       });
+  server.serve_request(
+      "/",
+      test_request::get().build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified),
+                 last_modified_time);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition),
+                 content_disposition);
+        CHECK(!res.headers().get(http::field::accept_ranges));
+        CHECK(!res.headers().get(http::field::content_range));
+        CHECK_EQ(co_await res.as_string(), data);
+      });
   server.serve_request(
       "/",
       test_request::get()
@@ -110,6 +144,10 @@ TEST_CASE("open w/o range header support")
         CHECK_EQ(res.status(), http::status::ok);
         CHECK_EQ(res.headers().get(http::field::last_modified),
                  last_modified_time);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition),
+                 content_disposition);
         CHECK(!res.headers().get(http::field::accept_ranges));
         CHECK(!res.headers().get(http::field::content_range));
         CHECK_EQ(co_await res.as_string(), data);
@@ -127,6 +165,9 @@ TEST_CASE("open with range header support")
   }
   const auto last_modified_time = http::header::last_modified(
       chrono::to_utc(std::filesystem::last_write_time(file_path)));
+  const auto content_disposition
+      = fmt::format(R"(attachment; filename="{}")",
+                    std::filesystem::path(file_path).filename().string());
 
   auto ioc = net::io_context();
   auto server
@@ -144,18 +185,22 @@ TEST_CASE("open with range header support")
                 }))
             .build();
 
-  server.serve_request("/",
-                       test_request::get().build(),
-                       [&](test_response res) -> awaitable<void> {
-                         CHECK_EQ(res.status(), http::status::ok);
-                         CHECK_EQ(res.headers().get(http::field::last_modified),
-                                  last_modified_time);
-                         CHECK_EQ(res.headers().get(http::field::accept_ranges),
-                                  "bytes");
-                         CHECK(!res.headers().get(http::field::content_range));
-                         CHECK_EQ(co_await res.as_string(), data);
-                         co_return;
-                       });
+  server.serve_request(
+      "/",
+      test_request::get().build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified),
+                 last_modified_time);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition),
+                 content_disposition);
+        CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
+        CHECK(!res.headers().get(http::field::content_range));
+        CHECK_EQ(co_await res.as_string(), data);
+        co_return;
+      });
   server.serve_request(
       "/",
       test_request::get()
@@ -165,6 +210,10 @@ TEST_CASE("open with range header support")
         CHECK_EQ(res.status(), http::status::partial_content);
         CHECK_EQ(res.headers().get(http::field::last_modified),
                  last_modified_time);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition),
+                 content_disposition);
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes 100000-299999/200000");
@@ -181,6 +230,10 @@ TEST_CASE("open with range header support")
         CHECK_EQ(res.status(), http::status::partial_content);
         CHECK_EQ(res.headers().get(http::field::last_modified),
                  last_modified_time);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition),
+                 content_disposition);
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes 900000-1048575/148576");

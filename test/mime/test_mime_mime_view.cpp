@@ -169,6 +169,14 @@ TEST_CASE("contants")
     CHECK_EQ(m.params(), params_view {});
   }
   {
+    auto m = application_wasm();
+    CHECK_EQ(m.essence(), "application/wasm");
+    CHECK_EQ(m.type(), "application");
+    CHECK_EQ(m.subtype(), "wasm");
+    CHECK_EQ(m.suffix(), nullopt);
+    CHECK_EQ(m.params(), params_view {});
+  }
+  {
     auto m = application_www_form_urlencoded();
     CHECK_EQ(m.essence(), "application/x-www-form-urlencoded");
     CHECK_EQ(m.type(), "application");
