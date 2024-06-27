@@ -20,7 +20,7 @@ using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.async_stdout_writer.io_context]");
 
-#if defined(FITORIA_HAS_LIBURING)
+#if defined(BOOST_ASIO_HAS_FILE)
 
 namespace my_ns {
 class my_class {

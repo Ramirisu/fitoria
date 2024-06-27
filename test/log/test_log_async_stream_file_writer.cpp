@@ -17,7 +17,7 @@ using namespace fitoria::log;
 
 TEST_SUITE_BEGIN("[fitoria.log.async_stream_file_writer]");
 
-#if defined(FITORIA_HAS_LIBURING)
+#if defined(BOOST_ASIO_HAS_FILE)
 
 namespace my_ns {
 class my_class {
