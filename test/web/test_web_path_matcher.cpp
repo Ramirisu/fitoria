@@ -38,6 +38,8 @@ TEST_CASE("tokens")
                            path_token_t { path_token_kind::param, "p1" },
                            path_token_t { path_token_kind::static_, "/" },
                            path_token_t { path_token_kind::wildcard, "abc" } });
+
+  CHECK_THROWS_AS(path_matcher("{"), std::system_error);
 }
 
 TEST_CASE("match")

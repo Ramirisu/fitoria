@@ -78,6 +78,7 @@ TEST_CASE("from_extension")
   CHECK_EQ(mime_view::from_extension("js"), application_javascript());
   CHECK_EQ(mime_view::from_extension("json"), application_json());
   CHECK_EQ(mime_view::from_extension("swf"), application_shockwave_flash());
+  CHECK_EQ(mime_view::from_extension("wasm"), application_wasm());
   CHECK_EQ(mime_view::from_extension("xml"), application_xml());
   CHECK_EQ(mime_view::from_extension("bmp"), image_bmp());
   CHECK_EQ(mime_view::from_extension("gif"), image_gif());

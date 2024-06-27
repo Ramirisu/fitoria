@@ -36,7 +36,9 @@ public:
     if (!parser.parse(pattern)) {
       // this should never trigger since the pattern is already parsed at
       // compile-time.
-      std::terminate();
+      FITORIA_THROW_OR(
+          std::system_error(make_error_code(std::errc::invalid_argument)),
+          std::terminate());
     }
     tokens_ = parser.get();
     regex_ = to_regex(tokens_);
