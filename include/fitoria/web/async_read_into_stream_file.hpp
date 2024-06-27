@@ -24,7 +24,7 @@ namespace web {
 
 template <async_readable_stream AsyncReadableStream>
 auto async_read_into_stream_file(AsyncReadableStream&& stream,
-                                 net::stream_file& file)
+                                 stream_file& file)
     -> awaitable<expected<std::size_t, std::error_code>>
 {
   std::size_t total = 0;

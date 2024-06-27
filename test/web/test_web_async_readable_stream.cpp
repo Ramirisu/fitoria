@@ -58,9 +58,9 @@ TEST_CASE("async_readable_file_stream: read complete file")
   sync_wait([&]() -> awaitable<void> {
     CHECK_EQ(
         co_await async_read_until_eof<std::string>(async_readable_file_stream(
-            net::stream_file(co_await net::this_coro::executor,
-                             file_path,
-                             net::file_base::read_only))),
+            stream_file(co_await net::this_coro::executor,
+                        file_path,
+                        net::file_base::read_only))),
         data);
   });
 }
@@ -77,9 +77,9 @@ TEST_CASE(
   sync_wait([&]() -> awaitable<void> {
     CHECK_EQ(
         co_await async_read_until_eof<std::string>(async_readable_file_stream(
-            net::stream_file(co_await net::this_coro::executor,
-                             file_path,
-                             net::file_base::read_only),
+            stream_file(co_await net::this_coro::executor,
+                        file_path,
+                        net::file_base::read_only),
             123456,
             nullopt)),
         std::string_view(data).substr(123456));
@@ -97,9 +97,9 @@ TEST_CASE("async_readable_file_stream: read file starting from offset and size")
   sync_wait([&]() -> awaitable<void> {
     CHECK_EQ(
         co_await async_read_until_eof<std::string>(async_readable_file_stream(
-            net::stream_file(co_await net::this_coro::executor,
-                             file_path,
-                             net::file_base::read_only),
+            stream_file(co_await net::this_coro::executor,
+                        file_path,
+                        net::file_base::read_only),
             123456,
             234567)),
         std::string_view(data).substr(123456, 234567));

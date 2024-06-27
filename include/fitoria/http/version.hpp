@@ -140,10 +140,7 @@ struct fmt::formatter<FITORIA_NAMESPACE::http::version, CharT> {
   constexpr auto parse(ParseContext& ctx)
   {
     auto it = ctx.begin();
-    if (it == ctx.end()) {
-      return it;
-    }
-    if (*it != '}') {
+    if (it != ctx.end() && *it != '}') {
       FITORIA_THROW_OR(
           fmt::format_error("invalid format args for fitoria::http::version"),
           std::terminate());

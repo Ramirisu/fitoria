@@ -142,4 +142,45 @@ TEST_CASE("expect: 100-continue")
       .get();
 }
 
+TEST_CASE("test_response::as_vector() & test_response::as_file()")
+{
+  const auto data = std::string_view("Hello World!");
+
+  auto ioc = net::io_context();
+  auto server = http_server::builder(ioc)
+                    .serve(route::get<"/">([&]() -> awaitable<response> {
+                      co_return response::ok().set_body(data);
+                    }))
+                    .build();
+
+  server.serve_request(
+      "/",
+      test_request::get().build(),
+      [&](test_response res) -> awaitable<void> {
+        REQUIRE(range_equal(*(co_await res.as_vector<std::uint8_t>()), data));
+      });
+  server.serve_request(
+      "/",
+      test_request::get().build(),
+      [&](test_response res) -> awaitable<void> {
+        const auto file_path = get_temp_file_path();
+
+        REQUIRE_EQ(co_await res.as_file(file_path), data.size());
+
+        auto file = stream_file(co_await net::this_coro::executor);
+        boost::system::error_code ec;
+        file.open(file_path, net::file_base::read_only, ec); // NOLINT
+        REQUIRE(!ec);
+
+        auto buffer = dynamic_buffer<std::string>();
+        auto size = co_await file.async_read_some(buffer.prepare(1024),
+                                                  use_awaitable);
+        REQUIRE(size);
+        buffer.commit(*size);
+        REQUIRE_EQ(buffer.release(), data);
+      });
+
+  ioc.run();
+}
+
 TEST_SUITE_END();

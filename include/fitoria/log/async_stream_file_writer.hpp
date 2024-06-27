@@ -21,11 +21,10 @@ namespace log {
 
 inline auto make_async_stream_file_writer(const std::string& path)
 {
-  auto file
-      = net::stream_file(net::system_executor(),
-                         path,
-                         net::file_base::create | net::file_base::write_only
-                             | net::file_base::append);
+  auto file = stream_file(net::system_executor(),
+                          path,
+                          net::file_base::create | net::file_base::write_only
+                              | net::file_base::append);
 
 #if defined(FITORIA_TARGET_WINDOWS)
   // `net::file_base::append` do not work for windows iocp

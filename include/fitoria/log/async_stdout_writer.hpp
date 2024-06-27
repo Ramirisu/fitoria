@@ -24,12 +24,12 @@ inline auto make_async_stdout_writer()
 #if defined(FITORIA_TARGET_WINDOWS)
   return std::make_shared<basic_async_stream_file_writer>(
       formatter::builder().set_color_level_style().build(),
-      net::stream_file(
+      stream_file(
           net::system_executor(), "CONOUT$", net::file_base::write_only));
 #else
   return std::make_shared<basic_async_stream_file_writer>(
       formatter::builder().set_color_level_style().build(),
-      net::stream_file(net::system_executor(), STDOUT_FILENO));
+      stream_file(net::system_executor(), STDOUT_FILENO));
 #endif
 }
 

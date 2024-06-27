@@ -27,14 +27,14 @@ class async_readable_file_stream {
 public:
   using is_async_readable_stream = void;
 
-  async_readable_file_stream(net::stream_file file)
+  async_readable_file_stream(stream_file file)
       : file_(std::move(file))
       , offset_(0)
       , remaining_(file_.size())
   {
   }
 
-  async_readable_file_stream(net::stream_file file,
+  async_readable_file_stream(stream_file file,
                              std::uint64_t offset,
                              optional<std::uint64_t> size)
       : file_(std::move(file))
@@ -87,7 +87,7 @@ public:
   }
 
 private:
-  net::stream_file file_;
+  stream_file file_;
   std::uint64_t offset_;
   std::uint64_t remaining_;
 };

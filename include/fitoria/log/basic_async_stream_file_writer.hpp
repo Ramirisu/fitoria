@@ -20,10 +20,10 @@ namespace log {
 #if defined(BOOST_ASIO_HAS_FILE)
 
 class basic_async_stream_file_writer : public async_formattable_writer {
-  net::stream_file file_;
+  stream_file file_;
 
 public:
-  basic_async_stream_file_writer(formatter fmter, net::stream_file file)
+  basic_async_stream_file_writer(formatter fmter, stream_file file)
       : async_formattable_writer(fmter)
       , file_(std::move(file))
   {
