@@ -11,8 +11,8 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http/header/entity_tag.hpp>
 #include <fitoria/http/header/last_modified.hpp>
 #include <fitoria/http/header/range.hpp>
-
 
 #endif

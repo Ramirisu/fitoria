@@ -47,6 +47,16 @@ class static_file {
 public:
   /// @verbatim embed:rst:leading-slashes
   ///
+  /// Get ``ETag`` that will be used when converting to ``response``.
+  ///
+  /// @endverbatim
+  auto etag() const noexcept -> const std::string&
+  {
+    return etag_;
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
   /// Get ``Content-Type`` that will be used when converting to ``response``.
   ///
   /// @endverbatim
@@ -132,11 +142,13 @@ public:
       return unexpected { lmd.error() };
     }
 
+    auto etag = get_etag(file->size(), *lmd);
     auto ct = mime::mime_view::from_path(path).value_or(
         mime::application_octet_stream());
     auto cd = get_content_disposition(path, ct);
 
-    return static_file(std::move(*file), ct, cd, full_range_only_t {}, *lmd);
+    return static_file(
+        std::move(*file), ct, cd, full_range_only_t {}, *lmd, std::move(etag));
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -163,6 +175,7 @@ public:
       return unexpected { lmd.error() };
     }
 
+    auto etag = get_etag(file->size(), *lmd);
     auto ct = mime::mime_view::from_path(path).value_or(
         mime::application_octet_stream());
     auto cd = get_content_disposition(path, ct);
@@ -171,14 +184,20 @@ public:
       if (auto range = http::header::range::parse(*header, file->size()); range
           && cmp_eq_ci(range->unit(), "bytes")
           && (*range)[0].offset + (*range)[0].length <= file->size()) {
-        return static_file(std::move(*file), ct, cd, (*range)[0], *lmd);
+        return static_file(
+            std::move(*file), ct, cd, (*range)[0], *lmd, std::move(etag));
       }
 
-      return static_file(
-          std::move(*file), ct, cd, range_not_satisfiable_t {}, *lmd);
+      return static_file(std::move(*file),
+                         ct,
+                         cd,
+                         range_not_satisfiable_t {},
+                         *lmd,
+                         std::move(etag));
     }
 
-    return static_file(std::move(*file), ct, cd, full_range_t {}, *lmd);
+    return static_file(
+        std::move(*file), ct, cd, full_range_t {}, *lmd, std::move(etag));
   }
 
   template <decay_to<static_file> Self>
@@ -190,18 +209,20 @@ public:
               return response::ok()
                   .set_header(http::field::last_modified,
                               self.last_modified_time())
+                  .set_header(http::field::etag, self.etag())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::content_disposition,
-                              self.content_disposition_)
+                              self.content_disposition())
                   .set_stream_body(async_readable_file_stream(self.release()));
             },
             [&](full_range_t) {
               return response::ok()
-                  .set_header(http::field::content_type, self.content_type())
-                  .set_header(http::field::content_disposition,
-                              self.content_disposition_)
                   .set_header(http::field::last_modified,
                               self.last_modified_time())
+                  .set_header(http::field::etag, self.etag())
+                  .set_header(http::field::content_type, self.content_type())
+                  .set_header(http::field::content_disposition,
+                              self.content_disposition())
                   .set_header(http::field::accept_ranges, "bytes")
                   .set_stream_body(async_readable_file_stream(self.release()));
             },
@@ -216,9 +237,10 @@ public:
               return response::partial_content()
                   .set_header(http::field::last_modified,
                               self.last_modified_time())
+                  .set_header(http::field::etag, self.etag())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::content_disposition,
-                              self.content_disposition_)
+                              self.content_disposition())
                   .set_header(http::field::accept_ranges, "bytes")
                   .set_header(http::field::content_range,
                               fmt::format("bytes {}-{}/{}",
@@ -238,12 +260,14 @@ private:
       mime::mime_view content_type,
       std::string content_disposition,
       range_t range,
-      std::chrono::time_point<std::chrono::file_clock> last_modified_time)
+      std::chrono::time_point<std::chrono::file_clock> last_modified_time,
+      std::string etag)
       : file_(std::move(file))
       , content_type_(std::move(content_type))
       , content_disposition_(std::move(content_disposition))
       , range_(range)
       , last_modified_time_(last_modified_time)
+      , etag_(std::move(etag))
   {
   }
 
@@ -273,6 +297,19 @@ private:
     return unexpected { ec };
   }
 
+  static auto get_etag(const std::uint64_t size,
+                       const std::chrono::time_point<std::chrono::file_clock>&
+                           last_modified_time) -> std::string
+  {
+    return http::header::entity_tag::strong(
+        fmt::format("{}-{:016x}",
+                    size,
+                    std::chrono::floor<std::chrono::seconds>(
+                        chrono::to_utc(last_modified_time))
+                        .time_since_epoch()
+                        .count()));
+  }
+
   static auto get_content_disposition(const std::string& path,
                                       const mime::mime_view& ct) -> std::string
   {
@@ -296,6 +333,7 @@ private:
   std::string content_disposition_;
   range_t range_;
   std::chrono::time_point<std::chrono::file_clock> last_modified_time_;
+  std::string etag_;
 };
 
 #endif
