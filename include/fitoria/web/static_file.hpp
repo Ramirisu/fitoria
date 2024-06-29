@@ -126,11 +126,8 @@ public:
   /// Open file with read-only permission.
   ///
   /// DESCRIPTION
-  ///   Open file with read-only permission. ``Content-Type`` header for
-  ///   the response will be obtained from the provided file extension. Note
-  ///   that ``Range`` header from the ``request`` will not be handled here, use
-  ///   another overload that accepts ``request`` as the parameter to handle the
-  ///   header automatically.
+  ///   Open file with read-only permission. ``Content-Type`` for the
+  ///   ``response`` will be obtained from the provided file extension.
   ///
   /// @endverbatim
   static auto open(const executor_type& ex, const std::string& path)
@@ -160,9 +157,10 @@ public:
   /// Open file with read-only permission.
   ///
   /// DESCRIPTION
-  ///   Open file with read-only permission. ``Range`` header from the
-  ///   ``request`` will be handled automatically and ``Content-Type`` header
-  ///   for the response will be obtained from the provided file extension.
+  ///   Open file with read-only permission. ``Range`` and ``If-None-Match``
+  ///   from the ``request`` will be handled automatically and ``Content-Type``
+  ///   and ``Content-Disposition`` header for the ``response`` will be obtained
+  ///   from the provided file extension.
   ///
   /// @endverbatim
   static auto open(const executor_type& ex,
@@ -365,10 +363,9 @@ private:
         return true;
       }
 
-      return std::any_of(
-          m->tags().begin(), m->tags().end(), [&](auto& element) {
-            return etag.weakly_equal_to(element);
-          });
+      return std::any_of(m->begin(), m->end(), [&](auto& element) {
+        return etag.weakly_equal_to(element);
+      });
     }
 
     return nullopt;

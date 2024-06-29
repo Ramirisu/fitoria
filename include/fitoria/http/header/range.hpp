@@ -23,6 +23,11 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http::header {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides parsing for dealing with HTTP header ``ETag``.
+///
+/// @endverbatim
 class range {
 public:
   struct subrange_t {
@@ -32,62 +37,122 @@ public:
     friend bool operator==(const subrange_t&, const subrange_t&) = default;
   };
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Constructor.
+  ///
+  /// @endverbatim
   range(std::string unit, std::vector<subrange_t> subranges)
       : unit_(std::move(unit))
       , subranges_(std::move(subranges))
   {
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the unit.
+  ///
+  /// @endverbatim
   auto unit() const noexcept -> const std::string&
   {
     return unit_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the count of subranges.
+  ///
+  /// @endverbatim
   auto size() const noexcept -> std::size_t
   {
     return subranges_.size();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get specific index of element from the underlying subrange array.
+  ///
+  /// @endverbatim
   auto at(std::size_t index) const noexcept -> const subrange_t&
   {
     return subranges_.at(index);
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get specific index of element from the underlying subrange array.
+  ///
+  /// @endverbatim
   auto operator[](std::size_t index) const noexcept -> const subrange_t&
   {
     return subranges_[index];
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto begin()
   {
     return subranges_.begin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto begin() const
   {
     return subranges_.begin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto cbegin() const
   {
     return subranges_.cbegin();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto end()
   {
     return subranges_.end();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto end() const
   {
     return subranges_.end();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying subrange array.
+  ///
+  /// @endverbatim
   auto cend() const
   {
     return subranges_.cend();
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Parse the string to a ``range`` instance.
+  ///
+  /// @endverbatim
   static auto parse(std::string_view input,
                     std::uint64_t total_length) noexcept -> optional<range>
   {

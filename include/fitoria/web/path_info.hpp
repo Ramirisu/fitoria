@@ -266,7 +266,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get iterator to the specific key.
+  /// Get an iterator to the specific key.
   ///
   /// @endverbatim
   auto find(const std::string& name) const -> map_type::const_iterator
@@ -276,7 +276,7 @@ public:
 
   /// @verbatim embed:rst:leading-slashes
   ///
-  /// Get iterator to the specific index.
+  /// Get an iterator to the specific index.
   ///
   /// @endverbatim
   auto find(std::size_t index) const -> map_type::const_iterator

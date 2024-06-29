@@ -20,18 +20,98 @@ FITORIA_NAMESPACE_BEGIN
 
 namespace http::header {
 
+/// @verbatim embed:rst:leading-slashes
+///
+/// Provides parsing for dealing with HTTP header ``If-None-Match``.
+///
+/// @endverbatim
 class if_none_match {
 public:
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Check if it matches any resource, i.e. ``*``.
+  ///
+  /// @endverbatim
   auto is_any() const noexcept -> bool
   {
     return etags_.empty();
   }
 
-  auto tags() const noexcept -> const std::vector<entity_tag>&
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get the etags.
+  ///
+  /// @endverbatim
+  auto etags() const noexcept -> const std::vector<entity_tag>&
   {
     return etags_;
   }
 
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto begin()
+  {
+    return etags_.begin();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto begin() const
+  {
+    return etags_.begin();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the beginning of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto cbegin() const
+  {
+    return etags_.cbegin();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto end()
+  {
+    return etags_.end();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto end() const
+  {
+    return etags_.end();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Get an iterator to the end of the underlying etags array.
+  ///
+  /// @endverbatim
+  auto cend() const
+  {
+    return etags_.cend();
+  }
+
+  /// @verbatim embed:rst:leading-slashes
+  ///
+  /// Parse the string to a ``if_none_match`` instance.
+  ///
+  /// @endverbatim
   static auto parse(std::string_view input) -> optional<if_none_match>
   {
     input = trim(input);

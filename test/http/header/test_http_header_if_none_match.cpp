@@ -21,12 +21,12 @@ TEST_CASE("parse")
   {
     auto m = if_none_match::parse(" * ");
     CHECK(m->is_any());
-    CHECK_EQ(m->tags(), std::vector<entity_tag> {});
+    CHECK_EQ(m->etags(), std::vector<entity_tag> {});
   }
   {
     auto m = if_none_match::parse(R"("")");
     CHECK(!m->is_any());
-    CHECK_EQ(m->tags(),
+    CHECK_EQ(m->etags(),
              std::vector<entity_tag> {
                  entity_tag(true, ""),
              });
@@ -34,7 +34,7 @@ TEST_CASE("parse")
   {
     auto m = if_none_match::parse(R"("abc", W/"cde")");
     CHECK(!m->is_any());
-    CHECK_EQ(m->tags(),
+    CHECK_EQ(m->etags(),
              std::vector<entity_tag> {
                  entity_tag(true, "abc"),
                  entity_tag(false, "cde"),
