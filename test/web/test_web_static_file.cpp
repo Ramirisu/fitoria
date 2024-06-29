@@ -31,12 +31,13 @@ auto get_etag(
     const std::uint64_t size,
     const std::chrono::time_point<std::chrono::file_clock>& last_modified_time)
 {
-  return fmt::format(R"("{}-{:016x}")",
-                     size,
-                     std::chrono::floor<std::chrono::seconds>(
-                         chrono::to_utc(last_modified_time))
-                         .time_since_epoch()
-                         .count());
+  return http::header::entity_tag::make_strong(
+      fmt::format("{}-{:016x}",
+                  size,
+                  std::chrono::floor<std::chrono::seconds>(
+                      chrono::to_utc(last_modified_time))
+                      .time_since_epoch()
+                      .count()));
 }
 }
 
@@ -130,7 +131,7 @@ TEST_CASE("open w/o range header support")
   const auto cd_str
       = fmt::format(R"(attachment; filename="{}")",
                     std::filesystem::path(file_path).filename().string());
-  const auto etag_str = get_etag(data.size(), lmd);
+  const auto etag_str = get_etag(data.size(), lmd).to_string();
 
   auto ioc = net::io_context();
   auto server = http_server::builder(ioc)
@@ -193,7 +194,7 @@ TEST_CASE("open with range header support")
   const auto cd_str
       = fmt::format(R"(attachment; filename="{}")",
                     std::filesystem::path(file_path).filename().string());
-  const auto etag_str = get_etag(data.size(), lmd);
+  const auto etag_str = get_etag(data.size(), lmd).to_string();
 
   auto ioc = net::io_context();
   auto server
@@ -290,6 +291,57 @@ TEST_CASE("open with range header support")
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK_EQ(res.headers().get(http::field::content_range),
                  "bytes */1048576");
+        co_return;
+      });
+  server.serve_request("/",
+                       test_request::get()
+                           .set_header(http::field::if_none_match, R"(""")")
+                           .build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status(), http::status::bad_request);
+                         CHECK_EQ(res.headers().get(http::field::accept_ranges),
+                                  "bytes");
+                         CHECK_EQ(res.headers().get(http::field::content_range),
+                                  "bytes */1048576");
+                         co_return;
+                       });
+  server.serve_request(
+      "/",
+      test_request::get()
+          .set_header(http::field::if_none_match, etag_str)
+          .build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::not_modified);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        co_return;
+      });
+  server.serve_request(
+      "/",
+      test_request::get().set_header(http::field::if_none_match, "*").build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::not_modified);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        co_return;
+      });
+  server.serve_request(
+      "/",
+      test_request::get()
+          .set_header(
+              http::field::if_none_match,
+              http::header::entity_tag::make_strong("xxxxxx").to_string())
+          .build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition), cd_str);
+        CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
+        CHECK(!res.headers().get(http::field::content_range));
+        CHECK_EQ(co_await res.as_string(), data);
         co_return;
       });
 
