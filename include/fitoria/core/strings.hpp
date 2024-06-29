@@ -63,27 +63,59 @@ inline auto cmp_tw_ci(std::string_view lhs,
 #endif
 }
 
-inline auto ltrim(std::string_view s) noexcept -> std::string_view
+inline bool is_space(char c)
 {
-  while (!s.empty() && std::isspace(s.front())) {
-    s.remove_prefix(1);
-  }
-
-  return s;
+  return static_cast<bool>(std::isspace(c));
 }
 
-inline auto rtrim(std::string_view s) noexcept -> std::string_view
+template <std::invocable<char> Predicate>
+auto ltrim(std::string_view sv, Predicate predicate) -> std::string_view
 {
-  while (!s.empty() && std::isspace(s.back())) {
-    s.remove_suffix(1);
+  static_assert(
+      std::convertible_to<std::invoke_result_t<Predicate, char>, bool>);
+
+  while (!sv.empty() && static_cast<bool>(predicate(sv.front()))) {
+    sv.remove_prefix(1);
   }
 
-  return s;
+  return sv;
 }
 
-inline auto trim(std::string_view s) noexcept -> std::string_view
+inline auto ltrim(std::string_view sv) -> std::string_view
 {
-  return ltrim(rtrim(s));
+  return ltrim(sv, is_space);
+}
+
+template <std::invocable<char> Predicate>
+auto rtrim(std::string_view sv, Predicate predicate) -> std::string_view
+{
+  static_assert(
+      std::convertible_to<std::invoke_result_t<Predicate, char>, bool>);
+
+  while (!sv.empty() && static_cast<bool>(predicate(sv.back()))) {
+    sv.remove_suffix(1);
+  }
+
+  return sv;
+}
+
+inline auto rtrim(std::string_view sv) -> std::string_view
+{
+  return rtrim(sv, is_space);
+}
+
+template <std::invocable<char> Predicate>
+auto trim(std::string_view sv, Predicate predicate) -> std::string_view
+{
+  static_assert(
+      std::convertible_to<std::invoke_result_t<Predicate, char>, bool>);
+
+  return ltrim(rtrim(sv, predicate), predicate);
+}
+
+inline auto trim(std::string_view sv) -> std::string_view
+{
+  return ltrim(rtrim(sv));
 }
 
 inline auto split_of(std::string_view sv, std::string_view delimiters)

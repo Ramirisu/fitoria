@@ -53,17 +53,26 @@ TEST_CASE("cmp_tw_ci")
 
 TEST_CASE("ltrim")
 {
-  CHECK_EQ(ltrim("     abc     "), "abc     ");
+  CHECK_EQ(ltrim("xyz abc xyz",
+                 [](char c) { return (c == 'x' || c == 'y' || c == 'z'); }),
+           " abc xyz");
+  CHECK_EQ(ltrim("   abc   "), "abc   ");
 }
 
 TEST_CASE("rtrim")
 {
-  CHECK_EQ(rtrim("     abc     "), "     abc");
+  CHECK_EQ(rtrim("xyz abc xyz",
+                 [](char c) { return (c == 'x' || c == 'y' || c == 'z'); }),
+           "xyz abc ");
+  CHECK_EQ(rtrim("   abc   "), "   abc");
 }
 
 TEST_CASE("trim")
 {
-  CHECK_EQ(trim("     abc     "), "abc");
+  CHECK_EQ(trim("xyz abc xyz",
+                [](char c) { return (c == 'x' || c == 'y' || c == 'z'); }),
+           " abc ");
+  CHECK_EQ(trim("   abc   "), "abc");
 }
 
 TEST_CASE("split_of")
