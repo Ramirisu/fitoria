@@ -400,7 +400,7 @@ document.write(`
                   
   <section id="static-file">
 <h1>Static File<a class="headerlink" href="#static-file" title="Link to this heading">#</a></h1>
-<p>Use <code class="docutils literal notranslate"><span class="pre">web::static_file</span></code> to serve static files.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">web::static_file</span></code> to serve static files. <code class="docutils literal notranslate"><span class="pre">Range</span></code> / <code class="docutils literal notranslate"><span class="pre">If-None-Match</span></code> / <code class="docutils literal notranslate"><span class="pre">If-Modified-Since</span></code> headers from the <code class="docutils literal notranslate"><span class="pre">request</span></code> will be handled automatically, and <code class="docutils literal notranslate"><span class="pre">Content-Type</span></code> / <code class="docutils literal notranslate"><span class="pre">Content-Disposition</span></code> headers for the <code class="docutils literal notranslate"><span class="pre">response</span></code> will be obtained from the provided file extension.</p>
 <p><a class="reference external" href="https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/static_file.cpp">Static Files Example</a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

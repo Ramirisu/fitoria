@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>class header::date &#8212; fitoria</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=c1155663" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/http/header/date';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="class header::entity_tag" href="entity_tag.html" />
+    <link rel="prev" title="class params_view" href="../../mime/params_view.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">fitoria</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../overview/index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Ramirisu/fitoria" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../overview/index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Ramirisu/fitoria" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../core/dynamic_buffer.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">dynamic_buffer</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::mime</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../mime/mime_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">mime_view</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mime/name_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">name_view</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mime/params_view.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">params_view</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::http</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::date</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="entity_tag.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::entity_tag</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="if_none_match.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::if_none_match</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="range.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::range</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../field.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">field</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../status.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../status_class.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">status_class</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verb.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">verb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../version.html"><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span> <span class="pre">version</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../header_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../status_code.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">status_code</span></code></a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">fitoria::web</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../web/async_readable_stream.html"><code class="docutils literal notranslate"><span class="pre">concept</span> <span class="pre">async_readable_stream</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/scope.html"><code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">scope</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/connect_info.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">connect_info</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/form_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">form_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/http_server.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">http_server</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/json_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">json_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/path_info.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_info</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/path_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">path_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/query_map.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_map</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/query_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">query_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">request_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/response_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">response_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/route.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">route</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/state_of.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">state_of</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/static_file.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">static_file</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/test_request.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/test_request_builder.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_request_builder</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/test_response.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">test_response</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../web/websocket.html"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">websocket</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><code...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="class-header-date">
+<h1><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::date</span></code><a class="headerlink" href="#class-header-date" title="Link to this heading">#</a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4dateE">
+<span id="_CPPv3N7fitoria4http6header4dateE"></span><span id="_CPPv2N7fitoria4http6header4dateE"></span><span id="fitoria::http::header::date"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">date</span></span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4dateE" title="Link to this definition">#</a><br /></dt>
+<dd><p><p>Provides parsing and serialization for dealing with date.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc9110#name-date-time-formats">https://datatracker.ietf.org/doc/html/rfc9110#name-date-time-formats</a></p>
+</div>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointIN6chrono9utc_clockEEE">
+<span id="_CPPv3N7fitoria4http6header4date4dateENSt6chrono10time_pointIN6chrono9utc_clockEEE"></span><span id="_CPPv2N7fitoria4http6header4date4dateENSt6chrono10time_pointIN6chrono9utc_clockEEE"></span><span id="fitoria::http::header::date::date__std::chrono::time_point:chrono::utc_clock:"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a1458f8c9f9634e79650336259f009cb7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">date</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">time_point</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">utc_clock</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">time</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointIN6chrono9utc_clockEEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct by an UTC time.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointINSt6chrono10file_clockEEE">
+<span id="_CPPv3N7fitoria4http6header4date4dateENSt6chrono10time_pointINSt6chrono10file_clockEEE"></span><span id="_CPPv2N7fitoria4http6header4date4dateENSt6chrono10time_pointINSt6chrono10file_clockEEE"></span><span id="fitoria::http::header::date::date__std::chrono::time_point:std::chrono::file_clock:"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a92853227f2dd7ce4fb09268224b46952"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">date</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">time_point</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">file_clock</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">time</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointINSt6chrono10file_clockEEE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Construct by a FILE time.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date8utc_timeEv">
+<span id="_CPPv3N7fitoria4http6header4date8utc_timeEv"></span><span id="_CPPv2N7fitoria4http6header4date8utc_timeEv"></span><span id="fitoria::http::header::date::utc_time"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1adfc4afb4fd319f269fd8006d5f1afbd6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">utc_time</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">time_point</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">utc_clock</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date8utc_timeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get UTC time.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date9file_timeEv">
+<span id="_CPPv3N7fitoria4http6header4date9file_timeEv"></span><span id="_CPPv2N7fitoria4http6header4date9file_timeEv"></span><span id="fitoria::http::header::date::file_time"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a616eaaeba0a062f82f03b0c40a5f15be"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">file_time</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">time_point</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">chrono</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">file_clock</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date9file_timeEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Get FILE time.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date9to_stringEv">
+<span id="_CPPv3N7fitoria4http6header4date9to_stringEv"></span><span id="_CPPv2N7fitoria4http6header4date9to_stringEv"></span><span id="fitoria::http::header::date::to_string"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a92bd7fa6759c70d9bc90028b3f53bc58"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_string</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date9to_stringEv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Convert to string using <code class="docutils literal notranslate"><span class="pre">rfc9110</span></code> date and time format.</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4date5parseENSt11string_viewE">
+<span id="_CPPv3N7fitoria4http6header4date5parseENSt11string_viewE"></span><span id="_CPPv2N7fitoria4http6header4date5parseENSt11string_viewE"></span><span id="fitoria::http::header::date::parse__std::string_view"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a1990c767d4456c5a69bf3088deeb0742"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parse</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">input</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N7fitoria4http6header4dateE" title="fitoria::http::header::date"><span class="n"><span class="pre">date</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4date5parseENSt11string_viewE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Parse a string using <code class="docutils literal notranslate"><span class="pre">rfc9110</span></code> date and time format.</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-friends">Friends</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4dateeqERK4dateRK4date">
+<span id="_CPPv3N7fitoria4http6header4dateeqERK4dateRK4date"></span><span id="_CPPv2N7fitoria4http6header4dateeqERK4dateRK4date"></span><span id="fitoria::http::header::date::eq-operator__dateCR.dateCR"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a0aab39be8bdaef54c160e5964434f07d"></span><span class="k"><span class="pre">friend</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria4http6header4dateE" title="fitoria::http::header::date"><span class="n"><span class="pre">date</span></span></a><span class="p"><span class="pre">&amp;</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria4http6header4dateE" title="fitoria::http::header::date"><span class="n"><span class="pre">date</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4dateeqERK4dateRK4date" title="Link to this definition">#</a><br /></dt>
+<dd><p>Compare two <code class="docutils literal notranslate"><span class="pre">date</span></code> s for equality.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N7fitoria4http6header4datessERK4dateRK4date">
+<span id="_CPPv3N7fitoria4http6header4datessERK4dateRK4date"></span><span id="_CPPv2N7fitoria4http6header4datessERK4dateRK4date"></span><span class="target" id="classfitoria_1_1http_1_1header_1_1date_1a5b6cd0f78ff8cfb154f41cea2e36a269"></span><span class="k"><span class="pre">friend</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;=&gt;</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria4http6header4dateE" title="fitoria::http::header::date"><span class="n"><span class="pre">date</span></span></a><span class="p"><span class="pre">&amp;</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N7fitoria4http6header4dateE" title="fitoria::http::header::date"><span class="n"><span class="pre">date</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N7fitoria4http6header4datessERK4dateRK4date" title="Link to this definition">#</a><br /></dt>
+<dd><p>Three-way compare two <code class="docutils literal notranslate"><span class="pre">date</span></code> s.</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../../mime/params_view.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">params_view</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="entity_tag.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">header::entity_tag</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4dateE"><code class="docutils literal notranslate"><span class="pre">date</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointIN6chrono9utc_clockEEE"><code class="docutils literal notranslate"><span class="pre">date::date()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date4dateENSt6chrono10time_pointINSt6chrono10file_clockEEE"><code class="docutils literal notranslate"><span class="pre">date::date()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date8utc_timeEv"><code class="docutils literal notranslate"><span class="pre">date::utc_time()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date9file_timeEv"><code class="docutils literal notranslate"><span class="pre">date::file_time()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date9to_stringEv"><code class="docutils literal notranslate"><span class="pre">date::to_string()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4date5parseENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">date::parse()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4dateeqERK4dateRK4date"><code class="docutils literal notranslate"><span class="pre">date::operator==()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7fitoria4http6header4datessERK4dateRK4date"><code class="docutils literal notranslate"><span class="pre">date::operator&lt;=&gt;()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/reference/http/header/date.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Ramirisu.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
