@@ -120,7 +120,26 @@ public:
   /// Three-way compare two ``date`` s.
   ///
   /// @endverbatim
-  friend auto operator<=>(const date&, const date&) = default;
+  friend auto operator<=>(const date& lhs,
+                          const date& rhs) -> std::strong_ordering
+#if !defined(FITORIA_TARGET_MACOS)
+
+      = default;
+
+#else
+
+  {
+    if (lhs.time_ < rhs.time_) {
+      return std::strong_ordering::less;
+    }
+    if (lhs.time_ > rhs.time_) {
+      return std::strong_ordering::greater;
+    }
+
+    return std::strong_ordering::equal;
+  }
+
+#endif
 
 private:
   std::chrono::time_point<chrono::utc_clock> time_;
