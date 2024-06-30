@@ -28,6 +28,13 @@ inline auto to_utc(const std::chrono::file_time<Duration>& time)
   return std::chrono::file_clock::to_utc(time);
 }
 
+template <typename Duration>
+inline auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
+    -> decltype(std::chrono::file_clock::from_utc(time))
+{
+  return std::chrono::file_clock::from_utc(time);
+}
+
 #else
 
 using utc_clock = std::chrono::system_clock;
@@ -37,6 +44,13 @@ inline auto to_utc(const std::chrono::file_time<Duration>& time)
     -> decltype(std::chrono::file_clock::to_sys(time))
 {
   return std::chrono::file_clock::to_sys(time);
+}
+
+template <typename Duration>
+inline auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
+    -> decltype(std::chrono::file_clock::from_sys(time))
+{
+  return std::chrono::file_clock::from_sys(time);
 }
 
 #endif

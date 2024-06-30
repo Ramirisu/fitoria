@@ -11,9 +11,9 @@
 
 #include <fitoria/core/config.hpp>
 
+#include <fitoria/http/header/date.hpp>
 #include <fitoria/http/header/entity_tag.hpp>
 #include <fitoria/http/header/if_none_match.hpp>
-#include <fitoria/http/header/last_modified.hpp>
 #include <fitoria/http/header/range.hpp>
 
 #endif

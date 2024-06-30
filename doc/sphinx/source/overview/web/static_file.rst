@@ -2,7 +2,7 @@
 Static File
 ********************************************************************************
 
-Use ``web::static_file`` to serve static files. ``Range`` and ``If-None-Match`` from the ``request`` will be handled automatically and ``Content-Type`` and ``Content-Disposition`` for the ``response`` will be obtained from the provided file extension.
+Use ``web::static_file`` to serve static files. ``Range`` / ``If-None-Match`` / ``If-Modified-Since`` headers from the ``request`` will be handled automatically, and ``Content-Type`` / ``Content-Disposition`` headers for the ``response`` will be obtained from the provided file extension.
 
 `Static Files Example <https://github.com/Ramirisu/fitoria/blob/main/example/web/basic/static_file.cpp>`_
 

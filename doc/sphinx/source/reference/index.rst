@@ -22,6 +22,7 @@ Reference
    :caption: fitoria::http
    :maxdepth: 1
 
+   http/header/date
    http/header/entity_tag
    http/header/if_none_match
    http/header/range

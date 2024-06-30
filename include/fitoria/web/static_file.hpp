@@ -126,8 +126,9 @@ public:
   /// Open file with read-only permission.
   ///
   /// DESCRIPTION
-  ///   Open file with read-only permission. ``Content-Type`` for the
-  ///   ``response`` will be obtained from the provided file extension.
+  ///   Open file with read-only permission. ``Content-Type`` /
+  ///   ``Content-Disposition`` headers for the ``response`` will be obtained
+  ///   from the provided file extension.
   ///
   /// @endverbatim
   static auto open(const executor_type& ex, const std::string& path)
@@ -148,8 +149,12 @@ public:
         mime::application_octet_stream());
     auto cd = get_content_disposition(path, ct);
 
-    return static_file(
-        std::move(*file), ct, cd, full_range_only_t {}, *lmd, std::move(etag));
+    return static_file(std::move(*file),
+                       ct,
+                       cd,
+                       full_range_only_t {},
+                       http::header::date(*lmd),
+                       std::move(etag));
   }
 
   /// @verbatim embed:rst:leading-slashes
@@ -157,10 +162,10 @@ public:
   /// Open file with read-only permission.
   ///
   /// DESCRIPTION
-  ///   Open file with read-only permission. ``Range`` and ``If-None-Match``
-  ///   from the ``request`` will be handled automatically and ``Content-Type``
-  ///   and ``Content-Disposition`` header for the ``response`` will be obtained
-  ///   from the provided file extension.
+  ///   Open file with read-only permission. ``Range`` / ``If-None-Match`` /
+  ///   ``If-Modified-Since`` headers from the ``request`` will be handled
+  ///   automatically, and ``Content-Type`` / ``Content-Disposition`` headers
+  ///   for the ``response`` will be obtained from the provided file extension.
   ///
   /// @endverbatim
   static auto open(const executor_type& ex,
@@ -178,39 +183,54 @@ public:
     }
 
     auto etag = get_etag(file->size(), *lmd);
-    auto not_modified
-        = is_not_modified(etag, req.headers().get(http::field::if_none_match));
+    auto not_modified = check_if_not_modified(etag, *lmd, req.headers());
     auto ct = mime::mime_view::from_path(path).value_or(
         mime::application_octet_stream());
     auto cd = get_content_disposition(path, ct);
 
     if (!not_modified) {
-      return static_file(
-          std::move(*file), ct, cd, bad_request_t {}, *lmd, std::move(etag));
+      return static_file(std::move(*file),
+                         ct,
+                         cd,
+                         bad_request_t {},
+                         http::header::date(*lmd),
+                         std::move(etag));
     }
     if (*not_modified) {
-      return static_file(
-          std::move(*file), ct, cd, not_modified_t {}, *lmd, std::move(etag));
+      return static_file(std::move(*file),
+                         ct,
+                         cd,
+                         not_modified_t {},
+                         http::header::date(*lmd),
+                         std::move(etag));
     }
 
     if (auto header = req.headers().get(http::field::range); header) {
       if (auto range = http::header::range::parse(*header, file->size()); range
           && cmp_eq_ci(range->unit(), "bytes")
           && (*range)[0].offset + (*range)[0].length <= file->size()) {
-        return static_file(
-            std::move(*file), ct, cd, (*range)[0], *lmd, std::move(etag));
+        return static_file(std::move(*file),
+                           ct,
+                           cd,
+                           (*range)[0],
+                           http::header::date(*lmd),
+                           std::move(etag));
       }
 
       return static_file(std::move(*file),
                          ct,
                          cd,
                          range_not_satisfiable_t {},
-                         *lmd,
+                         http::header::date(*lmd),
                          std::move(etag));
     }
 
-    return static_file(
-        std::move(*file), ct, cd, full_range_t {}, *lmd, std::move(etag));
+    return static_file(std::move(*file),
+                       ct,
+                       cd,
+                       full_range_t {},
+                       http::header::date(*lmd),
+                       std::move(etag));
   }
 
   template <decay_to<static_file> Self>
@@ -221,7 +241,7 @@ public:
             [&](full_range_only_t) {
               return response::ok()
                   .set_header(http::field::last_modified,
-                              self.last_modified_time())
+                              self.last_modified_time_.to_string())
                   .set_header(http::field::etag, self.etag().to_string())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::content_disposition,
@@ -231,7 +251,7 @@ public:
             [&](full_range_t) {
               return response::ok()
                   .set_header(http::field::last_modified,
-                              self.last_modified_time())
+                              self.last_modified_time_.to_string())
                   .set_header(http::field::etag, self.etag().to_string())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::content_disposition,
@@ -249,7 +269,7 @@ public:
             [&](http::header::range::subrange_t range) {
               return response::partial_content()
                   .set_header(http::field::last_modified,
-                              self.last_modified_time())
+                              self.last_modified_time_.to_string())
                   .set_header(http::field::etag, self.etag().to_string())
                   .set_header(http::field::content_type, self.content_type())
                   .set_header(http::field::content_disposition,
@@ -273,7 +293,7 @@ public:
             [&](not_modified_t) {
               return response::not_modified()
                   .set_header(http::field::last_modified,
-                              self.last_modified_time())
+                              self.last_modified_time_.to_string())
                   .set_header(http::field::etag, self.etag().to_string())
                   .set_body("");
             },
@@ -282,13 +302,12 @@ public:
   }
 
 private:
-  static_file(
-      stream_file file,
-      mime::mime_view content_type,
-      std::string content_disposition,
-      state_t state,
-      std::chrono::time_point<std::chrono::file_clock> last_modified_time,
-      http::header::entity_tag etag)
+  static_file(stream_file file,
+              mime::mime_view content_type,
+              std::string content_disposition,
+              state_t state,
+              http::header::date last_modified_time,
+              http::header::entity_tag etag)
       : file_(std::move(file))
       , content_type_(std::move(content_type))
       , content_disposition_(std::move(content_disposition))
@@ -351,36 +370,38 @@ private:
   }
 
   static auto
-  is_not_modified(const http::header::entity_tag& etag,
-                  optional<std::string_view> header) -> optional<bool>
+  check_if_not_modified(const http::header::entity_tag& etag,
+                        const std::chrono::time_point<std::chrono::file_clock>&
+                            last_modified_time,
+                        const http::header_map& headers) -> optional<bool>
   {
-    if (!header) {
-      return false;
-    }
-
-    if (auto m = http::header::if_none_match::parse(*header); m) {
-      if (m->is_any()) {
-        return true;
+    if (auto header = headers.get(http::field::if_none_match); header) {
+      if (auto m = http::header::if_none_match::parse(*header); m) {
+        return m->is_any()
+            || std::any_of(m->begin(), m->end(), [&](auto& element) {
+                 return etag.weakly_equal_to(element);
+               });
       }
 
-      return std::any_of(m->begin(), m->end(), [&](auto& element) {
-        return etag.weakly_equal_to(element);
-      });
+      return nullopt;
     }
 
-    return nullopt;
-  }
+    if (auto header = headers.get(http::field::if_modified_since); header) {
+      if (auto d = http::header::date::parse(*header); d) {
+        return http::header::date(last_modified_time) <= *d;
+      }
 
-  auto last_modified_time() const -> std::string
-  {
-    return http::header::last_modified(chrono::to_utc(last_modified_time_));
+      return nullopt;
+    }
+
+    return false;
   }
 
   stream_file file_;
-  mime::mime_view content_type_ = mime::application_octet_stream();
+  mime::mime_view content_type_;
   std::string content_disposition_;
   state_t state_;
-  std::chrono::time_point<std::chrono::file_clock> last_modified_time_;
+  http::header::date last_modified_time_;
   http::header::entity_tag etag_;
 };
 

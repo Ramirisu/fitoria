@@ -119,7 +119,7 @@ TEST_CASE("etag & content_type & content_disposition")
   });
 }
 
-TEST_CASE("open w/o range header support")
+TEST_CASE("open w/o request header")
 {
   const auto file_path = get_temp_file_path();
   const auto data = get_random_string(1048576);
@@ -127,7 +127,7 @@ TEST_CASE("open w/o range header support")
     std::ofstream(file_path, std::ios::binary) << data;
   }
   const auto lmd = std::filesystem::last_write_time(file_path);
-  const auto lmd_str = http::header::last_modified(chrono::to_utc(lmd));
+  const auto lmd_str = http::header::date(lmd).to_string();
   const auto cd_str
       = fmt::format(R"(attachment; filename="{}")",
                     std::filesystem::path(file_path).filename().string());
@@ -182,7 +182,7 @@ TEST_CASE("open w/o range header support")
   ioc.run();
 }
 
-TEST_CASE("open with range header support")
+TEST_CASE("open with request header: range")
 {
   const auto file_path = get_temp_file_path();
   const auto data = get_random_string(1048576);
@@ -190,7 +190,7 @@ TEST_CASE("open with range header support")
     std::ofstream(file_path, std::ios::binary) << data;
   }
   const auto lmd = std::filesystem::last_write_time(file_path);
-  const auto lmd_str = http::header::last_modified(chrono::to_utc(lmd));
+  const auto lmd_str = http::header::date(lmd).to_string();
   const auto cd_str
       = fmt::format(R"(attachment; filename="{}")",
                     std::filesystem::path(file_path).filename().string());
@@ -293,6 +293,55 @@ TEST_CASE("open with range header support")
                  "bytes */1048576");
         co_return;
       });
+
+  ioc.run();
+}
+
+TEST_CASE("open with request header: if_none_match")
+{
+  const auto file_path = get_temp_file_path();
+  const auto data = get_random_string(1048576);
+  {
+    std::ofstream(file_path, std::ios::binary) << data;
+  }
+  const auto lmd = std::filesystem::last_write_time(file_path);
+  const auto lmd_str = http::header::date(lmd).to_string();
+  const auto cd_str
+      = fmt::format(R"(attachment; filename="{}")",
+                    std::filesystem::path(file_path).filename().string());
+  const auto etag_str = get_etag(data.size(), lmd).to_string();
+
+  auto ioc = net::io_context();
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::get<"/">(
+                [&file_path](const request& req)
+                    -> awaitable<std::variant<static_file, response>> {
+                  if (auto file = static_file::open(
+                          co_await net::this_coro::executor, file_path, req);
+                      file) {
+                    co_return std::move(*file);
+                  }
+
+                  co_return response::not_found().build();
+                }))
+            .build();
+
+  server.serve_request(
+      "/",
+      test_request::get().build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition), cd_str);
+        CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
+        CHECK(!res.headers().get(http::field::content_range));
+        CHECK_EQ(co_await res.as_string(), data);
+        co_return;
+      });
   server.serve_request("/",
                        test_request::get()
                            .set_header(http::field::if_none_match, R"(""")")
@@ -342,6 +391,99 @@ TEST_CASE("open with range header support")
         CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
         CHECK(!res.headers().get(http::field::content_range));
         CHECK_EQ(co_await res.as_string(), data);
+        co_return;
+      });
+
+  ioc.run();
+}
+
+TEST_CASE("open with request header: if_modified_since")
+{
+  const auto file_path = get_temp_file_path();
+  const auto data = get_random_string(1048576);
+  {
+    std::ofstream(file_path, std::ios::binary) << data;
+  }
+  const auto lmd = std::filesystem::last_write_time(file_path);
+  const auto lmd_str = http::header::date(lmd).to_string();
+  const auto cd_str
+      = fmt::format(R"(attachment; filename="{}")",
+                    std::filesystem::path(file_path).filename().string());
+  const auto etag_str = get_etag(data.size(), lmd).to_string();
+
+  auto ioc = net::io_context();
+  auto server
+      = http_server::builder(ioc)
+            .serve(route::get<"/">(
+                [&file_path](const request& req)
+                    -> awaitable<std::variant<static_file, response>> {
+                  if (auto file = static_file::open(
+                          co_await net::this_coro::executor, file_path, req);
+                      file) {
+                    co_return std::move(*file);
+                  }
+
+                  co_return response::not_found().build();
+                }))
+            .build();
+
+  server.serve_request("/",
+                       test_request::get()
+                           .set_header(http::field::if_modified_since, R"(""")")
+                           .build(),
+                       [](test_response res) -> awaitable<void> {
+                         CHECK_EQ(res.status(), http::status::bad_request);
+                         CHECK_EQ(res.headers().get(http::field::accept_ranges),
+                                  "bytes");
+                         CHECK_EQ(res.headers().get(http::field::content_range),
+                                  "bytes */1048576");
+                         co_return;
+                       });
+  server.serve_request(
+      "/",
+      test_request::get()
+          .set_header(
+              http::field::if_modified_since,
+              http::header::date(lmd + std::chrono::seconds(1)).to_string())
+          .build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::not_modified);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        co_return;
+      });
+  server.serve_request(
+      "/",
+      test_request::get()
+          .set_header(
+              http::field::if_modified_since,
+              http::header::date(lmd - std::chrono::seconds(1)).to_string())
+          .build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::ok);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
+        CHECK_EQ(res.headers().get(http::field::content_type),
+                 mime::application_octet_stream());
+        CHECK_EQ(res.headers().get(http::field::content_disposition), cd_str);
+        CHECK_EQ(res.headers().get(http::field::accept_ranges), "bytes");
+        CHECK(!res.headers().get(http::field::content_range));
+        CHECK_EQ(co_await res.as_string(), data);
+        co_return;
+      });
+
+  server.serve_request(
+      "/",
+      test_request::get()
+          .set_header(http::field::if_none_match, etag_str)
+          .set_header(
+              http::field::if_modified_since,
+              http::header::date(lmd - std::chrono::seconds(1)).to_string())
+          .build(),
+      [&](test_response res) -> awaitable<void> {
+        CHECK_EQ(res.status(), http::status::not_modified);
+        CHECK_EQ(res.headers().get(http::field::last_modified), lmd_str);
+        CHECK_EQ(res.headers().get(http::field::etag), etag_str);
         co_return;
       });
 
