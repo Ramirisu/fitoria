@@ -86,6 +86,8 @@ public:
                        std::chrono::floor<std::chrono::seconds>(time_));
   }
 
+#if defined(FITORIA_HAS_STD_CHRONO_PARSE)
+
   /// @verbatim embed:rst:leading-slashes
   ///
   /// Parse a string using ``rfc9110`` date and time format.
@@ -103,6 +105,8 @@ public:
 
     return nullopt;
   }
+
+#endif
 
   /// @verbatim embed:rst:leading-slashes
   ///

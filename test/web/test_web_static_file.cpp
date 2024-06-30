@@ -397,6 +397,8 @@ TEST_CASE("open with request header: if_none_match")
   ioc.run();
 }
 
+#if defined(FITORIA_HAS_STD_CHRONO_PARSE)
+
 TEST_CASE("open with request header: if_modified_since")
 {
   const auto file_path = get_temp_file_path();
@@ -489,6 +491,8 @@ TEST_CASE("open with request header: if_modified_since")
 
   ioc.run();
 }
+
+#endif
 
 #endif
 

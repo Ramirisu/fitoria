@@ -9,6 +9,8 @@
 
 #include <fitoria/http/header/date.hpp>
 
+#include <thread>
+
 using namespace fitoria;
 
 using fitoria::http::header::date;
@@ -33,6 +35,8 @@ TEST_CASE("file_time")
   CHECK_EQ(date(t).file_time(), t);
 }
 
+#if defined(FITORIA_HAS_STD_CHRONO_PARSE)
+
 TEST_CASE("parse")
 {
   CHECK_EQ(date::parse("Thu, 01 Jan 1970 00:00:00 GMT"),
@@ -40,9 +44,13 @@ TEST_CASE("parse")
   CHECK_EQ(date::parse("01 Jan 1970 00:00:00 GMT"), nullopt);
 }
 
+#endif
+
 TEST_CASE("compare")
 {
-  CHECK(date(chrono::utc_clock::now()) < date(chrono::utc_clock::now()));
+  auto t = chrono::utc_clock::now();
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  CHECK(date(t) < date(chrono::utc_clock::now()));
 }
 
 TEST_SUITE_END();

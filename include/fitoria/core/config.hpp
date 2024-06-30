@@ -67,4 +67,10 @@
 #define FITORIA_HAS_STD_SOURCE_LOCATION
 #endif
 
+#if defined(FITORIA_CXX_COMPILER_MSVC)                                         \
+    || defined(FITORIA_CXX_COMPILER_GCC)                                       \
+        && (__GNUC__ > 14 || __GNUC__ >= 14 && __GNUC_MINOR__ >= 1)
+#define FITORIA_HAS_STD_CHRONO_PARSE
+#endif
+
 #endif

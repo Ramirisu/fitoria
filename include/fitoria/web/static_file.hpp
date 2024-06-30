@@ -369,11 +369,11 @@ private:
     return fmt::format(R"(attachment; filename="{}")", p.filename().string());
   }
 
-  static auto
-  check_if_not_modified(const http::header::entity_tag& etag,
-                        const std::chrono::time_point<std::chrono::file_clock>&
-                            last_modified_time,
-                        const http::header_map& headers) -> optional<bool>
+  static auto check_if_not_modified(
+      const http::header::entity_tag& etag,
+      [[maybe_unused]] const std::chrono::time_point<std::chrono::file_clock>&
+          last_modified_time,
+      const http::header_map& headers) -> optional<bool>
   {
     if (auto header = headers.get(http::field::if_none_match); header) {
       if (auto m = http::header::if_none_match::parse(*header); m) {
@@ -386,6 +386,8 @@ private:
       return nullopt;
     }
 
+#if defined(FITORIA_HAS_STD_CHRONO_PARSE)
+
     if (auto header = headers.get(http::field::if_modified_since); header) {
       if (auto d = http::header::date::parse(*header); d) {
         return http::header::date(last_modified_time) <= *d;
@@ -393,6 +395,8 @@ private:
 
       return nullopt;
     }
+
+#endif
 
     return false;
   }
