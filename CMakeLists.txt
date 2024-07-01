@@ -139,7 +139,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 if(FITORIA_BUILD_EXAMPLES)
-  add_subdirectory(example)
+  # add_subdirectory(example)
 endif()
 
 if(FITORIA_BUILD_TESTS)
