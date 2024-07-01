@@ -22,17 +22,19 @@ namespace chrono {
 using utc_clock = std::chrono::utc_clock;
 
 template <typename Duration>
-inline auto to_utc(const std::chrono::file_time<Duration>& time)
-    -> decltype(std::chrono::file_clock::to_utc(time))
+auto to_utc(const std::chrono::file_time<Duration>& time)
+    -> std::chrono::time_point<utc_clock>
 {
-  return std::chrono::file_clock::to_utc(time);
+  return std::chrono::round<utc_clock::duration>(
+      std::chrono::file_clock::to_utc(time));
 }
 
 template <typename Duration>
-inline auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
-    -> decltype(std::chrono::file_clock::from_utc(time))
+auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
+    -> std::chrono::time_point<std::chrono::file_clock>
 {
-  return std::chrono::file_clock::from_utc(time);
+  return std::chrono::round<std::chrono::file_clock::duration>(
+      std::chrono::file_clock::from_utc(time));
 }
 
 #else
@@ -40,17 +42,19 @@ inline auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
 using utc_clock = std::chrono::system_clock;
 
 template <typename Duration>
-inline auto to_utc(const std::chrono::file_time<Duration>& time)
-    -> decltype(std::chrono::file_clock::to_sys(time))
+auto to_utc(const std::chrono::file_time<Duration>& time)
+    -> std::chrono::time_point<utc_clock>
 {
-  return std::chrono::file_clock::to_sys(time);
+  return std::chrono::round<utc_clock::duration>(
+      std::chrono::file_clock::to_sys(time));
 }
 
 template <typename Duration>
-inline auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
-    -> decltype(std::chrono::file_clock::from_sys(time))
+auto from_utc(const std::chrono::time_point<utc_clock, Duration>& time)
+    -> std::chrono::time_point<std::chrono::file_clock>
 {
-  return std::chrono::file_clock::from_sys(time);
+  return std::chrono::round<std::chrono::file_clock::duration>(
+      std::chrono::file_clock::from_sys(time));
 }
 
 #endif
